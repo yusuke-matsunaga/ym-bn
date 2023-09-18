@@ -31,11 +31,11 @@ key_func(
 END_NONAMESPACE
 
 //////////////////////////////////////////////////////////////////////
-// クラス BlifCover
+// クラス BnCover
 //////////////////////////////////////////////////////////////////////
 
 Expr
-BlifCover::expr() const
+BnCover::expr() const
 {
   auto expr = mInputCover.expr();
   if ( output_pat() == '0' ) {
@@ -46,7 +46,7 @@ BlifCover::expr() const
 
 // @brief 内容を出力する．
 void
-BlifCover::print(
+BnCover::print(
   ostream& s
 ) const
 {
@@ -77,7 +77,7 @@ CoverMgr::CoverMgr(
 SizeType
 CoverMgr::cover_num() const
 {
-  return mModel->mCoverArray.size();
+  return mModel->cover_num();
 }
 
 // @brief パタン文字列からカバーを返す．
@@ -133,10 +133,7 @@ CoverMgr::new_cover(
     cube_list.push_back(cube);
   }
 
-  auto id = cover_num();
-  mModel->mCoverArray.push_back(BlifCover{input_num, cube_list, opat});
-
-  return id;
+  return mModel->add_cover(input_num, cube_list, opat);
 }
 
 END_NAMESPACE_YM_BNET

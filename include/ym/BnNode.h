@@ -9,11 +9,13 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "ym/logic.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 class ModelImpl;
+class NodeImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnNode BnNode.h "BnNode.h"
@@ -42,7 +44,7 @@ public:
   BnNode(
     ModelImpl* impl, ///< [in] 実装本体
     SizeType id      ///< [in] ノード番号
-  ) : mImpl{mImpl},
+  ) : mImpl{impl},
       mId{id}
   {
   }
@@ -130,7 +132,7 @@ public:
   ///
   /// is_primitive() が true の時のみ意味を持つ．
   PrimType
-  prim_type() const;
+  primitive_type() const;
 
   /// @brief ファンインの反転属性を返す．
   ///
@@ -139,6 +141,10 @@ public:
   fanin_inv(
     SizeType pos ///< [in] 位置番号 ( 0 or 1 )
   ) const;
+
+  /// @brief カバー番号を返す．
+  SizeType
+  cover_id() const;
 
   /// @brief カバーを返す．
   ///
@@ -163,6 +169,28 @@ public:
   /// is_dff() が true の時のみ意味を持つ．
   char
   dff_rval() const;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ノードの実体を返す．
+  const NodeImpl&
+  impl() const;
+
+  /// @brief ID 番号から BnNode を作る．
+  BnNode
+  from_id(
+    SizeType id
+  ) const;
+
+  /// @brief ID 番号のリストから vector<BnNode> を作る．
+  vector<BnNode>
+  from_id_list(
+    const vector<SizeType>& id_list
+  ) const;
 
 
 private:

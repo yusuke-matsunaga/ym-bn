@@ -47,11 +47,52 @@ public:
     return mName;
   }
 
+  /// @brief コメントを返す．
+  const string&
+  comment() const
+  {
+    return mComment;
+  }
+
+  /// @brief 入力数を返す．
+  SizeType
+  input_num() const
+  {
+    return mInputList.size();
+  }
+
+  /// @brief 入力のノード番号を返す．
+  SizeType
+  input(
+    SizeType pos ///< [in] 位置 ( 0 <= pos < input_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < input_num() );
+    return mInputList[pos];
+  }
+
   /// @brief 入力のノード番号のリストを返す．
   const vector<SizeType>&
   input_list() const
   {
     return mInputList;
+  }
+
+  /// @brief 出力数を返す．
+  SizeType
+  output_num() const
+  {
+    return mOutputList.size();
+  }
+
+  /// @brief 出力のノード番号を返す．
+  SizeType
+  output(
+    SizeType pos ///< [in] 位置 ( 0 <= pos < output_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < output_num() );
+    return mOutputList[pos];
   }
 
   /// @brief 出力のノード番号のリストを返す．
@@ -61,11 +102,45 @@ public:
     return mOutputList;
   }
 
+  /// @brief DFF数を返す．
+  SizeType
+  dff_num() const
+  {
+    return mDffList.size();
+  }
+
+  /// @brief DFFのノード番号を返す．
+  SizeType
+  dff(
+    SizeType pos ///< [in] 位置 ( 0 <= pos < dff_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < dff_num() );
+    return mDffList[pos];
+  }
+
   /// @brief DFFのノード番号のリストを返す．
   const vector<SizeType>&
   dff_list() const
   {
     return mDffList;
+  }
+
+  /// @brief 論理ノード数を返す．
+  SizeType
+  logic_num() const
+  {
+    return mLogicList.size();
+  }
+
+  /// @brief 論理ノードのノード番号を返す．
+  SizeType
+  logic(
+    SizeType pos ///< [in] 位置 ( 0 <= pos < logic_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < logic_num() );
+    return mLogicList[pos];
   }
 
   /// @brief 論理ノード番号のリストを返す．
@@ -108,11 +183,37 @@ public:
   // 設定用の関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 名前を設定する．
+  void
+  set_name(
+    const string& name ///< [in] 名前
+  );
+
+  /// @brief コメントを設定する．
+  void
+  set_comment(
+    const string& comment ///< [in] コメント
+  );
+
+  /// @brief 出力の名前を設定する．
+  void
+  set_output_name(
+    SizeType pos,      ///< [in] 位置番号 ( 0 <= pos < output_num() )
+    const string& name ///< [in] 名前
+  );
+
   /// @brief 新しいノードを作る．
   ///
   /// @return ID番号を返す．
   SizeType
   new_node(
+    const string& name ///< [in] 名前
+  );
+
+  /// @brief ノードに名前をつける．
+  void
+  set_node_name(
+    SizeType id,        ///< [in] ID番号
     const string& name ///< [in] 名前
   );
 
@@ -174,6 +275,15 @@ public:
   void
   make_logic_list();
 
+  /// @brief カバーを追加する．
+  /// @return カバー番号を返す．
+  SizeType
+  add_cover(
+    SizeType input_num,                       ///< [in] 入力数
+    const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
+    char opat                                 ///< [in] 出力パタン ( '1' or '0' )
+  );
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -206,11 +316,17 @@ private:
   // 名前のノード
   string mName;
 
+  // コメント
+  string mComment;
+
   // 入力のノード番号のリスト
   vector<SizeType> mInputList;
 
   // 出力のノード番号のリスト
   vector<SizeType> mOutputList;
+
+  // 出力名のリスト
+  vector<string> mOutputNameList;
 
   // DFFノード番号のリスト
   vector<SizeType> mDffList;

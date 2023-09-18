@@ -17,7 +17,7 @@ BEGIN_NAMESPACE_YM_BNET
 /// @class NodeImpl NodeImpl.h "NodeImpl.h"
 /// @brief BnModel のノードを表すクラス
 //////////////////////////////////////////////////////////////////////
-class NodelImpl
+class NodeImpl
 {
 public:
 
@@ -38,51 +38,79 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノードの種類を返す．
-  BnType
+  BnNodeType
   type() const
   {
-    if ( is_input() ) {
-      return BnType::Input;
-    }
-    if ( is_dff() ) {
-      return BnType::Dff;
-    }
-    if ( is_primitive() ) {
-      return BnType::Prim;
-    }
-    if ( is_cover() ) {
-      return BnType::Cover;
-    }
-    if ( is_cell() ) {
-      return BnType::Cell;
-    }
-    ASSERT_NOT_REACHED;
-    return BnType::None;
+    return mType;
   }
 
   /// @brief 入力として定義されている時 true を返す．
   bool
-  is_input() const { return mFlags.get(INPUT_BIT); }
+  is_input() const
+  {
+    return mType == BnNodeType::Input;
+  }
+
+  /// @brief 論理ノードの時 true を返す．
+  bool
+  is_logic() const
+  {
+    if ( is_primitive() ) {
+      return true;
+    }
+    if ( is_aig() ) {
+      return true;
+    }
+    if ( is_cover() ) {
+      return true;
+    }
+    if ( is_cell() ) {
+      return true;
+    }
+    return false;
+  }
 
   /// @brief プリミティブ型の論理ノードの時 true を返す．
   bool
-  is_primitive() const { return mFlags.get(PRIM_BIT); }
+  is_primitive() const
+  {
+    return mType == BnNodeType::Prim;
+  }
+
+  /// @brief AIG型の論理ノードの時 true を返す．
+  bool
+  is_aig() const
+  {
+    return mType == BnNodeType::Aig;
+  }
 
   /// @brief カバー型の論理ノードの時 true を返す．
   bool
-  is_cover() const { return mFlags.get(COVER_BIT); }
+  is_cover() const
+  {
+    return mType == BnNodeType::Cover;
+  }
 
   /// @brief セル型の論理ノードの時 true を返す．
   bool
-  is_cell() const { return mFlags.get(CELL_BIT); }
+  is_cell() const
+  {
+    return mType == BnNodeType::Cell;
+  }
 
   /// @brief DFFノードの時 true を返す．
   bool
-  is_dff() const { return mFlags.get(DFF_BIT); }
+  is_dff() const
+  {
+    return mType == BnNodeType::Dff;
+  }
 
   /// @brief このシンボルの名前を返す．
   const string&
-  name() const { return mName; }
+  name() const
+  {
+    return mName;
+  }
 
   /// @brief ファンイン数を返す．
   SizeType
@@ -158,11 +186,20 @@ public:
   // 設定用の関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 名前を設定する．
+  void
+  set_name(
+    const string& name
+  )
+  {
+    mName = name;
+  }
+
   /// @brief 入力として定義されたことをセットする．
   void
   set_input()
   {
-    mFlags.set(INPUT_BIT);
+    mType = BnNodeType::Input;
   }
 
   /// @brief プリミティブタイプをセットする．
@@ -172,7 +209,7 @@ public:
     PrimType type
   )
   {
-    mFlags.set(PRIM_BIT);
+    mType = BnNodeType::Prim;
     mFaninList = fanin_list;
     mExtId = static_cast<SizeType>(type);
   }
@@ -186,7 +223,7 @@ public:
     bool inv1
   )
   {
-    mFlags.set(AIG_BIT);
+    mType = BnNodeType::Aig;
     mFaninList = { src0, src1 };
     mExtId = static_cast<SizeType>(inv0) | (static_cast<SizeType>(inv1) << 1);
   }
@@ -198,7 +235,7 @@ public:
     SizeType cover_id
   )
   {
-    mFlags.set(COVER_BIT);
+    mType = BnNodeType::Cover;
     mFaninList = fanin_list;
     mExtId = cover_id;
   }
@@ -210,7 +247,7 @@ public:
     SizeType cell_id
   )
   {
-    mFlags.set(CELL_BIT);
+    mType = BnNodeType::Cell;
     mFaninList = fanin_list;
     mExtId = cell_id;
   }
@@ -222,7 +259,7 @@ public:
     char rval
   )
   {
-    mFlags.set(DFF_BIT);
+    mType = BnNodeType::Dff;
     mFaninList = {input_id};
     mExtId = static_cast<SizeType>(rval);
   }

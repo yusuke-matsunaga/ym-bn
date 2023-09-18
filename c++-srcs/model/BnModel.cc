@@ -7,10 +7,11 @@
 /// All rights reserved.
 
 #include "ym/BnModel.h"
+#include "ym/BnNode.h"
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BLIF
+BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnModel
@@ -68,7 +69,7 @@ BnModel::~BnModel()
 }
 
 // @brief 名前を返す．
-const string&
+string
 BnModel::name() const
 {
   return mImpl->name();
@@ -163,7 +164,7 @@ BnModel::logic(
   SizeType pos
 ) const
 {
-  return from_id(mImpl->logic());
+  return from_id(mImpl->logic(pos));
 }
 
 // @brief 論理ノードのリストを返す．
@@ -181,7 +182,7 @@ BnModel::cover_num() const
 }
 
 // @brief カバーを取り出す．
-const BlifCover&
+const BnCover&
 BnModel::cover(
   SizeType cover_id
 ) const
@@ -197,47 +198,71 @@ BnModel::print(
 {
   s << "Name: " << name() << endl;
   s << "Input: ";
-  for ( auto id: input_list() ) {
-    s << " " << id;
+  for ( auto node: input_list() ) {
+    s << " " << node.id();
   }
   s << endl;
   s << "Output: ";
-  for ( auto id: output_list() ) {
-    s << " " << id;
+  for ( auto node: output_list() ) {
+    s << " " << node.id();
   }
   s << endl;
-  for ( auto id: dff_list() ) {
-    s << " " << id << " = DFF(" << node_input(id) << ")"
-      << ": rval = " << node_rval(id) << endl;
+  for ( auto node: dff_list() ) {
+    s << " " << node.id() << " = DFF(" << node.dff_src().id() << ")"
+      << ": rval = " << node.dff_rval() << endl;
   }
 
-  SizeType max_cover = 0;
-  for ( auto id: logic_list() ) {
-    s << " " << id << " = Logic(";
-    for ( auto iid: node_fanin_list(id) ) {
-      s << " " << iid;
+  for ( auto node: logic_list() ) {
+    s << " " << node.id() << " = Logic(";
+    for ( auto inode: node.fanin_list() ) {
+      s << " " << inode.id();
     }
     s << "): ";
-    if ( node_type(id) == Cover ) {
-      SizeType cover_id = node_cover_id(id);
-      s << "cover = " << cover_id;
-      max_cover = std::max(max_cover, cover_id);
+    if ( node.is_primitive() ) {
+      s << "Primitive(" << node.primitive_type() << ")";
     }
-    else if ( node_type(id) == Cell ) {
-      s << "cell = " << node_cell_id(id);
+    else if ( node.is_aig() ) {
+      s << "AIG(" << node.fanin_inv(0) << node.fanin_inv(1) << ")";
+    }
+    else if ( node.is_cover() ) {
+      s << "Cover#" << node.cover_id();
+    }
+    else if ( node.is_cell() ) {
+      s << "Cell#" << node.cell_id();
     }
     else {
       ASSERT_NOT_REACHED;
     }
     s << endl;
   }
-
   s << endl;
-  for ( SizeType id = 0; id <= max_cover; ++ id ) {
+  for ( SizeType id = 0; id < cover_num(); ++ id ) {
     s << "Cover#" << id << ":" << endl;
     auto& cover = this->cover(id);
     cover.print(s);
   }
 }
 
-END_NAMESPACE_YM_BLIF
+// @brief ID 番号から BnNode を作る．
+BnNode
+BnModel::from_id(
+  SizeType id
+) const
+{
+  return BnNode{mImpl, id};
+}
+
+// @brief ID 番号のリストから vector<BnNode> を作る．
+vector<BnNode>
+BnModel::from_id_list(
+  const vector<SizeType>& id_list
+) const
+{
+  vector<BnNode> node_list;
+  for ( auto id: id_list ) {
+    node_list.push_back(from_id(id));
+  }
+  return node_list;
+}
+
+END_NAMESPACE_YM_BNET

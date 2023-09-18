@@ -43,7 +43,6 @@ class ModelImpl;
 //////////////////////////////////////////////////////////////////////
 class BnModel
 {
-  friend class BlifParser;
   friend class PyBnModel;
 
 private:
@@ -243,6 +242,24 @@ public:
   {
     return mImpl;
   }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ID 番号から BnNode を作る．
+  BnNode
+  from_id(
+    SizeType id
+  ) const;
+
+  /// @brief ID 番号のリストから vector<BnNode> を作る．
+  vector<BnNode>
+  from_id_list(
+    const vector<SizeType>& id_list
+  ) const;
 
 
 private:

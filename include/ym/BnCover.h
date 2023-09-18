@@ -8,7 +8,7 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/blif_nsdef.h"
+#include "ym/bnet.h"
 #include "ym/SopCover.h"
 #include "ym/Expr.h"
 

@@ -7,21 +7,23 @@
 /// All rights reserved.
 
 #include "AigParser.h"
+#include "ModelImpl.h"
 #include "ym/BnModel.h"
 #include "ym/MsgMgr.h"
+#include "ym/FileRegion.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 BEGIN_NONAMESPACE
 
-bool debug = false;
+bool debug = true;
 
 END_NONAMESPACE
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnMode
+// クラス BnModel
 //////////////////////////////////////////////////////////////////////
 
 // @brief aag ファイルの読み込みを行う．
@@ -99,80 +101,81 @@ AigParser::read_aag(
   // ラッチ行の読み込み
   for ( SizeType i = 0; i < L; ++ i ) {
     SizeType id;
-    SizeType src;
-    if ( !read_latch(id, src) ) {
+    SizeType src_lit;
+    if ( !read_latch(id, src_lit) ) {
       return false;
     }
     if ( debug ) {
-      cout << "L#" << i << ": " << id << " " << src << endl;
+      cout << "L#" << i << ": " << id << " " << src_lit << endl;
     }
-    model->set_dff(id, src, ' ');
+    auto src_id = lit2node(src_lit);
+    model->set_dff(id, src_id, ' ');
   }
 
   // 出力行の読み込み
   for ( SizeType i = 0; i < O; ++ i ) {
-    SizeType src;
-    if ( !read_output(src) ) {
+    SizeType src_lit;
+    if ( !read_src(src_lit) ) {
       return false;
     }
     if ( debug ) {
-      cout << "O#" << i << ": " << src << endl;
+      cout << "O#" << i << ": " << src_lit << endl;
     }
-    mOutputList[i].mSrc = src;
+    auto src_id = lit2node(src_lit);
+    mModel->set_output(src_id);
   }
 
   // AND行の読み込み
   for ( SizeType i = 0; i < A; ++ i ) {
-    if ( !getline(s, linebuf) ) {
-      throw std::invalid_argument{"Unexpected EOF"};
-    }
     SizeType id;
-    SizeType src0, src1;
-    if ( !read_and(id, src0, src1) ) {
+    SizeType src0_lit, src1_lit;
+    if ( !read_and(id, src0_lit, src1_lit) ) {
       return false;
     }
     if ( debug ) {
-      cout << "A#" << i << ": " << id << " " << src0 << " " << src1 << endl;
+      cout << "A#" << i << ": " << id << " " << src0_lit << " " << src1_lit << endl;
     }
-    mAndList[i].mLiteral = lit;
-    mAndList[i].mSrc1 = src0;
-    mAndList[i].mSrc2 = src1;
+    bool src0_inv;
+    auto src0_id = lit2node(src0_lit, src0_inv);
+    bool src1_inv;
+    auto src1_id = lit2node(src1_lit, src1_inv);
+    mModel->set_aig(id, src0_id, src1_id, src0_inv, src1_inv);
   }
 
   // ラッチのソースが定義されているかチェック
-  for ( SizeType i = 0; i < L; ++ i ) {
-    auto src = latch_src(i);
+  for ( SizeType i = 0; i < mModel->dff_num(); ++ i ) {
+    auto id = mModel->dff(i);
+    auto& node = mModel->node(id);
+    auto src = node.dff_src();
     ostringstream buf;
-    buf << "Latch#" << i  << "(" << latch(i) << ")";
+    buf << "Latch#" << i << "(Node#" << id << ")";
     if ( !check_defined(src, buf.str()) ) {
       return false;
     }
   }
   // 出力のソースが定義されているかのチェック
-  for ( SizeType i = 0; i < O; ++ i ) {
-    auto src = output_src(i);
+  for ( SizeType i = 0; i < mModel->output_num(); ++ i ) {
+    auto id = mModel->output(i);
     ostringstream buf;
-    buf < "Output#" << i;
-    if ( !check_defined(src, buf.str()) ) {
+    buf << "Output#" << i;
+    if ( !check_defined(id, buf.str()) ) {
       return false;
     }
   }
-  // ANDの2つのソースが定義されているかのチェック
-  for ( SizeType i = 0; i < A; ++ i ) {
+  // 論理ノードのソースが定義されているかのチェック
+  for ( auto id: mModel->logic_list() ) {
+    auto& node = mModel->node(id);
     ostringstream buf;
-    buf "And#" << i << "(" << and_node(i) << ")";
-    auto src1 = and_src1(i);
-    if ( !check_defined(src1, buf.str()) ) {
-      return false;
-    }
-    auto src2 = and_src2(i);
-    if ( !check_defined(src2, buf.str()) ) {
-      return false;
+    buf << "Node#" << id;
+    for ( auto iid: node.fanin_list() ) {
+      if ( !check_defined(iid, buf.str()) ) {
+	return false;
+      }
     }
   }
 
   // シンボルテーブルとコメントの読み込みを行う．
-  read_symbols(s);
+  read_symbols();
 
   return true;
 }
@@ -206,36 +209,39 @@ AigParser::read_aig(
 	 << " " << A << endl;
   }
 
-  // M は捨てる．
-  initialize(I, L, O, A);
+  initialize(M, model);
 
   // 入力の情報を作る．
   for ( SizeType i = 0; i < I; ++ i ) {
-    mInputList[i].mLiteral = (i + 1) * 2;
+    mModel->set_input(i);
   }
 
   // ラッチ行の読み込み
   for ( SizeType i = 0; i < L; ++ i ) {
-    SizeType src;
-    if ( !read_src(src) ) {
+    SizeType src_lit;
+    if ( !read_src(src_lit) ) {
       return false;
     }
     if ( debug ) {
-      cout << "L#" << i << ": " << src << endl;
+      cout << "L#" << i << ": " << src_lit << endl;
     }
-    mLatchList[i] = LatchInfo{(i + I + 1) * 2, src};
+    auto id = i + I;
+    bool src_inv;
+    auto src_id = lit2node(src_lit, src_inv);
+    mModel->set_dff(id, src_id, '0');
   }
 
   // 出力行の読み込み
   for ( SizeType i = 0; i < O; ++ i ) {
-    SizeType src;
-    if ( !read_src(src) ) {
+    SizeType src_lit;
+    if ( !read_src(src_lit) ) {
       return false;
     }
     if ( debug ) {
-      cout << "O#" << i << ": " << src << endl;
+      cout << "O#" << i << ": " << src_lit << endl;
     }
-    mOutputList[i] = OutputInfo{src};
+    auto src_id = lit2node(src_lit);
+    mModel->set_output(src_id);
   }
 
   // AND行の読み込み
@@ -251,7 +257,12 @@ AigParser::read_aig(
 	   << d0 << " " << d1
 	   << " -> " << rhs0 << " " << rhs1 << endl;
     }
-    mAndList[i] = AndInfo{(i + I + L + 1) * 2, rhs0, rhs1};
+    auto id = i + I + L;
+    bool src0_inv;
+    auto src0_id = lit2node(rhs0, src0_inv);
+    bool src1_inv;
+    auto src1_id = lit2node(rhs1, src1_inv);
+    mModel->set_aig(id, src0_id, src1_id, src0_inv, src1_inv);
   }
 
   // シンボルの読み込み
@@ -291,6 +302,8 @@ AigParser::read_aag_header(
 	 << " " << O
 	 << " " << A << endl;
   }
+
+  return true;
 }
 
 // @brief ファイルを開く
@@ -353,6 +366,8 @@ AigParser::read_aig_header(
 	 << " " << O
 	 << " " << A << endl;
   }
+
+  return true;
 }
 
 // @brief 内容を初期化する．
@@ -363,9 +378,13 @@ AigParser::initialize(
 )
 {
   for ( SizeType i = 0; i < M; ++ i ) {
-    model->new_node();
+    model->new_node({});
   }
+  mModel = model;
   mDefined = vector<bool>(M, false);
+  mConst0 = -1;
+  mConst1 = -1;
+  mInvDict.clear();
 }
 
 // @brief aag の入力行の読み込み
@@ -380,12 +399,14 @@ AigParser::read_input(
   }
 
   istringstream tmp{linebuf};
+  SizeType lit;
   tmp >> lit;
 
   if ( !set_defined(lit) ) {
     return false;
   }
-  id = lit / 2;
+  bool dummy;
+  id = lit2node(lit, dummy);
   return true;
 }
 
@@ -393,7 +414,7 @@ AigParser::read_input(
 bool
 AigParser::read_latch(
   SizeType& id,
-  SizeTYpe& src
+  SizeType& src
 )
 {
   string linebuf;
@@ -408,13 +429,14 @@ AigParser::read_latch(
   if ( !set_defined(lit) ) {
     return false;
   }
-  id = lit / 2;
+  bool dummy;
+  id = lit2node(lit, dummy);
   return true;
 }
 
 // @brief aag の出力行の読み込み
 bool
-AigParser::read_output(
+AigParser::read_src(
   SizeType& src
 )
 {
@@ -432,8 +454,8 @@ AigParser::read_output(
 bool
 AigParser::read_and(
   SizeType& id,
-  SizeType& src1,
-  SizeType& src2
+  SizeType& src0,
+  SizeType& src1
 )
 {
   string linebuf;
@@ -441,14 +463,15 @@ AigParser::read_and(
     return false;
   }
 
+  istringstream tmp{linebuf};
   SizeType lit;
   tmp >> lit >> src0 >> src1;
 
   if ( !set_defined(lit) ) {
     return false;
   }
-
-  id = lit / 2;
+  bool dummy;
+  id = lit2node(lit, dummy);
   return true;
 }
 
@@ -472,8 +495,9 @@ void
 AigParser::read_symbols()
 {
   string linebuf;
+  string comment;
   bool symbol_mode = true;
-  while ( getline(*s, linebuf) ) {
+  while ( getline(*mS, linebuf) ) {
     if ( symbol_mode ) {
       if ( linebuf == "c" ) {
 	symbol_mode = false;
@@ -485,13 +509,15 @@ AigParser::read_symbols()
 	SizeType pos = atoi(pos_str.substr(1, string::npos).c_str());
 	char prefix = pos_str[0];
 	if ( prefix == 'i' ) {
-	  set_input_symbol(pos, name);
+	  auto id = mModel->input(pos);
+	  mModel->set_node_name(id, name);
 	}
 	else if ( prefix == 'l' ) {
-	  set_latch_symbol(pos, name);
+	  auto id = mModel->dff(pos);
+	  mModel->set_node_name(id, name);
 	}
 	else if ( prefix == 'o' ) {
-	  set_output_symbol(pos, name);
+	  mModel->set_output_name(pos, name);
 	}
 	else {
 	  ASSERT_NOT_REACHED;
@@ -499,9 +525,10 @@ AigParser::read_symbols()
       }
     }
     else {
-      mComment += linebuf + '\n';
+      comment += linebuf + '\n';
     }
   }
+  mModel->set_comment(comment);
 }
 
 // @brief 1行読み出す．
@@ -570,6 +597,75 @@ AigParser::check_defined(
 		    MsgType::Error, "AIG_PARSER", buf.str());
   }
   return true;
+}
+
+// @brief リテラルからノードの情報を得る．
+SizeType
+AigParser::lit2node(
+  SizeType lit,
+  bool& inv
+)
+{
+  inv = static_cast<bool>(lit & 1);
+  auto id = lit / 2;
+  if ( id == 0 ) {
+    // 定数0
+    return const0();
+  }
+  -- id;
+  return id;
+}
+
+// @brief リテラルからノードの情報を得る．
+SizeType
+AigParser::lit2node(
+  SizeType lit
+)
+{
+  auto id = lit / 2;
+  bool inv = static_cast<bool>(lit & 1);
+  if ( id == 0 ) {
+    if ( inv ) {
+      // 定数1
+      return const1();
+    }
+    else {
+      // 定数0
+      return const0();
+    }
+  }
+  -- id;
+  if ( inv ) {
+    if ( mInvDict.count(id) > 0 ) {
+      return mInvDict.at(id);
+    }
+    auto inv_id = mModel->new_node("");
+    mModel->set_primitive(inv_id, {id}, PrimType::Not);
+    return inv_id;
+  }
+  return id;
+}
+
+// @brief 定数0ノードを返す．
+SizeType
+AigParser::const0()
+{
+  if ( mConst0 == -1 ) {
+    mConst0 = mModel->new_node("const0");
+    mModel->set_primitive(mConst0, {}, PrimType::C0);
+  }
+  return mConst0;
+}
+
+// @brief 定数1ノードを返す．
+SizeType
+AigParser::const1()
+{
+  if ( mConst1 == -1 ) {
+    mConst1 = mModel->new_node("const1");
+    mModel->set_primitive(mConst0, {}, PrimType::C1);
+  }
+  return mConst1;
 }
 
 END_NAMESPACE_YM_BNET

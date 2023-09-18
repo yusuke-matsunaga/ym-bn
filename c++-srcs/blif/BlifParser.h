@@ -81,7 +81,7 @@ private:
     SizeType id ///< [in] ID番号
   )
   {
-    return mModel->node_name(id);
+    return mModel->node(id).name();
   }
 
   /// @brief 参照位置を返す．

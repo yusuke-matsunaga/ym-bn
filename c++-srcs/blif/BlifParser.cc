@@ -339,7 +339,7 @@ BlifParser::read_model()
     return false;
   }
 
-  mModel->mName = cur_string();
+  mModel->set_name(cur_string());
 
   // NL を待つ．
   next_token();

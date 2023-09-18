@@ -25,91 +25,74 @@ BnNode::~BnNode()
 const string&
 BnNode::name() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::name(): invalid data"};
-  }
-  return mImpl->node_name(mId);
+  return impl().name();
 }
 
 // @brief ノードの種類を返す．
 BnNodeType
 BnNode::type() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::type(): invalid data"};
-  }
-  return mImpl->node_type(mId);
+  return impl().type();
 }
 
 // @brief 入力ノードの時 true を返す．
 bool
 BnNode::is_input() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::is_input(): invalid data"};
-  }
-  return mImpl->node_type(mId) == BnNodeType::Input;
+  return type() == BnNodeType::Input;
 }
 
 // @brief 論理ノードの時 true を返す．
 bool
 BnNode::is_logic() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::is_logic(): invalid data"};
-  }
-  auto type = mImpl->node_type(mId);
-  return type == BnNodeType::Prim || type == BnNodeType::Cover || type == BnNodeType == Cell;
+  auto type = this->type();
+  return type == BnNodeType::Prim ||
+    type == BnNodeType::Aig ||
+    type == BnNodeType::Cover ||
+    type == BnNodeType::Cell;
 }
 
 // @brief PRIM タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_primitive() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::is_primitive(): invalid data"};
-  }
-  return mImpl->node_type(mId) == BnNodeType::Prim;
+  return type() == BnNodeType::Prim;
+}
+
+// @brief AIG タイプの論理ノードの時 true を返す．
+bool
+BnNode::is_aig() const
+{
+  return type() == BnNodeType::Aig;
 }
 
 // @brief COVER タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_cover() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::is_cover(): invalid data"};
-  }
-  return mImpl->node_type(mId) == BnNode::Cover;
+  return type() == BnNodeType::Cover;
 }
 
 // @brief CELL タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_cell() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::is_cell(): invalid data"};
-  }
-  return mImpl->node_type(mId) == BnNodeType::Cell;
+  return type() == BnNodeType::Cell;
 }
 
 // @brief DFFノードの時 true を返す．
 bool
 BnNode::is_dff() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::is_dff(): invalid data"};
-  }
-  return mImpl->node_type(mId) == BnNodeType::Dff;
+  return type() == BnNodeType::Dff;
 }
 
 // @brief ノードのファンイン数を返す．
 SizeType
 BnNode::fanin_num() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::fanin_num(): invalid data"};
-  }
-  return mImpl->node_fanin_num(mId);
+  return impl().fanin_num();
 }
 
 // @brief ノードのファンインのノードを返す．
@@ -118,70 +101,98 @@ BnNode::fanin(
   SizeType pos
 ) const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::fanin(): invalid data"};
-  }
-  return from_id(mImpl->node_fanin(mId, pos));
+  return from_id(impl().fanin(pos));
 }
 
 // @brief ノードのファンインのノードのリストを返す．
 vector<BnNode>
 BnNode::fanin_list() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::fanin_list(): invalid data"};
-  }
-  return from_id_list(mImpl->node_fanin_list(mId));
+  return from_id_list(impl().fanin_list());
 }
 
 // @brief ノードのプリミティブタイプを返す．
 PrimType
-BnNode::prim_type() const
+BnNode::primitive_type() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::prim_type(): invalid data"};
-  }
-  return mImpl->node_prim_type(mId);
+  return impl().primitive_type();
+}
+
+// @brief ファンインの反転属性を返す．
+bool
+BnNode::fanin_inv(
+  SizeType pos
+) const
+{
+  return impl().fanin_inv(pos);
+}
+
+// @brief カバー番号を返す．
+SizeType
+BnNode::cover_id() const
+{
+  return impl().cover_id();
 }
 
 // @brief ノードのカバーを返す．
 const BnCover&
 BnNode::cover() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::cover(): invalid data"};
-  }
-  return mImpl->node_cover(mId);
+  auto id = cover_id();
+  return mImpl->cover(id);
 }
 
 // @brief ノードのセル番号を返す．
 SizeType
 BnNode::cell_id() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::cell_id(): invalid data"};
-  }
-  return mImpl->node_cell_id(mId);
+  return impl().cell_id();
 }
 
 // @brief DFFノードの入力ノードを返す．
 BnNode
 BnNode::dff_src() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::dff_src(): invalid data"};
-  }
-  return mImpl->node_dff_src(mId);
+  return from_id(impl().dff_src());
 }
 
 // @brief DFFノードのリセット値を返す．
 char
 BnNode::dff_rval() const
 {
+  return impl().dff_rval();
+}
+
+// @brief ノードの実体を返す．
+const NodeImpl&
+BnNode::impl() const
+{
   if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode::dff_rval(): invalid data"};
+    throw std::invalid_argument{"BnNode: invalid data"};
   }
-  return mImpl->node_dff_rval(mId);
+  return mImpl->node(mId);
+}
+
+// @brief ID 番号から BnNode を作る．
+BnNode
+BnNode::from_id(
+  SizeType id
+) const
+{
+  return BnNode{mImpl, id};
+}
+
+// @brief ID 番号のリストから vector<BnNode> を作る．
+vector<BnNode>
+BnNode::from_id_list(
+  const vector<SizeType>& id_list
+) const
+{
+  vector<BnNode> node_list;
+  for ( auto id: id_list ) {
+    node_list.push_back(from_id(id));
+  }
+  return node_list;
 }
 
 END_NAMESPACE_YM_BNET

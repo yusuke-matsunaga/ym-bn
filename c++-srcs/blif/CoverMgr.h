@@ -8,12 +8,12 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnetf.h"
+#include "ym/bnet.h"
 #include "ym/BnCover.h"
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BLIF
+BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class CoverMgr CoverMgr.h "CoverMgr.h"
@@ -80,6 +80,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BLIF
+END_NAMESPACE_YM_BNET
 
 #endif // COVERMGR_H

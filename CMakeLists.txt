@@ -41,7 +41,7 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
-#add_subdirectory ( tests )
+add_subdirectory ( tests )
 
 
 # ===================================================================
@@ -49,10 +49,13 @@ include_directories(
 # ===================================================================
 
 set ( bnet_SOURCES
-  #c++-srcs/aig/AigParser.cc
+  c++-srcs/aig/AigParser.cc
   c++-srcs/blif/BlifParser.cc
   c++-srcs/blif/BlifScanner.cc
   c++-srcs/blif/CoverMgr.cc
+  c++-srcs/model/BnModel.cc
+  c++-srcs/model/BnNode.cc
+  c++-srcs/model/ModelImpl.cc
   )
 
 

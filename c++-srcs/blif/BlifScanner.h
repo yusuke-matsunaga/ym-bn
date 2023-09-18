@@ -8,13 +8,13 @@
 /// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/blif_nsdef.h"
+#include "ym/bnet.h"
 #include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "BlifToken.h"
 
 
-BEGIN_NAMESPACE_YM_BLIF
+BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifScanner BlifScanner.h "BlifScanner.h"
@@ -82,6 +82,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BLIF
+END_NAMESPACE_YM_BNET
 
 #endif // BLIFSCANNER_H
