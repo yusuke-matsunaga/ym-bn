@@ -190,6 +190,22 @@ BnModel::cover(
   return mImpl->cover(cover_id);
 }
 
+// @brief 論理式の数を返す．
+SizeType
+BnModel::expr_num() const
+{
+  return mImpl->expr_num();
+}
+
+// @brief 論理式を返す．
+const Expr&
+BnModel::expr(
+  SizeType expr_id
+) const
+{
+  return mImpl->expr(expr_id);
+}
+
 // @brief 内容を出力する．
 void
 BnModel::print(
@@ -227,6 +243,9 @@ BnModel::print(
     else if ( node.is_cover() ) {
       s << "Cover#" << node.cover_id();
     }
+    else if ( node.is_expr() ) {
+      s << "Expr#" << node.expr_id();
+    }
     else if ( node.is_cell() ) {
       s << "Cell#" << node.cell_id();
     }
@@ -240,6 +259,11 @@ BnModel::print(
     s << "Cover#" << id << ":" << endl;
     auto& cover = this->cover(id);
     cover.print(s);
+  }
+  s << endl;
+  for ( SizeType id = 0; id < expr_num(); ++ id ) {
+    s << "Expr#" << id << ":" << endl
+      << expr(id) << endl;
   }
 }
 

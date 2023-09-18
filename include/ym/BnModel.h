@@ -10,6 +10,7 @@
 
 #include "ym/bnet.h"
 #include "ym/clib.h"
+#include "ym/logic.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -111,6 +112,16 @@ public:
   read_blif(
     const string& filename,             ///< [in] ファイル名
     const ClibCellLibrary& cell_library ///< [in] セルライブラリ
+  );
+
+  /// @brief iscas89(.bench) ファイルの読み込みを行う．
+  /// @return 結果の BnModel を返す．
+  ///
+  /// 読み込みが失敗したら std::invalid_argument 例外を送出する．
+  static
+  BnModel
+  read_iscas89(
+    const string& filename ///< [in] ファイル名
   );
 
   /// @brief aag ファイルの読み込みを行う．
@@ -219,6 +230,16 @@ public:
   const BnCover&
   cover(
     SizeType cover_id ///< [in] カバー番号
+  ) const;
+
+  /// @brief 論理式の数を返す．
+  SizeType
+  expr_num() const;
+
+  /// @brief 論理式を返す．
+  const Expr&
+  expr(
+    SizeType expr_id ///< [in] 論理式番号 ( 0 <= expr_id < expr_num() )
   ) const;
 
   /// @brief 内容を出力する．

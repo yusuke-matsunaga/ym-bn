@@ -50,6 +50,7 @@ BnNode::is_logic() const
   return type == BnNodeType::Prim ||
     type == BnNodeType::Aig ||
     type == BnNodeType::Cover ||
+    type == BnNodeType::Expr ||
     type == BnNodeType::Cell;
 }
 
@@ -72,6 +73,13 @@ bool
 BnNode::is_cover() const
 {
   return type() == BnNodeType::Cover;
+}
+
+// @brief EXPR タイプの論理ノードの時 true を返す．
+bool
+BnNode::is_expr() const
+{
+  return type() == BnNodeType::Expr;
 }
 
 // @brief CELL タイプの論理ノードの時 true を返す．
@@ -140,6 +148,21 @@ BnNode::cover() const
 {
   auto id = cover_id();
   return mImpl->cover(id);
+}
+
+// @brief 論理式番号を返す．
+SizeType
+BnNode::expr_id() const
+{
+  return impl().expr_id();
+}
+
+// @brief 論理式を返す．
+const Expr&
+BnNode::expr() const
+{
+  auto id = expr_id();
+  return mImpl->expr(id);
 }
 
 // @brief ノードのセル番号を返す．

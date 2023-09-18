@@ -91,6 +91,13 @@ public:
     return mType == BnNodeType::Cover;
   }
 
+  /// @brief 論理式型の論理ノードの時 true を返す．
+  bool
+  is_expr() const
+  {
+    return mType == BnNodeType::Expr;
+  }
+
   /// @brief セル型の論理ノードの時 true を返す．
   bool
   is_cell() const
@@ -161,6 +168,12 @@ public:
   /// is_cover() == true の時のみ有効
   SizeType
   cover_id() const { return mExtId; }
+
+  /// @brief 論理式番号を得る．
+  ///
+  /// is_expr() == true の時のみ有効
+  SizeType
+  expr_id() const { return mExtId; }
 
   /// @brief セル番号を得る．
   ///
@@ -238,6 +251,18 @@ public:
     mType = BnNodeType::Cover;
     mFaninList = fanin_list;
     mExtId = cover_id;
+  }
+
+  /// @brief カバータイプをセットする．
+  void
+  set_expr(
+    const vector<SizeType>& fanin_list,
+    SizeType expr_id
+  )
+  {
+    mType = BnNodeType::Expr;
+    mFaninList = fanin_list;
+    mExtId = expr_id;
   }
 
   /// @brief セルタイプをセットする．

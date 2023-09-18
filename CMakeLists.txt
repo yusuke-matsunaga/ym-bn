@@ -53,6 +53,12 @@ set ( bnet_SOURCES
   c++-srcs/blif/BlifParser.cc
   c++-srcs/blif/BlifScanner.cc
   c++-srcs/blif/CoverMgr.cc
+  #c++-srcs/iscas89/C0Handler.cc
+  #c++-srcs/iscas89/C1Handler.cc
+  #c++-srcs/iscas89/Iscas89Handler.cc
+  c++-srcs/iscas89/Iscas89Parser.cc
+  c++-srcs/iscas89/Iscas89Scanner.cc
+  #c++-srcs/iscas89/MuxHandler.cc
   c++-srcs/model/BnModel.cc
   c++-srcs/model/BnNode.cc
   c++-srcs/model/ModelImpl.cc

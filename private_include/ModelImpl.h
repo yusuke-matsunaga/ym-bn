@@ -177,6 +177,23 @@ public:
     return mCoverArray[cover_id];
   }
 
+  /// @brief 論理式の数を返す．
+  SizeType
+  expr_num() const
+  {
+    return mExprArray.size();
+  }
+
+  /// @brief 論理式を取り出す．
+  const Expr&
+  expr(
+    SizeType expr_id ///< [in] 論理式番号
+  ) const
+  {
+    ASSERT_COND( 0 <= expr_id && expr_id < mExprArray.size() );
+    return mExprArray[expr_id];
+  }
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -255,6 +272,14 @@ public:
     SizeType cover_id                   ///< [in] カバー番号
   );
 
+  /// @brief 論理式型のノードの情報をセットする．
+  void
+  set_expr(
+    SizeType id,                        ///< [in] ID番号
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType expr_id                    ///< [in] 論理式番号
+  );
+
   /// @brief セル型のノードの情報をセットする．
   void
   set_cell(
@@ -282,6 +307,13 @@ public:
     SizeType input_num,                       ///< [in] 入力数
     const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
     char opat                                 ///< [in] 出力パタン ( '1' or '0' )
+  );
+
+  /// @brief 論理式を追加する．
+  /// @return 論理式番号を返す．
+  SizeType
+  add_expr(
+    const Expr& expr ///< [in] 論理式
   );
 
 
@@ -339,6 +371,9 @@ private:
 
   // カバー番号をキーにしてカバーを格納する配列
   vector<BnCover> mCoverArray;
+
+  // 論理式番号をキーにして論理式を格納する配列
+  vector<Expr> mExprArray;
 
 };
 

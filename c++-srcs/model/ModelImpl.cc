@@ -120,6 +120,18 @@ ModelImpl::set_cover(
   node.set_cover(input_list, cover_id);
 }
 
+// @brief 論理式型のノードの情報をセットする．
+void
+ModelImpl::set_expr(
+  SizeType id,
+  const vector<SizeType>& input_list,
+  SizeType expr_id
+)
+{
+  auto& node = _node(id);
+  node.set_expr(input_list, expr_id);
+}
+
 // @brief セル型のノードの情報をセットする．
 void
 ModelImpl::set_cell(
@@ -206,6 +218,18 @@ ModelImpl::add_cover(
 {
   auto id = cover_num();
   mCoverArray.push_back(BnCover{input_num, cube_list, opat});
+
+  return id;
+}
+
+// @brief 論理式を追加する．
+SizeType
+ModelImpl::add_expr(
+  const Expr& expr
+)
+{
+  auto id = expr_num();
+  mExprArray.push_back(expr);
 
   return id;
 }

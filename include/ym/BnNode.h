@@ -100,6 +100,10 @@ public:
   bool
   is_cover() const;
 
+  /// @brief EXPR タイプの論理ノードの時 true を返す．
+  bool
+  is_expr() const;
+
   /// @brief CELL タイプの論理ノードの時 true を返す．
   bool
   is_cell() const;
@@ -151,6 +155,14 @@ public:
   /// is_cover() が true の時のみ意味を持つ．
   const BnCover&
   cover() const;
+
+  /// @brief 論理式番号を返す．
+  SizeType
+  expr_id() const;
+
+  /// @brief 論理式を返す．
+  const Expr&
+  expr() const;
 
   /// @brief ノードのセル番号を返す．
   ///
