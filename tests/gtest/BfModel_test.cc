@@ -68,6 +68,36 @@ TEST( BfModelTest, read_blif_wrong_data)
     }, std::invalid_argument );
 }
 
+TEST( BfModeTest, read_iscas1 )
+{
+  string filename = "b10.bench";
+  string path = DATAPATH + filename;
+  auto model = BfModel::read_iscas89(path);
+  int ni = 11;
+  int no = 6;
+  int nd = 17;
+  int ng = 172;
+  EXPECT_EQ( ni + nd + 1, model.input_num() );
+  EXPECT_EQ( no + nd + nd, model.output_num() );
+  EXPECT_EQ( ng, model.logic_num() );
+  EXPECT_EQ( nd, model.dff_num() );
+
+  // 出力結果の回帰テスト
+  ostringstream s1;
+  model.print(s1);
+
+  string ref_path = DATAPATH + string{"b10.print"};
+  ifstream s2{ref_path};
+  ASSERT_TRUE( s2 );
+  string ref_contents;
+  string buff;
+  while ( getline(s2, buff) ) {
+    ref_contents += buff + '\n';
+  }
+
+  EXPECT_EQ( ref_contents, s1.str() );
+}
+
 TEST( BfModelTest, read_aag1)
 {
   // 普通のファイルの読み込みテスト

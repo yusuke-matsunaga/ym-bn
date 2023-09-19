@@ -44,24 +44,27 @@ class ModelImpl;
 //////////////////////////////////////////////////////////////////////
 class BfModel
 {
-  friend class PyBfModel;
-
 private:
 
-  /// @brief コンストラクタ
+  /// @brief 空のコンストラクタ
   BfModel();
+
+  /// @brief ModelImpl* からのキャストコンストラクタ
+  BfModel(
+    ModelImpl* impl ///< [in] 実装オブジェクト
+  );
 
 
 public:
 
-  /// @brief ModelImpl からのキャストコンストラクタ
+  /// @brief shared_ptr<ModelImpl> からのキャストコンストラクタ
   BfModel(
-    ModelImpl* impl ///< [in] 実装オブジェクト
-  ) : mImpl{impl}
-  {
-  }
+    const shared_ptr<ModelImpl>& impl ///< [in] 実装オブジェクト
+  );
 
   /// @brief コピーコンストラクタ
+  ///
+  /// '浅い'コピーを行う．
   BfModel(
     const BfModel& src ///< [in] コピー元のオブジェクト
   );
@@ -72,6 +75,8 @@ public:
   );
 
   /// @brief コピー代入演算子
+  ///
+  /// '浅い'コピーを行う．
   BfModel&
   operator=(
     const BfModel& src ///< [in] コピー元のオブジェクト
@@ -153,6 +158,10 @@ public:
   /// @name 内容を読み出す関数
   /// @{
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 深いコピーを行う．
+  BfModel
+  copy() const;
 
   /// @brief 名前を返す．
   ///
@@ -261,7 +270,7 @@ public:
   ModelImpl*
   _impl() const
   {
-    return mImpl;
+    return mImpl.get();
   }
 
 
@@ -289,7 +298,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 実装本体
-  ModelImpl* mImpl;
+  shared_ptr<ModelImpl> mImpl;
 
 };
 

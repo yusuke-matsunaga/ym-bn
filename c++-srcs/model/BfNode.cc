@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ym/BfNode.h"
+#include "ym/BfModel.h"
 #include "ModelImpl.h"
 
 
@@ -21,18 +22,25 @@ BfNode::~BfNode()
 {
 }
 
+// @brief 親の BfModel を返す．
+BfModel
+BfNode::parent_model() const
+{
+  return BfModel{mImpl};
+}
+
 // @brief ノード名を返す．
 const string&
 BfNode::name() const
 {
-  return impl().name();
+  return node_impl().name();
 }
 
 // @brief ノードの種類を返す．
 BfNodeType
 BfNode::type() const
 {
-  return impl().type();
+  return node_impl().type();
 }
 
 // @brief 入力ノードの時 true を返す．
@@ -100,7 +108,7 @@ BfNode::is_dff() const
 SizeType
 BfNode::fanin_num() const
 {
-  return impl().fanin_num();
+  return node_impl().fanin_num();
 }
 
 // @brief ノードのファンインのノードを返す．
@@ -109,21 +117,21 @@ BfNode::fanin(
   SizeType pos
 ) const
 {
-  return from_id(impl().fanin(pos));
+  return from_id(node_impl().fanin(pos));
 }
 
 // @brief ノードのファンインのノードのリストを返す．
 vector<BfNode>
 BfNode::fanin_list() const
 {
-  return from_id_list(impl().fanin_list());
+  return from_id_list(node_impl().fanin_list());
 }
 
 // @brief ノードのプリミティブタイプを返す．
 PrimType
 BfNode::primitive_type() const
 {
-  return impl().primitive_type();
+  return node_impl().primitive_type();
 }
 
 // @brief ファンインの反転属性を返す．
@@ -132,14 +140,14 @@ BfNode::fanin_inv(
   SizeType pos
 ) const
 {
-  return impl().fanin_inv(pos);
+  return node_impl().fanin_inv(pos);
 }
 
 // @brief カバー番号を返す．
 SizeType
 BfNode::cover_id() const
 {
-  return impl().cover_id();
+  return node_impl().cover_id();
 }
 
 // @brief ノードのカバーを返す．
@@ -154,7 +162,7 @@ BfNode::cover() const
 SizeType
 BfNode::expr_id() const
 {
-  return impl().expr_id();
+  return node_impl().expr_id();
 }
 
 // @brief 論理式を返す．
@@ -169,26 +177,26 @@ BfNode::expr() const
 SizeType
 BfNode::cell_id() const
 {
-  return impl().cell_id();
+  return node_impl().cell_id();
 }
 
 // @brief DFFノードの入力ノードを返す．
 BfNode
 BfNode::dff_src() const
 {
-  return from_id(impl().dff_src());
+  return from_id(node_impl().dff_src());
 }
 
 // @brief DFFノードのリセット値を返す．
 char
 BfNode::dff_rval() const
 {
-  return impl().dff_rval();
+  return node_impl().dff_rval();
 }
 
 // @brief ノードの実体を返す．
 const NodeImpl&
-BfNode::impl() const
+BfNode::node_impl() const
 {
   if ( !is_valid() ) {
     throw std::invalid_argument{"BfNode: invalid data"};

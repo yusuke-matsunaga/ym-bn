@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/bnfe.h"
+#include "ym/logic.h"
 
 
 BEGIN_NAMESPACE_YM_BNFE
@@ -62,6 +63,9 @@ public:
       return true;
     }
     if ( is_cover() ) {
+      return true;
+    }
+    if ( is_expr() ) {
       return true;
     }
     if ( is_cell() ) {
@@ -123,6 +127,9 @@ public:
   SizeType
   fanin_num() const
   {
+    if ( !is_logic() ) {
+      throw std::invalid_argument{"not a logic type"};
+    }
     return mFaninList.size();
   }
 
@@ -132,7 +139,12 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < fanin_num() )
   ) const
   {
-    ASSERT_COND( 0 <= pos && pos < fanin_num() );
+    if ( !is_logic() ) {
+      throw std::invalid_argument{"not a logic type"};
+    }
+    if ( pos < 0 || fanin_num() <= pos ) {
+      throw std::invalid_argument{"index out of range"};
+    }
     return mFaninList[pos];
   }
 
@@ -140,15 +152,21 @@ public:
   const vector<SizeType>&
   fanin_list() const
   {
+    if ( !is_logic() ) {
+      throw std::invalid_argument{"not a logic type"};
+    }
     return mFaninList;
   }
 
   /// @brief プリミティブタイプを得る．
   ///
-  /// is_prim() == true の時のみ有効
+  /// is_primitive() == true の時のみ有効
   PrimType
   primitive_type() const
   {
+    if ( !is_primitive() ) {
+      throw std::invalid_argument{"not a primitive type"};
+    }
     return static_cast<PrimType>(mExtId);
   }
 
@@ -160,6 +178,9 @@ public:
     SizeType pos ///< [in] 位置番号 ( 0 or 1 )
   ) const
   {
+    if ( !is_aig() ) {
+      throw std::invalid_argument{"not an aig type"};
+    }
     return static_cast<bool>((mExtId >> pos) & 1);
   }
 
@@ -167,31 +188,61 @@ public:
   ///
   /// is_cover() == true の時のみ有効
   SizeType
-  cover_id() const { return mExtId; }
+  cover_id() const
+  {
+    if ( !is_cover() ) {
+      throw std::invalid_argument{"not a cover type"};
+    }
+    return mExtId;
+  }
 
   /// @brief 論理式番号を得る．
   ///
   /// is_expr() == true の時のみ有効
   SizeType
-  expr_id() const { return mExtId; }
+  expr_id() const
+  {
+    if ( !is_expr() ) {
+      throw std::invalid_argument{"not an expr type"};
+    }
+    return mExtId;
+  }
 
   /// @brief セル番号を得る．
   ///
   /// is_cell() == true の時のみ有効
   SizeType
-  cell_id() const { return mExtId; }
+  cell_id() const
+  {
+    if ( !is_cell() ) {
+      throw std::invalid_argument{"not a cell type"};
+    }
+    return mExtId;
+  }
 
   /// @brief DFFの入力ノード番号を得る．
   ///
   /// is_dff() == true の時のみ有効
   SizeType
-  dff_src() const { return mFaninList[0]; }
+  dff_src() const
+  {
+    if ( !is_dff() ) {
+      throw std::invalid_argument{"not a dff type"};
+    }
+    return mFaninList[0];
+  }
 
-  ///
-  /// is_latch() == true の時のみ有効
   /// @brief リセット値を得る．
+  ///
+  /// is_dff() == true の時のみ有効
   char
-  dff_rval() const { return static_cast<char>(mExtId); }
+  dff_rval() const
+  {
+    if ( !is_dff() ) {
+      throw std::invalid_argument{"not a dff type"};
+    }
+    return static_cast<char>(mExtId);
+  }
 
 
 public:
@@ -296,7 +347,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノードの種類
-  BfNodeType mType;
+  BfNodeType mType{BfNodeType::None};
 
   // 名前
   string mName;

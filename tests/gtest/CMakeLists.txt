@@ -19,6 +19,22 @@
 #  テスト用のターゲットの設定
 # ===================================================================
 
+ym_add_gtest( bnfe_NodeImpl_test
+  NodeImpl_test.cc
+  $<TARGET_OBJECTS:ym_bnfe_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  )
+
+ym_add_gtest( bnfe_ModelImpl_test
+  ModelImpl_test.cc
+  $<TARGET_OBJECTS:ym_bnfe_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  )
+
 ym_add_gtest( bnfe_BfCover_test
   BfCover_test.cc
   $<TARGET_OBJECTS:ym_bnfe_obj_d>

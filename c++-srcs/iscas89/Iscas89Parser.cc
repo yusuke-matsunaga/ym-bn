@@ -29,7 +29,7 @@ BfModel::read_iscas89(
   BfModel model;
 
   Iscas89Parser parser;
-  if ( !parser.read(filename, model.mImpl) ) {
+  if ( !parser.read(filename, model.mImpl.get()) ) {
     ostringstream buf;
     buf << "BfModel::read_iscas89(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};

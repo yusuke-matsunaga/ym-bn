@@ -40,7 +40,7 @@ BfModel::read_blif(
   BfModel model;
 
   BlifParser parser;
-  if ( !parser.read(filename, cell_library, model.mImpl) ) {
+  if ( !parser.read(filename, cell_library, model.mImpl.get()) ) {
     ostringstream buf;
     buf << "BfModel::read_blif(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};

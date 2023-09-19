@@ -17,17 +17,31 @@ BEGIN_NAMESPACE_YM_BNFE
 // クラス BfModel
 //////////////////////////////////////////////////////////////////////
 
+// @brief ModelImpl からのキャストコンストラクタ
+BfModel::BfModel(
+  ModelImpl* impl
+) : mImpl{impl}
+{
+}
+
+// @brief shared_ptr<ModelImpl> からのキャストコンストラクタ
+BfModel::BfModel(
+  const shared_ptr<ModelImpl>& impl
+) : mImpl{impl}
+{
+}
+
 // @brief コピーコンストラクタ
 BfModel::BfModel(
   const BfModel& src
-) : mImpl{new ModelImpl{*src.mImpl}}
+) : mImpl{src.mImpl}
 {
 }
 
 // @brief ムーブコンストラクタ
 BfModel::BfModel(
   BfModel&& src
-) : mImpl{src.mImpl}
+) : mImpl{std::move(src.mImpl)}
 {
   src.mImpl = nullptr;
 }
@@ -39,8 +53,7 @@ BfModel::operator=(
 )
 {
   if ( this != &src ) {
-    delete mImpl;
-    mImpl = new ModelImpl{*src.mImpl};
+    mImpl = src.mImpl;
   }
   return *this;
 }
@@ -51,21 +64,27 @@ BfModel::operator=(
   BfModel&& src
 )
 {
-  mImpl = src.mImpl;
+  std::swap(mImpl, src.mImpl);
   src.mImpl = nullptr;
   return *this;
 }
 
 // @brief コンストラクタ
-BfModel::BfModel()
+BfModel::BfModel(
+) : mImpl{shared_ptr<ModelImpl>{new ModelImpl}}
 {
-  mImpl = new ModelImpl;
 }
 
 // @brief デストラクタ
 BfModel::~BfModel()
 {
-  delete mImpl;
+}
+
+// @brief 深いコピーを行う．
+BfModel
+BfModel::copy() const
+{
+  return BfModel{new ModelImpl{*mImpl}};
 }
 
 // @brief 名前を返す．
@@ -206,6 +225,24 @@ BfModel::expr(
   return mImpl->expr(expr_id);
 }
 
+BEGIN_NONAMESPACE
+
+inline
+string
+node_name(
+  const BfNode& node
+)
+{
+  ostringstream buf;
+  buf << node.id();
+  if ( node.name() != string{} ) {
+    buf << "(" << node.name() << ")";
+  }
+  return buf.str();
+}
+
+END_NONAMESPACE
+
 // @brief 内容を出力する．
 void
 BfModel::print(
@@ -215,27 +252,30 @@ BfModel::print(
   s << "Name: " << name() << endl;
   s << "Input: ";
   for ( auto node: input_list() ) {
-    s << " " << node.id();
+    s << " " << node_name(node);
   }
   s << endl;
   s << "Output: ";
   for ( auto node: output_list() ) {
-    s << " " << node.id();
+    s << " " << node_name(node);
   }
   s << endl;
   for ( auto node: dff_list() ) {
-    s << " " << node.id() << " = DFF(" << node.dff_src().id() << ")"
-      << ": rval = " << node.dff_rval() << endl;
+    s << " " << node_name(node) << " = DFF(" << node.dff_src().id() << ")";
+    if ( node.dff_rval() != ' ' ) {
+      s << " rval = " << node.dff_rval();
+    }
+    s << endl;
   }
 
   for ( auto node: logic_list() ) {
-    s << " " << node.id() << " = Logic(";
+    s << " " << node_name(node) << " = Logic(";
     for ( auto inode: node.fanin_list() ) {
       s << " " << inode.id();
     }
     s << "): ";
     if ( node.is_primitive() ) {
-      s << "Primitive(" << node.primitive_type() << ")";
+      s << node.primitive_type();
     }
     else if ( node.is_aig() ) {
       s << "AIG(" << node.fanin_inv(0) << node.fanin_inv(1) << ")";

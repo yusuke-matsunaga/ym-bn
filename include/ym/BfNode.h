@@ -42,8 +42,8 @@ public:
 
   /// @brief コンストラクタ
   BfNode(
-    ModelImpl* impl, ///< [in] 実装本体
-    SizeType id      ///< [in] ノード番号
+    const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
+    SizeType id                       ///< [in] ノード番号
   ) : mImpl{impl},
       mId{id}
   {
@@ -64,6 +64,10 @@ public:
   {
     return mImpl != nullptr;
   }
+
+  /// @brief 親の BfModel を返す．
+  BfModel
+  parent_model() const;
 
   /// @brief ノード番号を返す．
   SizeType
@@ -190,7 +194,7 @@ private:
 
   /// @brief ノードの実体を返す．
   const NodeImpl&
-  impl() const;
+  node_impl() const;
 
   /// @brief ID 番号から BfNode を作る．
   BfNode
@@ -211,7 +215,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 実装本体
-  ModelImpl* mImpl{nullptr};
+  shared_ptr<ModelImpl> mImpl{nullptr};
 
   // ノード番号
   SizeType mId{0};

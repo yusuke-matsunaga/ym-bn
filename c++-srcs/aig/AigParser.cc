@@ -35,7 +35,7 @@ BfModel::read_aag(
   BfModel model;
 
   AigParser parser;
-  if ( !parser.read_aag(filename, model.mImpl) ) {
+  if ( !parser.read_aag(filename, model.mImpl.get()) ) {
     ostringstream buf;
     buf << "BfModel::read_aag(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
@@ -53,7 +53,7 @@ BfModel::read_aig(
   BfModel model;
 
   AigParser parser;
-  if ( !parser.read_aig(filename, model.mImpl) ) {
+  if ( !parser.read_aig(filename, model.mImpl.get()) ) {
     ostringstream buf;
     buf << "BfModel::read_aig(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
