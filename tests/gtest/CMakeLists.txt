@@ -19,17 +19,17 @@
 #  テスト用のターゲットの設定
 # ===================================================================
 
-ym_add_gtest( bnet_BnCover_test
-  BnCover_test.cc
-  $<TARGET_OBJECTS:ym_bnet_obj_d>
+ym_add_gtest( bnfe_BfCover_test
+  BfCover_test.cc
+  $<TARGET_OBJECTS:ym_bnfe_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   )
 
-ym_add_gtest( bnet_BnModel_test
-  BnModel_test.cc
-  $<TARGET_OBJECTS:ym_bnet_obj_d>
+ym_add_gtest( bnfe_BfModel_test
+  BfModel_test.cc
+  $<TARGET_OBJECTS:ym_bnfe_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>

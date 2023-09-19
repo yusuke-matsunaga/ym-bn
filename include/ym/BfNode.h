@@ -1,25 +1,25 @@
-#ifndef BNNODE_H
-#define BNNODE_H
+#ifndef BFNODE_H
+#define BFNODE_H
 
-/// @file BnNode.h
-/// @brief BnNode のヘッダファイル
+/// @file BfNode.h
+/// @brief BfNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/bnfe.h"
 #include "ym/logic.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 class ModelImpl;
 class NodeImpl;
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnNode BnNode.h "BnNode.h"
-/// @brief BnModel のノードを表すクラス
+/// @class BfNode BfNode.h "BfNode.h"
+/// @brief BfModel のノードを表すクラス
 ///
 /// 以下の情報を持つ．
 /// - ID
@@ -31,17 +31,17 @@ class NodeImpl;
 /// - カバー番号(種類がCoverの時のみ)
 /// - セル番号(種類がCellの時のみ)
 //////////////////////////////////////////////////////////////////////
-class BnNode
+class BfNode
 {
 public:
 
   /// @brief 空のコンストラクタ
   ///
   /// 不正な値となる．
-  BnNode() = default;
+  BfNode() = default;
 
   /// @brief コンストラクタ
-  BnNode(
+  BfNode(
     ModelImpl* impl, ///< [in] 実装本体
     SizeType id      ///< [in] ノード番号
   ) : mImpl{impl},
@@ -50,7 +50,7 @@ public:
   }
 
   /// @brief デストラクタ
-  ~BnNode();
+  ~BfNode();
 
 
 public:
@@ -77,7 +77,7 @@ public:
   name() const;
 
   /// @brief ノードの種類を返す．
-  BnNodeType
+  BfNodeType
   type() const;
 
   /// @brief 入力ノードの時 true を返す．
@@ -121,7 +121,7 @@ public:
   /// @brief ファンインのノードを返す．
   ///
   /// is_logic() が true の時のみ意味を持つ．
-  BnNode
+  BfNode
   fanin(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < node_fanin_num() )
   ) const;
@@ -129,7 +129,7 @@ public:
   /// @brief ファンインのノードのリストを返す．
   ///
   /// is_logic() が true の時のみ意味を持つ．
-  vector<BnNode>
+  vector<BfNode>
   fanin_list() const;
 
   /// @brief プリミティブタイプを返す．
@@ -153,7 +153,7 @@ public:
   /// @brief カバーを返す．
   ///
   /// is_cover() が true の時のみ意味を持つ．
-  const BnCover&
+  const BfCover&
   cover() const;
 
   /// @brief 論理式番号を返す．
@@ -173,7 +173,7 @@ public:
   /// @brief DFFノードの入力ノードを返す．
   ///
   /// is_dff() が true の時のみ意味を持つ．
-  BnNode
+  BfNode
   dff_src() const;
 
   /// @brief DFFノードのリセット値を返す．
@@ -192,14 +192,14 @@ private:
   const NodeImpl&
   impl() const;
 
-  /// @brief ID 番号から BnNode を作る．
-  BnNode
+  /// @brief ID 番号から BfNode を作る．
+  BfNode
   from_id(
     SizeType id
   ) const;
 
-  /// @brief ID 番号のリストから vector<BnNode> を作る．
-  vector<BnNode>
+  /// @brief ID 番号のリストから vector<BfNode> を作る．
+  vector<BfNode>
   from_id_list(
     const vector<SizeType>& id_list
   ) const;
@@ -218,6 +218,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE
 
-#endif // BNNODE_H
+#endif // BFNODE_H

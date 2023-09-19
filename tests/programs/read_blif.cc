@@ -1,12 +1,12 @@
 ﻿
 /// @file parser_test.cc
-/// @brief BnModel::read_blif() のテストプログラム
+/// @brief BfModel::read_blif() のテストプログラム
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BnModel.h"
+#include "ym/BfModel.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/MsgMgr.h"
 #include "ym/StreamMsgHandler.h"
@@ -30,7 +30,6 @@ main(
 {
   using namespace std;
   using namespace nsYm;
-  using namespace nsYm::nsBnet;
 
   int base = 1;
 
@@ -45,7 +44,7 @@ main(
   MsgMgr::attach_handler(&msg_handler);
 
   try {
-    auto model = BnModel::read_blif(filename);
+    auto model = BfModel::read_blif(filename);
     model.print(cout);
   }
   catch ( std::invalid_argument err ) {

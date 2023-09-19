@@ -8,36 +8,36 @@
 
 #include "AigParser.h"
 #include "ModelImpl.h"
-#include "ym/BnModel.h"
+#include "ym/BfModel.h"
 #include "ym/MsgMgr.h"
 #include "ym/FileRegion.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 BEGIN_NONAMESPACE
 
-bool debug = true;
+bool debug = false;
 
 END_NONAMESPACE
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnModel
+// クラス BfModel
 //////////////////////////////////////////////////////////////////////
 
 // @brief aag ファイルの読み込みを行う．
-BnModel
-BnModel::read_aag(
+BfModel
+BfModel::read_aag(
   const string& filename
 )
 {
-  BnModel model;
+  BfModel model;
 
   AigParser parser;
   if ( !parser.read_aag(filename, model.mImpl) ) {
     ostringstream buf;
-    buf << "BnModel::read_aag(\"" << filename << "\") failed.";
+    buf << "BfModel::read_aag(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
   }
 
@@ -45,17 +45,17 @@ BnModel::read_aag(
 }
 
 // @brief aig ファイルの読み込みを行う．
-BnModel
-BnModel::read_aig(
+BfModel
+BfModel::read_aig(
   const string& filename
 )
 {
-  BnModel model;
+  BfModel model;
 
   AigParser parser;
   if ( !parser.read_aig(filename, model.mImpl) ) {
     ostringstream buf;
-    buf << "BnModel::read_aig(\"" << filename << "\") failed.";
+    buf << "BfModel::read_aig(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
   }
 
@@ -174,6 +174,8 @@ AigParser::read_aag(
     }
   }
 
+  model->make_logic_list();
+
   // シンボルテーブルとコメントの読み込みを行う．
   read_symbols();
 
@@ -264,6 +266,8 @@ AigParser::read_aig(
     auto src1_id = lit2node(rhs1, src1_inv);
     mModel->set_aig(id, src0_id, src1_id, src0_inv, src1_inv);
   }
+
+  model->make_logic_list();
 
   // シンボルの読み込み
   read_symbols();
@@ -668,4 +672,4 @@ AigParser::const1()
   return mConst1;
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE

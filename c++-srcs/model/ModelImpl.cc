@@ -9,7 +9,7 @@
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 // @brief 名前を設定する．
 void
@@ -217,7 +217,7 @@ ModelImpl::add_cover(
 )
 {
   auto id = cover_num();
-  mCoverArray.push_back(BnCover{input_num, cube_list, opat});
+  mCoverArray.push_back(BfCover{input_num, cube_list, opat});
 
   return id;
 }
@@ -234,4 +234,4 @@ ModelImpl::add_expr(
   return id;
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE

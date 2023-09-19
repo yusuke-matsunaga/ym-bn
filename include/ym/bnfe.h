@@ -1,8 +1,8 @@
-﻿#ifndef YM_BNET_H
-#define YM_BNET_H
+﻿#ifndef YM_BNFE_H
+#define YM_BNFE_H
 
-/// @file ym/bnet.h
-/// @brief ym-bnet パッケージの基本ヘッダファイル
+/// @file ym/bnfe.h
+/// @brief ym-bnfe パッケージの基本ヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -11,40 +11,40 @@
 #include "ym_config.h"
 
 
-/// @brief bnet 用の名前空間名
-#define BNET_NSNAME nsBnet
+/// @brief bnfe 用の名前空間名
+#define BNFE_NSNAME nsBnfe
 
-/// @brief bnet 用の名前空間の開始
-#define BEGIN_NAMESPACE_YM_BNET \
+/// @brief bnfe 用の名前空間の開始
+#define BEGIN_NAMESPACE_YM_BNFE \
 BEGIN_NAMESPACE_YM \
-BEGIN_NAMESPACE(BNET_NSNAME)
+BEGIN_NAMESPACE(BNFE_NSNAME)
 
-/// @brief bnet 用の名前空間の終了
-#define END_NAMESPACE_YM_BNET \
-END_NAMESPACE(BNET_NSNAME) \
+/// @brief bnfe 用の名前空間の終了
+#define END_NAMESPACE_YM_BNFE \
+END_NAMESPACE(BNFE_NSNAME) \
 END_NAMESPACE_YM
 
-/// @brief bnet 用の名前空間
-#define BNET_NAMESPACE YM_NAMESPACE::BNET_NSNAME
+/// @brief bnfe 用の名前空間
+#define BNFE_NAMESPACE YM_NAMESPACE::BNFE_NSNAME
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 //////////////////////////////////////////////////////////////////////
 // クラスの先行宣言
 //////////////////////////////////////////////////////////////////////
 
-class BnModel;
-class BnNode;
-class BnCover;
+class BfModel;
+class BfNode;
+class BfCover;
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE
 
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
 /// @brief ノードの種類を表す列挙型
 //////////////////////////////////////////////////////////////////////
-enum class BnNodeType : std::uint8_t {
+enum class BfNodeType : std::uint8_t {
   None,  ///< [in] 不正値
   Input, ///< [in] 入力
   Dff,   ///< [in] DFF
@@ -55,10 +55,10 @@ enum class BnNodeType : std::uint8_t {
   Cell   ///< [in] セル型の論理ノード
 };
 
-using BNET_NAMESPACE::BnModel;
-using BNET_NAMESPACE::BnNode;
-using BNET_NAMESPACE::BnCover;
+using BNFE_NAMESPACE::BfModel;
+using BNFE_NAMESPACE::BfNode;
+using BNFE_NAMESPACE::BfCover;
 
 END_NAMESPACE_YM
 
-#endif // YM_BNET_H
+#endif // YM_BNFE_H

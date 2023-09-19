@@ -1,24 +1,24 @@
 
-/// @file BnModel_test.cc
-/// @brief BnModel_test の実装ファイル
+/// @file BfModel_test.cc
+/// @brief BfModel_test の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "ym/BnModel.h"
+#include "ym/BfModel.h"
 
 
 BEGIN_NAMESPACE_YM
 
-TEST( BnModelTest, read_blif1)
+TEST( BfModelTest, read_blif1)
 {
   // 普通のファイルの読み込みテスト
   string filename{"s5378.blif"};
   string path{DATAPATH + filename};
 
-  auto bnet = BnModel::read_blif(path);
+  auto bnet = BfModel::read_blif(path);
 
   const SizeType ni = 35;
   const SizeType no = 49;
@@ -50,31 +50,31 @@ TEST( BnModelTest, read_blif1)
   EXPECT_FALSE( is2 );
 }
 
-TEST( BnModelTest, read_blif_file_not_found)
+TEST( BfModelTest, read_blif_file_not_found)
 {
   // 存在しないファイルの場合の例外送出テスト
   EXPECT_THROW( {
-      auto _ = BnModel::read_blif("not_exist_file");
+      auto _ = BfModel::read_blif("not_exist_file");
     }, std::invalid_argument );
 }
 
-TEST( BnModelTest, read_blif_wrong_data)
+TEST( BfModelTest, read_blif_wrong_data)
 {
   // 誤った内容のファイルの場合の例外送出テスト
   string filename{"broken.blif"};
   string path{DATAPATH + filename};
   EXPECT_THROW( {
-      auto _ = BnModel::read_blif(path);
+      auto _ = BfModel::read_blif(path);
     }, std::invalid_argument );
 }
 
-TEST( BnModelTest, read_aag1)
+TEST( BfModelTest, read_aag1)
 {
   // 普通のファイルの読み込みテスト
   string filename{"test1.aag"};
   string path{DATAPATH + filename};
 
-  auto bnet = BnModel::read_aag(path);
+  auto bnet = BfModel::read_aag(path);
 
   const SizeType ni = 3;
   const SizeType no = 1;

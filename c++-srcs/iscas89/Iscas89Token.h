@@ -8,12 +8,12 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/bnfe.h"
 #include "ym/logic.h"
 #include "ym/FileRegion.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 //////////////////////////////////////////////////////////////////////
 /// @class Iscas89Token Iscas89Token.h "Iscas89Token.h"
@@ -116,6 +116,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE
 
 #endif // ISCAS89TOKEN_H

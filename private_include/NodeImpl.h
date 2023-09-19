@@ -8,14 +8,14 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/bnfe.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeImpl NodeImpl.h "NodeImpl.h"
-/// @brief BnModel のノードを表すクラス
+/// @brief BfModel のノードを表すクラス
 //////////////////////////////////////////////////////////////////////
 class NodeImpl
 {
@@ -38,7 +38,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノードの種類を返す．
-  BnNodeType
+  BfNodeType
   type() const
   {
     return mType;
@@ -48,7 +48,7 @@ public:
   bool
   is_input() const
   {
-    return mType == BnNodeType::Input;
+    return mType == BfNodeType::Input;
   }
 
   /// @brief 論理ノードの時 true を返す．
@@ -74,42 +74,42 @@ public:
   bool
   is_primitive() const
   {
-    return mType == BnNodeType::Prim;
+    return mType == BfNodeType::Prim;
   }
 
   /// @brief AIG型の論理ノードの時 true を返す．
   bool
   is_aig() const
   {
-    return mType == BnNodeType::Aig;
+    return mType == BfNodeType::Aig;
   }
 
   /// @brief カバー型の論理ノードの時 true を返す．
   bool
   is_cover() const
   {
-    return mType == BnNodeType::Cover;
+    return mType == BfNodeType::Cover;
   }
 
   /// @brief 論理式型の論理ノードの時 true を返す．
   bool
   is_expr() const
   {
-    return mType == BnNodeType::Expr;
+    return mType == BfNodeType::Expr;
   }
 
   /// @brief セル型の論理ノードの時 true を返す．
   bool
   is_cell() const
   {
-    return mType == BnNodeType::Cell;
+    return mType == BfNodeType::Cell;
   }
 
   /// @brief DFFノードの時 true を返す．
   bool
   is_dff() const
   {
-    return mType == BnNodeType::Dff;
+    return mType == BfNodeType::Dff;
   }
 
   /// @brief このシンボルの名前を返す．
@@ -212,7 +212,7 @@ public:
   void
   set_input()
   {
-    mType = BnNodeType::Input;
+    mType = BfNodeType::Input;
   }
 
   /// @brief プリミティブタイプをセットする．
@@ -222,7 +222,7 @@ public:
     PrimType type
   )
   {
-    mType = BnNodeType::Prim;
+    mType = BfNodeType::Prim;
     mFaninList = fanin_list;
     mExtId = static_cast<SizeType>(type);
   }
@@ -236,7 +236,7 @@ public:
     bool inv1
   )
   {
-    mType = BnNodeType::Aig;
+    mType = BfNodeType::Aig;
     mFaninList = { src0, src1 };
     mExtId = static_cast<SizeType>(inv0) | (static_cast<SizeType>(inv1) << 1);
   }
@@ -248,7 +248,7 @@ public:
     SizeType cover_id
   )
   {
-    mType = BnNodeType::Cover;
+    mType = BfNodeType::Cover;
     mFaninList = fanin_list;
     mExtId = cover_id;
   }
@@ -260,7 +260,7 @@ public:
     SizeType expr_id
   )
   {
-    mType = BnNodeType::Expr;
+    mType = BfNodeType::Expr;
     mFaninList = fanin_list;
     mExtId = expr_id;
   }
@@ -272,7 +272,7 @@ public:
     SizeType cell_id
   )
   {
-    mType = BnNodeType::Cell;
+    mType = BfNodeType::Cell;
     mFaninList = fanin_list;
     mExtId = cell_id;
   }
@@ -284,7 +284,7 @@ public:
     char rval
   )
   {
-    mType = BnNodeType::Dff;
+    mType = BfNodeType::Dff;
     mFaninList = {input_id};
     mExtId = static_cast<SizeType>(rval);
   }
@@ -296,7 +296,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノードの種類
-  BnNodeType mType;
+  BfNodeType mType;
 
   // 名前
   string mName;
@@ -309,6 +309,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE
 
 #endif // NODEIMPL_H

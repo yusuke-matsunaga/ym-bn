@@ -9,7 +9,7 @@
 #include "CoverMgr.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 BEGIN_NONAMESPACE
 
@@ -29,37 +29,6 @@ key_func(
 }
 
 END_NONAMESPACE
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnCover
-//////////////////////////////////////////////////////////////////////
-
-Expr
-BnCover::expr() const
-{
-  auto expr = mInputCover.expr();
-  if ( output_pat() == '0' ) {
-    expr = ~expr;
-  }
-  return expr;
-}
-
-// @brief 内容を出力する．
-void
-BnCover::print(
-  ostream& s
-) const
-{
-  for ( SizeType c = 0; c < cube_num(); ++ c ) {
-    for ( SizeType i = 0; i < input_num(); ++ i ) {
-      s << input_pat(c, i);
-    }
-    if ( input_num() > 0 ) {
-      s << ' ';
-    }
-    s << output_pat() << endl;
-  }
-}
 
 
 //////////////////////////////////////////////////////////////////////
@@ -136,4 +105,4 @@ CoverMgr::new_cover(
   return mModel->add_cover(input_num, cube_list, opat);
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE

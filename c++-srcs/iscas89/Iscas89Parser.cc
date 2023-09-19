@@ -8,30 +8,30 @@
 
 #include "Iscas89Parser.h"
 #include "Iscas89Scanner.h"
-#include "ym/BnModel.h"
+#include "ym/BfModel.h"
 //#include "ym/Iscas89Handler.h"
 #include "ModelImpl.h"
 #include "ym/MsgMgr.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnModel
+// クラス BfModel
 //////////////////////////////////////////////////////////////////////
 
 // @brief iscas89(.bench) ファイルの読み込みを行う．
-BnModel
-BnModel::read_iscas89(
+BfModel
+BfModel::read_iscas89(
   const string& filename
 )
 {
-  BnModel model;
+  BfModel model;
 
   Iscas89Parser parser;
   if ( !parser.read(filename, model.mImpl) ) {
     ostringstream buf;
-    buf << "BnModel::read_iscas89(\"" << filename << "\") failed.";
+    buf << "BfModel::read_iscas89(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
   }
 
@@ -419,4 +419,4 @@ Iscas89Parser::read_token(
   return token;
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE

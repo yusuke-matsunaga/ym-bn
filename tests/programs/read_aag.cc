@@ -6,7 +6,7 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BnModel.h"
+#include "ym/BfModel.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -19,7 +19,7 @@ read_aag(
 {
   for ( SizeType i = 1; i < argc; ++ i ) {
     string filename = argv[i];
-    auto aig = BnModel::read_aag(filename);
+    auto aig = BfModel::read_aag(filename);
     aig.print(cout);
   }
   return 0;

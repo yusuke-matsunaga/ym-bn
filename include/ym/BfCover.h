@@ -1,32 +1,32 @@
-#ifndef BNETCOVER_H
-#define BNETCOVER_H
+#ifndef BFCOVER_H
+#define BFCOVER_H
 
-/// @file BnCover.h
-/// @brief BnCover のヘッダファイル
+/// @file BfCover.h
+/// @brief BfCover のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/bnfe.h"
 #include "ym/SopCover.h"
 #include "ym/Expr.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BNFE
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnCover BnCover.h "BnCover.h"
+/// @class BfCover BfCover.h "BfCover.h"
 /// @brief blif 形式の .names 本体のカバーを表すクラス
 ///
 /// 内容は SopCover と出力の極性からなる．
 //////////////////////////////////////////////////////////////////////
-class BnCover
+class BfCover
 {
 public:
 
   /// @brief コンストラクタ
-  BnCover(
+  BfCover(
     SizeType input_num,                    ///< [in] 入力数
     const vector<vector<Literal>>& icover, ///< [in] 入力カバー
     char opat = '1'                        ///< [in] 出力のパタン ( '0', '1' のみ )
@@ -36,7 +36,7 @@ public:
   }
 
   /// @brief デストラクタ
-  ~BnCover() = default;
+  ~BfCover() = default;
 
 
 public:
@@ -100,6 +100,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BNFE
 
-#endif // BNETCOVER_H
+#endif // BFCOVER_H
