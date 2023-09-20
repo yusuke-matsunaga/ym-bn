@@ -124,6 +124,22 @@ BfModel::input_list() const
   return from_id_list(mImpl->input_list());
 }
 
+// @brief 入力名を返す．
+string
+BfModel::input_name(
+  SizeType pos
+) const
+{
+  return mImpl->input_name(pos);
+}
+
+// @brief 入力名のリストを返す．
+vector<string>
+BfModel::input_name_list() const
+{
+  return mImpl->input_name_list();
+}
+
 // @brief 入力数を返す．
 SizeType
 BfModel::output_num() const
@@ -145,6 +161,22 @@ vector<BfNode>
 BfModel::output_list() const
 {
   return from_id_list(mImpl->output_list());
+}
+
+// @brief 出力名を返す．
+string
+BfModel::output_name(
+  SizeType pos
+) const
+{
+  return mImpl->output_name(pos);
+}
+
+// @brief 出力名のリストを返す．
+vector<string>
+BfModel::output_name_list() const
+{
+  return mImpl->output_name_list();
 }
 
 // @brief DFF数を返す．
@@ -234,7 +266,7 @@ node_name(
 )
 {
   ostringstream buf;
-  buf << node.id();
+  buf << "Node#" << node.id();
   if ( node.name() != string{} ) {
     buf << "(" << node.name() << ")";
   }
@@ -249,36 +281,39 @@ BfModel::print(
   ostream& s
 ) const
 {
-  s << "Name: " << name() << endl;
-  s << "Input: ";
-  for ( auto node: input_list() ) {
-    s << " " << node_name(node);
+  if ( name() != string{} ) {
+    s << "Name: " << name() << endl;
   }
-  s << endl;
-  s << "Output: ";
-  for ( auto node: output_list() ) {
-    s << " " << node_name(node);
+  if ( comment() != string{} ) {
+    s << "Comment: " << comment() << endl;
   }
-  s << endl;
-  for ( auto node: dff_list() ) {
-    s << " " << node_name(node) << " = DFF(" << node.dff_src().id() << ")";
+  for ( SizeType i = 0;i < input_num(); ++ i ) {
+    auto node = input(i);
+    s << node_name(node)
+      << ": INPUT#" << node.input_id() << "[" << input_name(i) << "]" << endl;
+  }
+  for ( SizeType i = 0; i < output_num(); ++ i ) {
+    s << "OUTPUT#" << i << "[" << output_name(i) << "]"
+      << " = " << "Node#" << output(i).id() << endl;
+  }
+  for ( SizeType i = 0; i < dff_num(); ++ i ) {
+    auto node = dff(i);
+    s << node_name(node);
+    s << ": DFF#" << i << "[" << node.name() << "]"
+      << " src = " << "Node#" << node.dff_src().id();
     if ( node.dff_rval() != ' ' ) {
-      s << " rval = " << node.dff_rval();
+      s << ", rval = " << node.dff_rval();
     }
     s << endl;
   }
-
   for ( auto node: logic_list() ) {
-    s << " " << node_name(node) << " = Logic(";
-    for ( auto inode: node.fanin_list() ) {
-      s << " " << inode.id();
-    }
-    s << "): ";
+    s << node_name(node)
+      << ": ";
     if ( node.is_primitive() ) {
       s << node.primitive_type();
     }
     else if ( node.is_aig() ) {
-      s << "AIG(" << node.fanin_inv(0) << node.fanin_inv(1) << ")";
+      s << "AIG[" << node.fanin_inv(0) << node.fanin_inv(1) << "]";
     }
     else if ( node.is_cover() ) {
       s << "Cover#" << node.cover_id();
@@ -292,7 +327,11 @@ BfModel::print(
     else {
       ASSERT_NOT_REACHED;
     }
-    s << endl;
+    s << " (";
+    for ( auto inode: node.fanin_list() ) {
+      s << " " << inode.id();
+    }
+    s << ")" << endl;
   }
   if ( cover_num() > 0 ) {
     s << endl;

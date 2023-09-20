@@ -116,6 +116,12 @@ public:
   bool
   is_dff() const;
 
+  /// @brief 入力番号を返す．
+  ///
+  /// is_input() が true の時のみ意味を持つ．
+  SizeType
+  input_id() const;
+
   /// @brief ファンイン数を返す．
   ///
   /// is_logic() が true の時のみ意味を持つ．
@@ -185,6 +191,24 @@ public:
   /// is_dff() が true の時のみ意味を持つ．
   char
   dff_rval() const;
+
+  /// @brief 等価比較演算子
+  bool
+  operator==(
+    const BfNode& right ///< [in] 比較対象のオブジェクト
+  ) const
+  {
+    return mImpl == right.mImpl && mId == right.mId;
+  }
+
+  /// @brief 非等価比較演算子
+  bool
+  operator!=(
+    const BfNode& right ///< [in] 比較対象のオブジェクト
+  ) const
+  {
+    return !operator==(right);
+  }
 
 
 private:

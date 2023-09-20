@@ -12,7 +12,7 @@
 
 BEGIN_NAMESPACE_YM_BNFE
 
-TEST( ModelImpl_test, constructor1 )
+TEST( ModelImplTest, constructor1 )
 {
   ModelImpl model;
 
@@ -26,7 +26,7 @@ TEST( ModelImpl_test, constructor1 )
   EXPECT_EQ( 0, model.expr_num() );
 }
 
-TEST( ModelImpl_test, set_name )
+TEST( ModelImplTest, set_name )
 {
   ModelImpl model;
 
@@ -36,7 +36,7 @@ TEST( ModelImpl_test, set_name )
   EXPECT_EQ( name, model.name() );
 }
 
-TEST( ModelImpl_test, set_comment )
+TEST( ModelImplTest, set_comment )
 {
   ModelImpl model;
 
@@ -46,7 +46,7 @@ TEST( ModelImpl_test, set_comment )
   EXPECT_EQ( comment, model.comment() );
 }
 
-TEST( ModelImpl_test, new_node )
+TEST( ModelImplTest, new_node )
 {
   ModelImpl model;
 
@@ -57,7 +57,7 @@ TEST( ModelImpl_test, new_node )
   EXPECT_EQ( BfNodeType::None, node.type() );
 }
 
-TEST( ModelImpl_test, set_node_name )
+TEST( ModelImplTest, set_node_name )
 {
   ModelImpl model;
 
@@ -71,7 +71,7 @@ TEST( ModelImpl_test, set_node_name )
   EXPECT_EQ( name, node.name() );
 }
 
-TEST( ModelImpl_test, set_input )
+TEST( ModelImplTest, set_input )
 {
   ModelImpl model;
 
@@ -84,7 +84,7 @@ TEST( ModelImpl_test, set_input )
   EXPECT_EQ( BfNodeType::Input, node.type() );
 }
 
-TEST( ModelImpl_test, set_output )
+TEST( ModelImplTest, set_output )
 {
   ModelImpl model;
 
@@ -97,7 +97,7 @@ TEST( ModelImpl_test, set_output )
   EXPECT_EQ( id, model.output(0) );
 }
 
-TEST( ModelImpl_test, set_primitive )
+TEST( ModelImplTest, set_primitive )
 {
   ModelImpl model;
 
@@ -126,7 +126,7 @@ TEST( ModelImpl_test, set_primitive )
   EXPECT_EQ( type, node.primitive_type() );
 }
 
-TEST( ModelImpl_test, set_aig )
+TEST( ModelImplTest, set_aig )
 {
   ModelImpl model;
 
@@ -157,7 +157,7 @@ TEST( ModelImpl_test, set_aig )
   EXPECT_EQ( inv2, node.fanin_inv(1) );
 }
 
-TEST( ModelImpl_test, set_cover )
+TEST( ModelImplTest, set_cover )
 {
   ModelImpl model;
 
@@ -186,7 +186,7 @@ TEST( ModelImpl_test, set_cover )
   EXPECT_EQ( cover_id, node.cover_id() );
 }
 
-TEST( ModelImpl_test, set_expr )
+TEST( ModelImplTest, set_expr )
 {
   ModelImpl model;
 
@@ -215,7 +215,7 @@ TEST( ModelImpl_test, set_expr )
   EXPECT_EQ( expr_id, node.expr_id() );
 }
 
-TEST( ModelImpl_test, set_cell )
+TEST( ModelImplTest, set_cell )
 {
   ModelImpl model;
 
@@ -244,7 +244,7 @@ TEST( ModelImpl_test, set_cell )
   EXPECT_EQ( cell_id, node.cell_id() );
 }
 
-TEST( ModelImpl_test, set_dff )
+TEST( ModelImplTest, set_dff )
 {
   ModelImpl model;
 
@@ -264,7 +264,7 @@ TEST( ModelImpl_test, set_dff )
   EXPECT_EQ( rval, node.dff_rval() );
 }
 
-TEST( ModelImpl_test, add_cover )
+TEST( ModelImplTest, add_cover )
 {
   ModelImpl model;
 
@@ -299,7 +299,7 @@ TEST( ModelImpl_test, add_cover )
   EXPECT_EQ( opat2, cover2.output_pat() );
 }
 
-TEST( ModelImpl_test, add_expr )
+TEST( ModelImplTest, add_expr )
 {
   ModelImpl model;
 

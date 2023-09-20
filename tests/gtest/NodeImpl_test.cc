@@ -12,7 +12,7 @@
 
 BEGIN_NAMESPACE_YM_BNFE
 
-TEST( NodeImpl_test, constructor1 )
+TEST( NodeImplTest, constructor1 )
 {
   string name{"abcd"};
   NodeImpl node{name};
@@ -27,6 +27,7 @@ TEST( NodeImpl_test, constructor1 )
   EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_EQ( name, node.name() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_num();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_list();}, std::invalid_argument );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
@@ -39,7 +40,7 @@ TEST( NodeImpl_test, constructor1 )
   EXPECT_THROW( {node.dff_rval();}, std::invalid_argument );
 }
 
-TEST( NodeImpl_test, set_name )
+TEST( NodeImplTest, set_name )
 {
   string name{"xyz"};
   NodeImpl node{""};
@@ -49,11 +50,12 @@ TEST( NodeImpl_test, set_name )
   EXPECT_EQ( name, node.name() );
 }
 
-TEST( NodeImpl_test, set_input )
+TEST( NodeImplTest, set_input )
 {
   NodeImpl node{""};
 
-  node.set_input();
+  SizeType iid = 10;
+  node.set_input(iid);
 
   EXPECT_EQ( BfNodeType::Input, node.type() );
   EXPECT_TRUE( node.is_input() );
@@ -64,6 +66,7 @@ TEST( NodeImpl_test, set_input )
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_dff() );
+  EXPECT_EQ( iid, node.input_id() );
   EXPECT_THROW( {node.fanin_num();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_list();}, std::invalid_argument );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
@@ -76,7 +79,7 @@ TEST( NodeImpl_test, set_input )
   EXPECT_THROW( {node.dff_rval();}, std::invalid_argument );
 }
 
-TEST( NodeImpl_test, set_primitive )
+TEST( NodeImplTest, set_primitive )
 {
   NodeImpl node{""};
 
@@ -93,6 +96,7 @@ TEST( NodeImpl_test, set_primitive )
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_dff() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -108,7 +112,7 @@ TEST( NodeImpl_test, set_primitive )
   EXPECT_THROW( {node.dff_rval();}, std::invalid_argument );
 }
 
-TEST( NodeImpl_test, set_aig )
+TEST( NodeImplTest, set_aig )
 {
   NodeImpl node{""};
 
@@ -127,6 +131,7 @@ TEST( NodeImpl_test, set_aig )
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_dff() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( 2, node.fanin_num() );
   EXPECT_EQ( src0, node.fanin(0) );
   EXPECT_EQ( src1, node.fanin(1) );
@@ -142,7 +147,7 @@ TEST( NodeImpl_test, set_aig )
   EXPECT_THROW( {node.dff_rval();}, std::invalid_argument );
 }
 
-TEST( NodeImpl_test, set_cover )
+TEST( NodeImplTest, set_cover )
 {
   NodeImpl node{""};
 
@@ -159,6 +164,7 @@ TEST( NodeImpl_test, set_cover )
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_dff() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -174,7 +180,7 @@ TEST( NodeImpl_test, set_cover )
   EXPECT_THROW( {node.dff_rval();}, std::invalid_argument );
 }
 
-TEST( NodeImpl_test, set_expr )
+TEST( NodeImplTest, set_expr )
 {
   NodeImpl node{""};
 
@@ -191,6 +197,7 @@ TEST( NodeImpl_test, set_expr )
   EXPECT_TRUE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_dff() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -206,7 +213,7 @@ TEST( NodeImpl_test, set_expr )
   EXPECT_THROW( {node.dff_rval();}, std::invalid_argument );
 }
 
-TEST( NodeImpl_test, set_cell )
+TEST( NodeImplTest, set_cell )
 {
   NodeImpl node{""};
 
@@ -223,6 +230,7 @@ TEST( NodeImpl_test, set_cell )
   EXPECT_FALSE( node.is_expr() );
   EXPECT_TRUE( node.is_cell() );
   EXPECT_FALSE( node.is_dff() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -238,7 +246,7 @@ TEST( NodeImpl_test, set_cell )
   EXPECT_THROW( {node.dff_rval();}, std::invalid_argument );
 }
 
-TEST( NodeImpl_test, set_dff )
+TEST( NodeImplTest, set_dff )
 {
   NodeImpl node{""};
 
@@ -255,6 +263,7 @@ TEST( NodeImpl_test, set_dff )
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
   EXPECT_TRUE( node.is_dff() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_num();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_list();}, std::invalid_argument );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );

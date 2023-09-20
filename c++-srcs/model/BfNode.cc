@@ -26,6 +26,9 @@ BfNode::~BfNode()
 BfModel
 BfNode::parent_model() const
 {
+  if ( !is_valid() ) {
+    throw std::invalid_argument{"BfNode: invalid data"};
+  }
   return BfModel{mImpl};
 }
 
@@ -102,6 +105,13 @@ bool
 BfNode::is_dff() const
 {
   return type() == BfNodeType::Dff;
+}
+
+// @brief 入力番号を返す．
+SizeType
+BfNode::input_id() const
+{
+  return node_impl().input_id();
 }
 
 // @brief ノードのファンイン数を返す．

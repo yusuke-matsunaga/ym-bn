@@ -41,6 +41,12 @@ class ModelImpl;
 /// ノードとなっている．
 /// 論理ノードのリストは入力からのトポロジカル順
 /// となっている．
+///
+/// - 読み込んだファイルによってはノードはユニークな名前を持つ．
+/// - 入力名は入力ノード名と等しい
+/// - blif/iscas89 の場合は出力名は出力として参照されている
+///   ノード名と等しい．そのため入力ノードがそのまま出力となっている場合
+///   には入力と出力に同じ名前を持つことになる．
 //////////////////////////////////////////////////////////////////////
 class BfModel
 {
@@ -189,7 +195,17 @@ public:
   vector<BfNode>
   input_list() const;
 
-  /// @brief 入力数を返す．
+  /// @brief 入力名を返す．
+  string
+  input_name(
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < input_num() )
+  ) const;
+
+  /// @brief 入力名のリストを返す．
+  vector<string>
+  input_name_list() const;
+
+  /// @brief 出力数を返す．
   SizeType
   output_num() const;
 
@@ -202,6 +218,16 @@ public:
   /// @brief 出力のノードのリストを返す．
   vector<BfNode>
   output_list() const;
+
+  /// @brief 出力名を返す．
+  string
+  output_name(
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < output_num() )
+  ) const;
+
+  /// @brief 出力名のリストを返す．
+  vector<string>
+  output_name_list() const;
 
   /// @brief DFF数を返す．
   SizeType
@@ -256,6 +282,28 @@ public:
   print(
     ostream& s ///< [in] 出力先のストリーム
   ) const;
+
+  /// @brief 等価比較関数
+  ///
+  /// 意味的ではなく形式的な等価を調べる．
+  bool
+  operator==(
+    const BfModel& right ///< [in] 比較対象のオブジェクト
+  ) const
+  {
+    return mImpl == right.mImpl;
+  }
+
+  /// @brief 非等価比較関数
+  ///
+  /// 意味的ではなく形式的な等価を調べる．
+  bool
+  operator!=(
+    const BfModel& right ///< [in] 比較対象のオブジェクト
+  ) const
+  {
+    return !operator==(right);
+  }
 
   /// @}
   //////////////////////////////////////////////////////////////////////

@@ -116,32 +116,42 @@ public:
     return mType == BfNodeType::Dff;
   }
 
-  /// @brief このシンボルの名前を返す．
+  /// @brief 名前を返す．
   const string&
   name() const
   {
     return mName;
   }
 
+  /// @brief 入力番号を返す．
+  ///
+  /// is_input() が true の時のみ意味を持つ．
+  SizeType
+  input_id() const
+  {
+    check_input();
+    return mExtId;
+  }
+
   /// @brief ファンイン数を返す．
+  ///
+  /// is_logic() が true の時のみ意味を持つ．
   SizeType
   fanin_num() const
   {
-    if ( !is_logic() ) {
-      throw std::invalid_argument{"not a logic type"};
-    }
+    check_logic();
     return mFaninList.size();
   }
 
   /// @brief ファンインのノード番号を返す．
+  ///
+  /// is_logic() が true の時のみ意味を持つ．
   SizeType
   fanin(
     SizeType pos ///< [in] 位置 ( 0 <= pos < fanin_num() )
   ) const
   {
-    if ( !is_logic() ) {
-      throw std::invalid_argument{"not a logic type"};
-    }
+    check_logic();
     if ( pos < 0 || fanin_num() <= pos ) {
       throw std::invalid_argument{"index out of range"};
     }
@@ -149,12 +159,12 @@ public:
   }
 
   /// @brief ファンイン番号のリストを返す．
+  ///
+  /// is_logic() が true の時のみ意味を持つ．
   const vector<SizeType>&
   fanin_list() const
   {
-    if ( !is_logic() ) {
-      throw std::invalid_argument{"not a logic type"};
-    }
+    check_logic();
     return mFaninList;
   }
 
@@ -164,9 +174,7 @@ public:
   PrimType
   primitive_type() const
   {
-    if ( !is_primitive() ) {
-      throw std::invalid_argument{"not a primitive type"};
-    }
+    check_primitive();
     return static_cast<PrimType>(mExtId);
   }
 
@@ -178,9 +186,7 @@ public:
     SizeType pos ///< [in] 位置番号 ( 0 or 1 )
   ) const
   {
-    if ( !is_aig() ) {
-      throw std::invalid_argument{"not an aig type"};
-    }
+    check_aig();
     return static_cast<bool>((mExtId >> pos) & 1);
   }
 
@@ -190,9 +196,7 @@ public:
   SizeType
   cover_id() const
   {
-    if ( !is_cover() ) {
-      throw std::invalid_argument{"not a cover type"};
-    }
+    check_cover();
     return mExtId;
   }
 
@@ -202,9 +206,7 @@ public:
   SizeType
   expr_id() const
   {
-    if ( !is_expr() ) {
-      throw std::invalid_argument{"not an expr type"};
-    }
+    check_expr();
     return mExtId;
   }
 
@@ -214,9 +216,7 @@ public:
   SizeType
   cell_id() const
   {
-    if ( !is_cell() ) {
-      throw std::invalid_argument{"not a cell type"};
-    }
+    check_cell();
     return mExtId;
   }
 
@@ -226,9 +226,7 @@ public:
   SizeType
   dff_src() const
   {
-    if ( !is_dff() ) {
-      throw std::invalid_argument{"not a dff type"};
-    }
+    check_dff();
     return mFaninList[0];
   }
 
@@ -238,9 +236,7 @@ public:
   char
   dff_rval() const
   {
-    if ( !is_dff() ) {
-      throw std::invalid_argument{"not a dff type"};
-    }
+    check_dff();
     return static_cast<char>(mExtId);
   }
 
@@ -261,9 +257,12 @@ public:
 
   /// @brief 入力として定義されたことをセットする．
   void
-  set_input()
+  set_input(
+    SizeType iid ///< [in] 入力番号
+  )
   {
     mType = BfNodeType::Input;
+    mExtId = iid;
   }
 
   /// @brief プリミティブタイプをセットする．
@@ -338,6 +337,84 @@ public:
     mType = BfNodeType::Dff;
     mFaninList = {input_id};
     mExtId = static_cast<SizeType>(rval);
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief input タイプかどうかチェックする．
+  void
+  check_input() const
+  {
+    if ( !is_input() ) {
+      throw std::invalid_argument{"not an input type"};
+    }
+  }
+
+  /// @brief logic タイプかどうかチェックする．
+  void
+  check_logic() const
+  {
+    if ( !is_logic() ) {
+      throw std::invalid_argument{"not a logic type"};
+    }
+  }
+
+  /// @brief primitive タイプかどうかチェックする．
+  void
+  check_primitive() const
+  {
+    if ( !is_primitive() ) {
+      throw std::invalid_argument{"not a primitive type"};
+    }
+  }
+
+  /// @brief aig タイプかどうかチェックする．
+  void
+  check_aig() const
+  {
+    if ( !is_aig() ) {
+      throw std::invalid_argument{"not an aig type"};
+    }
+  }
+
+  /// @brief cover タイプかどうかチェックする．
+  void
+  check_cover() const
+  {
+    if ( !is_cover() ) {
+      throw std::invalid_argument{"not a cover type"};
+    }
+  }
+
+  /// @brief expr タイプかどうかチェックする．
+  void
+  check_expr() const
+  {
+    if ( !is_expr() ) {
+      throw std::invalid_argument{"not an expr type"};
+    }
+  }
+
+  /// @brief cell タイプかどうかチェックする．
+  void
+  check_cell() const
+  {
+    if ( !is_cell() ) {
+      throw std::invalid_argument{"not a cell type"};
+    }
+  }
+
+  /// @brief dff タイプかどうかチェックする．
+  void
+  check_dff() const
+  {
+    if ( !is_dff() ) {
+      throw std::invalid_argument{"not a dff type"};
+    }
   }
 
 

@@ -78,6 +78,23 @@ public:
     return mInputList;
   }
 
+  /// @brief 入力名を返す．
+  string
+  input_name(
+    SizeType pos ///< [in] 位置 ( 0 <= pos < input_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < input_num() );
+    return mInputNameList[pos];
+  }
+
+  /// @brief 入力名のリストを返す．
+  const vector<string>&
+  input_name_list() const
+  {
+    return mInputNameList;
+  }
+
   /// @brief 出力数を返す．
   SizeType
   output_num() const
@@ -100,6 +117,23 @@ public:
   output_list() const
   {
     return mOutputList;
+  }
+
+  /// @brief 出力名を返す．
+  string
+  output_name(
+    SizeType pos ///< [in] 位置 ( 0 <= pos < output_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < output_num() );
+    return mOutputNameList[pos];
+  }
+
+  /// @brief 出力名のリストを返す．
+  const vector<string>&
+  output_name_list() const
+  {
+    return mOutputNameList;
   }
 
   /// @brief DFF数を返す．
@@ -224,13 +258,13 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_node(
-    const string& name ///< [in] 名前
+    const string& name = {} ///< [in] 名前
   );
 
   /// @brief ノードに名前をつける．
   void
   set_node_name(
-    SizeType id,        ///< [in] ID番号
+    SizeType id,       ///< [in] ID番号
     const string& name ///< [in] 名前
   );
 
@@ -353,6 +387,9 @@ private:
 
   // 入力のノード番号のリスト
   vector<SizeType> mInputList;
+
+  // 入力名のリスト
+  vector<string> mInputNameList;
 
   // 出力のノード番号のリスト
   vector<SizeType> mOutputList;

@@ -69,8 +69,10 @@ ModelImpl::set_input(
 )
 {
   auto& node = _node(id);
-  node.set_input();
+  auto iid = mInputList.size();
+  node.set_input(iid);
   mInputList.push_back(id);
+  mInputNameList.push_back(node.name());
 }
 
 // @brief 対応するID番号に出力用の印をつける．
@@ -79,7 +81,9 @@ ModelImpl::set_output(
   SizeType id
 )
 {
+  auto& node = _node(id);
   mOutputList.push_back(id);
+  mOutputNameList.push_back(node.name());
 }
 
 // @brief プリミティブ型のノードの情報をセットする．
