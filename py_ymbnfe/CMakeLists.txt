@@ -1,20 +1,19 @@
+# ===================================================================
+# パッケージの検査
+# ===================================================================
+
 
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
+include_directories(
+  ${Python3_INCLUDE_DIRS}
+  )
 
 
 # ===================================================================
 # サブディレクトリの設定
 # ===================================================================
-
-set ( TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testdata/" )
-
-add_subdirectory ( gtest )
-add_subdirectory ( programs )
-if ( Python3_FOUND )
-  add_subdirectory ( pytest )
-endif (Python3_FOUND)
 
 
 # ===================================================================
@@ -22,10 +21,37 @@ endif (Python3_FOUND)
 # ===================================================================
 
 
+# ===================================================================
+#  ターゲットの設定
+# ===================================================================
 
-# ===================================================================
-#  テスト用のターゲットの設定
-# ===================================================================
+ym_add_object_library ( py_ymbnfe
+  ymbnfe_module.cc
+  PyBfModel.cc
+  PyBfNode.cc
+  )
+
+add_library ( py_ymbnfelib
+  SHARED
+  $<TARGET_OBJECTS:py_ymbnfe_obj>
+  $<TARGET_OBJECTS:py_ymcell_obj>
+  $<TARGET_OBJECTS:py_ymlogic_obj>
+  $<TARGET_OBJECTS:ym_bnfe_obj>
+  $<TARGET_OBJECTS:ym_cell_obj>
+  $<TARGET_OBJECTS:ym_logic_obj>
+  $<TARGET_OBJECTS:ym_base_obj>
+  )
+
+set_target_properties( py_ymbnfelib
+  PROPERTIES
+  PREFIX ""
+  OUTPUT_NAME "ymbnfe"
+  )
+
+target_link_libraries( py_ymbnfelib
+  ${YM_LIB_DEPENDS}
+  ${Python3_LIBRARIES}
+  )
 
 
 # ===================================================================

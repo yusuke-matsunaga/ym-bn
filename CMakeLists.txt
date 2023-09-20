@@ -41,6 +41,9 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
+if ( Python3_FOUND )
+  add_subdirectory ( py_ymbnfe )
+endif ( Python3_FOUND )
 add_subdirectory ( tests )
 
 

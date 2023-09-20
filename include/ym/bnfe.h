@@ -55,6 +55,27 @@ enum class BfNodeType : std::uint8_t {
   Cell   ///< [in] セル型の論理ノード
 };
 
+/// @brief BfNodeType のストリーム出力
+inline
+ostream&
+operator<<(
+  ostream& s,
+  BfNodeType type
+)
+{
+  switch ( type ) {
+  case BfNodeType::None:  s << "None"; break;
+  case BfNodeType::Input: s << "Input"; break;
+  case BfNodeType::Dff:   s << "Dff"; break;
+  case BfNodeType::Prim:  s << "Prim"; break;
+  case BfNodeType::Aig:   s << "Aig"; break;
+  case BfNodeType::Cover: s << "Cover"; break;
+  case BfNodeType::Expr:  s << "Expr"; break;
+  case BfNodeType::Cell:  s << "Cell"; break;
+  }
+  return s;
+}
+
 using BNFE_NAMESPACE::BfModel;
 using BNFE_NAMESPACE::BfNode;
 using BNFE_NAMESPACE::BfCover;
