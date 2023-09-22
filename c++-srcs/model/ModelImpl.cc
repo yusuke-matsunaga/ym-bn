@@ -148,6 +148,30 @@ ModelImpl::set_cell(
   node.set_cell(input_list, cell_id);
 }
 
+// @brief 真理値表型のノードの情報をセットする．
+void
+ModelImpl::set_func(
+  SizeType id,
+  const vector<SizeType>& input_list,
+  SizeType func_id
+)
+{
+  auto& node = _node(id);
+  node.set_func(input_list, func_id);
+}
+
+// @brief BDD型のノードの情報をセットする．
+void
+ModelImpl::set_bdd(
+  SizeType id,
+  const vector<SizeType>& input_list,
+  SizeType bdd_id
+)
+{
+  auto& node = _node(id);
+  node.set_bdd(input_list, bdd_id);
+}
+
 // @brief DFF型のノードの情報をセットする．
 void
 ModelImpl::set_dff(
@@ -234,6 +258,30 @@ ModelImpl::add_expr(
 {
   auto id = expr_num();
   mExprArray.push_back(expr);
+
+  return id;
+}
+
+// @brief 真理値表を追加する．
+SizeType
+ModelImpl::add_func(
+  const TvFunc& func
+)
+{
+  auto id = func_num();
+  mFuncArray.push_back(func);
+
+  return id;
+}
+
+// @brief BDDを追加する．
+SizeType
+ModelImpl::add_bdd(
+  const Bdd& bdd
+)
+{
+  auto id = bdd_num();
+  mBddArray.push_back(bdd);
 
   return id;
 }

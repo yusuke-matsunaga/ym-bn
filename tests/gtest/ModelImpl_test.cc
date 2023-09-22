@@ -244,6 +244,64 @@ TEST( ModelImplTest, set_cell )
   EXPECT_EQ( cell_id, node.cell_id() );
 }
 
+TEST( ModelImplTest, set_func )
+{
+  ModelImpl model;
+
+  auto id1 = model.new_node({});
+  EXPECT_EQ( 0, id1 );
+  model.set_input(id1);
+
+  auto id2 = model.new_node({});
+  EXPECT_EQ( 1, id2 );
+  model.set_input(id2);
+
+  auto id3 = model.new_node({});
+  EXPECT_EQ( 2, id3 );
+
+  vector<SizeType> fanin_list{id1, id2};
+  SizeType func_id = 3;
+  model.set_func(id3, fanin_list, func_id);
+
+  auto& node = model.node(id3);
+  EXPECT_EQ( BfNodeType::TvFunc, node.type() );
+  EXPECT_EQ( fanin_list.size(), node.fanin_num() );
+  for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
+    EXPECT_EQ( fanin_list[i], node.fanin(i) );
+  }
+  EXPECT_EQ( fanin_list, node.fanin_list() );
+  EXPECT_EQ( func_id, node.func_id() );
+}
+
+TEST( ModelImplTest, set_bdd )
+{
+  ModelImpl model;
+
+  auto id1 = model.new_node({});
+  EXPECT_EQ( 0, id1 );
+  model.set_input(id1);
+
+  auto id2 = model.new_node({});
+  EXPECT_EQ( 1, id2 );
+  model.set_input(id2);
+
+  auto id3 = model.new_node({});
+  EXPECT_EQ( 2, id3 );
+
+  vector<SizeType> fanin_list{id1, id2};
+  SizeType bdd_id = 3;
+  model.set_bdd(id3, fanin_list, bdd_id);
+
+  auto& node = model.node(id3);
+  EXPECT_EQ( BfNodeType::Bdd, node.type() );
+  EXPECT_EQ( fanin_list.size(), node.fanin_num() );
+  for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
+    EXPECT_EQ( fanin_list[i], node.fanin(i) );
+  }
+  EXPECT_EQ( fanin_list, node.fanin_list() );
+  EXPECT_EQ( bdd_id, node.bdd_id() );
+}
+
 TEST( ModelImplTest, set_dff )
 {
   ModelImpl model;
@@ -307,6 +365,19 @@ TEST( ModelImplTest, add_expr )
   auto id = model.add_expr(expr);
 
   EXPECT_EQ( expr, model.expr(id) );
+}
+
+TEST( ModelImplTest, add_func )
+{
+  ModelImpl model;
+
+  auto func1 = TvFunc::make_zero(4);
+  auto id1 = model.add_func(func1);
+  auto func2 = TvFunc{2, vector<int>{0, 1, 1, 0}};
+  auto id2 = model.add_func(func2);
+
+  EXPECT_EQ( func1, model.func(id1) );
+  EXPECT_EQ( func2, model.func(id2) );
 }
 
 END_NAMESPACE_YM_BNFE

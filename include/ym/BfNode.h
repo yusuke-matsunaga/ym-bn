@@ -112,6 +112,14 @@ public:
   bool
   is_cell() const;
 
+  /// @brief FUNC タイプの論理ノードの時 true を返す．
+  bool
+  is_func() const;
+
+  /// @brief BDD タイプの論理ノードの時 true を返す．
+  bool
+  is_bdd() const;
+
   /// @brief DFFノードの時 true を返す．
   bool
   is_dff() const;
@@ -179,6 +187,18 @@ public:
   /// is_cell() が true の時のみ意味を持つ．
   SizeType
   cell_id() const;
+
+  /// @brief ノードの関数番号を返す．
+  ///
+  /// is_func() が true の時のみ意味を持つ．
+  SizeType
+  func_id() const;
+
+  /// @brief ノードのBDD番号を返す．
+  ///
+  /// is_bdd() が true の時のみ意味を持つ．
+  SizeType
+  bdd_id() const;
 
   /// @brief DFFノードの入力ノードを返す．
   ///

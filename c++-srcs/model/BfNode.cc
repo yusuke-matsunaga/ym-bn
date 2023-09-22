@@ -100,6 +100,20 @@ BfNode::is_cell() const
   return type() == BfNodeType::Cell;
 }
 
+// @brief FUNC タイプの論理ノードの時 true を返す．
+bool
+BfNode::is_func() const
+{
+  return type() == BfNodeType::TvFunc;
+}
+
+// @brief BDD タイプの論理ノードの時 true を返す．
+bool
+BfNode::is_bdd() const
+{
+  return type() == BfNodeType::Bdd;
+}
+
 // @brief DFFノードの時 true を返す．
 bool
 BfNode::is_dff() const
@@ -188,6 +202,20 @@ SizeType
 BfNode::cell_id() const
 {
   return node_impl().cell_id();
+}
+
+// @brief ノードの関数番号を返す．
+SizeType
+BfNode::func_id() const
+{
+  return node_impl().func_id();
+}
+
+// @brief ノードのBDD番号を返す．
+SizeType
+BfNode::bdd_id() const
+{
+  return node_impl().bdd_id();
 }
 
 // @brief DFFノードの入力ノードを返す．

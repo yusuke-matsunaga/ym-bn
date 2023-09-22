@@ -10,6 +10,9 @@
 
 #include "ym/bnfe.h"
 #include "ym/BfCover.h"
+#include "ym/Expr.h"
+#include "ym/TvFunc.h"
+#include "ym/Bdd.h"
 #include "NodeImpl.h"
 
 
@@ -228,6 +231,40 @@ public:
     return mExprArray[expr_id];
   }
 
+  /// @brief 真理値表型の関数の数を返す．
+  SizeType
+  func_num() const
+  {
+    return mFuncArray.size();
+  }
+
+  /// @brief 真理値表型の関数を返す．
+  const TvFunc&
+  func(
+    SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= func_id && func_id < func_num() );
+    return mFuncArray[func_id];
+  }
+
+  /// @brief BDDの数を返す．
+  SizeType
+  bdd_num() const
+  {
+    return mBddArray.size();
+  }
+
+  /// @brief BDDを返す．
+  const Bdd&
+  bdd(
+    SizeType bdd_id ///< [in] BDD番号 ( 0 <= bdd_id < bdd_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= bdd_id && bdd_id < bdd_num() );
+    return mBddArray[bdd_id];
+  }
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -322,6 +359,22 @@ public:
     SizeType cell_id                    ///< [in] セル番号
   );
 
+  /// @brief 真理値表型のノードの情報をセットする．
+  void
+  set_func(
+    SizeType id,                        ///< [in] ID番号
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType func_id                    ///< [in] 関数番号
+  );
+
+  /// @brief BDD型のノードの情報をセットする．
+  void
+  set_bdd(
+    SizeType id,                        ///< [in] ID番号
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType bdd_id                     ///< [in] BDD番号
+  );
+
   /// @brief DFF型のノードの情報をセットする．
   void
   set_dff(
@@ -348,6 +401,20 @@ public:
   SizeType
   add_expr(
     const Expr& expr ///< [in] 論理式
+  );
+
+  /// @brief 真理値表を追加する．
+  /// @return 関数番号を返す．
+  SizeType
+  add_func(
+    const TvFunc& func ///< [in] 真理値表型の関数
+  );
+
+  /// @brief BDDを追加する．
+  /// @return BDD番号を返す．
+  SizeType
+  add_bdd(
+    const Bdd& bdd ///< [in] BDD
   );
 
 
@@ -411,6 +478,12 @@ private:
 
   // 論理式番号をキーにして論理式を格納する配列
   vector<Expr> mExprArray;
+
+  // 関数番号をキーにして真理値表型の関数を格納する配列
+  vector<TvFunc> mFuncArray;
+
+  // BDD番号をキーにしてBDDを格納する配列
+  vector<Bdd> mBddArray;
 
 };
 

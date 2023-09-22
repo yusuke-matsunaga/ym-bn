@@ -27,6 +27,7 @@ END_NAMESPACE_YM
 /// @brief bnfe 用の名前空間
 #define BNFE_NAMESPACE YM_NAMESPACE::BNFE_NSNAME
 
+
 BEGIN_NAMESPACE_YM_BNFE
 
 //////////////////////////////////////////////////////////////////////
@@ -45,14 +46,16 @@ BEGIN_NAMESPACE_YM
 /// @brief ノードの種類を表す列挙型
 //////////////////////////////////////////////////////////////////////
 enum class BfNodeType : std::uint8_t {
-  None,  ///< [in] 不正値
-  Input, ///< [in] 入力
-  Dff,   ///< [in] DFF
-  Prim,  ///< [in] プリミティブ型の論理ノード
-  Aig,   ///< [in] AIG型の論理ノード
-  Cover, ///< [in] カバー型の論理ノード
-  Expr,  ///< [in] 論理式型の論理ノード
-  Cell   ///< [in] セル型の論理ノード
+  None,   ///< [in] 不正値
+  Input,  ///< [in] 入力
+  Dff,    ///< [in] DFF
+  Prim,   ///< [in] プリミティブ型の論理ノード
+  Aig,    ///< [in] AIG型の論理ノード
+  Cover,  ///< [in] カバー型の論理ノード
+  Expr,   ///< [in] 論理式型の論理ノード
+  Cell,   ///< [in] セル型の論理ノード
+  TvFunc, ///< [in] 真理値表型の論理ノード
+  Bdd     ///< [in] BDD型の論理ノード
 };
 
 /// @brief BfNodeType のストリーム出力
@@ -64,14 +67,16 @@ operator<<(
 )
 {
   switch ( type ) {
-  case BfNodeType::None:  s << "None"; break;
-  case BfNodeType::Input: s << "Input"; break;
-  case BfNodeType::Dff:   s << "Dff"; break;
-  case BfNodeType::Prim:  s << "Prim"; break;
-  case BfNodeType::Aig:   s << "Aig"; break;
-  case BfNodeType::Cover: s << "Cover"; break;
-  case BfNodeType::Expr:  s << "Expr"; break;
-  case BfNodeType::Cell:  s << "Cell"; break;
+  case BfNodeType::None:   s << "None"; break;
+  case BfNodeType::Input:  s << "Input"; break;
+  case BfNodeType::Dff:    s << "Dff"; break;
+  case BfNodeType::Prim:   s << "Prim"; break;
+  case BfNodeType::Aig:    s << "Aig"; break;
+  case BfNodeType::Cover:  s << "Cover"; break;
+  case BfNodeType::Expr:   s << "Expr"; break;
+  case BfNodeType::Cell:   s << "Cell"; break;
+  case BfNodeType::TvFunc: s << "TvFunc"; break;
+  case BfNodeType::Bdd:    s << "Bdd"; break;
   }
   return s;
 }

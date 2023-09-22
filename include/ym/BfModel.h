@@ -155,6 +155,16 @@ public:
     const string& filename ///< [in] ファイル名
   );
 
+  /// @brief truth ファイルの読み込みを行う．
+  /// @return 結果の BfModel を返す．
+  ///
+  /// 読み込みが失敗したら std::invalid_argument 例外を送出する．
+  static
+  BfModel
+  read_truth(
+    const string& filename ///< [in] ファイル名
+  );
+
   /// @}
   //////////////////////////////////////////////////////////////////////
 
@@ -277,6 +287,26 @@ public:
     SizeType expr_id ///< [in] 論理式番号 ( 0 <= expr_id < expr_num() )
   ) const;
 
+  /// @brief 真理値表型の関数の数を返す．
+  SizeType
+  func_num() const;
+
+  /// @brief 真理値表型の関数を返す．
+  const TvFunc&
+  func(
+    SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
+  ) const;
+
+  /// @brief BDDの数を返す．
+  SizeType
+  bdd_num() const;
+
+  /// @brief BDDを返す．
+  Bdd
+  bdd(
+    SizeType bdd_id ///< [in] BDD番号 ( 0 <= bdd_id < bdd_num() )
+  ) const;
+
   /// @brief 内容を出力する．
   void
   print(
@@ -307,19 +337,6 @@ public:
 
   /// @}
   //////////////////////////////////////////////////////////////////////
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // Python バインディング用の関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 内部の実装を返す．
-  ModelImpl*
-  _impl() const
-  {
-    return mImpl.get();
-  }
 
 
 private:

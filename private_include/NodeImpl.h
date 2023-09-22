@@ -71,6 +71,12 @@ public:
     if ( is_cell() ) {
       return true;
     }
+    if ( is_func() ) {
+      return true;
+    }
+    if ( is_bdd() ) {
+      return true;
+    }
     return false;
   }
 
@@ -107,6 +113,20 @@ public:
   is_cell() const
   {
     return mType == BfNodeType::Cell;
+  }
+
+  /// @brief 真理値表型の論理ノードの時 true を返す．
+  bool
+  is_func() const
+  {
+    return mType == BfNodeType::TvFunc;
+  }
+
+  /// @brief BDD型の論理ノードの時 true を返す．
+  bool
+  is_bdd() const
+  {
+    return mType == BfNodeType::Bdd;
   }
 
   /// @brief DFFノードの時 true を返す．
@@ -220,6 +240,26 @@ public:
     return mExtId;
   }
 
+  /// @brief 関数番号を得る．
+  ///
+  /// is_func() == true の時のみ有効
+  SizeType
+  func_id() const
+  {
+    check_func();
+    return mExtId;
+  }
+
+  /// @brief BDD番号を得る．
+  ///
+  /// is_bdd() == true の時のみ有効
+  SizeType
+  bdd_id() const
+  {
+    check_bdd();
+    return mExtId;
+  }
+
   /// @brief DFFの入力ノード番号を得る．
   ///
   /// is_dff() == true の時のみ有効
@@ -327,6 +367,30 @@ public:
     mExtId = cell_id;
   }
 
+  /// @brief 真理値表タイプをセットする．
+  void
+  set_func(
+    const vector<SizeType>& fanin_list,
+    SizeType func_id
+  )
+  {
+    mType = BfNodeType::TvFunc;
+    mFaninList = fanin_list;
+    mExtId = func_id;
+  }
+
+  /// @brief BDDタイプをセットする．
+  void
+  set_bdd(
+    const vector<SizeType>& fanin_list,
+    SizeType bdd_id
+  )
+  {
+    mType = BfNodeType::Bdd;
+    mFaninList = fanin_list;
+    mExtId = bdd_id;
+  }
+
   /// @brief DFFタイプをセットする．
   void
   set_dff(
@@ -405,6 +469,24 @@ private:
   {
     if ( !is_cell() ) {
       throw std::invalid_argument{"not a cell type"};
+    }
+  }
+
+  /// @brief func タイプかどうかチェックする．
+  void
+  check_func() const
+  {
+    if ( !is_func() ) {
+      throw std::invalid_argument{"not a func type"};
+    }
+  }
+
+  /// @brief bdd タイプかどうかチェックする．
+  void
+  check_bdd() const
+  {
+    if ( !is_bdd() ) {
+      throw std::invalid_argument{"not a bdd type"};
     }
   }
 

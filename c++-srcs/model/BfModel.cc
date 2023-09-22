@@ -257,6 +257,38 @@ BfModel::expr(
   return mImpl->expr(expr_id);
 }
 
+// @brief 真理値表型の関数の数を返す．
+SizeType
+BfModel::func_num() const
+{
+  return mImpl->func_num();
+}
+
+// @brief 真理値表型の関数を返す．
+const TvFunc&
+BfModel::func(
+  SizeType func_id
+) const
+{
+  return mImpl->func(func_id);
+}
+
+// @brief BDDの数を返す．
+SizeType
+BfModel::bdd_num() const
+{
+  return mImpl->bdd_num();
+}
+
+// @brief BDDを返す．
+Bdd
+BfModel::bdd(
+  SizeType bdd_id
+) const
+{
+  return mImpl->bdd(bdd_id);
+}
+
 BEGIN_NONAMESPACE
 
 inline
@@ -324,6 +356,12 @@ BfModel::print(
     else if ( node.is_cell() ) {
       s << "Cell#" << node.cell_id();
     }
+    else if ( node.is_func() ) {
+      s << "Func#" << node.func_id();
+    }
+    else if ( node.is_bdd() ) {
+      s << "Bdd#" << node.bdd_id();
+    }
     else {
       ASSERT_NOT_REACHED;
     }
@@ -346,6 +384,13 @@ BfModel::print(
     for ( SizeType id = 0; id < expr_num(); ++ id ) {
       s << "Expr#" << id << ":" << endl
 	<< expr(id) << endl;
+    }
+  }
+  if ( func_num() > 0 ) {
+    s << endl;
+    for ( SizeType id = 0; id < func_num(); ++ id ) {
+      s << "Func#" << id << ":" << endl
+	<< func(id) << endl;
     }
   }
 }

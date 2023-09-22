@@ -62,6 +62,7 @@ set ( bnfe_SOURCES
   c++-srcs/iscas89/Iscas89Parser.cc
   c++-srcs/iscas89/Iscas89Scanner.cc
   #c++-srcs/iscas89/MuxHandler.cc
+  c++-srcs/truth/TruthReader.cc
   c++-srcs/model/BfModel.cc
   c++-srcs/model/BfNode.cc
   c++-srcs/model/BfCover.cc

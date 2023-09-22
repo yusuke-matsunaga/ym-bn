@@ -67,6 +67,22 @@ target_link_libraries ( read_aag
   ${YM_LIB_DEPENDS}
   )
 
+add_executable ( read_truth
+  read_truth.cc
+  $<TARGET_OBJECTS:ym_bnfe_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
+target_compile_options ( read_truth
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( read_truth
+  ${YM_LIB_DEPENDS}
+  )
+
 
 # ===================================================================
 #  インストールターゲットの設定
