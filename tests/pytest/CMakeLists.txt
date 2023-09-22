@@ -79,6 +79,10 @@ target_link_libraries ( py_ymbnfe_d
 # テストターゲット
 # ===================================================================
 
-add_test( cell_py_ymbnfe_test
+add_test( bnfe_py_ymbnfe_test
   py_ymbnfe -m pytest ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+
+set_property( TEST bnfe_py_ymbnfe_test
+  PROPERTY ENVIRONMENT TESTDATA_DIR=${TESTDATA_DIR}
   )
