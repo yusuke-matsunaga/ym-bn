@@ -42,7 +42,7 @@ include_directories(
 # ===================================================================
 
 if ( Python3_FOUND )
-  add_subdirectory ( py_ymbnfe )
+  add_subdirectory ( py_ymbnir )
 endif ( Python3_FOUND )
 add_subdirectory ( tests )
 
@@ -51,7 +51,7 @@ add_subdirectory ( tests )
 #  ソースの設定
 # ===================================================================
 
-set ( bnfe_SOURCES
+set ( bnir_SOURCES
   c++-srcs/aig/AigParser.cc
   c++-srcs/blif/BlifParser.cc
   c++-srcs/blif/BlifScanner.cc
@@ -63,9 +63,9 @@ set ( bnfe_SOURCES
   c++-srcs/iscas89/Iscas89Scanner.cc
   #c++-srcs/iscas89/MuxHandler.cc
   c++-srcs/truth/TruthReader.cc
-  c++-srcs/model/BfModel.cc
-  c++-srcs/model/BfNode.cc
-  c++-srcs/model/BfCover.cc
+  c++-srcs/model/BnModel.cc
+  c++-srcs/model/BnNode.cc
+  c++-srcs/model/BnCover.cc
   c++-srcs/model/ModelImpl.cc
   )
 
@@ -74,6 +74,6 @@ set ( bnfe_SOURCES
 #  ターゲットの設定
 # ===================================================================
 
-ym_add_object_library ( ym_bnfe
-  ${bnfe_SOURCES}
+ym_add_object_library ( ym_bnir
+  ${bnir_SOURCES}
   )

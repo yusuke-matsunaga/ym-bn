@@ -7,23 +7,22 @@
 /// All rights reserved.
 
 #include "BlifParser.h"
-#include "ym/BfModel.h"
-//#include "ym/BfCover.h"
+#include "ym/BnModel.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/ClibPin.h"
 #include "ym/MsgMgr.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 //////////////////////////////////////////////////////////////////////
-// クラス BfModel
+// クラス BnModel
 //////////////////////////////////////////////////////////////////////
 
 // @brief blif ファイルの読み込みを行う．
-BfModel
-BfModel::read_blif(
+BnModel
+BnModel::read_blif(
   const string& filename
 )
 {
@@ -31,18 +30,18 @@ BfModel::read_blif(
 }
 
 // @brief blif ファイルの読み込みを行う(セルライブラリ付き)．
-BfModel
-BfModel::read_blif(
+BnModel
+BnModel::read_blif(
   const string& filename,
   const ClibCellLibrary& cell_library
 )
 {
-  BfModel model;
+  BnModel model;
 
   BlifParser parser;
   if ( !parser.read(filename, cell_library, model.mImpl.get()) ) {
     ostringstream buf;
-    buf << "BfModel::read_blif(\"" << filename << "\") failed.";
+    buf << "BnModel::read_blif(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
   }
 
@@ -959,4 +958,4 @@ BlifParser::cur_loc() const
   return mCurLoc;
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR

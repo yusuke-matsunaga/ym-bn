@@ -8,13 +8,13 @@
 /// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnfe.h"
+#include "ym/bnir.h"
 #include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "BlifToken.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifScanner BlifScanner.h "BlifScanner.h"
@@ -82,6 +82,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR
 
 #endif // BLIFSCANNER_H

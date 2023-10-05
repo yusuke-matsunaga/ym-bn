@@ -9,7 +9,7 @@
 #include "ym/BfCover.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 //////////////////////////////////////////////////////////////////////
 // クラス BfCover
@@ -27,7 +27,7 @@ BfCover::expr() const
 
 // @brief 内容を出力する．
 void
-BfCover::print(
+BnCover::print(
   ostream& s
 ) const
 {
@@ -42,4 +42,4 @@ BfCover::print(
   }
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR

@@ -1,8 +1,8 @@
-#ifndef BFNODE_H
-#define BFNODE_H
+#ifndef BNNODE_H
+#define BNNODE_H
 
-/// @file BfNode.h
-/// @brief BfNode のヘッダファイル
+/// @file BnNode.h
+/// @brief BnNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -12,14 +12,14 @@
 #include "ym/logic.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 class ModelImpl;
 class NodeImpl;
 
 //////////////////////////////////////////////////////////////////////
-/// @class BfNode BfNode.h "BfNode.h"
-/// @brief BfModel のノードを表すクラス
+/// @class BnNode BnNode.h "BnNode.h"
+/// @brief BnModel のノードを表すクラス
 ///
 /// 以下の情報を持つ．
 /// - ID
@@ -31,17 +31,17 @@ class NodeImpl;
 /// - カバー番号(種類がCoverの時のみ)
 /// - セル番号(種類がCellの時のみ)
 //////////////////////////////////////////////////////////////////////
-class BfNode
+class BnNode
 {
 public:
 
   /// @brief 空のコンストラクタ
   ///
   /// 不正な値となる．
-  BfNode() = default;
+  BnNode() = default;
 
   /// @brief コンストラクタ
-  BfNode(
+  BnNode(
     const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
     SizeType id                       ///< [in] ノード番号
   ) : mImpl{impl},
@@ -50,7 +50,7 @@ public:
   }
 
   /// @brief デストラクタ
-  ~BfNode();
+  ~BnNode();
 
 
 public:
@@ -65,8 +65,8 @@ public:
     return mImpl != nullptr;
   }
 
-  /// @brief 親の BfModel を返す．
-  BfModel
+  /// @brief 親の BnModel を返す．
+  BnModel
   parent_model() const;
 
   /// @brief ノード番号を返す．
@@ -81,7 +81,7 @@ public:
   name() const;
 
   /// @brief ノードの種類を返す．
-  BfNodeType
+  BnNodeType
   type() const;
 
   /// @brief 入力ノードの時 true を返す．
@@ -139,7 +139,7 @@ public:
   /// @brief ファンインのノードを返す．
   ///
   /// is_logic() が true の時のみ意味を持つ．
-  BfNode
+  BnNode
   fanin(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < node_fanin_num() )
   ) const;
@@ -147,7 +147,7 @@ public:
   /// @brief ファンインのノードのリストを返す．
   ///
   /// is_logic() が true の時のみ意味を持つ．
-  vector<BfNode>
+  vector<BnNode>
   fanin_list() const;
 
   /// @brief プリミティブタイプを返す．
@@ -203,7 +203,7 @@ public:
   /// @brief DFFノードの入力ノードを返す．
   ///
   /// is_dff() が true の時のみ意味を持つ．
-  BfNode
+  BnNode
   dff_src() const;
 
   /// @brief DFFノードのリセット値を返す．
@@ -215,7 +215,7 @@ public:
   /// @brief 等価比較演算子
   bool
   operator==(
-    const BfNode& right ///< [in] 比較対象のオブジェクト
+    const BnNode& right ///< [in] 比較対象のオブジェクト
   ) const
   {
     return mImpl == right.mImpl && mId == right.mId;
@@ -224,7 +224,7 @@ public:
   /// @brief 非等価比較演算子
   bool
   operator!=(
-    const BfNode& right ///< [in] 比較対象のオブジェクト
+    const BnNode& right ///< [in] 比較対象のオブジェクト
   ) const
   {
     return !operator==(right);
@@ -240,14 +240,14 @@ private:
   const NodeImpl&
   node_impl() const;
 
-  /// @brief ID 番号から BfNode を作る．
-  BfNode
+  /// @brief ID 番号から BnNode を作る．
+  BnNode
   from_id(
     SizeType id
   ) const;
 
-  /// @brief ID 番号のリストから vector<BfNode> を作る．
-  vector<BfNode>
+  /// @brief ID 番号のリストから vector<BnNode> を作る．
+  vector<BnNode>
   from_id_list(
     const vector<SizeType>& id_list
   ) const;
@@ -266,6 +266,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR
 
-#endif // BFNODE_H
+#endif // BNNODE_H

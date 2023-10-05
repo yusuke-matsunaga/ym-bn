@@ -16,7 +16,7 @@ const bool debug_read_token = false;
 
 END_NONAMESPACE
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 //////////////////////////////////////////////////////////////////////
 // iscas89 用の字句解析器
@@ -206,4 +206,4 @@ Iscas89Scanner::scan()
   }
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR

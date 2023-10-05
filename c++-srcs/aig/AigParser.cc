@@ -8,12 +8,12 @@
 
 #include "AigParser.h"
 #include "ModelImpl.h"
-#include "ym/BfModel.h"
+#include "ym/BnModel.h"
 #include "ym/MsgMgr.h"
 #include "ym/FileRegion.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 BEGIN_NONAMESPACE
 
@@ -23,21 +23,21 @@ END_NONAMESPACE
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス BfModel
+// クラス BnModel
 //////////////////////////////////////////////////////////////////////
 
 // @brief aag ファイルの読み込みを行う．
-BfModel
-BfModel::read_aag(
+BnModel
+BnModel::read_aag(
   const string& filename
 )
 {
-  BfModel model;
+  BnModel model;
 
   AigParser parser;
   if ( !parser.read_aag(filename, model.mImpl.get()) ) {
     ostringstream buf;
-    buf << "BfModel::read_aag(\"" << filename << "\") failed.";
+    buf << "BnModel::read_aag(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
   }
 
@@ -45,17 +45,17 @@ BfModel::read_aag(
 }
 
 // @brief aig ファイルの読み込みを行う．
-BfModel
-BfModel::read_aig(
+BnModel
+BnModel::read_aig(
   const string& filename
 )
 {
-  BfModel model;
+  BnModel model;
 
   AigParser parser;
   if ( !parser.read_aig(filename, model.mImpl.get()) ) {
     ostringstream buf;
-    buf << "BfModel::read_aig(\"" << filename << "\") failed.";
+    buf << "BnModel::read_aig(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
   }
 
@@ -672,4 +672,4 @@ AigParser::const1()
   return mConst1;
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR

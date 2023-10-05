@@ -57,6 +57,13 @@ public:
     return mComment;
   }
 
+  /// @brief ノード数を返す．
+  SizeType
+  node_num() const
+  {
+    return mNodeArray.size();
+  }
+
   /// @brief 入力数を返す．
   SizeType
   input_num() const
@@ -297,6 +304,141 @@ public:
   new_node(
     const string& name = {} ///< [in] 名前
   );
+
+  /// @brief 新しい入力ノードを作る．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_input(
+    const string& name = {} ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_input(id);
+    return id;
+  }
+
+  /// @brief 新しいプリミティブ型の論理ノードを作る．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_primitive(
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    PrimType type,                      ///< [in] プリミティブタイプ
+    const string& name = {}             ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_primitive(id, input_list, type);
+    return id;
+  }
+
+  /// @brief 新しいAIG型の論理ノードを作る．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_aig(
+    SizeType src0,          ///< [in] ソース0のID番号
+    SizeType src1,          ///< [in] ソース1のID番号
+    bool inv0,              ///< [in] ソース0の反転属性
+    bool inv1,              ///< [in] ソース1の反転属性
+    const string& name = {} ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_aig(id, src0, src1, inv0, inv1);
+    return id;
+  }
+
+  /// @brief 新しいカバー型の論理ノードを作る．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_cover(
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType cover_id,                  ///< [in] カバー番号
+    const string& name = {}             ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_cover(id, input_list, cover_id);
+    return id;
+  }
+
+  /// @brief 論理式型のノードの情報をセットする．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_expr(
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType expr_id,                   ///< [in] 論理式番号
+    const string& name = {}             ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_expr(id, input_list, expr_id);
+    return id;
+  }
+
+  /// @brief セル型のノードの情報をセットする．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_cell(
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType cell_id,                   ///< [in] セル番号
+    const string& name = {}             ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_cell(id, input_list, cell_id);
+    return id;
+  }
+
+  /// @brief 真理値表型のノードの情報をセットする．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_func(
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType func_id,                   ///< [in] 関数番号
+    const string& name = {}             ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_func(id, input_list, func_id);
+    return id;
+  }
+
+  /// @brief BDD型のノードの情報をセットする．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_bdd(
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType bdd_id,                    ///< [in] BDD番号
+    const string& name = {}             ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_bdd(id, input_list, bdd_id);
+    return id;
+  }
+
+  /// @brief DFF型のノードの情報をセットする．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_dff(
+    SizeType src_id,        ///< [in] 入力の識別子番号
+    char rval,              ///< [in] リセット値
+    const string& name = {} ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_dff(id, src_id, rval);
+    return id;
+  }
 
   /// @brief ノードに名前をつける．
   void

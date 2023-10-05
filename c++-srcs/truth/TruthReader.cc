@@ -7,22 +7,22 @@
 /// All rights reserved.
 
 #include "TruthReader.h"
-#include "ym/BfModel.h"
+#include "ym/BnModel.h"
 #include "ym/TvFunc.h"
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 //////////////////////////////////////////////////////////////////////
-// クラス BfModel
+// クラス BnModel
 //////////////////////////////////////////////////////////////////////
 
 
 // @brief .truth 形式のファイルを読み込む．
 // @return ネットワークを返す．
-BfModel
-BfModel::read_truth(
+BnModel
+BnModel::read_truth(
   const string& filename ///< [in] ファイル名
 )
 {
@@ -33,7 +33,7 @@ BfModel::read_truth(
     throw std::invalid_argument{buf.str()};
   }
 
-  BfModel model;
+  BnModel model;
   TruthReader reader;
   reader.read(s, model.mImpl.get());
   return model;
@@ -74,8 +74,7 @@ TruthReader::read(
     // 入力の生成
     vector<SizeType> input_list(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {
-      auto id = model->new_node();
-      model->set_input(id);
+      auto id = model->new_input();
       input_list[i] = id;
     }
     // 論理ノードの生成
@@ -88,8 +87,7 @@ TruthReader::read(
     }
     for ( SizeType i = 0; i < no; ++ i ) {
       auto func_id = model->add_func(func_vect[i]);
-      auto id = model->new_node();
-      model->set_func(id, fanin_list, func_id);
+      auto id = model->new_func(fanin_list, func_id);
       model->set_output(id);
     }
   }
@@ -97,4 +95,4 @@ TruthReader::read(
   model->make_logic_list();
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR

@@ -8,14 +8,14 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnfe.h"
+#include "ym/bnir.h"
 #include "ym/ClibCellLibrary.h"
 #include "BlifScanner.h"
 #include "ModelImpl.h"
 #include "CoverMgr.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifParser BlifParser.h "ym/BlifParser.h"
@@ -236,6 +236,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR
 
 #endif // BLIFPARSER_H

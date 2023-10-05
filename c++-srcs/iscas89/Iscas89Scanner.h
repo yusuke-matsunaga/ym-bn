@@ -8,13 +8,13 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnfe.h"
+#include "ym/bnir.h"
 #include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "Iscas89Token.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 //////////////////////////////////////////////////////////////////////
 /// @class Iscas89Scanner Iscas89Scanner.h "Iscas89Scanner.h"
@@ -98,6 +98,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR
 
 #endif // ISCAS89SCANNER_H

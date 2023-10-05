@@ -1,143 +1,143 @@
 
-/// @file BfNode.cc
-/// @brief BfNode の実装ファイル
+/// @file BnNode.cc
+/// @brief BnNode の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BfNode.h"
-#include "ym/BfModel.h"
+#include "ym/BnNode.h"
+#include "ym/BnModel.h"
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BNIR
 
 //////////////////////////////////////////////////////////////////////
-// クラス BfNode
+// クラス BnNode
 //////////////////////////////////////////////////////////////////////
 
 // @brief デストラクタ
-BfNode::~BfNode()
+BnNode::~BnNode()
 {
 }
 
-// @brief 親の BfModel を返す．
-BfModel
-BfNode::parent_model() const
+// @brief 親の BnModel を返す．
+BnModel
+BnNode::parent_model() const
 {
   if ( !is_valid() ) {
-    throw std::invalid_argument{"BfNode: invalid data"};
+    throw std::invalid_argument{"BnNode: invalid data"};
   }
-  return BfModel{mImpl};
+  return BnModel{mImpl};
 }
 
 // @brief ノード名を返す．
 const string&
-BfNode::name() const
+BnNode::name() const
 {
   return node_impl().name();
 }
 
 // @brief ノードの種類を返す．
-BfNodeType
-BfNode::type() const
+BnNodeType
+BnNode::type() const
 {
   return node_impl().type();
 }
 
 // @brief 入力ノードの時 true を返す．
 bool
-BfNode::is_input() const
+BnNode::is_input() const
 {
-  return type() == BfNodeType::Input;
+  return type() == BnNodeType::Input;
 }
 
 // @brief 論理ノードの時 true を返す．
 bool
-BfNode::is_logic() const
+BnNode::is_logic() const
 {
   auto type = this->type();
-  return type == BfNodeType::Prim ||
-    type == BfNodeType::Aig ||
-    type == BfNodeType::Cover ||
-    type == BfNodeType::Expr ||
-    type == BfNodeType::Cell;
+  return type == BnNodeType::Prim ||
+    type == BnNodeType::Aig ||
+    type == BnNodeType::Cover ||
+    type == BnNodeType::Expr ||
+    type == BnNodeType::Cell;
 }
 
 // @brief PRIM タイプの論理ノードの時 true を返す．
 bool
-BfNode::is_primitive() const
+BnNode::is_primitive() const
 {
-  return type() == BfNodeType::Prim;
+  return type() == BnNodeType::Prim;
 }
 
 // @brief AIG タイプの論理ノードの時 true を返す．
 bool
-BfNode::is_aig() const
+BnNode::is_aig() const
 {
-  return type() == BfNodeType::Aig;
+  return type() == BnNodeType::Aig;
 }
 
 // @brief COVER タイプの論理ノードの時 true を返す．
 bool
-BfNode::is_cover() const
+BnNode::is_cover() const
 {
-  return type() == BfNodeType::Cover;
+  return type() == BnNodeType::Cover;
 }
 
 // @brief EXPR タイプの論理ノードの時 true を返す．
 bool
-BfNode::is_expr() const
+BnNode::is_expr() const
 {
-  return type() == BfNodeType::Expr;
+  return type() == BnNodeType::Expr;
 }
 
 // @brief CELL タイプの論理ノードの時 true を返す．
 bool
-BfNode::is_cell() const
+BnNode::is_cell() const
 {
-  return type() == BfNodeType::Cell;
+  return type() == BnNodeType::Cell;
 }
 
 // @brief FUNC タイプの論理ノードの時 true を返す．
 bool
-BfNode::is_func() const
+BnNode::is_func() const
 {
-  return type() == BfNodeType::TvFunc;
+  return type() == BnNodeType::TvFunc;
 }
 
 // @brief BDD タイプの論理ノードの時 true を返す．
 bool
-BfNode::is_bdd() const
+BnNode::is_bdd() const
 {
-  return type() == BfNodeType::Bdd;
+  return type() == BnNodeType::Bdd;
 }
 
 // @brief DFFノードの時 true を返す．
 bool
-BfNode::is_dff() const
+BnNode::is_dff() const
 {
-  return type() == BfNodeType::Dff;
+  return type() == BnNodeType::Dff;
 }
 
 // @brief 入力番号を返す．
 SizeType
-BfNode::input_id() const
+BnNode::input_id() const
 {
   return node_impl().input_id();
 }
 
 // @brief ノードのファンイン数を返す．
 SizeType
-BfNode::fanin_num() const
+BnNode::fanin_num() const
 {
   return node_impl().fanin_num();
 }
 
 // @brief ノードのファンインのノードを返す．
-BfNode
-BfNode::fanin(
+BnNode
+BnNode::fanin(
   SizeType pos
 ) const
 {
@@ -145,22 +145,22 @@ BfNode::fanin(
 }
 
 // @brief ノードのファンインのノードのリストを返す．
-vector<BfNode>
-BfNode::fanin_list() const
+vector<BnNode>
+BnNode::fanin_list() const
 {
   return from_id_list(node_impl().fanin_list());
 }
 
 // @brief ノードのプリミティブタイプを返す．
 PrimType
-BfNode::primitive_type() const
+BnNode::primitive_type() const
 {
   return node_impl().primitive_type();
 }
 
 // @brief ファンインの反転属性を返す．
 bool
-BfNode::fanin_inv(
+BnNode::fanin_inv(
   SizeType pos
 ) const
 {
@@ -169,14 +169,14 @@ BfNode::fanin_inv(
 
 // @brief カバー番号を返す．
 SizeType
-BfNode::cover_id() const
+BnNode::cover_id() const
 {
   return node_impl().cover_id();
 }
 
 // @brief ノードのカバーを返す．
-const BfCover&
-BfNode::cover() const
+const BnCover&
+BnNode::cover() const
 {
   auto id = cover_id();
   return mImpl->cover(id);
@@ -184,14 +184,14 @@ BfNode::cover() const
 
 // @brief 論理式番号を返す．
 SizeType
-BfNode::expr_id() const
+BnNode::expr_id() const
 {
   return node_impl().expr_id();
 }
 
 // @brief 論理式を返す．
 const Expr&
-BfNode::expr() const
+BnNode::expr() const
 {
   auto id = expr_id();
   return mImpl->expr(id);
@@ -199,69 +199,69 @@ BfNode::expr() const
 
 // @brief ノードのセル番号を返す．
 SizeType
-BfNode::cell_id() const
+BnNode::cell_id() const
 {
   return node_impl().cell_id();
 }
 
 // @brief ノードの関数番号を返す．
 SizeType
-BfNode::func_id() const
+BnNode::func_id() const
 {
   return node_impl().func_id();
 }
 
 // @brief ノードのBDD番号を返す．
 SizeType
-BfNode::bdd_id() const
+BnNode::bdd_id() const
 {
   return node_impl().bdd_id();
 }
 
 // @brief DFFノードの入力ノードを返す．
-BfNode
-BfNode::dff_src() const
+BnNode
+BnNode::dff_src() const
 {
   return from_id(node_impl().dff_src());
 }
 
 // @brief DFFノードのリセット値を返す．
 char
-BfNode::dff_rval() const
+BnNode::dff_rval() const
 {
   return node_impl().dff_rval();
 }
 
 // @brief ノードの実体を返す．
 const NodeImpl&
-BfNode::node_impl() const
+BnNode::node_impl() const
 {
   if ( !is_valid() ) {
-    throw std::invalid_argument{"BfNode: invalid data"};
+    throw std::invalid_argument{"BnNode: invalid data"};
   }
   return mImpl->node(mId);
 }
 
-// @brief ID 番号から BfNode を作る．
-BfNode
-BfNode::from_id(
+// @brief ID 番号から BnNode を作る．
+BnNode
+BnNode::from_id(
   SizeType id
 ) const
 {
-  return BfNode{mImpl, id};
+  return BnNode{mImpl, id};
 }
 
-// @brief ID 番号のリストから vector<BfNode> を作る．
-vector<BfNode>
-BfNode::from_id_list(
+// @brief ID 番号のリストから vector<BnNode> を作る．
+vector<BnNode>
+BnNode::from_id_list(
   const vector<SizeType>& id_list
 ) const
 {
-  vector<BfNode> node_list;
+  vector<BnNode> node_list;
   for ( auto id: id_list ) {
     node_list.push_back(from_id(id));
   }
   return node_list;
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BNIR
