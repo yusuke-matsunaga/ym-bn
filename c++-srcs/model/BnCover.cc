@@ -9,7 +9,7 @@
 #include "ym/BfCover.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 // クラス BfCover
@@ -42,4 +42,4 @@ BnCover::print(
   }
 }
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN

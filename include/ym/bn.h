@@ -1,8 +1,8 @@
-﻿#ifndef YM_BNIR_H
-#define YM_BNIR_H
+﻿#ifndef YM_BN_H
+#define YM_BN_H
 
-/// @file ym/bnir.h
-/// @brief ym-bnir パッケージの基本ヘッダファイル
+/// @file ym/bn.h
+/// @brief ym-bn パッケージの基本ヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -11,24 +11,24 @@
 #include "ym_config.h"
 
 
-/// @brief bnir 用の名前空間名
-#define BNIR_NSNAME nsBnir
+/// @brief bn 用の名前空間名
+#define BN_NSNAME nsBn
 
-/// @brief bnir 用の名前空間の開始
-#define BEGIN_NAMESPACE_YM_BNIR \
+/// @brief bn 用の名前空間の開始
+#define BEGIN_NAMESPACE_YM_BN \
 BEGIN_NAMESPACE_YM \
-BEGIN_NAMESPACE(BNIR_NSNAME)
+BEGIN_NAMESPACE(BN_NSNAME)
 
-/// @brief bnir 用の名前空間の終了
-#define END_NAMESPACE_YM_BNIR \
-END_NAMESPACE(BNIR_NSNAME) \
+/// @brief bn 用の名前空間の終了
+#define END_NAMESPACE_YM_BN \
+END_NAMESPACE(BN_NSNAME) \
 END_NAMESPACE_YM
 
-/// @brief bnir 用の名前空間
-#define BNIR_NAMESPACE YM_NAMESPACE::BNIR_NSNAME
+/// @brief bn 用の名前空間
+#define BN_NAMESPACE YM_NAMESPACE::BN_NSNAME
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 // クラスの先行宣言
@@ -38,7 +38,7 @@ class BnModel;
 class BnNode;
 class BnCover;
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN
 
 BEGIN_NAMESPACE_YM
 
@@ -81,10 +81,10 @@ operator<<(
   return s;
 }
 
-using BNIR_NAMESPACE::BnModel;
-using BNIR_NAMESPACE::BnNode;
-using BNIR_NAMESPACE::BnCover;
+using BN_NAMESPACE::BnModel;
+using BN_NAMESPACE::BnNode;
+using BN_NAMESPACE::BnCover;
 
 END_NAMESPACE_YM
 
-#endif // YM_BNIR_H
+#endif // YM_BN_H

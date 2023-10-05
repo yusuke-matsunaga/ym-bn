@@ -8,19 +8,19 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnfe.h"
-#include "ym/BfCover.h"
+#include "ym/bn.h"
+#include "ym/BnCover.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Bdd.h"
 #include "NodeImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 /// @class ModelImpl ModelImpl.h "ModelImpl.h"
-/// @brief BfModel の内部情報を表すクラス
+/// @brief BnModel の内部情報を表すクラス
 //////////////////////////////////////////////////////////////////////
 class ModelImpl
 {
@@ -212,7 +212,7 @@ public:
   }
 
   /// @brief カバーを取り出す．
-  const BfCover&
+  const BnCover&
   cover(
     SizeType cover_id ///< [in] カバー番号
   ) const
@@ -616,7 +616,7 @@ private:
   vector<NodeImpl> mNodeArray;
 
   // カバー番号をキーにしてカバーを格納する配列
-  vector<BfCover> mCoverArray;
+  vector<BnCover> mCoverArray;
 
   // 論理式番号をキーにして論理式を格納する配列
   vector<Expr> mExprArray;
@@ -629,6 +629,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BN
 
 #endif // MODELIMPL_H

@@ -9,7 +9,7 @@
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 // @brief 名前を設定する．
 void
@@ -286,4 +286,4 @@ ModelImpl::add_bdd(
   return id;
 }
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN

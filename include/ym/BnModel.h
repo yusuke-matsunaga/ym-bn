@@ -8,12 +8,12 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnir.h"
+#include "ym/bn.h"
 #include "ym/clib.h"
 #include "ym/logic.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 class ModelImpl;
 
@@ -710,6 +710,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN
 
 #endif // BNMODEL_H

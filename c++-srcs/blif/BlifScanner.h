@@ -5,16 +5,16 @@
 /// @brief BlibScanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021, 2022 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnir.h"
+#include "ym/bn.h"
 #include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "BlifToken.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifScanner BlifScanner.h "BlifScanner.h"
@@ -82,6 +82,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN
 
 #endif // BLIFSCANNER_H

@@ -8,15 +8,15 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnfe.h"
+#include "ym/bn.h"
 #include "ym/logic.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeImpl NodeImpl.h "NodeImpl.h"
-/// @brief BfModel のノードを表すクラス
+/// @brief BnModel のノードを表すクラス
 //////////////////////////////////////////////////////////////////////
 class NodeImpl
 {
@@ -39,7 +39,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノードの種類を返す．
-  BfNodeType
+  BnNodeType
   type() const
   {
     return mType;
@@ -49,7 +49,7 @@ public:
   bool
   is_input() const
   {
-    return mType == BfNodeType::Input;
+    return mType == BnNodeType::Input;
   }
 
   /// @brief 論理ノードの時 true を返す．
@@ -84,56 +84,56 @@ public:
   bool
   is_primitive() const
   {
-    return mType == BfNodeType::Prim;
+    return mType == BnNodeType::Prim;
   }
 
   /// @brief AIG型の論理ノードの時 true を返す．
   bool
   is_aig() const
   {
-    return mType == BfNodeType::Aig;
+    return mType == BnNodeType::Aig;
   }
 
   /// @brief カバー型の論理ノードの時 true を返す．
   bool
   is_cover() const
   {
-    return mType == BfNodeType::Cover;
+    return mType == BnNodeType::Cover;
   }
 
   /// @brief 論理式型の論理ノードの時 true を返す．
   bool
   is_expr() const
   {
-    return mType == BfNodeType::Expr;
+    return mType == BnNodeType::Expr;
   }
 
   /// @brief セル型の論理ノードの時 true を返す．
   bool
   is_cell() const
   {
-    return mType == BfNodeType::Cell;
+    return mType == BnNodeType::Cell;
   }
 
   /// @brief 真理値表型の論理ノードの時 true を返す．
   bool
   is_func() const
   {
-    return mType == BfNodeType::TvFunc;
+    return mType == BnNodeType::TvFunc;
   }
 
   /// @brief BDD型の論理ノードの時 true を返す．
   bool
   is_bdd() const
   {
-    return mType == BfNodeType::Bdd;
+    return mType == BnNodeType::Bdd;
   }
 
   /// @brief DFFノードの時 true を返す．
   bool
   is_dff() const
   {
-    return mType == BfNodeType::Dff;
+    return mType == BnNodeType::Dff;
   }
 
   /// @brief 名前を返す．
@@ -301,7 +301,7 @@ public:
     SizeType iid ///< [in] 入力番号
   )
   {
-    mType = BfNodeType::Input;
+    mType = BnNodeType::Input;
     mExtId = iid;
   }
 
@@ -312,7 +312,7 @@ public:
     PrimType type
   )
   {
-    mType = BfNodeType::Prim;
+    mType = BnNodeType::Prim;
     mFaninList = fanin_list;
     mExtId = static_cast<SizeType>(type);
   }
@@ -326,7 +326,7 @@ public:
     bool inv1
   )
   {
-    mType = BfNodeType::Aig;
+    mType = BnNodeType::Aig;
     mFaninList = { src0, src1 };
     mExtId = static_cast<SizeType>(inv0) | (static_cast<SizeType>(inv1) << 1);
   }
@@ -338,7 +338,7 @@ public:
     SizeType cover_id
   )
   {
-    mType = BfNodeType::Cover;
+    mType = BnNodeType::Cover;
     mFaninList = fanin_list;
     mExtId = cover_id;
   }
@@ -350,7 +350,7 @@ public:
     SizeType expr_id
   )
   {
-    mType = BfNodeType::Expr;
+    mType = BnNodeType::Expr;
     mFaninList = fanin_list;
     mExtId = expr_id;
   }
@@ -362,7 +362,7 @@ public:
     SizeType cell_id
   )
   {
-    mType = BfNodeType::Cell;
+    mType = BnNodeType::Cell;
     mFaninList = fanin_list;
     mExtId = cell_id;
   }
@@ -374,7 +374,7 @@ public:
     SizeType func_id
   )
   {
-    mType = BfNodeType::TvFunc;
+    mType = BnNodeType::TvFunc;
     mFaninList = fanin_list;
     mExtId = func_id;
   }
@@ -386,7 +386,7 @@ public:
     SizeType bdd_id
   )
   {
-    mType = BfNodeType::Bdd;
+    mType = BnNodeType::Bdd;
     mFaninList = fanin_list;
     mExtId = bdd_id;
   }
@@ -398,7 +398,7 @@ public:
     char rval
   )
   {
-    mType = BfNodeType::Dff;
+    mType = BnNodeType::Dff;
     mFaninList = {input_id};
     mExtId = static_cast<SizeType>(rval);
   }
@@ -506,7 +506,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノードの種類
-  BfNodeType mType{BfNodeType::None};
+  BnNodeType mType{BnNodeType::None};
 
   // 名前
   string mName;
@@ -519,6 +519,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BN
 
 #endif // NODEIMPL_H

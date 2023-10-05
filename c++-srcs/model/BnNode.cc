@@ -11,7 +11,7 @@
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnNode
@@ -264,4 +264,4 @@ BnNode::from_id_list(
   return node_list;
 }
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN

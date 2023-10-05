@@ -14,7 +14,7 @@
 #include "ym/MsgMgr.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnModel
@@ -419,4 +419,4 @@ Iscas89Parser::read_token(
   return token;
 }
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN

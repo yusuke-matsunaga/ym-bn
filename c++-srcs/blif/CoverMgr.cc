@@ -9,7 +9,7 @@
 #include "CoverMgr.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 BEGIN_NONAMESPACE
 
@@ -105,4 +105,4 @@ CoverMgr::new_cover(
   return mModel->add_cover(input_num, cube_list, opat);
 }
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN

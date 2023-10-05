@@ -11,7 +11,7 @@
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnModel
@@ -957,4 +957,4 @@ BnModel::_check_bdd_input(
   }
 }
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN

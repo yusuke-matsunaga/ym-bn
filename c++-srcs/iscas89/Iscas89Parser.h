@@ -8,14 +8,14 @@
 /// Copyright (C) 2005-2011, 2014, 2018, 2021, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnir.h"
+#include "ym/bn.h"
 #include "ym/FileRegion.h"
 #include "Iscas89Scanner.h"
 #include "Iscas89Token.h"
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 class Iscas89Handler;
 
@@ -323,6 +323,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN
 
 #endif // ISCAS89PARSER_H

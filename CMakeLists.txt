@@ -42,7 +42,7 @@ include_directories(
 # ===================================================================
 
 if ( Python3_FOUND )
-  add_subdirectory ( py_ymbnir )
+  add_subdirectory ( py_ymbnmodel )
 endif ( Python3_FOUND )
 add_subdirectory ( tests )
 
@@ -51,7 +51,7 @@ add_subdirectory ( tests )
 #  ソースの設定
 # ===================================================================
 
-set ( bnir_SOURCES
+set ( bnmodel_SOURCES
   c++-srcs/aig/AigParser.cc
   c++-srcs/blif/BlifParser.cc
   c++-srcs/blif/BlifScanner.cc
@@ -74,6 +74,6 @@ set ( bnir_SOURCES
 #  ターゲットの設定
 # ===================================================================
 
-ym_add_object_library ( ym_bnir
-  ${bnir_SOURCES}
+ym_add_object_library ( ym_bnmodel
+  ${bnmodel_SOURCES}
   )
