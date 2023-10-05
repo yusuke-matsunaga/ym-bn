@@ -1,22 +1,22 @@
 
-/// @file BfCover.cc
-/// @brief BfCover の実装ファイル
+/// @file BnCover.cc
+/// @brief BnCover の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BfCover.h"
+#include "ym/BnCover.h"
 
 
 BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
-// クラス BfCover
+// クラス BnCover
 //////////////////////////////////////////////////////////////////////
 
 Expr
-BfCover::expr() const
+BnCover::expr() const
 {
   auto expr = mInputCover.expr();
   if ( output_pat() == '0' ) {

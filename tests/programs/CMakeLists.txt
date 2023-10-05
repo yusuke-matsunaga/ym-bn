@@ -21,7 +21,7 @@
 
 add_executable ( read_blif
   read_blif.cc
-  $<TARGET_OBJECTS:ym_bnfe_obj_d>
+  $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
@@ -37,7 +37,7 @@ target_link_libraries ( read_blif
 
 add_executable ( read_iscas89
   read_iscas89.cc
-  $<TARGET_OBJECTS:ym_bnfe_obj_d>
+  $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
@@ -53,7 +53,7 @@ target_link_libraries ( read_iscas89
 
 add_executable ( read_aag
   read_aag.cc
-  $<TARGET_OBJECTS:ym_bnfe_obj_d>
+  $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
@@ -69,7 +69,7 @@ target_link_libraries ( read_aag
 
 add_executable ( read_truth
   read_truth.cc
-  $<TARGET_OBJECTS:ym_bnfe_obj_d>
+  $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>

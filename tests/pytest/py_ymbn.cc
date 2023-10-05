@@ -8,7 +8,7 @@
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include "pym/ymbnfe.h"
+#include "pym/ymbn.h"
 
 
 int
@@ -17,7 +17,7 @@ main(
   char** argv
 )
 {
-  PyImport_AppendInittab("ymbnfe", &YM_NAMESPACE::PyInit_ymbnfe);
+  PyImport_AppendInittab("ymbn", &YM_NAMESPACE::PyInit_ymbn);
 
   return Py_BytesMain(argc, argv);
 }

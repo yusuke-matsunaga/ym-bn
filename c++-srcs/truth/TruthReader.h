@@ -8,10 +8,10 @@
 /// Copyright (C) 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnir.h"
+#include "ym/bn.h"
 
 
-BEGIN_NAMESPACE_YM_BNIR
+BEGIN_NAMESPACE_YM_BN
 
 class ModelImpl;
 
@@ -44,6 +44,6 @@ public:
 
 };
 
-END_NAMESPACE_YM_BNIR
+END_NAMESPACE_YM_BN
 
 #endif // TRUTHREADER_H

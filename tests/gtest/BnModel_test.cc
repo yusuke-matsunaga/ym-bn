@@ -1,29 +1,29 @@
 
-/// @file BfModel_test.cc
-/// @brief BfModel_test の実装ファイル
+/// @file BnModel_test.cc
+/// @brief BnModel_test の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "ym/BfModel.h"
-#include "ym/BfNode.h"
+#include "ym/BnModel.h"
+#include "ym/BnNode.h"
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BN
 
-TEST( BfModelTest, constructor1 )
+TEST( BnModelTest, constructor1 )
 {
   shared_ptr<ModelImpl> impl{new ModelImpl};
-  BfModel model{impl};
+  BnModel model{impl};
 
   EXPECT_EQ( string{}, model.name() );
   EXPECT_EQ( string{}, model.comment() );
   EXPECT_EQ( 0, model.input_num() );
-  EXPECT_EQ( vector<BfNode>{}, model.input_list() );
+  EXPECT_EQ( vector<BnNode>{}, model.input_list() );
 
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BN

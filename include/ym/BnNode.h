@@ -171,7 +171,7 @@ public:
   /// @brief カバーを返す．
   ///
   /// is_cover() が true の時のみ意味を持つ．
-  const BfCover&
+  const BnCover&
   cover() const;
 
   /// @brief 論理式番号を返す．

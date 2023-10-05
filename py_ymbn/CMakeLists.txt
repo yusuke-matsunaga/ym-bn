@@ -25,30 +25,30 @@ include_directories(
 #  ターゲットの設定
 # ===================================================================
 
-ym_add_object_library ( py_ymbnir
-  ymbnir_module.cc
+ym_add_object_library ( py_ymbn
+  ymbn_module.cc
   PyBnModel.cc
   PyBnNode.cc
   )
 
-add_library ( py_ymbnirlib
+add_library ( py_ymbnlib
   SHARED
-  $<TARGET_OBJECTS:py_ymbnir_obj>
+  $<TARGET_OBJECTS:py_ymbn_obj>
   $<TARGET_OBJECTS:py_ymcell_obj>
   $<TARGET_OBJECTS:py_ymlogic_obj>
-  $<TARGET_OBJECTS:ym_bnir_obj>
+  $<TARGET_OBJECTS:ym_bn_obj>
   $<TARGET_OBJECTS:ym_cell_obj>
   $<TARGET_OBJECTS:ym_logic_obj>
   $<TARGET_OBJECTS:ym_base_obj>
   )
 
-set_target_properties( py_ymbnirlib
+set_target_properties( py_ymbnlib
   PROPERTIES
   PREFIX ""
-  OUTPUT_NAME "ymbnir"
+  OUTPUT_NAME "ymbn"
   )
 
-target_link_libraries( py_ymbnirlib
+target_link_libraries( py_ymbnlib
   ${YM_LIB_DEPENDS}
   ${Python3_LIBRARIES}
   )

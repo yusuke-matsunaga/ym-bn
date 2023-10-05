@@ -1,6 +1,6 @@
 
-/// @file ymbnir_module.cc
-/// @brief Python 用の bnir モジュールを定義する．
+/// @file ymbn_module.cc
+/// @brief Python 用の bn モジュールを定義する．
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -9,8 +9,8 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include "pym/PyBfModel.h"
-#include "pym/PyBfNode.h"
+#include "pym/PyBnModel.h"
+#include "pym/PyBnNode.h"
 #include "pym/PyModule.h"
 
 
@@ -19,34 +19,34 @@ BEGIN_NAMESPACE_YM
 BEGIN_NONAMESPACE
 
 // メソッド定義構造体
-PyMethodDef ymbnir_methods[] = {
+PyMethodDef ymbn_methods[] = {
   {nullptr, nullptr, 0, nullptr},
 };
 
 // モジュール定義構造体
-PyModuleDef ymbnir_module = {
+PyModuleDef ymbn_module = {
   PyModuleDef_HEAD_INIT,
-  "ymbnir",
-  PyDoc_STR("ymbnir: Extension module for bnir"),
+  "ymbn",
+  PyDoc_STR("ymbn: Extension module for bn"),
   -1,
-  ymbnir_methods,
+  ymbn_methods,
 };
 
 END_NONAMESPACE
 
 PyMODINIT_FUNC
-PyInit_ymbnir()
+PyInit_ymbn()
 {
-  auto m = PyModule::init(&ymbnir_module);
+  auto m = PyModule::init(&ymbn_module);
   if ( m == nullptr ) {
     return nullptr;
   }
 
-  if ( !PyBfModel::init(m) ) {
+  if ( !PyBnModel::init(m) ) {
     goto error;
   }
 
-  if ( !PyBfNode::init(m) ) {
+  if ( !PyBnNode::init(m) ) {
     goto error;
   }
 

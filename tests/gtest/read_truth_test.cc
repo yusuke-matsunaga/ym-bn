@@ -7,16 +7,16 @@
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "ym/BfModel.h"
+#include "ym/BnModel.h"
 
 
 BEGIN_NAMESPACE_YM
 
-TEST( BfModelTest, read_iscas1 )
+TEST( BnModelTest, read_iscas1 )
 {
   string filename = "ex61.truth";
   string path = DATAPATH + filename;
-  auto model = BfModel::read_truth(path);
+  auto model = BnModel::read_truth(path);
   int ni = 12;
   int no = 11;
   int nd = 0;

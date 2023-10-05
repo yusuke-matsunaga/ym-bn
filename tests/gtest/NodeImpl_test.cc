@@ -10,14 +10,14 @@
 #include "NodeImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BN
 
 TEST( NodeImplTest, constructor1 )
 {
   string name{"abcd"};
   NodeImpl node{name};
 
-  EXPECT_EQ( BfNodeType::None, node.type() );
+  EXPECT_EQ( BnNodeType::None, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -57,7 +57,7 @@ TEST( NodeImplTest, set_input )
   SizeType iid = 10;
   node.set_input(iid);
 
-  EXPECT_EQ( BfNodeType::Input, node.type() );
+  EXPECT_EQ( BnNodeType::Input, node.type() );
   EXPECT_TRUE( node.is_input() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -87,7 +87,7 @@ TEST( NodeImplTest, set_primitive )
   PrimType type = PrimType::Nand;
   node.set_primitive(fanin_list, type);
 
-  EXPECT_EQ( BfNodeType::Prim, node.type() );
+  EXPECT_EQ( BnNodeType::Prim, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_TRUE( node.is_primitive() );
@@ -122,7 +122,7 @@ TEST( NodeImplTest, set_aig )
   bool inv1 = true;
   node.set_aig(src0, src1, inv0, inv1);
 
-  EXPECT_EQ( BfNodeType::Aig, node.type() );
+  EXPECT_EQ( BnNodeType::Aig, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -155,7 +155,7 @@ TEST( NodeImplTest, set_cover )
   SizeType cover_id = 15;
   node.set_cover(fanin_list, cover_id);
 
-  EXPECT_EQ( BfNodeType::Cover, node.type() );
+  EXPECT_EQ( BnNodeType::Cover, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -188,7 +188,7 @@ TEST( NodeImplTest, set_expr )
   SizeType expr_id = 9;
   node.set_expr(fanin_list, expr_id);
 
-  EXPECT_EQ( BfNodeType::Expr, node.type() );
+  EXPECT_EQ( BnNodeType::Expr, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -221,7 +221,7 @@ TEST( NodeImplTest, set_cell )
   SizeType cell_id = 19;
   node.set_cell(fanin_list, cell_id);
 
-  EXPECT_EQ( BfNodeType::Cell, node.type() );
+  EXPECT_EQ( BnNodeType::Cell, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -254,7 +254,7 @@ TEST( NodeImplTest, set_dff )
   char rval = '0';
   node.set_dff(src, rval);
 
-  EXPECT_EQ( BfNodeType::Dff, node.type() );
+  EXPECT_EQ( BnNodeType::Dff, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -276,4 +276,4 @@ TEST( NodeImplTest, set_dff )
   EXPECT_EQ( rval, node.dff_rval() );
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BN

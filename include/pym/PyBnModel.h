@@ -11,18 +11,18 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include "ym/BfModel.h"
+#include "ym/BnModel.h"
 
 
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PyBfModel PyBfModel.h "PyBfModel.h"
-/// @brief Python 用の BfModel 拡張
+/// @class PyBnModel PyBnModel.h "PyBnModel.h"
+/// @brief Python 用の BnModel 拡張
 ///
 /// 複数の関数をひとまとめにしているだけなので実は名前空間として用いている．
 //////////////////////////////////////////////////////////////////////
-class PyBfModel
+class PyBnModel
 {
 public:
   //////////////////////////////////////////////////////////////////////
@@ -37,34 +37,34 @@ public:
     PyObject* m ///< [in] 親のモジュールを表す PyObject
   );
 
-  /// @brief BfModel を表す PyObject を作る．
+  /// @brief BnModel を表す PyObject を作る．
   /// @return 生成した PyObject を返す．
   ///
   /// 返り値は新しい参照が返される．
   static
   PyObject*
   ToPyObject(
-    const BfModel& val ///< [in] 値
+    const BnModel& val ///< [in] 値
   );
 
-  /// @brief PyObject が BfModel タイプか調べる．
+  /// @brief PyObject が BnModel タイプか調べる．
   static
   bool
   Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
-  /// @brief BfModel を表す PyObject から BfModel を取り出す．
-  /// @return BfModel を返す．
+  /// @brief BnModel を表す PyObject から BnModel を取り出す．
+  /// @return BnModel を返す．
   ///
   /// Check(obj) == true であると仮定している．
   static
-  BfModel
+  BnModel
   Get(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 
-  /// @brief BfModel を表すオブジェクトの型定義を返す．
+  /// @brief BnModel を表すオブジェクトの型定義を返す．
   static
   PyTypeObject*
   _typeobject();

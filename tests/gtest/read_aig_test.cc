@@ -7,18 +7,18 @@
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "ym/BfModel.h"
+#include "ym/BnModel.h"
 
 
 BEGIN_NAMESPACE_YM
 
-TEST( BfModelTest, read_aag1)
+TEST( BnModelTest, read_aag1)
 {
   // 普通のファイルの読み込みテスト
   string filename{"test1.aag"};
   string path{DATAPATH + filename};
 
-  auto bnet = BfModel::read_aag(path);
+  auto bnet = BnModel::read_aag(path);
 
   const SizeType ni = 3;
   const SizeType no = 1;

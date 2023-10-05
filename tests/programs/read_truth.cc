@@ -1,12 +1,12 @@
 ﻿
 /// @file read_truth.cc
-/// @brief BfModel::read_truth() のテストプログラム
+/// @brief BnModel::read_truth() のテストプログラム
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BfModel.h"
+#include "ym/BnModel.h"
 #include "ym/MsgMgr.h"
 #include "ym/StreamMsgHandler.h"
 
@@ -43,7 +43,7 @@ main(
   MsgMgr::attach_handler(&msg_handler);
 
   try {
-    auto model = BfModel::read_truth(filename);
+    auto model = BnModel::read_truth(filename);
     model.print(cout);
   }
   catch ( std::invalid_argument err ) {

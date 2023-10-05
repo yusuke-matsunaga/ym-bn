@@ -1,20 +1,20 @@
 
-/// @file BfCover_test.cc
-/// @brief BfCover_test の実装ファイル
+/// @file BnCover_test.cc
+/// @brief BnCover_test の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "ym/BfCover.h"
+#include "ym/BnCover.h"
 
 
 BEGIN_NAMESPACE_YM
 
-TEST(BfCoverTest, null_cover_test1)
+TEST(BnCoverTest, null_cover_test1)
 {
-  auto cov = BfCover{0, {}};
+  auto cov = BnCover{0, {}};
 
   EXPECT_EQ( 0, cov.input_num() );
   EXPECT_EQ( 0, cov.cube_num() );
@@ -29,9 +29,9 @@ TEST(BfCoverTest, null_cover_test1)
   EXPECT_EQ( "C0", rep_str );
 }
 
-TEST(BfCoverTest, null_cover_test2)
+TEST(BnCoverTest, null_cover_test2)
 {
-  auto cov = BfCover{0, {}, '0'};
+  auto cov = BnCover{0, {}, '0'};
 
   EXPECT_EQ( 0, cov.input_num() );
   EXPECT_EQ( 0, cov.cube_num() );
@@ -46,9 +46,9 @@ TEST(BfCoverTest, null_cover_test2)
   EXPECT_EQ( "C1", rep_str );
 }
 
-TEST(BfCoverTest, null_cube_test1)
+TEST(BnCoverTest, null_cube_test1)
 {
-  auto cov = BfCover{0, {{}}};
+  auto cov = BnCover{0, {{}}};
 
   EXPECT_EQ( 0, cov.input_num() );
   EXPECT_EQ( 1, cov.cube_num() );
@@ -63,9 +63,9 @@ TEST(BfCoverTest, null_cube_test1)
   EXPECT_EQ( "C1", rep_str );
 }
 
-TEST(BfCoverTest, null_cube_test2)
+TEST(BnCoverTest, null_cube_test2)
 {
-  auto cov = BfCover{0, {{}}, '0'};
+  auto cov = BnCover{0, {{}}, '0'};
 
   EXPECT_EQ( 0, cov.input_num() );
   EXPECT_EQ( 1, cov.cube_num() );
@@ -80,10 +80,10 @@ TEST(BfCoverTest, null_cube_test2)
   EXPECT_EQ( "C0", rep_str );
 }
 
-TEST(BfCoverTest, test3)
+TEST(BnCoverTest, test3)
 {
   Literal lit0{0, false};
-  auto cov = BfCover{1, {{lit0}}, '1'};
+  auto cov = BnCover{1, {{lit0}}, '1'};
 
   auto sop = cov.input_cover();
   EXPECT_EQ( 1, sop.variable_num() );
@@ -97,11 +97,11 @@ TEST(BfCoverTest, test3)
   EXPECT_EQ( "P0", rep_str );
 }
 
-TEST(BfCoverTest, test4)
+TEST(BnCoverTest, test4)
 {
   Literal lit0{0, false};
   Literal lit1{1, false};
-  auto cov = BfCover{2, {{lit0, lit1}}, '0'};
+  auto cov = BnCover{2, {{lit0, lit1}}, '0'};
 
   auto sop = cov.input_cover();
   ASSERT_EQ( 2, sop.variable_num() );
@@ -116,12 +116,12 @@ TEST(BfCoverTest, test4)
   EXPECT_EQ( "O2N0N1", rep_str );
 }
 
-TEST(BfCoverTest, test5)
+TEST(BnCoverTest, test5)
 {
   Literal lit0{0, false};
   Literal lit1{1, false};
   Literal lit2{2, false};
-  auto cov = BfCover{3, {{~lit0}, {~lit1}, {~lit2}}, '1'};
+  auto cov = BnCover{3, {{~lit0}, {~lit1}, {~lit2}}, '1'};
 
   auto sop = cov.input_cover();
   ASSERT_EQ( 3, sop.variable_num() );
@@ -143,14 +143,14 @@ TEST(BfCoverTest, test5)
   EXPECT_EQ( "O3N0N1N2", rep_str );
 }
 
-TEST( BfCoverTest, construct1 )
+TEST( BnCoverTest, construct1 )
 {
   const SizeType input_num = 2;
   const vector<vector<Literal>> icover{
     {Literal{0, false}},
     {Literal{1, true}}
   };
-  BfCover cov{input_num, icover};
+  BnCover cov{input_num, icover};
 
   EXPECT_EQ( input_num, cov.input_num() );
   EXPECT_EQ( icover.size(), cov.cube_num() );
@@ -163,14 +163,14 @@ TEST( BfCoverTest, construct1 )
   EXPECT_EQ( "O2P0N1", cov.expr().rep_string() );
 }
 
-TEST( BfCoverTest, construct2 )
+TEST( BnCoverTest, construct2 )
 {
   const SizeType input_num = 2;
   const vector<vector<Literal>> icover{
     {Literal{0, false}, Literal{1, true}},
     {Literal{0, true}, Literal{1, false}}
   };
-  BfCover cov{input_num, icover, '0'};
+  BnCover cov{input_num, icover, '0'};
 
   // SopCover のキューブは常にソートされている．
   EXPECT_EQ( input_num, cov.input_num() );

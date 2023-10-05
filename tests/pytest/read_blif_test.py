@@ -10,7 +10,7 @@
 import pytest
 import os
 import os.path
-from ymbnfe import BfModel
+from ymbn import BnModel
 
 
 def test_read_blif():
@@ -18,5 +18,5 @@ def test_read_blif():
     DATAPATH = os.environ.get('TESTDATA_DIR')
     path = os.path.join(DATAPATH, filename)
 
-    model = BfModel.read_blif(path)
+    model = BnModel.read_blif(path)
     

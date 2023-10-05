@@ -10,7 +10,7 @@
 #include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNFE
+BEGIN_NAMESPACE_YM_BN
 
 TEST( ModelImplTest, constructor1 )
 {
@@ -54,7 +54,7 @@ TEST( ModelImplTest, new_node )
   EXPECT_EQ( 0, id );
 
   auto& node = model.node(id);
-  EXPECT_EQ( BfNodeType::None, node.type() );
+  EXPECT_EQ( BnNodeType::None, node.type() );
 }
 
 TEST( ModelImplTest, set_node_name )
@@ -81,7 +81,7 @@ TEST( ModelImplTest, set_input )
   model.set_input(id);
 
   auto& node = model.node(id);
-  EXPECT_EQ( BfNodeType::Input, node.type() );
+  EXPECT_EQ( BnNodeType::Input, node.type() );
 }
 
 TEST( ModelImplTest, set_output )
@@ -117,7 +117,7 @@ TEST( ModelImplTest, set_primitive )
   model.set_primitive(id3, fanin_list, type);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BfNodeType::Prim, node.type() );
+  EXPECT_EQ( BnNodeType::Prim, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -147,7 +147,7 @@ TEST( ModelImplTest, set_aig )
   model.set_aig(id3, id1, id2, inv1, inv2);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BfNodeType::Aig, node.type() );
+  EXPECT_EQ( BnNodeType::Aig, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -177,7 +177,7 @@ TEST( ModelImplTest, set_cover )
   model.set_cover(id3, fanin_list, cover_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BfNodeType::Cover, node.type() );
+  EXPECT_EQ( BnNodeType::Cover, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -206,7 +206,7 @@ TEST( ModelImplTest, set_expr )
   model.set_expr(id3, fanin_list, expr_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BfNodeType::Expr, node.type() );
+  EXPECT_EQ( BnNodeType::Expr, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -235,7 +235,7 @@ TEST( ModelImplTest, set_cell )
   model.set_cell(id3, fanin_list, cell_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BfNodeType::Cell, node.type() );
+  EXPECT_EQ( BnNodeType::Cell, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -264,7 +264,7 @@ TEST( ModelImplTest, set_func )
   model.set_func(id3, fanin_list, func_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BfNodeType::TvFunc, node.type() );
+  EXPECT_EQ( BnNodeType::TvFunc, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -293,7 +293,7 @@ TEST( ModelImplTest, set_bdd )
   model.set_bdd(id3, fanin_list, bdd_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BfNodeType::Bdd, node.type() );
+  EXPECT_EQ( BnNodeType::Bdd, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -317,7 +317,7 @@ TEST( ModelImplTest, set_dff )
   model.set_dff(id3, id1, rval);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BfNodeType::Dff, node.type() );
+  EXPECT_EQ( BnNodeType::Dff, node.type() );
   EXPECT_EQ( id1, node.dff_src() );
   EXPECT_EQ( rval, node.dff_rval() );
 }
@@ -380,4 +380,4 @@ TEST( ModelImplTest, add_func )
   EXPECT_EQ( func2, model.func(id2) );
 }
 
-END_NAMESPACE_YM_BNFE
+END_NAMESPACE_YM_BN

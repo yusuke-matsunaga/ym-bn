@@ -7,18 +7,18 @@
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "ym/BfModel.h"
+#include "ym/BnModel.h"
 
 
 BEGIN_NAMESPACE_YM
 
-TEST( BfModelTest, read_blif1)
+TEST( BnModelTest, read_blif1)
 {
   // 普通のファイルの読み込みテスト
   string filename{"s5378.blif"};
   string path{DATAPATH + filename};
 
-  auto bnet = BfModel::read_blif(path);
+  auto bnet = BnModel::read_blif(path);
 
   const SizeType ni = 35;
   const SizeType no = 49;
@@ -50,21 +50,21 @@ TEST( BfModelTest, read_blif1)
   EXPECT_FALSE( is2 );
 }
 
-TEST( BfModelTest, read_blif_file_not_found)
+TEST( BnModelTest, read_blif_file_not_found)
 {
   // 存在しないファイルの場合の例外送出テスト
   EXPECT_THROW( {
-      auto _ = BfModel::read_blif("not_exist_file");
+      auto _ = BnModel::read_blif("not_exist_file");
     }, std::invalid_argument );
 }
 
-TEST( BfModelTest, read_blif_wrong_data)
+TEST( BnModelTest, read_blif_wrong_data)
 {
   // 誤った内容のファイルの場合の例外送出テスト
   string filename{"broken.blif"};
   string path{DATAPATH + filename};
   EXPECT_THROW( {
-      auto _ = BfModel::read_blif(path);
+      auto _ = BnModel::read_blif(path);
     }, std::invalid_argument );
 }
 
