@@ -1,13 +1,13 @@
 
-/// @file PyBfModel.cc
-/// @brief Python BfModel の実装ファイル
+/// @file PyBnModel.cc
+/// @brief Python BnModel の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2022, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "pym/PyBfModel.h"
-#include "pym/PyBfNode.h"
+#include "pym/PyBnModel.h"
+#include "pym/PyBnNode.h"
 #include "pym/PyClibCellLibrary.h"
 #include "pym/PyModule.h"
 #include "pym/PyBase.h"
@@ -18,42 +18,42 @@ BEGIN_NAMESPACE_YM
 BEGIN_NONAMESPACE
 
 // Python 用のオブジェクト定義
-struct BfModelObject
+struct BnModelObject
 {
   PyObject_HEAD
-  BfModel* mPtr;
+  BnModel* mPtr;
 };
 
 // Python 用のタイプ定義
-PyTypeObject BfModelType = {
+PyTypeObject BnModelType = {
   PyVarObject_HEAD_INIT(nullptr, 0)
 };
 
 // 生成関数
 PyObject*
-BfModel_new(
+BnModel_new(
   PyTypeObject* type,
   PyObject* Py_UNUSED(args),
   PyObject* Py_UNUSED(kwds)
 )
 {
-  PyErr_SetString(PyExc_TypeError, "instantiation of 'BfModel' is disabled");
+  PyErr_SetString(PyExc_TypeError, "instantiation of 'BnModel' is disabled");
   return nullptr;
 }
 
 // 終了関数
 void
-BfModel_dealloc(
+BnModel_dealloc(
   PyObject* self
 )
 {
-  auto model_obj = reinterpret_cast<BfModelObject*>(self);
+  auto model_obj = reinterpret_cast<BnModelObject*>(self);
   delete model_obj->mPtr;
   Py_TYPE(self)->tp_free(self);
 }
 
 PyObject*
-BfModel_read_blif(
+BnModel_read_blif(
   PyObject* Py_UNUSED(self),
   PyObject* args,
   PyObject* kwds
@@ -77,8 +77,8 @@ BfModel_read_blif(
     cell_library = PyClibCellLibrary::Get(lib_obj);
   }
   try {
-    auto model = BfModel::read_blif(filename, cell_library);
-    return PyBfModel::ToPyObject(model);
+    auto model = BnModel::read_blif(filename, cell_library);
+    return PyBnModel::ToPyObject(model);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -89,7 +89,7 @@ BfModel_read_blif(
 }
 
 PyObject*
-BfModel_read_iscas89(
+BnModel_read_iscas89(
   PyObject* Py_UNUSED(self),
   PyObject* args
 )
@@ -99,8 +99,8 @@ BfModel_read_iscas89(
     return nullptr;
   }
   try {
-    auto model = BfModel::read_iscas89(filename);
-    return PyBfModel::ToPyObject(model);
+    auto model = BnModel::read_iscas89(filename);
+    return PyBnModel::ToPyObject(model);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -111,7 +111,7 @@ BfModel_read_iscas89(
 }
 
 PyObject*
-BfModel_read_aag(
+BnModel_read_aag(
   PyObject* Py_UNUSED(self),
   PyObject* args
 )
@@ -121,8 +121,8 @@ BfModel_read_aag(
     return nullptr;
   }
   try {
-    auto model = BfModel::read_aag(filename);
-    return PyBfModel::ToPyObject(model);
+    auto model = BnModel::read_aag(filename);
+    return PyBnModel::ToPyObject(model);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -133,7 +133,7 @@ BfModel_read_aag(
 }
 
 PyObject*
-BfModel_read_aig(
+BnModel_read_aig(
   PyObject* Py_UNUSED(self),
   PyObject* args
 )
@@ -143,8 +143,8 @@ BfModel_read_aig(
     return nullptr;
   }
   try {
-    auto model = BfModel::read_aig(filename);
-    return PyBfModel::ToPyObject(model);
+    auto model = BnModel::read_aig(filename);
+    return PyBnModel::ToPyObject(model);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -155,7 +155,7 @@ BfModel_read_aig(
 }
 
 PyObject*
-BfModel_input(
+BnModel_input(
   PyObject* self,
   PyObject* args
 )
@@ -165,9 +165,9 @@ BfModel_input(
     return nullptr;
   }
   try {
-    auto model = PyBfModel::Get(self);
+    auto model = PyBnModel::Get(self);
     auto val = model.input(pos);
-    return PyBfNode::ToPyObject(val);
+    return PyBnNode::ToPyObject(val);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -178,7 +178,7 @@ BfModel_input(
 }
 
 PyObject*
-BfModel_input_name(
+BnModel_input_name(
   PyObject* self,
   PyObject* args
 )
@@ -188,7 +188,7 @@ BfModel_input_name(
     return nullptr;
   }
   try {
-    auto model = PyBfModel::Get(self);
+    auto model = PyBnModel::Get(self);
     auto val = model.input_name(pos);
     return Py_BuildValue("s", val.c_str());
   }
@@ -201,7 +201,7 @@ BfModel_input_name(
 }
 
 PyObject*
-BfModel_output(
+BnModel_output(
   PyObject* self,
   PyObject* args
 )
@@ -211,9 +211,9 @@ BfModel_output(
     return nullptr;
   }
   try {
-    auto model = PyBfModel::Get(self);
+    auto model = PyBnModel::Get(self);
     auto val = model.output(pos);
-    return PyBfNode::ToPyObject(val);
+    return PyBnNode::ToPyObject(val);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -224,7 +224,7 @@ BfModel_output(
 }
 
 PyObject*
-BfModel_output_name(
+BnModel_output_name(
   PyObject* self,
   PyObject* args
 )
@@ -234,7 +234,7 @@ BfModel_output_name(
     return nullptr;
   }
   try {
-    auto model = PyBfModel::Get(self);
+    auto model = PyBnModel::Get(self);
     auto val = model.output_name(pos);
     return Py_BuildValue("s", val.c_str());
   }
@@ -247,7 +247,7 @@ BfModel_output_name(
 }
 
 PyObject*
-BfModel_logic(
+BnModel_logic(
   PyObject* self,
   PyObject* args
 )
@@ -257,9 +257,9 @@ BfModel_logic(
     return nullptr;
   }
   try {
-    auto model = PyBfModel::Get(self);
+    auto model = PyBnModel::Get(self);
     auto val = model.logic(pos);
-    return PyBfNode::ToPyObject(val);
+    return PyBnNode::ToPyObject(val);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -270,7 +270,7 @@ BfModel_logic(
 }
 
 PyObject*
-BfModel_dff(
+BnModel_dff(
   PyObject* self,
   PyObject* args
 )
@@ -280,9 +280,9 @@ BfModel_dff(
     return nullptr;
   }
   try {
-    auto model = PyBfModel::Get(self);
+    auto model = PyBnModel::Get(self);
     auto val = model.dff(pos);
-    return PyBfNode::ToPyObject(val);
+    return PyBnNode::ToPyObject(val);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -293,7 +293,7 @@ BfModel_dff(
 }
 
 PyObject*
-BfModel_print(
+BnModel_print(
   PyObject* self,
   PyObject* args,
   PyObject* kwds
@@ -309,7 +309,7 @@ BfModel_print(
 				    &filename) ) {
     return nullptr;
   }
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   if ( filename == nullptr ) {
     model.print(cout);
   }
@@ -329,237 +329,237 @@ BfModel_print(
 }
 
 // メソッド定義
-PyMethodDef BfModel_methods[] = {
-  {"read_blif", reinterpret_cast<PyCFunction>(BfModel_read_blif),
+PyMethodDef BnModel_methods[] = {
+  {"read_blif", reinterpret_cast<PyCFunction>(BnModel_read_blif),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'blif' file")},
-  {"read_iscas89", reinterpret_cast<PyCFunction>(BfModel_read_iscas89),
+  {"read_iscas89", reinterpret_cast<PyCFunction>(BnModel_read_iscas89),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'iscas89(.bench)' file")},
-  {"read_aag", reinterpret_cast<PyCFunction>(BfModel_read_aag),
+  {"read_aag", reinterpret_cast<PyCFunction>(BnModel_read_aag),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'aag' file")},
-  {"read_aig", reinterpret_cast<PyCFunction>(BfModel_read_aig),
+  {"read_aig", reinterpret_cast<PyCFunction>(BnModel_read_aig),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'aig' file")},
-  {"input", BfModel_input,
+  {"input", BnModel_input,
    METH_VARARGS,
    PyDoc_STR("returns input node")},
-  {"input_name", BfModel_input_name,
+  {"input_name", BnModel_input_name,
    METH_VARARGS,
    PyDoc_STR("returns input name")},
-  {"output", BfModel_output,
+  {"output", BnModel_output,
    METH_VARARGS,
    PyDoc_STR("returns output node")},
-  {"output_name", BfModel_output_name,
+  {"output_name", BnModel_output_name,
    METH_VARARGS,
    PyDoc_STR("returns output name")},
-  {"dff", BfModel_dff,
+  {"dff", BnModel_dff,
    METH_VARARGS,
    PyDoc_STR("returns DFF node")},
-  {"logic", BfModel_logic,
+  {"logic", BnModel_logic,
    METH_VARARGS,
    PyDoc_STR("returns logic node")},
-  {"print", reinterpret_cast<PyCFunction>(BfModel_print),
+  {"print", reinterpret_cast<PyCFunction>(BnModel_print),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("print contents")},
   {nullptr, nullptr, 0, nullptr}
 };
 
 PyObject*
-BfModel_name(
+BnModel_name(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val = model.name();
   return Py_BuildValue("s", val.c_str());
 }
 
 PyObject*
-BfModel_comment(
+BnModel_comment(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val = model.comment();
   return Py_BuildValue("s", val.c_str());
 }
 
 PyObject*
-BfModel_input_num(
+BnModel_input_num(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val = model.input_num();
   return Py_BuildValue("i", val);
 }
 
 PyObject*
-BfModel_input_list(
+BnModel_input_list(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val_list = model.input_list();
-  return PyBfNode::ToPyList(val_list);
+  return PyBnNode::ToPyList(val_list);
 }
 
 PyObject*
-BfModel_input_name_list(
+BnModel_input_name_list(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val_list = model.input_name_list();
   return PyBase::ToPyList(val_list);
 }
 
 PyObject*
-BfModel_dff_num(
+BnModel_dff_num(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val = model.dff_num();
   return Py_BuildValue("i", val);
 }
 
 PyObject*
-BfModel_dff_list(
+BnModel_dff_list(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val_list = model.dff_list();
-  return PyBfNode::ToPyList(val_list);
+  return PyBnNode::ToPyList(val_list);
 }
 
 PyObject*
-BfModel_output_num(
+BnModel_output_num(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val = model.output_num();
   return Py_BuildValue("i", val);
 }
 
 PyObject*
-BfModel_output_list(
+BnModel_output_list(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val_list = model.output_list();
-  return PyBfNode::ToPyList(val_list);
+  return PyBnNode::ToPyList(val_list);
 }
 
 PyObject*
-BfModel_output_name_list(
+BnModel_output_name_list(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val_list = model.output_name_list();
   return PyBase::ToPyList(val_list);
 }
 
 PyObject*
-BfModel_logic_num(
+BnModel_logic_num(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val = model.logic_num();
   return Py_BuildValue("i", val);
 }
 
 PyObject*
-BfModel_logic_list(
+BnModel_logic_list(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val_list = model.logic_list();
-  return PyBfNode::ToPyList(val_list);
+  return PyBnNode::ToPyList(val_list);
 }
 
 PyObject*
-BfModel_cover_num(
+BnModel_cover_num(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val = model.cover_num();
   return Py_BuildValue("i", val);
 }
 
 PyObject*
-BfModel_expr_num(
+BnModel_expr_num(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBfModel::Get(self);
+  auto model = PyBnModel::Get(self);
   auto val = model.expr_num();
   return Py_BuildValue("i", val);
 }
 
 // getsetter 定義
-PyGetSetDef BfModel_getsetters[] = {
-  {"name", BfModel_name, nullptr, PyDoc_STR("name"), nullptr},
-  {"comment", BfModel_comment, nullptr, PyDoc_STR("comment"), nullptr},
-  {"input_num", BfModel_input_num, nullptr, PyDoc_STR("input num"), nullptr},
-  {"input_list", BfModel_input_list, nullptr, PyDoc_STR("input list"), nullptr},
-  {"input_name_list", BfModel_input_name_list, nullptr, PyDoc_STR("input list"), nullptr},
-  {"dff_num", BfModel_dff_num, nullptr, PyDoc_STR("DFF num"), nullptr},
-  {"dff_list", BfModel_dff_list, nullptr, PyDoc_STR("DFF list"), nullptr},
-  {"output_num", BfModel_output_num, nullptr, PyDoc_STR("output num"), nullptr},
-  {"output_list", BfModel_output_list, nullptr, PyDoc_STR("output list"), nullptr},
-  {"output_name_list", BfModel_output_name_list, nullptr, PyDoc_STR("output list"), nullptr},
-  {"logic_num", BfModel_logic_num, nullptr, PyDoc_STR("logic gate num"), nullptr},
-  {"logic_list", BfModel_logic_list, nullptr, PyDoc_STR("logic gate list"), nullptr},
-  {"cover_num", BfModel_cover_num, nullptr, PyDoc_STR("cover num"), nullptr},
-  {"expr_num", BfModel_expr_num, nullptr, PyDoc_STR("expr num"), nullptr},
+PyGetSetDef BnModel_getsetters[] = {
+  {"name", BnModel_name, nullptr, PyDoc_STR("name"), nullptr},
+  {"comment", BnModel_comment, nullptr, PyDoc_STR("comment"), nullptr},
+  {"input_num", BnModel_input_num, nullptr, PyDoc_STR("input num"), nullptr},
+  {"input_list", BnModel_input_list, nullptr, PyDoc_STR("input list"), nullptr},
+  {"input_name_list", BnModel_input_name_list, nullptr, PyDoc_STR("input list"), nullptr},
+  {"dff_num", BnModel_dff_num, nullptr, PyDoc_STR("DFF num"), nullptr},
+  {"dff_list", BnModel_dff_list, nullptr, PyDoc_STR("DFF list"), nullptr},
+  {"output_num", BnModel_output_num, nullptr, PyDoc_STR("output num"), nullptr},
+  {"output_list", BnModel_output_list, nullptr, PyDoc_STR("output list"), nullptr},
+  {"output_name_list", BnModel_output_name_list, nullptr, PyDoc_STR("output list"), nullptr},
+  {"logic_num", BnModel_logic_num, nullptr, PyDoc_STR("logic gate num"), nullptr},
+  {"logic_list", BnModel_logic_list, nullptr, PyDoc_STR("logic gate list"), nullptr},
+  {"cover_num", BnModel_cover_num, nullptr, PyDoc_STR("cover num"), nullptr},
+  {"expr_num", BnModel_expr_num, nullptr, PyDoc_STR("expr num"), nullptr},
   {nullptr, nullptr, nullptr, nullptr}
 };
 
 END_NONAMESPACE
 
 
-// @brief 'BfModel' オブジェクトを使用可能にする．
+// @brief 'BnModel' オブジェクトを使用可能にする．
 bool
-PyBfModel::init(
+PyBnModel::init(
   PyObject* m
 )
 {
-  BfModelType.tp_name = "BfModel";
-  BfModelType.tp_basicsize = sizeof(BfModelObject);
-  BfModelType.tp_itemsize = 0;
-  BfModelType.tp_dealloc = BfModel_dealloc;
-  BfModelType.tp_flags = Py_TPFLAGS_DEFAULT;
-  BfModelType.tp_doc = PyDoc_STR("BfModel object");
-  BfModelType.tp_methods = BfModel_methods;
-  BfModelType.tp_getset = BfModel_getsetters;
-  BfModelType.tp_new = BfModel_new;
+  BnModelType.tp_name = "BnModel";
+  BnModelType.tp_basicsize = sizeof(BnModelObject);
+  BnModelType.tp_itemsize = 0;
+  BnModelType.tp_dealloc = BnModel_dealloc;
+  BnModelType.tp_flags = Py_TPFLAGS_DEFAULT;
+  BnModelType.tp_doc = PyDoc_STR("BnModel object");
+  BnModelType.tp_methods = BnModel_methods;
+  BnModelType.tp_getset = BnModel_getsetters;
+  BnModelType.tp_new = BnModel_new;
 
   // 型オブジェクトの登録
-  if ( !PyModule::reg_type(m, "BfModel", &BfModelType) ) {
+  if ( !PyModule::reg_type(m, "BnModel", &BnModelType) ) {
     goto error;
   }
 
@@ -570,42 +570,42 @@ PyBfModel::init(
   return false;
 }
 
-// @brief BfModel を PyObject に変換する．
+// @brief BnModel を PyObject に変換する．
 PyObject*
-PyBfModel::ToPyObject(
-  const BfModel& val
+PyBnModel::ToPyObject(
+  const BnModel& val
 )
 {
-  auto obj = BfModelType.tp_alloc(&BfModelType, 0);
-  auto model_obj = reinterpret_cast<BfModelObject*>(obj);
-  model_obj->mPtr = new BfModel{val};
+  auto obj = BnModelType.tp_alloc(&BnModelType, 0);
+  auto model_obj = reinterpret_cast<BnModelObject*>(obj);
+  model_obj->mPtr = new BnModel{val};
   return obj;
 }
 
-// @brief PyObject が BfModel タイプか調べる．
+// @brief PyObject が BnModel タイプか調べる．
 bool
-PyBfModel::Check(
+PyBnModel::Check(
   PyObject* obj
 )
 {
   return Py_IS_TYPE(obj, _typeobject());
 }
 
-// @brief BfModel を表す PyObject から BfModel を取り出す．
-BfModel
-PyBfModel::Get(
+// @brief BnModel を表す PyObject から BnModel を取り出す．
+BnModel
+PyBnModel::Get(
   PyObject* obj
 )
 {
-  auto model_obj = reinterpret_cast<BfModelObject*>(obj);
+  auto model_obj = reinterpret_cast<BnModelObject*>(obj);
   return *model_obj->mPtr;
 }
 
-// @brief BfModel を表すオブジェクトの型定義を返す．
+// @brief BnModel を表すオブジェクトの型定義を返す．
 PyTypeObject*
-PyBfModel::_typeobject()
+PyBnModel::_typeobject()
 {
-  return &BfModelType;
+  return &BnModelType;
 }
 
 END_NAMESPACE_YM

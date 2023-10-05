@@ -1,6 +1,6 @@
 
-/// @file ymbnet_module.cc
-/// @brief Python 用の bnet モジュールを定義する．
+/// @file ymbnir_module.cc
+/// @brief Python 用の bnir モジュールを定義する．
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -19,25 +19,25 @@ BEGIN_NAMESPACE_YM
 BEGIN_NONAMESPACE
 
 // メソッド定義構造体
-PyMethodDef ymbnfe_methods[] = {
+PyMethodDef ymbnir_methods[] = {
   {nullptr, nullptr, 0, nullptr},
 };
 
 // モジュール定義構造体
-PyModuleDef ymbnfe_module = {
+PyModuleDef ymbnir_module = {
   PyModuleDef_HEAD_INIT,
-  "ymbnfe",
-  PyDoc_STR("ymbnfe: Extension module for bnfe"),
+  "ymbnir",
+  PyDoc_STR("ymbnir: Extension module for bnir"),
   -1,
-  ymbnfe_methods,
+  ymbnir_methods,
 };
 
 END_NONAMESPACE
 
 PyMODINIT_FUNC
-PyInit_ymbnfe()
+PyInit_ymbnir()
 {
-  auto m = PyModule::init(&ymbnfe_module);
+  auto m = PyModule::init(&ymbnir_module);
   if ( m == nullptr ) {
     return nullptr;
   }
