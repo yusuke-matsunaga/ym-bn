@@ -41,16 +41,20 @@ public:
   /// @return 読み込みが成功したら true を返す．
   bool
   read_aag(
-    const string& filename, ///< [in] ファイル名
-    ModelImpl* model        ///< [out] 結果を格納するオブジェクト
+    const string& filename,   ///< [in] ファイル名
+    const string& clock_name, ///< [in] クロック入力の名前
+    const string& reset_name, ///< [in] リセット入力の名前
+    ModelImpl* model          ///< [out] 結果を格納するオブジェクト
   );
 
   /// @brief AIG フォーマットを読み込む．
   /// @return 読み込みが成功したら true を返す．
   bool
   read_aig(
-    const string& filename, ///< [in] ファイル名
-    ModelImpl* model        ///< [out] 結果を格納するオブジェクト
+    const string& filename,   ///< [in] ファイル名
+    const string& clock_name, ///< [in] クロック入力の名前
+    const string& reset_name, ///< [in] リセット入力の名前
+    ModelImpl* model          ///< [out] 結果を格納するオブジェクト
   );
 
   /// @}

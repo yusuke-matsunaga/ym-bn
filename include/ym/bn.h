@@ -49,6 +49,7 @@ enum class BnNodeType : std::uint8_t {
   None,   ///< [in] 不正値
   Input,  ///< [in] 入力
   Dff,    ///< [in] DFF
+  Latch,  ///< [in] ラッチ
   Prim,   ///< [in] プリミティブ型の論理ノード
   Aig,    ///< [in] AIG型の論理ノード
   Cover,  ///< [in] カバー型の論理ノード
@@ -70,6 +71,7 @@ operator<<(
   case BnNodeType::None:   s << "None"; break;
   case BnNodeType::Input:  s << "Input"; break;
   case BnNodeType::Dff:    s << "Dff"; break;
+  case BnNodeType::Latch:  s << "Latch"; break;
   case BnNodeType::Prim:   s << "Prim"; break;
   case BnNodeType::Aig:    s << "Aig"; break;
   case BnNodeType::Cover:  s << "Cover"; break;

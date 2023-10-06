@@ -18,6 +18,9 @@
 
 BEGIN_NAMESPACE_YM_BN
 
+/// @brief 不正なノード番号
+const SizeType BAD_ID = -1;
+
 //////////////////////////////////////////////////////////////////////
 /// @class ModelImpl ModelImpl.h "ModelImpl.h"
 /// @brief BnModel の内部情報を表すクラス
@@ -168,6 +171,30 @@ public:
   dff_list() const
   {
     return mDffList;
+  }
+
+  /// @brief ラッチ数を返す．
+  SizeType
+  latch_num() const
+  {
+    return mLatchList.size();
+  }
+
+  /// @brief ラッチのノード番号を返す．
+  SizeType
+  latch(
+    SizeType pos ///< [in] 位置 ( 0 <= pos < dff_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < dff_num() );
+    return mLatchList[pos];
+  }
+
+  /// @brief ラッチのノード番号のリストを返す．
+  const vector<SizeType>&
+  latch_list() const
+  {
+    return mLatchList;
   }
 
   /// @brief 論理ノード数を返す．
@@ -430,13 +457,34 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_dff(
-    SizeType src_id,        ///< [in] 入力の識別子番号
-    char rval,              ///< [in] リセット値
-    const string& name = {} ///< [in] 名前
+    SizeType src_id,             ///< [in] データ入力の識別子番号
+    SizeType clock_id,           ///< [in] クロック入力の識別子番号
+    SizeType reset_id = BAD_ID,  ///< [in] リセット入力の識別子番号
+    SizeType preset_id = BAD_ID, ///< [in] プリセット入力の識別子番号
+    char rs_val = ' ',           ///< [in] リセットとプリセットが共にオンの時の値
+    const string& name = {}      ///< [in] 名前
   )
   {
     auto id = new_node(name);
-    set_dff(id, src_id, rval);
+    set_dff(id, src_id, clock_id, reset_id, preset_id, rs_val);
+    return id;
+  }
+
+  /// @brief ラッチ型のノードの情報をセットする．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_latch(
+    SizeType src_id,             ///< [in] データ入力の識別子番号
+    SizeType enable_id = BAD_ID, ///< [in] イネーブル入力の識別子番号
+    SizeType reset_id = BAD_ID,  ///< [in] リセット入力の識別子番号
+    SizeType preset_id = BAD_ID, ///< [in] プリセット入力の識別子番号
+    char rs_val = ' ',           ///< [in] リセットとプリセットが共にオンの時の値
+    const string& name = {}      ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_latch(id, src_id, enable_id, reset_id, preset_id, rs_val);
     return id;
   }
 
@@ -521,8 +569,22 @@ public:
   void
   set_dff(
     SizeType id,         ///< [in] ID番号
-    SizeType src_id,     ///< [in] 入力の識別子番号
-    char rval            ///< [in] リセット値
+    SizeType src_id,     ///< [in] データ入力の識別子番号
+    SizeType clock_id,   ///< [in] クロック入力の識別子番号
+    SizeType reset_id,   ///< [in] リセット入力の識別子番号
+    SizeType preset_id,  ///< [in] プリセット入力の識別子番号
+    char rs_val          ///< [in] リセットとプリセットが共にオンの時の値
+  );
+
+  /// @brief ラッチ型のノードの情報をセットする．
+  void
+  set_latch(
+    SizeType id,         ///< [in] ID番号
+    SizeType src_id,     ///< [in] データ入力の識別子番号
+    SizeType enable_id,  ///< [in] イネーブル入力の識別子番号
+    SizeType reset_id,   ///< [in] リセット入力の識別子番号
+    SizeType preset_id,  ///< [in] プリセット入力の識別子番号
+    char rs_val          ///< [in] リセットとプリセットが共にオンの時の値
   );
 
   /// @brief 論理ノードのリストを作る．
@@ -608,6 +670,9 @@ private:
 
   // DFFノード番号のリスト
   vector<SizeType> mDffList;
+
+  // ラッチノード番号のリスト
+  vector<SizeType> mLatchList;
 
   // 論理ノード番号のリスト
   vector<SizeType> mLogicList;

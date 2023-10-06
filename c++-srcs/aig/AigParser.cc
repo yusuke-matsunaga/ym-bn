@@ -29,13 +29,15 @@ END_NONAMESPACE
 // @brief aag ファイルの読み込みを行う．
 BnModel
 BnModel::read_aag(
-  const string& filename
+  const string& filename,
+  const string& clock_name,
+  const string& reset_name
 )
 {
   BnModel model;
 
   AigParser parser;
-  if ( !parser.read_aag(filename, model.mImpl.get()) ) {
+  if ( !parser.read_aag(filename, clock_name, reset_name, model.mImpl.get()) ) {
     ostringstream buf;
     buf << "BnModel::read_aag(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
@@ -47,13 +49,15 @@ BnModel::read_aag(
 // @brief aig ファイルの読み込みを行う．
 BnModel
 BnModel::read_aig(
-  const string& filename
+  const string& filename,
+  const string& clock_name,
+  const string& reset_name
 )
 {
   BnModel model;
 
   AigParser parser;
-  if ( !parser.read_aig(filename, model.mImpl.get()) ) {
+  if ( !parser.read_aig(filename, clock_name, reset_name, model.mImpl.get()) ) {
     ostringstream buf;
     buf << "BnModel::read_aig(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
@@ -71,6 +75,8 @@ BnModel::read_aig(
 bool
 AigParser::read_aag(
   const string& filename,
+  const string& clock_name,
+  const string& reset_name,
   ModelImpl* model
 )
 {
@@ -99,6 +105,12 @@ AigParser::read_aag(
   }
 
   // ラッチ行の読み込み
+  SizeType clock_id = BAD_ID;
+  SizeType reset_id = BAD_ID;
+  if ( L > 0 ) {
+    clock_id = model->new_input(clock_name);
+    reset_id = model->new_input(reset_name);
+  }
   for ( SizeType i = 0; i < L; ++ i ) {
     SizeType id;
     SizeType src_lit;
@@ -109,7 +121,7 @@ AigParser::read_aag(
       cout << "L#" << i << ": " << id << " " << src_lit << endl;
     }
     auto src_id = lit2node(src_lit);
-    model->set_dff(id, src_id, ' ');
+    model->set_dff(id, src_id, clock_id, reset_id, BAD_ID, ' ');
   }
 
   // 出力行の読み込み
@@ -190,6 +202,8 @@ END_NONAMESPACE
 bool
 AigParser::read_aig(
   const string& filename,
+  const string& clock_name,
+  const string& reset_name,
   ModelImpl* model
 )
 {
@@ -219,6 +233,12 @@ AigParser::read_aig(
   }
 
   // ラッチ行の読み込み
+  SizeType clock_id = BAD_ID;
+  SizeType reset_id = BAD_ID;
+  if ( L > 0 ) {
+    clock_id = model->new_input(clock_name);
+    reset_id = model->new_input(reset_name);
+  }
   for ( SizeType i = 0; i < L; ++ i ) {
     SizeType src_lit;
     if ( !read_src(src_lit) ) {
@@ -230,7 +250,7 @@ AigParser::read_aig(
     auto id = i + I;
     bool src_inv;
     auto src_id = lit2node(src_lit, src_inv);
-    mModel->set_dff(id, src_id, '0');
+    mModel->set_dff(id, src_id, clock_id, reset_id, BAD_ID, ' ');
   }
 
   // 出力行の読み込み

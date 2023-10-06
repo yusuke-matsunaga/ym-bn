@@ -306,20 +306,22 @@ TEST( ModelImplTest, set_dff )
 {
   ModelImpl model;
 
-  auto id1 = model.new_node({});
-  EXPECT_EQ( 0, id1 );
-  model.set_input(id1);
+  auto id0 = model.new_node({});
+  auto src_id = model.new_input({});
+  auto clock_id = model.new_node({});
+  auto reset_id = model.new_node({});
+  auto preset_id = model.new_node({});
 
-  auto id3 = model.new_node({});
-  EXPECT_EQ( 1, id3 );
+  char rsval = '1';
+  model.set_dff(id0, src_id, clock_id, reset_id, preset_id, rsval);
 
-  char rval = '1';
-  model.set_dff(id3, id1, rval);
-
-  auto& node = model.node(id3);
+  auto& node = model.node(id0);
   EXPECT_EQ( BnNodeType::Dff, node.type() );
-  EXPECT_EQ( id1, node.dff_src() );
-  EXPECT_EQ( rval, node.dff_rval() );
+  EXPECT_EQ( src_id, node.dff_src() );
+  EXPECT_EQ( clock_id, node.dff_clock() );
+  EXPECT_EQ( reset_id, node.dff_reset() );
+  EXPECT_EQ( preset_id, node.dff_preset() );
+  EXPECT_EQ( rsval, node.dff_rsval() );
 }
 
 TEST( ModelImplTest, add_cover )

@@ -23,23 +23,29 @@ BEGIN_NAMESPACE_YM_BN
 // @brief blif ファイルの読み込みを行う．
 BnModel
 BnModel::read_blif(
-  const string& filename
+  const string& filename,
+  const string& clock_name,
+  const string& reset_name
 )
 {
-  return read_blif(filename, ClibCellLibrary{});
+  return read_blif(filename, ClibCellLibrary{}, clock_name, reset_name);
 }
 
 // @brief blif ファイルの読み込みを行う(セルライブラリ付き)．
 BnModel
 BnModel::read_blif(
   const string& filename,
-  const ClibCellLibrary& cell_library
+  const ClibCellLibrary& cell_library,
+  const string& clock_name,
+  const string& reset_name
 )
 {
   BnModel model;
 
   BlifParser parser;
-  if ( !parser.read(filename, cell_library, model.mImpl.get()) ) {
+  if ( !parser.read(filename, cell_library,
+		    clock_name, reset_name,
+		    model.mImpl.get()) ) {
     ostringstream buf;
     buf << "BnModel::read_blif(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
@@ -58,6 +64,8 @@ bool
 BlifParser::read(
   const string& filename,
   const ClibCellLibrary& cell_library,
+  const string& clock_name,
+  const string& reset_name,
   ModelImpl* model
 )
 {
@@ -93,6 +101,10 @@ BlifParser::read(
   mScanner = &scanner;
   mCoverMgr = &cover_mgr;
   mModel = model;
+  mClockName = clock_name;
+  mClockId = BAD_ID;
+  mResetName = reset_name;
+  mResetId = BAD_ID;
 
   mCellLibrary = cell_library;
 
@@ -860,17 +872,23 @@ BlifParser::read_latch()
     next_token();
     tk = cur_token();
     auto loc3 = cur_loc();
-    char rval = ' ';
+    SizeType reset_id = BAD_ID;
+    SizeType preset_id = BAD_ID;
     if ( tk == BlifToken::STRING ) {
-      rval = cur_string()[0];
-      if ( rval != '0' && rval != '1' ) {
+      auto rval = cur_string()[0];
+      if ( rval == '0' ) {
+	reset_id = get_reset_id();
+      }
+      else if ( rval == '1' ) {
+	preset_id = get_reset_id();
+      }
+      else {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc3,
 			MsgType::Error,
 			"SYN18",
 			"Illegal character for reset value.");
 	return false;
       }
-
       next_token();
       tk = cur_token();
       loc3 = cur_loc();
@@ -880,8 +898,10 @@ BlifParser::read_latch()
       goto ST_LATCH_SYNERROR;
     }
 
+    mClockId = get_clock_id();
+
     set_defined(id2, name2_loc);
-    mModel->set_dff(id2, id1, rval);
+    mModel->set_dff(id2, id1, mClockId, reset_id, preset_id, ' ');
 
     return true;
   }
@@ -956,6 +976,28 @@ FileRegion
 BlifParser::cur_loc() const
 {
   return mCurLoc;
+}
+
+// @brief クロック入力の識別子を返す．
+SizeType
+BlifParser::get_clock_id()
+{
+  if ( mClockId == BAD_ID ) {
+    mClockId = mModel->new_input(mClockName);
+    set_defined(mClockId, {});
+  }
+  return mClockId;
+}
+
+// @brief リセット入力の識別子を返す．
+SizeType
+BlifParser::get_reset_id()
+{
+  if ( mResetId == BAD_ID ) {
+    mResetId = mModel->new_input(mResetName);
+    set_defined(mResetId, {});
+  }
+  return mResetId;
 }
 
 END_NAMESPACE_YM_BN

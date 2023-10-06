@@ -17,7 +17,7 @@ TEST( BnModelTest, read_iscas1 )
   string filename = "b10.bench";
   string path = DATAPATH + filename;
   auto model = BnModel::read_iscas89(path);
-  int ni = 11;
+  int ni = 12;
   int no = 6;
   int nd = 17;
   int ng = 172;
@@ -30,7 +30,7 @@ TEST( BnModelTest, read_iscas1 )
   ostringstream s1;
   model.print(s1);
 
-  string ref_path = DATAPATH + string{"b10.bnfe"};
+  string ref_path = DATAPATH + string{"b10.bn"};
   ifstream s2{ref_path};
   ASSERT_TRUE( s2 );
   string ref_contents;

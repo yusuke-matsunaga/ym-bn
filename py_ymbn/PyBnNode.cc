@@ -437,14 +437,14 @@ BnNode_dff_src(
 }
 
 PyObject*
-BnNode_dff_rval(
+BnNode_dff_rsval(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
   try {
     auto node = PyBnNode::Get(self);
-    auto val = node.dff_rval();
+    auto val = node.dff_rsval();
     char tmp[2];
     tmp[0] = val;
     tmp[1] = '\0';
@@ -480,7 +480,7 @@ PyGetSetDef BnNode_getsetters[] = {
    PyDoc_STR("Cell ID"), nullptr},
   {"dff_src", BnNode_dff_src, nullptr,
    PyDoc_STR("DFF source"), nullptr},
-  {"dff_rval", BnNode_dff_rval, nullptr,
+  {"dff_rsval", BnNode_dff_rsval, nullptr,
    PyDoc_STR("DFF reset value")},
   {nullptr, nullptr, nullptr,
    nullptr, nullptr}

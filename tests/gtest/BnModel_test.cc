@@ -16,14 +16,25 @@ BEGIN_NAMESPACE_YM_BN
 
 TEST( BnModelTest, constructor1 )
 {
-  shared_ptr<ModelImpl> impl{new ModelImpl};
-  BnModel model{impl};
+  BnModel model;
 
   EXPECT_EQ( string{}, model.name() );
   EXPECT_EQ( string{}, model.comment() );
   EXPECT_EQ( 0, model.input_num() );
   EXPECT_EQ( vector<BnNode>{}, model.input_list() );
+}
 
+TEST( BnModelTest, new_input )
+{
+  BnModel model;
+
+  string name1{"input1"};
+  auto node = model.new_input(name1);
+
+  EXPECT_TRUE( node.is_valid() );
+  EXPECT_TRUE( node.is_input() );
+  EXPECT_EQ( model, node.parent_model() );
+  EXPECT_EQ( name1, node.name() );
 }
 
 END_NAMESPACE_YM_BN

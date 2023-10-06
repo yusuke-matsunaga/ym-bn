@@ -19,54 +19,72 @@ class ModelImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnModel BnModel.h "BnModel.h"
-/// @brief Boolean Network の読み込み結果を表すクラス
-///
-/// 扱えるファイルタイプは以下の通り
-/// - blif(.blif)
-/// - iscas89(.bench)
-/// - aig(.aag, .aig)
+/// @brief Boolean Network を表すクラス
 ///
 /// 以下の情報を持つ．
 /// - 入力ノードのリスト
 /// - 出力ノードのリスト
-/// - DFFノードのリスト
 /// - 論理ノードのリスト
-/// - 各ノードごとに以下の情報を持つ．
+/// - DFFノードのリスト
+/// - ラッチノードのリスト
 /// - カバー(BlifCover)のリスト
+/// - 論理式(Expr)のリスト
+/// - 関数(TvFunc)のリスト
+/// - BDD(Bdd)のリスト
+///
+/// - 論理ノードは以下の情報を持つ．
+///   * タイプ(Primitive, Aig, Cover, Expr, Func, Bdd, Cell)
+///   * タイプごとの補助情報
+///   * ファンインノードのリスト
 ///
 /// - Dffタイプは以下の情報を持つ．
-///   * リセット値 ('0' or '1' or 'X')
+///   * データ入力ノード
+///   * クロック入力ノード
+///   * リセット入力ノード
+///   * プリセット入力ノード
+///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
 ///
-/// 実際には出力ノードという種類はなく，他のいずれかの
-/// ノードとなっている．
-/// 論理ノードのリストは入力からのトポロジカル順
-/// となっている．
+/// - ラッチタイプは以下の情報を持つ．
+///   * データ入力ノード
+///   * イネーブル入力ノード
+///   * リセット入力ノード
+///   * プリセット入力ノード
+///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
+///
+/// - 実際には出力ノードという種類はなく，他のいずれかの
+///   ノードとなっている．
+/// - 論理ノードのリストは入力からのトポロジカル順
+///   となっている．
+///
+/// - 扱えるファイルタイプは以下の通り
+///   * blif(.blif)
+///   * iscas89(.bench)
+///   * aig(.aag, .aig)
+///   * truth(IWLS2022)
 ///
 /// - 読み込んだファイルによってはノードはユニークな名前を持つ．
 /// - 入力名は入力ノード名と等しい
-/// - blif/iscas89 の場合は出力名は出力として参照されている
-///   ノード名と等しい．そのため入力ノードがそのまま出力となっている場合
-///   には入力と出力に同じ名前を持つことになる．
+/// - blif/iscas89 の場合は出力名は出力として参照されているノード名と
+///   等しい．
+///   そのため入力ノードがそのまま出力となっている場合には
+///   入力と出力に同じ名前を持つことになる．
 //////////////////////////////////////////////////////////////////////
 class BnModel
 {
+  friend BnNode;
+
 private:
-
-  /// @brief 空のコンストラクタ
-  BnModel();
-
-  /// @brief ModelImpl* からのキャストコンストラクタ
-  BnModel(
-    ModelImpl* impl ///< [in] 実装オブジェクト
-  );
-
-
-public:
 
   /// @brief shared_ptr<ModelImpl> からのキャストコンストラクタ
   BnModel(
     const shared_ptr<ModelImpl>& impl ///< [in] 実装オブジェクト
   );
+
+
+public:
+
+  /// @brief 空のコンストラクタ
+  BnModel();
 
   /// @brief コピーコンストラクタ
   ///
@@ -111,7 +129,9 @@ public:
   static
   BnModel
   read_blif(
-    const string& filename ///< [in] ファイル名
+    const string& filename,             ///< [in] ファイル名
+    const string& clock_name = "clock", ///< [in] クロック信号の名前
+    const string& reset_name = "reset"  ///< [in] リセット信号の名前
   );
 
   /// @brief blif ファイルの読み込みを行う(セルライブラリ付き)．
@@ -121,8 +141,10 @@ public:
   static
   BnModel
   read_blif(
-    const string& filename,             ///< [in] ファイル名
-    const ClibCellLibrary& cell_library ///< [in] セルライブラリ
+    const string& filename,              ///< [in] ファイル名
+    const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
+    const string& clock_name = "clock",  ///< [in] クロック信号の名前
+    const string& reset_name = "reset"   ///< [in] リセット信号の名前
   );
 
   /// @brief iscas89(.bench) ファイルの読み込みを行う．
@@ -132,7 +154,8 @@ public:
   static
   BnModel
   read_iscas89(
-    const string& filename ///< [in] ファイル名
+    const string& filename,            ///< [in] ファイル名
+    const string& clock_name = "clock" ///< [in] クロック信号の名前
   );
 
   /// @brief aag ファイルの読み込みを行う．
@@ -142,7 +165,9 @@ public:
   static
   BnModel
   read_aag(
-    const string& filename ///< [in] ファイル名
+    const string& filename,             ///< [in] ファイル名
+    const string& clock_name = "clock", ///< [in] クロック信号の名前
+    const string& reset_name = "reset"  ///< [in] リセット信号の名前
   );
 
   /// @brief aig ファイルの読み込みを行う．
@@ -152,7 +177,9 @@ public:
   static
   BnModel
   read_aig(
-    const string& filename ///< [in] ファイル名
+    const string& filename,             ///< [in] ファイル名
+    const string& clock_name = "clock", ///< [in] クロック信号の名前
+    const string& reset_name = "reset"  ///< [in] リセット信号の名前
   );
 
   /// @brief truth ファイルの読み込みを行う．
@@ -256,6 +283,20 @@ public:
   /// @brief DFFのノードのリストを返す．
   vector<BnNode>
   dff_list() const;
+
+  /// @brief ラッチ数を返す．
+  SizeType
+  latch_num() const;
+
+  /// @brief ラッチのノードを返す．
+  BnNode
+  latch(
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < latch_num() )
+  ) const;
+
+  /// @brief ラッチのノードのリストを返す．
+  vector<BnNode>
+  latch_list() const;
 
   /// @brief 論理ノード数を返す．
   SizeType
@@ -368,39 +409,31 @@ public:
     const string& name ///< [in] 名前
   );
 
-  /// @brief 新しいノードを作る．
-  ///
-  /// @return ID番号を返す．
-  SizeType
-  new_node(
-    const string& name = {} ///< [in] 名前
-  );
-
   /// @brief 新しい入力ノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_input(
     const string& name = {} ///< [in] 名前
   );
 
   /// @brief 新しいプリミティブ型の論理ノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_primitive(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    PrimType type,                      ///< [in] プリミティブタイプ
-    const string& name = {}             ///< [in] 名前
+    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    PrimType type,                    ///< [in] プリミティブタイプ
+    const string& name = {}           ///< [in] 名前
   );
 
   /// @brief 新しいAIG型の論理ノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_aig(
-    SizeType src0,          ///< [in] ソース0のID番号
-    SizeType src1,          ///< [in] ソース1のID番号
+    BnNode src0,            ///< [in] ソース0のID番号
+    BnNode src1,            ///< [in] ソース1のID番号
     bool inv0,              ///< [in] ソース0の反転属性
     bool inv1,              ///< [in] ソース1の反転属性
     const string& name = {} ///< [in] 名前
@@ -408,147 +441,78 @@ public:
 
   /// @brief 新しいカバー型の論理ノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_cover(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cover_id,                  ///< [in] カバー番号
-    const string& name = {}             ///< [in] 名前
+    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType cover_id,                ///< [in] カバー番号
+    const string& name = {}           ///< [in] 名前
   );
 
-  /// @brief 論理式型のノードの情報をセットする．
+  /// @brief 論理式型の論理ノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_expr(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType expr_id,                   ///< [in] 論理式番号
-    const string& name = {}             ///< [in] 名前
+    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType expr_id,                 ///< [in] 論理式番号
+    const string& name = {}           ///< [in] 名前
   );
 
-  /// @brief セル型のノードの情報をセットする．
+  /// @brief セル型の論理ノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_cell(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cell_id,                   ///< [in] セル番号
-    const string& name = {}             ///< [in] 名前
+    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType cell_id,                 ///< [in] セル番号
+    const string& name = {}           ///< [in] 名前
   );
 
-  /// @brief 真理値表型のノードの情報をセットする．
+  /// @brief 真理値表型の論理ノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_func(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType func_id,                   ///< [in] 関数番号
-    const string& name = {}             ///< [in] 名前
+    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType func_id,                 ///< [in] 関数番号
+    const string& name = {}           ///< [in] 名前
   );
 
-  /// @brief BDD型のノードの情報をセットする．
+  /// @brief BDD型の論理ノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_bdd(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType bdd_id,                    ///< [in] BDD番号
-    const string& name = {}             ///< [in] 名前
+    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType bdd_id,                  ///< [in] BDD番号
+    const string& name = {}           ///< [in] 名前
   );
 
-  /// @brief DFF型のノードの情報をセットする．
+  /// @brief DFF型のノードを作る．
   ///
-  /// @return ID番号を返す．
-  SizeType
+  /// @return 生成したノードを返す．
+  BnNode
   new_dff(
-    SizeType src_id,        ///< [in] 入力の識別子番号
-    char rval,              ///< [in] リセット値
+    BnNode src,             ///< [in] 入力の識別子番号
+    BnNode clock,           ///< [in] クロック入力の識別子番号
+    BnNode reset,           ///< [in] リセット入力の識別子番号
+    BnNode preset,          ///< [in] プリセット入力の識別子番号
+    char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {} ///< [in] 名前
   );
 
-  /// @brief ノードに名前をつける．
-  void
-  set_node_name(
-    SizeType id,       ///< [in] ID番号
-    const string& name ///< [in] 名前
-  );
-
-  /// @brief 対応するID番号に入力用の印を付ける．
-  void
-  set_input(
-    SizeType id ///< [in] ID番号
-  );
-
-  /// @brief 対応するID番号に出力用の印をつける．
-  void
-  set_output(
-    SizeType id ///< [in] ID番号
-  );
-
-  /// @brief プリミティブ型のノードの情報をセットする．
-  void
-  set_primitive(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    PrimType type                       ///< [in] プリミティブタイプ
-  );
-
-  /// @brief AIG型のノードの情報をセットする．
-  void
-  set_aig(
-    SizeType id,   ///< [in] ID番号
-    SizeType src0, ///< [in] ソース0のID番号
-    SizeType src1, ///< [in] ソース1のID番号
-    bool inv0,     ///< [in] ソース0の反転属性
-    bool inv1      ///< [in] ソース1の反転属性
-  );
-
-  /// @brief カバー型のノードの情報をセットする．
-  void
-  set_cover(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cover_id                   ///< [in] カバー番号
-  );
-
-  /// @brief 論理式型のノードの情報をセットする．
-  void
-  set_expr(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType expr_id                    ///< [in] 論理式番号
-  );
-
-  /// @brief セル型のノードの情報をセットする．
-  void
-  set_cell(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cell_id                    ///< [in] セル番号
-  );
-
-  /// @brief 真理値表型のノードの情報をセットする．
-  void
-  set_func(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType func_id                    ///< [in] 関数番号
-  );
-
-  /// @brief BDD型のノードの情報をセットする．
-  void
-  set_bdd(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType bdd_id                     ///< [in] BDD番号
-  );
-
-  /// @brief DFF型のノードの情報をセットする．
-  void
-  set_dff(
-    SizeType id,         ///< [in] ID番号
-    SizeType src_id,     ///< [in] 入力の識別子番号
-    char rval            ///< [in] リセット値
+  /// @brief ラッチ型のノードを作る．
+  ///
+  /// @return 生成したノードを返す．
+  BnNode
+  new_latch(
+    BnNode src,             ///< [in] 入力の識別子番号
+    BnNode enable,          ///< [in] イネーブル入力の識別子番号
+    BnNode reset,           ///< [in] リセット入力の識別子番号
+    BnNode preset,          ///< [in] プリセット入力の識別子番号
+    char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
+    const string& name = {} ///< [in] 名前
   );
 
   /// @brief 論理ノードのリストを作る．
@@ -605,22 +569,22 @@ private:
     const vector<SizeType>& id_list
   ) const;
 
-  /// @brief 正しいノード番号かチェックする．
+  /// @brief BnNode から ID 番号を取り出す．
   ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
-  void
-  _check_id(
-    SizeType id,           ///< ID番号
-    const string& funcname ///< [in] 関数名
+  /// 同じ Model に属していないとエラーとなる．
+  SizeType
+  to_id(
+    const BnNode& node,
+    const string& funcname
   ) const;
 
-  /// @brief 正しいノード番号かチェックする．
+  /// @brief vector<BnNode> から ID番号のリストを取り出す．
   ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
-  void
-  _check_ids(
-    const vector<SizeType>& id_list, ///< ID番号
-    const string& funcname           ///< [in] 関数名
+  /// 同じ Model に属していないとエラーとなる．
+  vector<SizeType>
+  to_id_list(
+    const vector<BnNode>& node_list,
+    const string& funcname
   ) const;
 
   /// @brief 正しいカバー番号かチェックする．
@@ -637,9 +601,9 @@ private:
   /// 正しくない場合には std::invalid_argument 例外を送出する．
   void
   _check_cover_input(
-    SizeType id,                        ///< [in] カバー番号
-    const vector<SizeType>& input_list, ///< [in] 入力番号のリスト
-    const string& funcname              ///< [in] 関数名
+    SizeType id,           ///< [in] カバー番号
+    SizeType size,         ///< [in] 入力のサイズ
+    const string& funcname ///< [in] 関数名
   ) const;
 
   /// @brief 正しい論理式番号かチェックする．
@@ -656,9 +620,9 @@ private:
   /// 正しくない場合には std::invalid_argument 例外を送出する．
   void
   _check_expr_input(
-    SizeType id,                        ///< [in] 論理式番号
-    const vector<SizeType>& input_list, ///< [in] 入力番号のリスト
-    const string& funcname              ///< [in] 関数名
+    SizeType id,           ///< [in] 論理式番号
+    SizeType size,         ///< [in] 入力のサイズ
+    const string& funcname ///< [in] 関数名
   ) const;
 
   /// @brief 正しい関数番号かチェックする．
@@ -675,9 +639,9 @@ private:
   /// 正しくない場合には std::invalid_argument 例外を送出する．
   void
   _check_func_input(
-    SizeType id,                        ///< [in] 関数番号
-    const vector<SizeType>& input_list, ///< [in] 入力番号のリスト
-    const string& funcname              ///< [in] 関数名
+    SizeType id,           ///< [in] 関数番号
+    SizeType size,         ///< [in] 入力のサイズ
+    const string& funcname ///< [in] 関数名
   ) const;
 
   /// @brief 正しいBDD番号かチェックする．
@@ -694,9 +658,9 @@ private:
   /// 正しくない場合には std::invalid_argument 例外を送出する．
   void
   _check_bdd_input(
-    SizeType id,                        ///< [in] BDD番号
-    const vector<SizeType>& input_list, ///< [in] 入力番号のリスト
-    const string& funcname              ///< [in] 関数名
+    SizeType id,           ///< [in] BDD番号
+    SizeType size,         ///< [in] 入力のサイズ
+    const string& funcname ///< [in] 関数名
   ) const;
 
 

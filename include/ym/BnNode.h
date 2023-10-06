@@ -44,10 +44,7 @@ public:
   BnNode(
     const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
     SizeType id                       ///< [in] ノード番号
-  ) : mImpl{impl},
-      mId{id}
-  {
-  }
+  );
 
   /// @brief デストラクタ
   ~BnNode();
@@ -123,6 +120,10 @@ public:
   /// @brief DFFノードの時 true を返す．
   bool
   is_dff() const;
+
+  /// @brief ラッチノードの時 true を返す．
+  bool
+  is_latch() const;
 
   /// @brief 入力番号を返す．
   ///
@@ -206,11 +207,59 @@ public:
   BnNode
   dff_src() const;
 
-  /// @brief DFFノードのリセット値を返す．
+  /// @brief DFFノードのクロックノードを返す．
+  ///
+  /// is_dff() が true の時のみ意味を持つ．
+  BnNode
+  dff_clock() const;
+
+  /// @brief DFFノードのリセットノードを返す．
+  ///
+  /// is_dff() が true の時のみ意味を持つ．
+  BnNode
+  dff_reset() const;
+
+  /// @brief DFFノードのプリセットノードを返す．
+  ///
+  /// is_dff() が true の時のみ意味を持つ．
+  BnNode
+  dff_preset() const;
+
+  /// @brief DFFノードのリセットとプリセットが共にオンの場合の値を返す．
   ///
   /// is_dff() が true の時のみ意味を持つ．
   char
-  dff_rval() const;
+  dff_rsval() const;
+
+  /// @brief ラッチノードの入力ノードを返す．
+  ///
+  /// is_latch() が true の時のみ意味を持つ．
+  BnNode
+  latch_src() const;
+
+  /// @brief ラッチノードのイネーブルノードを返す．
+  ///
+  /// is_latch() が true の時のみ意味を持つ．
+  BnNode
+  latch_enable() const;
+
+  /// @brief ラッチノードのリセットノードを返す．
+  ///
+  /// is_latch() が true の時のみ意味を持つ．
+  BnNode
+  latch_reset() const;
+
+  /// @brief ラッチノードのプリセットノードを返す．
+  ///
+  /// is_latch() が true の時のみ意味を持つ．
+  BnNode
+  latch_preset() const;
+
+  /// @brief ラッチノードのリセットとプリセットが共にオンの場合の値を返す．
+  ///
+  /// is_latch() が true の時のみ意味を持つ．
+  char
+  latch_rsval() const;
 
   /// @brief 等価比較演算子
   bool

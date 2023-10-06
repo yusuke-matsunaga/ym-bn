@@ -17,6 +17,18 @@ BEGIN_NAMESPACE_YM_BN
 // クラス BnNode
 //////////////////////////////////////////////////////////////////////
 
+// @brief コンストラクタ
+BnNode::BnNode(
+  const shared_ptr<ModelImpl>& impl,
+  SizeType id
+) : mImpl{impl},
+    mId{id}
+{
+  if ( mId == BAD_ID ) {
+    mImpl = nullptr;
+  }
+}
+
 // @brief デストラクタ
 BnNode::~BnNode()
 {
@@ -119,6 +131,13 @@ bool
 BnNode::is_dff() const
 {
   return type() == BnNodeType::Dff;
+}
+
+// @brief ラッチノードの時 true を返す．
+bool
+BnNode::is_latch() const
+{
+  return type() == BnNodeType::Latch;
 }
 
 // @brief 入力番号を返す．
@@ -225,11 +244,67 @@ BnNode::dff_src() const
   return from_id(node_impl().dff_src());
 }
 
+// @brief DFFノードのクロックノードを返す．
+BnNode
+BnNode::dff_clock() const
+{
+  return from_id(node_impl().dff_clock());
+}
+
+// @brief DFFノードのリセットノードを返す．
+BnNode
+BnNode::dff_reset() const
+{
+  return from_id(node_impl().dff_reset());
+}
+
+// @brief DFFノードのプリセットノードを返す．
+BnNode
+BnNode::dff_preset() const
+{
+  return from_id(node_impl().dff_preset());
+}
+
 // @brief DFFノードのリセット値を返す．
 char
-BnNode::dff_rval() const
+BnNode::dff_rsval() const
 {
-  return node_impl().dff_rval();
+  return node_impl().dff_rsval();
+}
+
+// @brief ラッチノードの入力ノードを返す．
+BnNode
+BnNode::latch_src() const
+{
+  return from_id(node_impl().latch_src());
+}
+
+// @brief ラッチノードのイネーブルノードを返す．
+BnNode
+BnNode::latch_enable() const
+{
+  return from_id(node_impl().latch_enable());
+}
+
+// @brief ラッチノードのリセットノードを返す．
+BnNode
+BnNode::latch_reset() const
+{
+  return from_id(node_impl().latch_reset());
+}
+
+// @brief ラッチノードのプリセットノードを返す．
+BnNode
+BnNode::latch_preset() const
+{
+  return from_id(node_impl().latch_preset());
+}
+
+// @brief ラッチノードのリセット値を返す．
+char
+BnNode::latch_rsval() const
+{
+  return node_impl().latch_rsval();
 }
 
 // @brief ノードの実体を返す．

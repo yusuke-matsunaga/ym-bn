@@ -177,12 +177,31 @@ void
 ModelImpl::set_dff(
   SizeType id,
   SizeType src_id,
-  char rval
+  SizeType clock_id,
+  SizeType reset_id,
+  SizeType preset_id,
+  char rs_val
 )
 {
   auto& node = _node(id);
-  node.set_dff(src_id, rval);
+  node.set_dff(src_id, clock_id, reset_id, preset_id, rs_val);
   mDffList.push_back(id);
+}
+
+// @brief ラッチ型のノードの情報をセットする．
+void
+ModelImpl::set_latch(
+  SizeType id,
+  SizeType src_id,
+  SizeType enable_id,
+  SizeType reset_id,
+  SizeType preset_id,
+  char rs_val
+)
+{
+  auto& node = _node(id);
+  node.set_latch(src_id, enable_id, reset_id, preset_id, rs_val);
+  mLatchList.push_back(id);
 }
 
 // @brief 論理ノードのリストを作る．

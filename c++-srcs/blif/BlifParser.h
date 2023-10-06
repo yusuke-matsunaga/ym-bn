@@ -47,6 +47,8 @@ public:
   read(
     const string& filename,              ///< [in] ファイル名
     const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
+    const string& clock_name,            ///< [in] クロック信号の名前
+    const string& reset_name,            ///< [in] リセット信号の名前
     ModelImpl* model                     ///< [out] 結果を格納する変数
   );
 
@@ -195,6 +197,14 @@ private:
   FileRegion
   cur_loc() const;
 
+  /// @brief クロック入力の識別子を返す．
+  SizeType
+  get_clock_id();
+
+  /// @brief リセット入力の識別子を返す．
+  SizeType
+  get_reset_id();
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -215,6 +225,18 @@ private:
   // 結果を格納するオブジェクト
   // この変数は read() 内でのみ有効
   ModelImpl* mModel;
+
+  // クロック入力の名前
+  string mClockName;
+
+  // クロック入力のノード番号
+  SizeType mClockId;
+
+  // リセット入力の名前
+  string mResetName;
+
+  // リセット入力のノード番号
+  SizeType mResetId;
 
   // 現在のトークン
   BlifToken mCurToken;

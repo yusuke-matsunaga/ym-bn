@@ -44,8 +44,9 @@ public:
   /// @retval false 読み込みが失敗した．
   bool
   read(
-    const string& filename, ///< [in] ファイル名
-    ModelImpl* model        ///< [in] パーズ結果を格納するオブジェクト
+    const string& filename,   ///< [in] ファイル名
+    const string& clock_name, ///< [in] クロック入力名
+    ModelImpl* model          ///< [in] パーズ結果を格納するオブジェクト
   );
 
   /// @brief 拡張ハンドラを登録する．
@@ -223,9 +224,8 @@ private:
     const FileRegion& loc ///< [in] ファイル上の位置
   )
   {
-    SizeType id = mRefLocArray.size();
-    mRefLocArray.push_back(loc);
-    mModel->new_node(name);
+    auto id = mModel->new_node(name);
+    mRefLocDict.emplace(id, loc);
     return id;
   }
 
@@ -271,8 +271,8 @@ private:
     SizeType id ///< [in] ID番号
   ) const
   {
-    ASSERT_COND( 0 <= id && id < mRefLocArray.size() );
-    return mRefLocArray[id];
+    ASSERT_COND( mRefLocDict.count(id) > 0 );
+    return mRefLocDict.at(id);
   }
 
   /// @brief ID 番号から定義されている位置情報を得る．
@@ -304,11 +304,17 @@ private:
   // 結果を格納するオブジェクト
   ModelImpl* mModel;
 
+  // クロック入力の名前
+  string mClockName;
+
+  // クロック入力のノード番号
+  SizeType mClockId;
+
   // 名前をキーにした識別子のハッシュ表
   unordered_map<string, SizeType> mIdHash;
 
   // 参照された位置を記録する配列
-  vector<FileRegion> mRefLocArray;
+  unordered_map<SizeType, FileRegion> mRefLocDict;
 
   // 定義された位置を記録する辞書
   unordered_map<SizeType, FileRegion> mDefLocDict;

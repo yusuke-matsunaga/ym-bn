@@ -136,6 +136,13 @@ public:
     return mType == BnNodeType::Dff;
   }
 
+  /// @brief ラッチノードの時 true を返す．
+  bool
+  is_latch() const
+  {
+    return mType == BnNodeType::Latch;
+  }
+
   /// @brief 名前を返す．
   const string&
   name() const
@@ -270,13 +277,93 @@ public:
     return mFaninList[0];
   }
 
-  /// @brief リセット値を得る．
+  /// @brief DFFのクロックノード番号を得る．
+  ///
+  /// is_dff() == true の時のみ有効
+  SizeType
+  dff_clock() const
+  {
+    check_dff();
+    return mFaninList[1];
+  }
+
+  /// @brief DFFのリセットノード番号を得る．
+  ///
+  /// is_dff() == true の時のみ有効
+  SizeType
+  dff_reset() const
+  {
+    check_dff();
+    return mFaninList[2];
+  }
+
+  /// @brief DFFのプリセットノード番号を得る．
+  ///
+  /// is_dff() == true の時のみ有効
+  SizeType
+  dff_preset() const
+  {
+    check_dff();
+    return mFaninList[3];
+  }
+
+  /// @brief DFFのリセットとプリセットが共にオンの時の値を得る．
   ///
   /// is_dff() == true の時のみ有効
   char
-  dff_rval() const
+  dff_rsval() const
   {
     check_dff();
+    return static_cast<char>(mExtId);
+  }
+
+  /// @brief ラッチの入力ノード番号を得る．
+  ///
+  /// is_latch() == true の時のみ有効
+  SizeType
+  latch_src() const
+  {
+    check_latch();
+    return mFaninList[0];
+  }
+
+  /// @brief ラッチのイネーブルノード番号を得る．
+  ///
+  /// is_latch() == true の時のみ有効
+  SizeType
+  latch_enable() const
+  {
+    check_latch();
+    return mFaninList[1];
+  }
+
+  /// @brief ラッチのリセットノード番号を得る．
+  ///
+  /// is_latch() == true の時のみ有効
+  SizeType
+  latch_reset() const
+  {
+    check_latch();
+    return mFaninList[2];
+  }
+
+  /// @brief ラッチのプリセットノード番号を得る．
+  ///
+  /// is_latch() == true の時のみ有効
+  SizeType
+  latch_preset() const
+  {
+    check_latch();
+    return mFaninList[3];
+  }
+
+  /// @brief ラッチのリセットとプリセットが共にオンの時の値を得る．
+  ///
+  /// is_latch() == true の時のみ有効
+  char
+  latch_rsval() const
+  {
+    check_latch();
     return static_cast<char>(mExtId);
   }
 
@@ -395,12 +482,30 @@ public:
   void
   set_dff(
     SizeType input_id,
-    char rval
+    SizeType clock_id,
+    SizeType reset_id,
+    SizeType preset_id,
+    char rs_val
   )
   {
     mType = BnNodeType::Dff;
-    mFaninList = {input_id};
-    mExtId = static_cast<SizeType>(rval);
+    mFaninList = {input_id, clock_id, reset_id, preset_id};
+    mExtId = static_cast<SizeType>(rs_val);
+  }
+
+  /// @brief ラッチタイプをセットする．
+  void
+  set_latch(
+    SizeType input_id,
+    SizeType enable_id,
+    SizeType reset_id,
+    SizeType preset_id,
+    char rs_val
+  )
+  {
+    mType = BnNodeType::Latch;
+    mFaninList = {input_id, enable_id, reset_id, preset_id};
+    mExtId = static_cast<SizeType>(rs_val);
   }
 
 
@@ -496,6 +601,15 @@ private:
   {
     if ( !is_dff() ) {
       throw std::invalid_argument{"not a dff type"};
+    }
+  }
+
+  /// @brief ラッチタイプかどうかチェックする．
+  void
+  check_latch() const
+  {
+    if ( !is_latch() ) {
+      throw std::invalid_argument{"not a latch type"};
     }
   }
 

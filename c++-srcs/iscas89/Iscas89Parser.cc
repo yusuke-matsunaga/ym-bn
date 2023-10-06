@@ -23,13 +23,14 @@ BEGIN_NAMESPACE_YM_BN
 // @brief iscas89(.bench) ファイルの読み込みを行う．
 BnModel
 BnModel::read_iscas89(
-  const string& filename
+  const string& filename,
+  const string& clock_name
 )
 {
   BnModel model;
 
   Iscas89Parser parser;
-  if ( !parser.read(filename, model.mImpl.get()) ) {
+  if ( !parser.read(filename, clock_name, model.mImpl.get()) ) {
     ostringstream buf;
     buf << "BnModel::read_iscas89(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
@@ -77,6 +78,7 @@ Iscas89Parser::~Iscas89Parser()
 bool
 Iscas89Parser::read(
   const string& filename,
+  const string& clock_name,
   ModelImpl* model
 )
 {
@@ -94,6 +96,8 @@ Iscas89Parser::read(
   Iscas89Scanner scanner{fin, {filename}, mHandlerDict};
   mScanner = &scanner;
   mModel = model;
+  mClockName = clock_name;
+  mClockId = BAD_ID;
 
   // パーサー本体
   bool go_on = true;
@@ -143,8 +147,8 @@ Iscas89Parser::read(
   }
 
   {
-    SizeType n = mRefLocArray.size();
-    for ( auto id = 0; id < n; ++ id ) {
+    for ( auto& p: mRefLocDict ) {
+      auto id = p.first;
       if ( !is_defined(id) ) {
 	ostringstream buf;
 	buf << id2str(id) << ": Undefined.";
@@ -256,7 +260,12 @@ Iscas89Parser::read_gate(
     }
     FileRegion loc{first_loc, last_loc};
     set_defined(name_id, loc);
-    mModel->set_dff(name_id, iname_id, ' ');
+    if ( mClockId == BAD_ID ) {
+      mClockId = new_node(mClockName, {});
+      mModel->set_input(mClockId);
+      set_defined(mClockId, {});
+    }
+    mModel->set_dff(name_id, iname_id, mClockId, BAD_ID, BAD_ID, ' ');
     return true;
   }
 #if 0

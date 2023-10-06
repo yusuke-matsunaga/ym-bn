@@ -20,7 +20,7 @@ TEST( BnModelTest, read_blif1)
 
   auto bnet = BnModel::read_blif(path);
 
-  const SizeType ni = 35;
+  const SizeType ni = 36;
   const SizeType no = 49;
   const SizeType nd = 179;
   const SizeType ng = 2779;
@@ -33,7 +33,7 @@ TEST( BnModelTest, read_blif1)
   ostringstream s;
   bnet.print(s);
 
-  string exp_filename{"s5378.bnfe"};
+  string exp_filename{"s5378.bn"};
   string exp_path{DATAPATH + exp_filename};
   ifstream is1{exp_path};
   ASSERT_TRUE( is1 );

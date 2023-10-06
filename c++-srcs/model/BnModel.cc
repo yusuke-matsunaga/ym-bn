@@ -17,13 +17,6 @@ BEGIN_NAMESPACE_YM_BN
 // クラス BnModel
 //////////////////////////////////////////////////////////////////////
 
-// @brief ModelImpl からのキャストコンストラクタ
-BnModel::BnModel(
-  ModelImpl* impl
-) : mImpl{impl}
-{
-}
-
 // @brief shared_ptr<ModelImpl> からのキャストコンストラクタ
 BnModel::BnModel(
   const shared_ptr<ModelImpl>& impl
@@ -84,7 +77,7 @@ BnModel::~BnModel()
 BnModel
 BnModel::copy() const
 {
-  return BnModel{new ModelImpl{*mImpl}};
+  return BnModel{shared_ptr<ModelImpl>{new ModelImpl{*mImpl}}};
 }
 
 // @brief 名前を返す．
@@ -233,6 +226,35 @@ BnModel::dff_list() const
   return from_id_list(mImpl->dff_list());
 }
 
+// @brief ラッチ数を返す．
+SizeType
+BnModel::latch_num() const
+{
+  return mImpl->latch_num();
+}
+
+// @brief ラッチのノードを返す．
+BnNode
+BnModel::latch(
+  SizeType pos
+) const
+{
+  if ( pos < 0 || latch_num() <= pos ) {
+    ostringstream buf;
+    buf << "Error in BnModel::latch. "
+	<< pos << " is out of range.";
+    throw std::invalid_argument{buf.str()};
+  }
+  return from_id(mImpl->latch(pos));
+}
+
+// @brief ラッチのノードのリストを返す．
+vector<BnNode>
+BnModel::latch_list() const
+{
+  return from_id_list(mImpl->latch_list());
+}
+
 // @brief 論理ノード数を返す．
 SizeType
 BnModel::logic_num() const
@@ -364,268 +386,140 @@ BnModel::set_output_name(
   mImpl->set_output_name(pos, name);
 }
 
-// @brief 新しいノードを作る．
-SizeType
-BnModel::new_node(
-  const string& name
-)
-{
-  return mImpl->new_node(name);
-}
-
 // @brief 新しい入力ノードを作る．
-SizeType
+BnNode
 BnModel::new_input(
   const string& name
 )
 {
-  return mImpl->new_input(name);
+  return BnNode{mImpl, mImpl->new_input(name)};
 }
 
 // @brief 新しいプリミティブ型の論理ノードを作る．
-SizeType
+BnNode
 BnModel::new_primitive(
-  const vector<SizeType>& input_list,
+  const vector<BnNode>& input_list,
   PrimType type,
   const string& name
 )
 {
-  _check_ids(input_list, "new_primitive");
-  return mImpl->new_primitive(input_list, type, name);
+  auto input_id_list = to_id_list(input_list, "new_primitive");
+  return BnNode{mImpl, mImpl->new_primitive(input_id_list, type, name)};
 }
 
 // @brief 新しいAIG型の論理ノードを作る．
-SizeType
+BnNode
 BnModel::new_aig(
-  SizeType src0,
-  SizeType src1,
+  BnNode src0,
+  BnNode src1,
   bool inv0,
   bool inv1,
   const string& name
 )
 {
-  _check_ids(vector<SizeType>{src0, src1}, "new_aig");
-  return mImpl->new_aig(src0, src1, inv0, inv1, name);
+  auto src0_id = to_id(src0, "new_aig");
+  auto src1_id = to_id(src1, "new_aig");
+  return BnNode{mImpl, mImpl->new_aig(src0_id, src1_id, inv0, inv1, name)};
 }
 
 // @brief 新しいカバー型の論理ノードを作る．
-SizeType
+BnNode
 BnModel::new_cover(
-  const vector<SizeType>& input_list,
+  const vector<BnNode>& input_list,
   SizeType cover_id,
   const string& name
 )
 {
-  _check_ids(input_list, "new_cover");
+  auto input_id_list = to_id_list(input_list, "new_cover");
   _check_cover(cover_id, "new_cover");
-  _check_cover_input(cover_id, input_list, "new_cover");
-  return mImpl->new_cover(input_list, cover_id, name);
+  _check_cover_input(cover_id, input_list.size(), "new_cover");
+  return BnNode{mImpl, mImpl->new_cover(input_id_list, cover_id, name)};
 }
 
-// @brief 論理式型のノードの情報をセットする．
-SizeType
+// @brief 論理式型の論理ノードを作る．
+BnNode
 BnModel::new_expr(
-  const vector<SizeType>& input_list,
+  const vector<BnNode>& input_list,
   SizeType expr_id,
   const string& name
 )
 {
-  _check_ids(input_list, "new_expr");
+  auto input_id_list = to_id_list(input_list, "new_expr");
   _check_expr(expr_id, "new_expr");
-  _check_expr_input(expr_id, input_list, "new_expr");
-  return mImpl->new_expr(input_list, expr_id, name);
+  _check_expr_input(expr_id, input_list.size(), "new_expr");
+  return BnNode{mImpl, mImpl->new_expr(input_id_list, expr_id, name)};
 }
 
-// @brief セル型のノードの情報をセットする．
-SizeType
+// @brief セル型の論理ノードを作る．
+BnNode
 BnModel::new_cell(
-  const vector<SizeType>& input_list,
+  const vector<BnNode>& input_list,
   SizeType cell_id,
   const string& name
 )
 {
-  _check_ids(input_list, "new_cell");
-  return mImpl->new_cell(input_list, cell_id, name);
+  auto input_id_list = to_id_list(input_list, "new_cell");
+  return BnNode{mImpl, mImpl->new_cell(input_id_list, cell_id, name)};
 }
 
-// @brief 真理値表型のノードの情報をセットする．
-SizeType
+// @brief 真理値表型の論理ノードを作る．
+BnNode
 BnModel::new_func(
-  const vector<SizeType>& input_list,
+  const vector<BnNode>& input_list,
   SizeType func_id,
   const string& name
 )
 {
-  _check_ids(input_list, "new_func");
+  auto input_id_list = to_id_list(input_list, "new_func");
   _check_func(func_id, "new_func");
-  _check_func_input(func_id, input_list, "new_func");
-  return mImpl->new_func(input_list, func_id, name);
+  _check_func_input(func_id, input_list.size(), "new_func");
+  return BnNode{mImpl, mImpl->new_func(input_id_list, func_id, name)};
 }
 
-// @brief BDD型のノードの情報をセットする．
-SizeType
+// @brief BDD型の論理ノードを作る．
+BnNode
 BnModel::new_bdd(
-  const vector<SizeType>& input_list,
+  const vector<BnNode>& input_list,
   SizeType bdd_id,
   const string& name
 )
 {
-  _check_ids(input_list, "new_bdd");
+  auto input_id_list = to_id_list(input_list, "new_bdd");
   _check_bdd(bdd_id, "new_bdd");
-  _check_bdd_input(bdd_id, input_list, "new_bdd");
-  return mImpl->new_bdd(input_list, bdd_id, name);
+  _check_bdd_input(bdd_id, input_list.size(), "new_bdd");
+  return BnNode{mImpl, mImpl->new_bdd(input_id_list, bdd_id, name)};
 }
 
-// @brief DFF型のノードの情報をセットする．
-SizeType
+// @brief DFF型のノードを作る．
+BnNode
 BnModel::new_dff(
-  SizeType src_id,
-  char rval,
+  BnNode src,
+  BnNode clock,
+  BnNode reset,
+  BnNode preset,
+  char rs_val,
   const string& name
 )
 {
-  _check_id(src_id, "new_dff");
-  return mImpl->new_dff(src_id, rval, name);
+  auto id = mImpl->new_dff(src.id(), clock.id(), reset.id(), preset.id(),
+			   rs_val, name);
+  return BnNode{mImpl,id};
 }
 
-// @brief ノードに名前をつける．
-void
-BnModel::set_node_name(
-  SizeType id,
+// @brief ラッチ型のノードを作る．
+BnNode
+BnModel::new_latch(
+  BnNode src,
+  BnNode enable,
+  BnNode reset,
+  BnNode preset,
+  char rs_val,
   const string& name
 )
 {
-  _check_id(id, "set_node_name");
-  mImpl->set_node_name(id, name);
-}
-
-// @brief 対応するID番号に入力用の印を付ける．
-void
-BnModel::set_input(
-  SizeType id
-)
-{
-  _check_id(id, "set_input");
-  mImpl->set_input(id);
-}
-
-// @brief 対応するID番号に出力用の印をつける．
-void
-BnModel::set_output(
-  SizeType id
-)
-{
-  _check_id(id, "set_output");
-  mImpl->set_output(id);
-}
-
-// @brief プリミティブ型のノードの情報をセットする．
-void
-BnModel::set_primitive(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  PrimType type
-)
-{
-  _check_id(id, "set_primitive");
-  _check_ids(input_list, "set_primitive");
-  mImpl->set_primitive(id, input_list, type);
-}
-
-// @brief AIG型のノードの情報をセットする．
-void
-BnModel::set_aig(
-  SizeType id,
-  SizeType src0,
-  SizeType src1,
-  bool inv0,
-  bool inv1
-)
-{
-  _check_id(id, "set_aig");
-  _check_id(src0, "set_aig");
-  _check_id(src1, "set_aig");
-  mImpl->set_aig(id, src0, src1, inv0, inv1);
-}
-
-// @brief カバー型のノードの情報をセットする．
-void
-BnModel::set_cover(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType cover_id
-)
-{
-  _check_id(id, "set_cover");
-  _check_cover(cover_id, "set_cover");
-  _check_cover_input(cover_id, input_list, "set_cover");
-  mImpl->set_cover(id, input_list, cover_id);
-}
-
-// @brief 論理式型のノードの情報をセットする．
-void
-BnModel::set_expr(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType expr_id
-)
-{
-  _check_id(id, "set_expr");
-  _check_expr(expr_id, "set_expr");
-  _check_expr_input(expr_id, input_list, "set_expr");
-  mImpl->set_expr(id, input_list, expr_id);
-}
-
-// @brief セル型のノードの情報をセットする．
-void
-BnModel::set_cell(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType cell_id
-)
-{
-  _check_id(id, "set_cell");
-  mImpl->set_cell(id, input_list, cell_id);
-}
-
-// @brief 真理値表型のノードの情報をセットする．
-void
-BnModel::set_func(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType func_id
-)
-{
-  _check_id(id, "set_func");
-  _check_func(func_id, "set_func");
-  _check_func_input(func_id, input_list, "set_func");
-  mImpl->set_func(id, input_list, func_id);
-}
-
-// @brief BDD型のノードの情報をセットする．
-void
-BnModel::set_bdd(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType bdd_id
-)
-{
-  _check_id(id, "set_bdd");
-  _check_bdd(bdd_id, "set_bdd");
-  _check_bdd_input(bdd_id, input_list, "set_bdd");
-  mImpl->set_bdd(id, input_list, bdd_id);
-}
-
-// @brief DFF型のノードの情報をセットする．
-void
-BnModel::set_dff(
-  SizeType id,
-  SizeType src_id,
-  char rval
-)
-{
-  _check_id(id, "set_dff");
-  mImpl->set_dff(id, src_id, rval);
+  auto id = mImpl->new_latch(src.id(), enable.id(), reset.id(), preset.id(),
+			     rs_val, name);
+  return BnNode{mImpl,id};
 }
 
 // @brief 論理ノードのリストを作る．
@@ -717,9 +611,35 @@ BnModel::print(
     auto node = dff(i);
     s << node_name(node);
     s << ": DFF#" << i << "[" << node.name() << "]"
-      << " src = " << "Node#" << node.dff_src().id();
-    if ( node.dff_rval() != ' ' ) {
-      s << ", rval = " << node.dff_rval();
+      << " src = " << "Node#" << node.dff_src().id()
+      << " clock = " << "Node#" << node.dff_clock().id();
+    if ( node.dff_reset().is_valid() ) {
+      s << " reset = " << "Node#" << node.dff_reset().id();
+    }
+    if ( node.dff_preset().is_valid() ) {
+      s << " preset = " << "Node#" << node.dff_preset().id();
+    }
+    if ( node.dff_rsval() != ' ' ) {
+      s << ", rsval = " << node.dff_rsval();
+    }
+    s << endl;
+  }
+  for ( SizeType i = 0; i < latch_num(); ++ i ) {
+    auto node = latch(i);
+    s << node_name(node);
+    s << ": LATCH#" << i << "[" << node.name() << "]"
+      << " src = " << "Node#" << node.latch_src().id();
+    if ( node.latch_enable().is_valid() ) {
+      s << " enable = " << "Node#" << node.latch_enable().id();
+    }
+    if ( node.latch_reset().is_valid() ) {
+      s << " reset = " << "Node#" << node.latch_reset().id();
+    }
+    if ( node.latch_preset().is_valid() ) {
+      s << " preset = " << "Node#" << node.latch_preset().id();
+    }
+    if ( node.latch_rsval() != ' ' ) {
+      s << ", rsval = " << node.latch_rsval();
     }
     s << endl;
   }
@@ -802,31 +722,40 @@ BnModel::from_id_list(
   return node_list;
 }
 
-// @brief 正しいノード番号かチェックする．
-void
-BnModel::_check_id(
-  SizeType id,
+// @brief BnNode から ID 番号を取り出す．
+SizeType
+BnModel::to_id(
+  const BnNode& node,
   const string& funcname
 ) const
 {
-  if ( id < 0 || mImpl->node_num() <= id ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname
-	<< ". " << id << " is not a valid node-id.";
-    throw std::invalid_argument{buf.str()};
+  if ( node.is_valid() ) {
+    if ( node.parent_model() != *this ) {
+      ostringstream buf;
+      buf << "Error in BnModel::" << funcname
+	  << ".  "
+	  << "Illega node with different model.";
+      throw std::invalid_argument{buf.str()};
+    }
+    return node.id();
   }
+  return BAD_ID;
 }
 
-// @brief 正しいノード番号かチェックする．
-void
-BnModel::_check_ids(
-  const vector<SizeType>& id_list,
+// @brief vector<BnNode> から ID番号のリストを取り出す．
+vector<SizeType>
+BnModel::to_id_list(
+  const vector<BnNode>& node_list,
   const string& funcname
 ) const
 {
-  for ( auto id: id_list ) {
-    _check_id(id, funcname);
+  vector<SizeType> id_list;
+  id_list.reserve(node_list.size());
+  for ( auto& node: node_list ) {
+    auto id = to_id(node, funcname);
+    id_list.push_back(id);
   }
+  return id_list;
 }
 
 // @brief 正しいカバー番号かチェックする．
@@ -848,12 +777,12 @@ BnModel::_check_cover(
 void
 BnModel::_check_cover_input(
   SizeType id,
-  const vector<SizeType>& input_list,
+  SizeType size,
   const string& funcname
 ) const
 {
   auto& cover = mImpl->cover(id);
-  if ( cover.input_num() != input_list.size() ) {
+  if ( cover.input_num() != size ) {
     ostringstream buf;
     buf << "Error in BnModel::" << funcname << ". "
 	<< "Input size mismatch.";
@@ -879,13 +808,13 @@ BnModel::_check_expr(
 // @brief 論理式と入力のサイズが合っているか調べる．
 void
 BnModel::_check_expr_input(
-  SizeType id,                        ///< [in] 論理式番号
-  const vector<SizeType>& input_list, ///< [in] 入力番号のリスト
-  const string& funcname              ///< [in] 関数名
+  SizeType id,
+  SizeType size,
+  const string& funcname
 ) const
 {
   auto& expr = mImpl->expr(id);
-  if ( expr.input_size() != input_list.size() ) {
+  if ( expr.input_size() != size ) {
     ostringstream buf;
     buf << "Error in BnModel::" << funcname << ". "
 	<< "Input size mismatch.";
@@ -912,12 +841,12 @@ BnModel::_check_func(
 void
 BnModel::_check_func_input(
   SizeType id,
-  const vector<SizeType>& input_list,
+  SizeType size,
   const string& funcname
 ) const
 {
   auto& func = mImpl->func(id);
-  if ( func.input_num() != input_list.size() ) {
+  if ( func.input_num() != size ) {
     ostringstream buf;
     buf << "Error in BnModel::" << funcname << ". "
 	<< "Input size mismatch.";
@@ -944,12 +873,12 @@ BnModel::_check_bdd(
 void
 BnModel::_check_bdd_input(
   SizeType id,
-  const vector<SizeType>& input_list,
+  SizeType size,
   const string& funcname
 ) const
 {
   auto& bdd = mImpl->bdd(id);
-  if ( bdd.support_size() != input_list.size() ) {
+  if ( bdd.support_size() != size ) {
     ostringstream buf;
     buf << "Error in BnModel::" << funcname << ". "
 	<< "Input size mismatch.";
