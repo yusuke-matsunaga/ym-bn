@@ -10,7 +10,6 @@
 
 #include "ym/bn.h"
 #include "ym/Scanner.h"
-#include "ym/StrBuff.h"
 #include "BlifToken.h"
 
 
@@ -78,7 +77,7 @@ private:
   unordered_map<string, BlifToken> mDic;
 
   // 文字列バッファ
-  StrBuff mCurString;
+  string mCurString;
 
 };
 

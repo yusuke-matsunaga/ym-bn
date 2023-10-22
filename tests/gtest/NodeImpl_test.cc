@@ -262,7 +262,11 @@ TEST( NodeImplTest, set_dff )
   SizeType reset = 101;
   SizeType preset = 102;
   char rsval = '0';
-  node.set_dff(src, clock, reset, preset, rsval);
+  node.set_dff(rsval);
+  node.set_dff_src(src);
+  node.set_dff_clock(clock);
+  node.set_dff_reset(reset);
+  node.set_dff_preset(preset);
 
   EXPECT_EQ( BnNodeType::Dff, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -300,7 +304,11 @@ TEST( NodeImplTest, set_latch )
   SizeType reset = 101;
   SizeType preset = 102;
   char rsval = '0';
-  node.set_latch(src, enable, reset, preset, rsval);
+  node.set_latch(rsval);
+  node.set_latch_src(src);
+  node.set_latch_enable(enable);
+  node.set_latch_reset(reset);
+  node.set_latch_preset(preset);
 
   EXPECT_EQ( BnNodeType::Latch, node.type() );
   EXPECT_FALSE( node.is_input() );

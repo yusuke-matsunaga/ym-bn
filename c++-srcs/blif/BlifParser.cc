@@ -427,7 +427,7 @@ BlifParser::read_outputs()
       auto name = cur_string();
       auto name_loc = cur_loc();
       auto id = find_id(name, name_loc);
-      mModel->set_output(id);
+      mModel->new_output(id);
       ++ n_token;
     }
     else if ( tk == BlifToken::NL ) {
@@ -901,7 +901,11 @@ BlifParser::read_latch()
     mClockId = get_clock_id();
 
     set_defined(id2, name2_loc);
-    mModel->set_dff(id2, id1, mClockId, reset_id, preset_id, ' ');
+    mModel->set_dff(id2, ' ');
+    mModel->set_dff_src(id2, id1);
+    mModel->set_dff_clock(id2, mClockId);
+    mModel->set_dff_reset(id2, reset_id);
+    mModel->set_dff_preset(id2, preset_id);
 
     return true;
   }

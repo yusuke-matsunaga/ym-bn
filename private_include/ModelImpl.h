@@ -345,6 +345,15 @@ public:
     return id;
   }
 
+  /// @brief 新しい出力ノードを作る．
+  ///
+  /// @return 新しい出力番号を返す．
+  SizeType
+  new_output(
+    SizeType src_id,        ///< [in] ソースのID番号
+    const string& name = {} ///< [in] 名前
+  );
+
   /// @brief 新しいプリミティブ型の論理ノードを作る．
   ///
   /// @return ID番号を返す．
@@ -457,16 +466,12 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_dff(
-    SizeType src_id,             ///< [in] データ入力の識別子番号
-    SizeType clock_id,           ///< [in] クロック入力の識別子番号
-    SizeType reset_id = BAD_ID,  ///< [in] リセット入力の識別子番号
-    SizeType preset_id = BAD_ID, ///< [in] プリセット入力の識別子番号
     char rs_val = ' ',           ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {}      ///< [in] 名前
   )
   {
     auto id = new_node(name);
-    set_dff(id, src_id, clock_id, reset_id, preset_id, rs_val);
+    set_dff(id, rs_val);
     return id;
   }
 
@@ -475,16 +480,12 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_latch(
-    SizeType src_id,             ///< [in] データ入力の識別子番号
-    SizeType enable_id = BAD_ID, ///< [in] イネーブル入力の識別子番号
-    SizeType reset_id = BAD_ID,  ///< [in] リセット入力の識別子番号
-    SizeType preset_id = BAD_ID, ///< [in] プリセット入力の識別子番号
     char rs_val = ' ',           ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {}      ///< [in] 名前
   )
   {
     auto id = new_node(name);
-    set_latch(id, src_id, enable_id, reset_id, preset_id, rs_val);
+    set_latch(id, rs_val);
     return id;
   }
 
@@ -498,12 +499,6 @@ public:
   /// @brief 対応するID番号に入力用の印を付ける．
   void
   set_input(
-    SizeType id ///< [in] ID番号
-  );
-
-  /// @brief 対応するID番号に出力用の印をつける．
-  void
-  set_output(
     SizeType id ///< [in] ID番号
   );
 
@@ -569,22 +564,70 @@ public:
   void
   set_dff(
     SizeType id,         ///< [in] ID番号
-    SizeType src_id,     ///< [in] データ入力の識別子番号
-    SizeType clock_id,   ///< [in] クロック入力の識別子番号
-    SizeType reset_id,   ///< [in] リセット入力の識別子番号
-    SizeType preset_id,  ///< [in] プリセット入力の識別子番号
     char rs_val          ///< [in] リセットとプリセットが共にオンの時の値
+  );
+
+  /// @brief DFF型のノードのソースをセットする．
+  void
+  set_dff_src(
+    SizeType id,         ///< [in] ID番号
+    SizeType src_id      ///< [in] ソースのID番号
+  );
+
+  /// @brief DFF型のノードのクロック入力をセットする．
+  void
+  set_dff_clock(
+    SizeType id,         ///< [in] ID番号
+    SizeType clock_id    ///< [in] クロックのID番号
+  );
+
+  /// @brief DFF型のノードのリセット入力をセットする．
+  void
+  set_dff_reset(
+    SizeType id,         ///< [in] ID番号
+    SizeType reset_id    ///< [in] リセットのID番号
+  );
+
+  /// @brief DFF型のノードのプリセット入力をセットする．
+  void
+  set_dff_preset(
+    SizeType id,         ///< [in] ID番号
+    SizeType preset_id   ///< [in] プリセットのID番号
   );
 
   /// @brief ラッチ型のノードの情報をセットする．
   void
   set_latch(
     SizeType id,         ///< [in] ID番号
-    SizeType src_id,     ///< [in] データ入力の識別子番号
-    SizeType enable_id,  ///< [in] イネーブル入力の識別子番号
-    SizeType reset_id,   ///< [in] リセット入力の識別子番号
-    SizeType preset_id,  ///< [in] プリセット入力の識別子番号
     char rs_val          ///< [in] リセットとプリセットが共にオンの時の値
+  );
+
+  /// @brief ラッチ型のノードのソースをセットする．
+  void
+  set_latch_src(
+    SizeType id,         ///< [in] ID番号
+    SizeType src_id      ///< [in] ソースのID番号
+  );
+
+  /// @brief ラッチ型のノードのイネーブル入力をセットする．
+  void
+  set_latch_enable(
+    SizeType id,         ///< [in] ID番号
+    SizeType enable_id   ///< [in] イネーブルのID番号
+  );
+
+  /// @brief ラッチ型のノードのリセット入力をセットする．
+  void
+  set_latch_reset(
+    SizeType id,         ///< [in] ID番号
+    SizeType reset_id    ///< [in] リセットのID番号
+  );
+
+  /// @brief ラッチ型のノードのプリセット入力をセットする．
+  void
+  set_latch_preset(
+    SizeType id,         ///< [in] ID番号
+    SizeType preset_id   ///< [in] プリセットのID番号
   );
 
   /// @brief 論理ノードのリストを作る．

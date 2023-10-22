@@ -131,14 +131,14 @@ BlifScanner::scan()
       // ここまでで "/*" を読んでいる．
       goto ST_CM1;
     }
-    mCurString.put_char('/');
+    mCurString += '/';
     goto ST_STR;
 
   case '\\':
     goto ST_ESC;
 
   default:
-    mCurString.put_char(c);
+    mCurString += static_cast<char>(c);
     goto ST_STR;
   }
 
@@ -186,7 +186,7 @@ BlifScanner::scan()
     return check_word(StartWithDot);
   }
   // それ以外は普通の文字として扱う．
-  mCurString.put_char(c);
+  mCurString += static_cast<char>(c);
   goto ST_STR;
 
  ST_STR:
@@ -204,7 +204,7 @@ BlifScanner::scan()
 
   default:
     accept();
-    mCurString.put_char(c);
+    mCurString += static_cast<char>(c);
     goto ST_STR;
   }
 }

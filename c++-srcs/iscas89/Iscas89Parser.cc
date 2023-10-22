@@ -209,7 +209,7 @@ Iscas89Parser::read_output(
     return false;
   }
   FileRegion loc{first_loc, last_loc};
-  mModel->set_output(name_id);
+  mModel->new_output(name_id);
 
   return true;
 }
@@ -265,7 +265,9 @@ Iscas89Parser::read_gate(
       mModel->set_input(mClockId);
       set_defined(mClockId, {});
     }
-    mModel->set_dff(name_id, iname_id, mClockId, BAD_ID, BAD_ID, ' ');
+    mModel->set_dff(name_id, ' ');
+    mModel->set_dff_src(name_id, iname_id);
+    mModel->set_dff_clock(name_id, mClockId);
     return true;
   }
 #if 0

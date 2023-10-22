@@ -88,7 +88,7 @@ TruthReader::read(
     for ( SizeType i = 0; i < no; ++ i ) {
       auto func_id = model->add_func(func_vect[i]);
       auto id = model->new_func(fanin_list, func_id);
-      model->set_output(id);
+      model->new_output(id);
     }
   }
 

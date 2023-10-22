@@ -75,15 +75,23 @@ ModelImpl::set_input(
   mInputNameList.push_back(node.name());
 }
 
-// @brief 対応するID番号に出力用の印をつける．
-void
-ModelImpl::set_output(
-  SizeType id
+// @brief 新しい出力ノードを作る．
+SizeType
+ModelImpl::new_output(
+  SizeType id,
+  const string& name
 )
 {
   auto& node = _node(id);
+  SizeType pos = mOutputList.size();
   mOutputList.push_back(id);
-  mOutputNameList.push_back(node.name());
+  if ( name != string{} ) {
+    mOutputNameList.push_back(name);
+  }
+  else {
+    mOutputNameList.push_back(node.name());
+  }
+  return pos;
 }
 
 // @brief プリミティブ型のノードの情報をセットする．
@@ -176,32 +184,112 @@ ModelImpl::set_bdd(
 void
 ModelImpl::set_dff(
   SizeType id,
-  SizeType src_id,
-  SizeType clock_id,
-  SizeType reset_id,
-  SizeType preset_id,
   char rs_val
 )
 {
   auto& node = _node(id);
-  node.set_dff(src_id, clock_id, reset_id, preset_id, rs_val);
+  node.set_dff(rs_val);
   mDffList.push_back(id);
+}
+
+// @brief DFF型のノードのソースをセットする．
+void
+ModelImpl::set_dff_src(
+  SizeType id,
+  SizeType src_id
+)
+{
+  auto& node = _node(id);
+  node.set_dff_src(src_id);
+}
+
+// @brief DFF型のノードのクロック入力をセットする．
+void
+ModelImpl::set_dff_clock(
+  SizeType id,
+  SizeType clock_id
+)
+{
+  auto& node = _node(id);
+  node.set_dff_clock(clock_id);
+}
+
+// @brief DFF型のノードのリセット入力をセットする．
+void
+ModelImpl::set_dff_reset(
+  SizeType id,
+  SizeType reset_id
+)
+{
+  auto& node = _node(id);
+  node.set_dff_reset(reset_id);
+}
+
+// @brief DFF型のノードのプリセット入力をセットする．
+void
+ModelImpl::set_dff_preset(
+  SizeType id,
+  SizeType preset_id
+)
+{
+  auto& node = _node(id);
+  node.set_dff_preset(preset_id);
 }
 
 // @brief ラッチ型のノードの情報をセットする．
 void
 ModelImpl::set_latch(
   SizeType id,
-  SizeType src_id,
-  SizeType enable_id,
-  SizeType reset_id,
-  SizeType preset_id,
   char rs_val
 )
 {
   auto& node = _node(id);
-  node.set_latch(src_id, enable_id, reset_id, preset_id, rs_val);
+  node.set_latch(rs_val);
   mLatchList.push_back(id);
+}
+
+// @brief ラッチ型のノードのソースをセットする．
+void
+ModelImpl::set_latch_src(
+  SizeType id,
+  SizeType src_id
+)
+{
+  auto& node = _node(id);
+  node.set_latch_src(src_id);
+}
+
+// @brief ラッチ型のノードのイネーブル入力をセットする．
+void
+ModelImpl::set_latch_enable(
+  SizeType id,
+  SizeType enable_id
+)
+{
+  auto& node = _node(id);
+  node.set_latch_enable(enable_id);
+}
+
+// @brief ラッチ型のノードのリセット入力をセットする．
+void
+ModelImpl::set_latch_reset(
+  SizeType id,
+  SizeType reset_id
+)
+{
+  auto& node = _node(id);
+  node.set_latch_reset(reset_id);
+}
+
+// @brief ラッチ型のノードのプリセット入力をセットする．
+void
+ModelImpl::set_latch_preset(
+  SizeType id,
+  SizeType preset_id
+)
+{
+  auto& node = _node(id);
+  node.set_latch_preset(preset_id);
 }
 
 // @brief 論理ノードのリストを作る．

@@ -395,6 +395,15 @@ BnModel::new_input(
   return BnNode{mImpl, mImpl->new_input(name)};
 }
 
+// @brief 新しい出力ノードを作る．
+SizeType
+BnModel::new_output(
+  BnNode src
+)
+{
+  return mImpl->new_output(src.id());
+}
+
 // @brief 新しいプリミティブ型の論理ノードを作る．
 BnNode
 BnModel::new_primitive(
@@ -493,33 +502,103 @@ BnModel::new_bdd(
 // @brief DFF型のノードを作る．
 BnNode
 BnModel::new_dff(
-  BnNode src,
-  BnNode clock,
-  BnNode reset,
-  BnNode preset,
   char rs_val,
   const string& name
 )
 {
-  auto id = mImpl->new_dff(src.id(), clock.id(), reset.id(), preset.id(),
-			   rs_val, name);
-  return BnNode{mImpl,id};
+  auto id = mImpl->new_dff(rs_val, name);
+  return BnNode{mImpl, id};
+}
+
+// @brief DFFのソースノードをセットする．
+void
+BnModel::set_dff_src(
+  BnNode dff,
+  BnNode src
+)
+{
+  mImpl->set_dff_src(dff.id(), src.id());
+}
+
+// @brief DFFのクロック入力をセットする．
+void
+BnModel::set_dff_clock(
+  BnNode dff,
+  BnNode clock
+)
+{
+  mImpl->set_dff_clock(dff.id(), clock.id());
+}
+
+// @brief DFFのリセット入力をセットする．
+void
+BnModel::set_dff_reset(
+  BnNode dff,
+  BnNode reset
+)
+{
+  mImpl->set_dff_reset(dff.id(), reset.id());
+}
+
+// @brief DFFのプリセット入力をセットする．
+void
+BnModel::set_dff_preset(
+  BnNode dff,
+  BnNode preset
+)
+{
+  mImpl->set_dff_preset(dff.id(), preset.id());
 }
 
 // @brief ラッチ型のノードを作る．
 BnNode
 BnModel::new_latch(
-  BnNode src,
-  BnNode enable,
-  BnNode reset,
-  BnNode preset,
   char rs_val,
   const string& name
 )
 {
-  auto id = mImpl->new_latch(src.id(), enable.id(), reset.id(), preset.id(),
-			     rs_val, name);
+  auto id = mImpl->new_latch(rs_val, name);
   return BnNode{mImpl,id};
+}
+
+// @brief ラッチのソースノードをセットする．
+void
+BnModel::set_latch_src(
+  BnNode latch,
+  BnNode src
+)
+{
+  mImpl->set_latch_src(latch.id(), src.id());
+}
+
+// @brief ラッチのイネーブル入力をセットする．
+void
+BnModel::set_latch_enable(
+  BnNode latch,
+  BnNode enable
+)
+{
+  mImpl->set_latch_enable(latch.id(), enable.id());
+}
+
+// @brief ラッチのリセット入力をセットする．
+void
+BnModel::set_latch_reset(
+  BnNode latch,
+  BnNode reset
+)
+{
+  mImpl->set_latch_reset(latch.id(), reset.id());
+}
+
+// @brief ラッチのプリセット入力をセットする．
+void
+BnModel::set_latch_preset(
+  BnNode latch,
+  BnNode preset
+)
+{
+  mImpl->set_latch_preset(latch.id(), preset.id());
 }
 
 // @brief 論理ノードのリストを作る．

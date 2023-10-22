@@ -481,31 +481,105 @@ public:
   /// @brief DFFタイプをセットする．
   void
   set_dff(
-    SizeType input_id,
-    SizeType clock_id,
-    SizeType reset_id,
-    SizeType preset_id,
     char rs_val
   )
   {
+    check_dff();
     mType = BnNodeType::Dff;
-    mFaninList = {input_id, clock_id, reset_id, preset_id};
+    mFaninList = {0, 0, 0, 0};
     mExtId = static_cast<SizeType>(rs_val);
+  }
+
+  /// @brief DFFのソースをセットする．
+  void
+  set_dff_src(
+    SizeType src_id
+  )
+  {
+    check_dff();
+    mFaninList[0] = src_id;
+  }
+
+  /// @brief DFFのクロックをセットする．
+  void
+  set_dff_clock(
+    SizeType clock_id
+  )
+  {
+    check_dff();
+    mFaninList[1] = clock_id;
+  }
+
+  /// @brief DFFのリセットをセットする．
+  void
+  set_dff_reset(
+    SizeType reset_id
+  )
+  {
+    check_dff();
+    mFaninList[2] = reset_id;
+  }
+
+  /// @brief DFFのプリセットをセットする．
+  void
+  set_dff_preset(
+    SizeType preset_id
+  )
+  {
+    check_dff();
+    mFaninList[3] = preset_id;
   }
 
   /// @brief ラッチタイプをセットする．
   void
   set_latch(
-    SizeType input_id,
-    SizeType enable_id,
-    SizeType reset_id,
-    SizeType preset_id,
     char rs_val
   )
   {
+    check_latch();
     mType = BnNodeType::Latch;
-    mFaninList = {input_id, enable_id, reset_id, preset_id};
+    mFaninList = {0, 0, 0, 0};
     mExtId = static_cast<SizeType>(rs_val);
+  }
+
+  /// @brief ラッチのソースをセットする．
+  void
+  set_latch_src(
+    SizeType src_id
+  )
+  {
+    check_latch();
+    mFaninList[0] = src_id;
+  }
+
+  /// @brief ラッチのイネーブルをセットする．
+  void
+  set_latch_enable(
+    SizeType enable_id
+  )
+  {
+    check_latch();
+    mFaninList[1] = enable_id;
+  }
+
+  /// @brief ラッチのリセットをセットする．
+  void
+  set_latch_reset(
+    SizeType reset_id
+  )
+  {
+    check_latch();
+    mFaninList[2] = reset_id;
+  }
+
+  /// @brief ラッチのプリセットをセットする．
+  void
+  set_latch_preset(
+    SizeType preset_id
+  )
+  {
+    check_latch();
+    mFaninList[3] = preset_id;
   }
 
 

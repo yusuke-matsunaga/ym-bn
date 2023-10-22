@@ -120,8 +120,11 @@ AigParser::read_aag(
     if ( debug ) {
       cout << "L#" << i << ": " << id << " " << src_lit << endl;
     }
+    model->set_dff(id, ' ');
     auto src_id = lit2node(src_lit);
-    model->set_dff(id, src_id, clock_id, reset_id, BAD_ID, ' ');
+    model->set_dff_src(id, src_id);
+    model->set_dff_clock(id, clock_id);
+    model->set_dff_reset(id, reset_id);
   }
 
   // 出力行の読み込み
@@ -134,7 +137,7 @@ AigParser::read_aag(
       cout << "O#" << i << ": " << src_lit << endl;
     }
     auto src_id = lit2node(src_lit);
-    mModel->set_output(src_id);
+    mModel->new_output(src_id);
   }
 
   // AND行の読み込み
@@ -249,8 +252,11 @@ AigParser::read_aig(
     }
     auto id = i + I;
     bool src_inv;
+    mModel->set_dff(id, ' ');
     auto src_id = lit2node(src_lit, src_inv);
-    mModel->set_dff(id, src_id, clock_id, reset_id, BAD_ID, ' ');
+    mModel->set_dff_src(id, src_id);
+    mModel->set_dff_clock(id, clock_id);
+    mModel->set_dff_reset(id, reset_id);
   }
 
   // 出力行の読み込み
@@ -263,7 +269,7 @@ AigParser::read_aig(
       cout << "O#" << i << ": " << src_lit << endl;
     }
     auto src_id = lit2node(src_lit);
-    mModel->set_output(src_id);
+    mModel->new_output(src_id);
   }
 
   // AND行の読み込み

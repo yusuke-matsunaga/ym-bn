@@ -91,7 +91,7 @@ TEST( ModelImplTest, set_output )
   auto id = model.new_node({});
   EXPECT_EQ( 0, id );
 
-  model.set_output(id);
+  model.new_output(id);
 
   EXPECT_EQ( 1, model.output_num() );
   EXPECT_EQ( id, model.output(0) );
@@ -302,18 +302,21 @@ TEST( ModelImplTest, set_bdd )
   EXPECT_EQ( bdd_id, node.bdd_id() );
 }
 
-TEST( ModelImplTest, set_dff )
+TEST( ModelImplTest, new_dff )
 {
   ModelImpl model;
 
-  auto id0 = model.new_node({});
   auto src_id = model.new_input({});
   auto clock_id = model.new_node({});
   auto reset_id = model.new_node({});
   auto preset_id = model.new_node({});
 
   char rsval = '1';
-  model.set_dff(id0, src_id, clock_id, reset_id, preset_id, rsval);
+  auto id0 = model.new_dff(rsval);
+  model.set_dff_src(id0, src_id);
+  model.set_dff_clock(id0, clock_id);
+  model.set_dff_reset(id0, reset_id);
+  model.set_dff_preset(id0, preset_id);
 
   auto& node = model.node(id0);
   EXPECT_EQ( BnNodeType::Dff, node.type() );

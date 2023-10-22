@@ -107,11 +107,9 @@ TEST(BnNodeTest, constructor2)
 
 TEST( BnNodeTest, input)
 {
-  shared_ptr<ModelImpl> model{new ModelImpl};
+  BnModel model;
 
-  auto id = model->new_input();
-
-  BnNode node{model, id};
+  auto node = model.new_input();
 
   EXPECT_TRUE( node.is_valid() );
   EXPECT_EQ( BnNodeType::Input, node.type() );
@@ -148,15 +146,13 @@ TEST( BnNodeTest, input)
 
 TEST( BnNodeTest, primitive)
 {
-  shared_ptr<ModelImpl> model{new ModelImpl};
+  BnModel model;
 
-  auto id1 = model->new_input();
-  auto id2 = model->new_input();
-  vector<SizeType> fanin_list{id1, id2};
+  auto input1 = model.new_input();
+  auto input2 = model.new_input();
+  vector<BnNode> fanin_list{input1, input2};
   PrimType type = PrimType::And;
-  auto id3 = model->new_primitive(fanin_list, type);
-
-  BnNode node{model, id3};
+  auto node = model.new_primitive(fanin_list, type);
 
   EXPECT_EQ( BnNodeType::Prim, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -170,14 +166,9 @@ TEST( BnNodeTest, primitive)
   EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
-    BnNode node1{model, fanin_list[i]};
+    auto node1 = fanin_list[i];
     EXPECT_EQ( node1, node.fanin(i) );
   }
-  vector<BnNode> fanin_node_list;
-  for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
-    fanin_node_list.push_back(BnNode{model, fanin_list[i]});
-  }
-  EXPECT_EQ( fanin_node_list, node.fanin_list() );
   EXPECT_EQ( type, node.primitive_type() );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
@@ -198,15 +189,13 @@ TEST( BnNodeTest, primitive)
 
 TEST( BnNodeTest, aig )
 {
-  shared_ptr<ModelImpl> model{new ModelImpl};
+  BnModel model;
 
-  auto id1 = model->new_input();
-  auto id2 = model->new_input();
+  auto input1 = model.new_input();
+  auto input2 = model.new_input();
   bool inv0 = false;
   bool inv1 = true;
-  auto id3 = model->new_aig(id1, id2, inv0, inv1);
-
-  BnNode node{model, id3};
+  auto node = model.new_aig(input1, input2, inv0, inv1);
 
   EXPECT_EQ( BnNodeType::Aig, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -219,11 +208,9 @@ TEST( BnNodeTest, aig )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( 2, node.fanin_num() );
-  BnNode src0{model, id1};
-  EXPECT_EQ( src0, node.fanin(0) );
-  BnNode src1{model, id2};
-  EXPECT_EQ( src1, node.fanin(1) );
-  vector<BnNode> fanin_node_list{src0, src1};
+  EXPECT_EQ( input1, node.fanin(0) );
+  EXPECT_EQ( input2, node.fanin(1) );
+  vector<BnNode> fanin_node_list{input1, input2};
   EXPECT_EQ( fanin_node_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_EQ( inv0, node.fanin_inv(0) );
@@ -245,15 +232,13 @@ TEST( BnNodeTest, aig )
 
 TEST( BnNodeTest, cover )
 {
-  shared_ptr<ModelImpl> model{new ModelImpl};
+  BnModel model;
 
-  auto id1 = model->new_input();
-  auto id2 = model->new_input();
-  vector<SizeType> fanin_list{id1, id2};
+  auto input1 = model->new_input();
+  auto input2 = model->new_input();
+  vector<BnNode> fanin_list{input1, input2};
   SizeType cover_id = 3;
-  auto id3 = model->new_cover(fanin_list, cover_id);
-
-  BnNode node{model, id3};
+  auto node = model.new_cover(fanin_list, cover_id);
 
   EXPECT_EQ( BnNodeType::Cover, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -266,12 +251,6 @@ TEST( BnNodeTest, cover )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
-  vector<BnNode> fanin_node_list(fanin_list.size());
-  for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
-    BnNode node1{model, fanin_list[i]};
-    fanin_node_list[i] = node1;
-    EXPECT_EQ( node1, node.fanin(i) );
-  }
   EXPECT_EQ( fanin_node_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
@@ -293,15 +272,13 @@ TEST( BnNodeTest, cover )
 
 TEST( BnNodeTest, expr )
 {
-  shared_ptr<ModelImpl> model{new ModelImpl};
+  BnModel model;
 
-  auto id1 = model->new_input();
-  auto id2 = model->new_input();
-  vector<SizeType> fanin_list{id1, id2};
+  auto input1 = model.new_input();
+  auto input2 = model.new_input();
+  vector<BnNode> fanin_list{input1, input2};
   SizeType expr_id = 1;
-  auto id3 = model->new_expr(fanin_list, expr_id);
-
-  BnNode node{model, id3};
+  auto node = model.new_expr(fanin_list, expr_id);
 
   EXPECT_EQ( BnNodeType::Expr, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -314,12 +291,6 @@ TEST( BnNodeTest, expr )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
-  vector<BnNode> fanin_node_list(fanin_list.size());
-  for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
-    BnNode node1{model, fanin_list[i]};
-    fanin_node_list[i] = node1;
-    EXPECT_EQ( node1, node.fanin(i) );
-  }
   EXPECT_EQ( fanin_node_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
@@ -341,15 +312,13 @@ TEST( BnNodeTest, expr )
 
 TEST( BnNodeTest, cell )
 {
-  shared_ptr<ModelImpl> model{new ModelImpl};
+  BnModel model;
 
-  auto id1 = model->new_input();
-  auto id2 = model->new_input();
-  vector<SizeType> fanin_list{id1, id2};
+  auto input1 = model.new_input();
+  auto input2 = model.new_input();
+  vector<BnNode> fanin_list{input1, input2};
   SizeType cell_id = 5;
-  auto id3 = model->new_cell(fanin_list, cell_id);
-
-  BnNode node{model, id3};
+  auto node = model.new_cell(fanin_list, cell_id);
 
   EXPECT_EQ( BnNodeType::Cell, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -362,12 +331,6 @@ TEST( BnNodeTest, cell )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
-  vector<BnNode> fanin_node_list(fanin_list.size());
-  for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
-    BnNode node1{model, fanin_list[i]};
-    fanin_node_list[i] = node1;
-    EXPECT_EQ( node1, node.fanin(i) );
-  }
   EXPECT_EQ( fanin_node_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
@@ -389,13 +352,15 @@ TEST( BnNodeTest, cell )
 
 TEST( BnNodeTest, dff )
 {
-  shared_ptr<ModelImpl> model{new ModelImpl};
+  BnModel model;
 
-  auto src_id = model->new_input();
-  auto clock_id = model->new_input();
-  auto reset_id = model->new_input();
-  auto id3 = model->new_dff(src_id, clock_id, reset_id);
-  BnNode node{model, id3};
+  auto src = model.new_input();
+  auto clock = model.new_input();
+  auto reset = model.new_input();
+  auto node = model.new_dff();
+  node.set_dff_src(src);
+  node.set_dff_clock(clock);
+  node.set_dff_reset(reset);
 
   EXPECT_EQ( BnNodeType::Dff, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -415,11 +380,8 @@ TEST( BnNodeTest, dff )
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
-  BnNode src{model, src_id};
   EXPECT_EQ( src, node.dff_src() );
-  BnNode clock{model, clock_id};
   EXPECT_EQ( clock, node.dff_clock() );
-  BnNode reset{model, reset_id};
   EXPECT_EQ( reset, node.dff_reset() );
   EXPECT_FALSE( node.dff_preset().is_valid() );
   EXPECT_EQ( ' ', node.dff_rsval() );
@@ -427,13 +389,14 @@ TEST( BnNodeTest, dff )
 
 TEST( BnNodeTest, latch )
 {
-  shared_ptr<ModelImpl> model{new ModelImpl};
+  BnModel model;
 
-  auto src_id = model->new_input();
-  auto enable_id = model->new_input();
-  auto reset_id = model->new_input();
-  auto id3 = model->new_latch(src_id, enable_id, reset_id);
-  BnNode node{model, id3};
+  auto src = model.new_input();
+  auto enable = model.new_input();
+  auto reset = model.new_input();
+  auto node = model.new_latch();
+  node.set_latch_enable(enable);
+  node.set_latch_reset(reset);
 
   EXPECT_EQ( BnNodeType::Latch, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -453,11 +416,8 @@ TEST( BnNodeTest, latch )
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
-  BnNode src{model, src_id};
   EXPECT_EQ( src, node.latch_src() );
-  BnNode enable{model, enable_id};
   EXPECT_EQ( enable, node.latch_enable() );
-  BnNode reset{model, reset_id};
   EXPECT_EQ( reset, node.latch_reset() );
   EXPECT_FALSE( node.latch_preset().is_valid() );
   EXPECT_EQ( ' ', node.latch_rsval() );

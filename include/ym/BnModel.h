@@ -417,6 +417,14 @@ public:
     const string& name = {} ///< [in] 名前
   );
 
+  /// @brief 新しい出力ノードを作る．
+  ///
+  /// @return 新しい出力番号を返す．
+  SizeType
+  new_output(
+    BnNode src ///< [in] ソースのノード
+  );
+
   /// @brief 新しいプリミティブ型の論理ノードを作る．
   ///
   /// @return 生成したノードを返す．
@@ -432,8 +440,8 @@ public:
   /// @return 生成したノードを返す．
   BnNode
   new_aig(
-    BnNode src0,            ///< [in] ソース0のID番号
-    BnNode src1,            ///< [in] ソース1のID番号
+    BnNode src0,            ///< [in] ソース0のノード
+    BnNode src1,            ///< [in] ソース1のノード
     bool inv0,              ///< [in] ソース0の反転属性
     bool inv1,              ///< [in] ソース1の反転属性
     const string& name = {} ///< [in] 名前
@@ -444,7 +452,7 @@ public:
   /// @return 生成したノードを返す．
   BnNode
   new_cover(
-    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType cover_id,                ///< [in] カバー番号
     const string& name = {}           ///< [in] 名前
   );
@@ -454,7 +462,7 @@ public:
   /// @return 生成したノードを返す．
   BnNode
   new_expr(
-    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType expr_id,                 ///< [in] 論理式番号
     const string& name = {}           ///< [in] 名前
   );
@@ -464,7 +472,7 @@ public:
   /// @return 生成したノードを返す．
   BnNode
   new_cell(
-    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType cell_id,                 ///< [in] セル番号
     const string& name = {}           ///< [in] 名前
   );
@@ -474,7 +482,7 @@ public:
   /// @return 生成したノードを返す．
   BnNode
   new_func(
-    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType func_id,                 ///< [in] 関数番号
     const string& name = {}           ///< [in] 名前
   );
@@ -484,7 +492,7 @@ public:
   /// @return 生成したノードを返す．
   BnNode
   new_bdd(
-    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
+    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType bdd_id,                  ///< [in] BDD番号
     const string& name = {}           ///< [in] 名前
   );
@@ -494,12 +502,36 @@ public:
   /// @return 生成したノードを返す．
   BnNode
   new_dff(
-    BnNode src,             ///< [in] 入力の識別子番号
-    BnNode clock,           ///< [in] クロック入力の識別子番号
-    BnNode reset,           ///< [in] リセット入力の識別子番号
-    BnNode preset,          ///< [in] プリセット入力の識別子番号
     char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {} ///< [in] 名前
+  );
+
+  /// @brief DFFのソースノードをセットする．
+  void
+  set_dff_src(
+    BnNode dff,    ///< [in] DFFノード
+    BnNode src     ///< [in] 入力ノード
+  );
+
+  /// @brief DFFのクロック入力をセットする．
+  void
+  set_dff_clock(
+    BnNode dff,    ///< [in] DFFノード
+    BnNode clock   ///< [in] クロック入力ノード
+  );
+
+  /// @brief DFFのリセット入力をセットする．
+  void
+  set_dff_reset(
+    BnNode dff,    ///< [in] DFFノード
+    BnNode reset   ///< [in] リセット入力ノード
+  );
+
+  /// @brief DFFのプリセット入力をセットする．
+  void
+  set_dff_preset(
+    BnNode dff,    ///< [in] DFFノード
+    BnNode preset  ///< [in] プリセット入力ノード
   );
 
   /// @brief ラッチ型のノードを作る．
@@ -507,12 +539,36 @@ public:
   /// @return 生成したノードを返す．
   BnNode
   new_latch(
-    BnNode src,             ///< [in] 入力の識別子番号
-    BnNode enable,          ///< [in] イネーブル入力の識別子番号
-    BnNode reset,           ///< [in] リセット入力の識別子番号
-    BnNode preset,          ///< [in] プリセット入力の識別子番号
     char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {} ///< [in] 名前
+  );
+
+  /// @brief ラッチのソースノードをセットする．
+  void
+  set_latch_src(
+    BnNode latch, ///< [in] ラッチノード
+    BnNode src    ///< [in] 入力ノード
+  );
+
+  /// @brief ラッチのイネーブル入力をセットする．
+  void
+  set_latch_enable(
+    BnNode latch,   ///< [in] ラッチノード
+    BnNode enable   ///< [in] イネーブル入力
+  );
+
+  /// @brief ラッチのリセット入力をセットする．
+  void
+  set_latch_reset(
+    BnNode latch,   ///< [in] ラッチノード
+    BnNode reset    ///< [in] リセット入力
+  );
+
+  /// @brief ラッチのプリセット入力をセットする．
+  void
+  set_latch_preset(
+    BnNode latch,   ///< [in] ラッチノード
+    BnNode preset   ///< [in] プリセット入力
   );
 
   /// @brief 論理ノードのリストを作る．
