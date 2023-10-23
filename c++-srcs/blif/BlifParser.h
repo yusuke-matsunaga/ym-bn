@@ -16,6 +16,8 @@
 
 BEGIN_NAMESPACE_YM_BN
 
+class ModelImpl;
+
 //////////////////////////////////////////////////////////////////////
 /// @class BlifParser BlifParser.h "ym/BlifParser.h"
 /// @brief blif形式のファイルを読み込むパーサークラス
@@ -26,7 +28,7 @@ public:
 
   /// @brief コンストラクタ
   BlifParser(
-    BnModel& model ///< [in] 結果を格納するオブジェクト
+    ModelImpl* model ///< [in] 結果を格納するオブジェクト
   );
 
   /// @brief デストラクタ
@@ -219,7 +221,7 @@ private:
   CoverMgr mCoverMgr;
 
   // 結果を格納するオブジェクト
-  BnModel& mModel;
+  ModelImpl* mModel;
 
   // クロック入力の名前
   string mClockName;
