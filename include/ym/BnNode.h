@@ -203,11 +203,23 @@ public:
   SizeType
   func_id() const;
 
+  /// @brief 関数を返す．
+  ///
+  /// is_func() が true の時のみ意味を持つ．
+  const TvFunc&
+  func() const;
+
   /// @brief ノードのBDD番号を返す．
   ///
   /// is_bdd() が true の時のみ意味を持つ．
   SizeType
   bdd_id() const;
+
+  /// @brief BDDを返す．
+  ///
+  /// is_bdd() が true の時のみ意味を持つ．
+  Bdd
+  bdd() const;
 
   /// @brief DFFノードの入力ノードを返す．
   ///

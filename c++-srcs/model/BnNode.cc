@@ -230,11 +230,27 @@ BnNode::func_id() const
   return node_impl().func_id();
 }
 
+// @brief 関数を返す．
+const TvFunc&
+BnNode::func() const
+{
+  auto id = func_id();
+  return mImpl->func(id);
+}
+
 // @brief ノードのBDD番号を返す．
 SizeType
 BnNode::bdd_id() const
 {
   return node_impl().bdd_id();
+}
+
+// @brief BDDを返す．
+Bdd
+BnNode::bdd() const
+{
+  auto id = bdd_id();
+  return mImpl->bdd(id);
 }
 
 // @brief DFFノードの入力ノードを返す．

@@ -41,6 +41,10 @@ TEST(BnNodeTest, constructor1)
   EXPECT_THROW( {node.expr_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.expr(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_src(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
@@ -93,6 +97,10 @@ TEST(BnNodeTest, constructor2)
   EXPECT_THROW( {node.expr_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.expr(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_src(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
@@ -132,6 +140,10 @@ TEST( BnNodeTest, input)
   EXPECT_THROW( {node.expr_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.expr(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_src(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
@@ -175,6 +187,10 @@ TEST( BnNodeTest, primitive)
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
   EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
@@ -218,6 +234,10 @@ TEST( BnNodeTest, aig )
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
   EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
@@ -261,6 +281,10 @@ TEST( BnNodeTest, cover )
   EXPECT_EQ( cover_id, node.cover_id() );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
   EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
@@ -303,6 +327,10 @@ TEST( BnNodeTest, expr )
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
   EXPECT_EQ( expr_id, node.expr_id() );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
   EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
@@ -343,6 +371,10 @@ TEST( BnNodeTest, cell )
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
   EXPECT_EQ( cell_id, node.cell_id() );
+  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
   EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
   EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
