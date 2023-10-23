@@ -42,10 +42,9 @@ BnModel::read_blif(
 {
   BnModel model;
 
-  BlifParser parser;
+  BlifParser parser{model};
   if ( !parser.read(filename, cell_library,
-		    clock_name, reset_name,
-		    model.mImpl.get()) ) {
+		    clock_name, reset_name) ) {
     ostringstream buf;
     buf << "BnModel::read_blif(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
@@ -59,14 +58,21 @@ BnModel::read_blif(
 // クラス BlifParser
 //////////////////////////////////////////////////////////////////////
 
+// @brief コンストラクタ
+BlifParser::BlifParser(
+  BnModel& model
+) : mModel{model},
+    mCoverMgr{model}
+{
+}
+
 // @brief 読み込みを行う．
 bool
 BlifParser::read(
   const string& filename,
   const ClibCellLibrary& cell_library,
   const string& clock_name,
-  const string& reset_name,
-  ModelImpl* model
+  const string& reset_name
 )
 {
   // blif ファイル読み込みの状態遷移
@@ -99,8 +105,6 @@ BlifParser::read(
 
   // 初期化を行う．
   mScanner = &scanner;
-  mCoverMgr = &cover_mgr;
-  mModel = model;
   mClockName = clock_name;
   mClockId = BAD_ID;
   mResetName = reset_name;
@@ -288,7 +292,7 @@ BlifParser::read(
     }
   }
 
-  mModel->make_logic_list();
+  mModel.make_logic_list();
 
   return true;
 
@@ -350,7 +354,7 @@ BlifParser::read_model()
     return false;
   }
 
-  mModel->set_name(cur_string());
+  mModel.set_name(cur_string());
 
   // NL を待つ．
   next_token();
@@ -394,7 +398,7 @@ BlifParser::read_inputs()
       }
 
       set_defined(id, name_loc);
-      mModel->set_input(id);
+      mModel.set_input(id);
 
       ++ n_token;
     }
@@ -427,7 +431,7 @@ BlifParser::read_outputs()
       auto name = cur_string();
       auto name_loc = cur_loc();
       auto id = find_id(name, name_loc);
-      mModel->new_output(id);
+      mModel.new_output(id);
       ++ n_token;
     }
     else if ( tk == BlifToken::NL ) {
@@ -659,7 +663,7 @@ BlifParser::read_names()
   auto cover_id = mCoverMgr->pat2cover(ni, cube_num, ipat_str, opat_char);
 
   set_defined(oid, names_loc);
-  mModel->set_cover(oid, names_id_list, cover_id);
+  mModel.set_cover(oid, names_id_list, cover_id);
 
   return true;
 }
@@ -824,7 +828,7 @@ BlifParser::read_gate()
       }
 
       set_defined(oid, oloc);
-      mModel->set_cell(oid, id_array, cell.id());
+      mModel.set_cell(oid, id_array, cell.id());
 
       // 次のトークンを読み込んでおく
       next_token();
@@ -901,11 +905,11 @@ BlifParser::read_latch()
     mClockId = get_clock_id();
 
     set_defined(id2, name2_loc);
-    mModel->set_dff(id2, ' ');
-    mModel->set_dff_src(id2, id1);
-    mModel->set_dff_clock(id2, mClockId);
-    mModel->set_dff_reset(id2, reset_id);
-    mModel->set_dff_preset(id2, preset_id);
+    mModel.set_dff(id2, ' ');
+    mModel.set_dff_src(id2, id1);
+    mModel.set_dff_clock(id2, mClockId);
+    mModel.set_dff_reset(id2, reset_id);
+    mModel.set_dff_preset(id2, preset_id);
 
     return true;
   }
@@ -987,7 +991,7 @@ SizeType
 BlifParser::get_clock_id()
 {
   if ( mClockId == BAD_ID ) {
-    mClockId = mModel->new_input(mClockName);
+    mClockId = mModel.new_input(mClockName);
     set_defined(mClockId, {});
   }
   return mClockId;
@@ -998,7 +1002,7 @@ SizeType
 BlifParser::get_reset_id()
 {
   if ( mResetId == BAD_ID ) {
-    mResetId = mModel->new_input(mResetName);
+    mResetId = mModel.new_input(mResetName);
     set_defined(mResetId, {});
   }
   return mResetId;

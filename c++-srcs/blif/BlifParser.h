@@ -11,7 +11,6 @@
 #include "ym/bn.h"
 #include "ym/ClibCellLibrary.h"
 #include "BlifScanner.h"
-#include "ModelImpl.h"
 #include "CoverMgr.h"
 
 
@@ -20,16 +19,15 @@ BEGIN_NAMESPACE_YM_BN
 //////////////////////////////////////////////////////////////////////
 /// @class BlifParser BlifParser.h "ym/BlifParser.h"
 /// @brief blif形式のファイルを読み込むパーサークラス
-///
-/// 適切なハンドラクラスを生成して add_handler() で登録して使う．
-/// @sa BlifHandler MsgHandler
 //////////////////////////////////////////////////////////////////////
 class BlifParser
 {
 public:
 
   /// @brief コンストラクタ
-  BlifParser() = default;
+  BlifParser(
+    BnModel& model ///< [in] 結果を格納するオブジェクト
+  );
 
   /// @brief デストラクタ
   ~BlifParser() = default;
@@ -48,8 +46,7 @@ public:
     const string& filename,              ///< [in] ファイル名
     const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
     const string& clock_name,            ///< [in] クロック信号の名前
-    const string& reset_name,            ///< [in] リセット信号の名前
-    ModelImpl* model                     ///< [out] 結果を格納する変数
+    const string& reset_name             ///< [in] リセット信号の名前
   );
 
 
@@ -219,12 +216,10 @@ private:
   BlifScanner* mScanner;
 
   // BlifCover を管理するオブジェクト
-  // この変数は read() 内でのみ有効
-  CoverMgr* mCoverMgr;
+  CoverMgr mCoverMgr;
 
   // 結果を格納するオブジェクト
-  // この変数は read() 内でのみ有効
-  ModelImpl* mModel;
+  BnModel& mModel;
 
   // クロック入力の名前
   string mClockName;
