@@ -18,9 +18,6 @@
 
 BEGIN_NAMESPACE_YM_BN
 
-/// @brief 不正なノード番号
-const SizeType BAD_ID = -1;
-
 //////////////////////////////////////////////////////////////////////
 /// @class ModelImpl ModelImpl.h "ModelImpl.h"
 /// @brief BnModel の内部情報を表すクラス

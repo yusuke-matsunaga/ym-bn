@@ -234,10 +234,13 @@ TEST( BnNodeTest, cover )
 {
   BnModel model;
 
-  auto input1 = model->new_input();
-  auto input2 = model->new_input();
+  auto input1 = model.new_input();
+  auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
-  SizeType cover_id = 3;
+  Literal lit1{0, false};
+  Literal lit2{1, false};
+  vector<vector<Literal>> cube_list{{lit1}, {lit2}};
+  SizeType cover_id = model.add_cover(2, cube_list, '0');
   auto node = model.new_cover(fanin_list, cover_id);
 
   EXPECT_EQ( BnNodeType::Cover, node.type() );
@@ -251,7 +254,7 @@ TEST( BnNodeTest, cover )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
-  EXPECT_EQ( fanin_node_list, node.fanin_list() );
+  EXPECT_EQ( fanin_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
@@ -277,7 +280,9 @@ TEST( BnNodeTest, expr )
   auto input1 = model.new_input();
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
-  SizeType expr_id = 1;
+  auto lit1 = Expr::make_posi_literal(0);
+  auto lit2 = Expr::make_posi_literal(1);
+  SizeType expr_id = model.add_expr(lit1 | lit2);
   auto node = model.new_expr(fanin_list, expr_id);
 
   EXPECT_EQ( BnNodeType::Expr, node.type() );
@@ -291,7 +296,7 @@ TEST( BnNodeTest, expr )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
-  EXPECT_EQ( fanin_node_list, node.fanin_list() );
+  EXPECT_EQ( fanin_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
@@ -331,7 +336,7 @@ TEST( BnNodeTest, cell )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
-  EXPECT_EQ( fanin_node_list, node.fanin_list() );
+  EXPECT_EQ( fanin_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
@@ -358,9 +363,9 @@ TEST( BnNodeTest, dff )
   auto clock = model.new_input();
   auto reset = model.new_input();
   auto node = model.new_dff();
-  node.set_dff_src(src);
-  node.set_dff_clock(clock);
-  node.set_dff_reset(reset);
+  model.set_dff_src(node, src);
+  model.set_dff_clock(node, clock);
+  model.set_dff_reset(node, reset);
 
   EXPECT_EQ( BnNodeType::Dff, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -395,8 +400,9 @@ TEST( BnNodeTest, latch )
   auto enable = model.new_input();
   auto reset = model.new_input();
   auto node = model.new_latch();
-  node.set_latch_enable(enable);
-  node.set_latch_reset(reset);
+  model.set_latch_src(node, src);
+  model.set_latch_enable(node, enable);
+  model.set_latch_reset(node, reset);
 
   EXPECT_EQ( BnNodeType::Latch, node.type() );
   EXPECT_FALSE( node.is_input() );

@@ -484,9 +484,8 @@ public:
     char rs_val
   )
   {
-    check_dff();
     mType = BnNodeType::Dff;
-    mFaninList = {0, 0, 0, 0};
+    mFaninList = {BAD_ID, BAD_ID, BAD_ID, BAD_ID};
     mExtId = static_cast<SizeType>(rs_val);
   }
 
@@ -536,9 +535,8 @@ public:
     char rs_val
   )
   {
-    check_latch();
     mType = BnNodeType::Latch;
-    mFaninList = {0, 0, 0, 0};
+    mFaninList = {BAD_ID, BAD_ID, BAD_ID, BAD_ID};
     mExtId = static_cast<SizeType>(rs_val);
   }
 
