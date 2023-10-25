@@ -13,7 +13,10 @@
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Bdd.h"
+#include "ym/ClibCellLibrary.h"
+#include "ym/ClibCell.h"
 #include "NodeImpl.h"
+#include "DffImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -55,6 +58,13 @@ public:
   comment() const
   {
     return mComment;
+  }
+
+  /// @brief セルライブラリを返す．
+  ClibCellLibrary
+  library() const
+  {
+    return mLibrary;
   }
 
   /// @brief ノード数を返す．
@@ -146,54 +156,6 @@ public:
     return mOutputNameList;
   }
 
-  /// @brief DFF数を返す．
-  SizeType
-  dff_num() const
-  {
-    return mDffList.size();
-  }
-
-  /// @brief DFFのノード番号を返す．
-  SizeType
-  dff(
-    SizeType pos ///< [in] 位置 ( 0 <= pos < dff_num() )
-  ) const
-  {
-    ASSERT_COND( 0 <= pos && pos < dff_num() );
-    return mDffList[pos];
-  }
-
-  /// @brief DFFのノード番号のリストを返す．
-  const vector<SizeType>&
-  dff_list() const
-  {
-    return mDffList;
-  }
-
-  /// @brief ラッチ数を返す．
-  SizeType
-  latch_num() const
-  {
-    return mLatchList.size();
-  }
-
-  /// @brief ラッチのノード番号を返す．
-  SizeType
-  latch(
-    SizeType pos ///< [in] 位置 ( 0 <= pos < dff_num() )
-  ) const
-  {
-    ASSERT_COND( 0 <= pos && pos < dff_num() );
-    return mLatchList[pos];
-  }
-
-  /// @brief ラッチのノード番号のリストを返す．
-  const vector<SizeType>&
-  latch_list() const
-  {
-    return mLatchList;
-  }
-
   /// @brief 論理ノード数を返す．
   SizeType
   logic_num() const
@@ -226,6 +188,22 @@ public:
   {
     ASSERT_COND( 0 <= id && id < mNodeArray.size() );
     return mNodeArray[id];
+  }
+
+  /// @brief DFF数を返す．
+  SizeType
+  dff_num() const
+  {
+    return mDffArray.size();
+  }
+
+  /// @brief DFFを取り出す．
+  const DffImpl&
+  dff(
+    SizeType id ///< [in] ID番号
+  ) const
+  {
+    return mDffArray[id];
   }
 
   /// @brief カバーの種類の数を返す．
@@ -419,12 +397,12 @@ public:
   SizeType
   new_cell(
     const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cell_id,                   ///< [in] セル番号
+    ClibCell cell,                      ///< [in] セル
     const string& name = {}             ///< [in] 名前
   )
   {
     auto id = new_node(name);
-    set_cell(id, input_list, cell_id);
+    set_cell(id, input_list, cell);
     return id;
   }
 
@@ -458,31 +436,47 @@ public:
     return id;
   }
 
-  /// @brief DFF型のノードの情報をセットする．
+  /// @brief DFFを作る．
   ///
   /// @return ID番号を返す．
   SizeType
   new_dff(
     char rs_val = ' ',           ///< [in] リセットとプリセットが共にオンの時の値
+    SizeType output_id = BAD_ID, ///< [in] 出力のノード番号
     const string& name = {}      ///< [in] 名前
   )
   {
-    auto id = new_node(name);
-    set_dff(id, rs_val);
+    auto id = _new_dff(name);
+    set_dff(id, rs_val, output_id);
     return id;
   }
 
-  /// @brief ラッチ型のノードの情報をセットする．
+  /// @brief ラッチを作る．
   ///
   /// @return ID番号を返す．
   SizeType
   new_latch(
     char rs_val = ' ',           ///< [in] リセットとプリセットが共にオンの時の値
+    SizeType output_id = BAD_ID, ///< [in] 出力のノード番号
     const string& name = {}      ///< [in] 名前
   )
   {
-    auto id = new_node(name);
-    set_latch(id, rs_val);
+    auto id = _new_dff(name);
+    set_latch(id, rs_val, output_id);
+    return id;
+  }
+
+  /// @brief cell タイプの DFF を作る．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_dff_cell(
+    ClibCell cell,             ///< [in] セル番号
+    const string& name = {}    ///< [in] 名前
+  )
+  {
+    auto id = _new_dff(name);
+    set_dff_cell(id, cell);
     return id;
   }
 
@@ -538,7 +532,7 @@ public:
   set_cell(
     SizeType id,                        ///< [in] ID番号
     const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cell_id                    ///< [in] セル番号
+    ClibCell cell                       ///< [in] セル
   );
 
   /// @brief 真理値表型のノードの情報をセットする．
@@ -561,70 +555,73 @@ public:
   void
   set_dff(
     SizeType id,         ///< [in] ID番号
-    char rs_val          ///< [in] リセットとプリセットが共にオンの時の値
-  );
-
-  /// @brief DFF型のノードのソースをセットする．
-  void
-  set_dff_src(
-    SizeType id,         ///< [in] ID番号
-    SizeType src_id      ///< [in] ソースのID番号
-  );
-
-  /// @brief DFF型のノードのクロック入力をセットする．
-  void
-  set_dff_clock(
-    SizeType id,         ///< [in] ID番号
-    SizeType clock_id    ///< [in] クロックのID番号
-  );
-
-  /// @brief DFF型のノードのリセット入力をセットする．
-  void
-  set_dff_reset(
-    SizeType id,         ///< [in] ID番号
-    SizeType reset_id    ///< [in] リセットのID番号
-  );
-
-  /// @brief DFF型のノードのプリセット入力をセットする．
-  void
-  set_dff_preset(
-    SizeType id,         ///< [in] ID番号
-    SizeType preset_id   ///< [in] プリセットのID番号
+    char rs_val,         ///< [in] リセットとプリセットが共にオンの時の値
+    SizeType output_id   ///< [in] 出力のノード番号
   );
 
   /// @brief ラッチ型のノードの情報をセットする．
   void
   set_latch(
     SizeType id,         ///< [in] ID番号
-    char rs_val          ///< [in] リセットとプリセットが共にオンの時の値
+    char rs_val,         ///< [in] リセットとプリセットが共にオンの時の値
+    SizeType output_id   ///< [in] 出力のノード番号
   );
 
-  /// @brief ラッチ型のノードのソースをセットする．
+  /// @brief DFFセルをセットする．
   void
-  set_latch_src(
+  set_dff_cell(
+    SizeType id,         ///< [in] ID番号
+    ClibCell cell        ///< [in] セル
+  );
+
+  /// @brief DFFの名前をセットする．
+  void
+  set_dff_name(
+    SizeType id,         ///< [in] ID番号
+    const string& name   ///< [in] 名前
+  );
+
+  /// @brief DFF型のノードのソースをセットする．
+  void
+  set_data_src(
     SizeType id,         ///< [in] ID番号
     SizeType src_id      ///< [in] ソースのID番号
   );
 
+  /// @brief DFF型のノードのクロック入力をセットする．
+  void
+  set_clock(
+    SizeType id,         ///< [in] ID番号
+    SizeType clock_id    ///< [in] クロックのID番号
+  );
+
   /// @brief ラッチ型のノードのイネーブル入力をセットする．
   void
-  set_latch_enable(
+  set_enable(
     SizeType id,         ///< [in] ID番号
     SizeType enable_id   ///< [in] イネーブルのID番号
   );
 
-  /// @brief ラッチ型のノードのリセット入力をセットする．
+  /// @brief DFF型のノードのクリア入力をセットする．
   void
-  set_latch_reset(
+  set_clear(
     SizeType id,         ///< [in] ID番号
-    SizeType reset_id    ///< [in] リセットのID番号
+    SizeType clear_id    ///< [in] クリアのID番号
   );
 
-  /// @brief ラッチ型のノードのプリセット入力をセットする．
+  /// @brief DFF型のノードのプリセット入力をセットする．
   void
-  set_latch_preset(
+  set_preset(
     SizeType id,         ///< [in] ID番号
     SizeType preset_id   ///< [in] プリセットのID番号
+  );
+
+  /// @brief DFFセルのピンのノードをセットする．
+  void
+  set_dff_pin(
+    SizeType id,         ///< [in] ID番号
+    SizeType pos,        ///< [in] ピン番号
+    SizeType node_id     ///< [in] ノード番号
   );
 
   /// @brief 論理ノードのリストを作る．
@@ -684,17 +681,40 @@ private:
     return mNodeArray[id];
   }
 
+  /// @brief 新しい DffImpl を割り当てる．
+  SizeType
+  _new_dff(
+    const string& name ///< [in] 名前
+  )
+  {
+    SizeType id = mDffArray.size();
+    mDffArray.push_back(DffImpl{name});
+    return id;
+  }
+
+  /// @brief DffImpl を取り出す．
+  DffImpl&
+  _dff(
+    SizeType id ///< [in] ID番号
+  )
+  {
+    return mDffArray[id];
+  }
+
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 名前のノード
+  // 名前
   string mName;
 
   // コメント
   string mComment;
+
+  // セルライブラリ
+  ClibCellLibrary mLibrary;
 
   // 入力のノード番号のリスト
   vector<SizeType> mInputList;
@@ -708,17 +728,14 @@ private:
   // 出力名のリスト
   vector<string> mOutputNameList;
 
-  // DFFノード番号のリスト
-  vector<SizeType> mDffList;
-
-  // ラッチノード番号のリスト
-  vector<SizeType> mLatchList;
-
   // 論理ノード番号のリスト
   vector<SizeType> mLogicList;
 
   // ノードの配列
   vector<NodeImpl> mNodeArray;
+
+  // DFFの配列
+  vector<DffImpl> mDffArray;
 
   // カバー番号をキーにしてカバーを格納する配列
   vector<BnCover> mCoverArray;

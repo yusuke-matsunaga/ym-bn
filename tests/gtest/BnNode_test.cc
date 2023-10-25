@@ -77,7 +77,7 @@ TEST(BnNodeTest, constructor2)
 
   EXPECT_TRUE( node.is_valid() );
   EXPECT_EQ( name, node.name() );
-  EXPECT_EQ( BnNodeType::None, node.type() );
+  EXPECT_EQ( BnNodeType::NONE, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -120,7 +120,7 @@ TEST( BnNodeTest, input)
   auto node = model.new_input();
 
   EXPECT_TRUE( node.is_valid() );
-  EXPECT_EQ( BnNodeType::Input, node.type() );
+  EXPECT_EQ( BnNodeType::INPUT, node.type() );
   EXPECT_TRUE( node.is_input() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -166,7 +166,7 @@ TEST( BnNodeTest, primitive)
   PrimType type = PrimType::And;
   auto node = model.new_primitive(fanin_list, type);
 
-  EXPECT_EQ( BnNodeType::Prim, node.type() );
+  EXPECT_EQ( BnNodeType::PRIMITIVE, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_TRUE( node.is_primitive() );
@@ -213,7 +213,7 @@ TEST( BnNodeTest, aig )
   bool inv1 = true;
   auto node = model.new_aig(input1, input2, inv0, inv1);
 
-  EXPECT_EQ( BnNodeType::Aig, node.type() );
+  EXPECT_EQ( BnNodeType::AIG, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -263,7 +263,7 @@ TEST( BnNodeTest, cover )
   SizeType cover_id = model.add_cover(2, cube_list, '0');
   auto node = model.new_cover(fanin_list, cover_id);
 
-  EXPECT_EQ( BnNodeType::Cover, node.type() );
+  EXPECT_EQ( BnNodeType::COVER, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -309,7 +309,7 @@ TEST( BnNodeTest, expr )
   SizeType expr_id = model.add_expr(lit1 | lit2);
   auto node = model.new_expr(fanin_list, expr_id);
 
-  EXPECT_EQ( BnNodeType::Expr, node.type() );
+  EXPECT_EQ( BnNodeType::EXPR, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -353,7 +353,7 @@ TEST( BnNodeTest, cell )
   SizeType cell_id = 5;
   auto node = model.new_cell(fanin_list, cell_id);
 
-  EXPECT_EQ( BnNodeType::Cell, node.type() );
+  EXPECT_EQ( BnNodeType::CELL, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -387,6 +387,7 @@ TEST( BnNodeTest, cell )
   EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
 
+#if 0
 TEST( BnNodeTest, dff )
 {
   BnModel model;
@@ -399,7 +400,7 @@ TEST( BnNodeTest, dff )
   model.set_dff_clock(node, clock);
   model.set_dff_reset(node, reset);
 
-  EXPECT_EQ( BnNodeType::Dff, node.type() );
+  EXPECT_EQ( BnNodeType::DFF, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
@@ -460,5 +461,6 @@ TEST( BnNodeTest, latch )
   EXPECT_FALSE( node.latch_preset().is_valid() );
   EXPECT_EQ( ' ', node.latch_rsval() );
 }
+#endif
 
 END_NAMESPACE_YM_BN

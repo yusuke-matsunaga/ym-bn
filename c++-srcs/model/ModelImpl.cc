@@ -149,11 +149,11 @@ void
 ModelImpl::set_cell(
   SizeType id,
   const vector<SizeType>& input_list,
-  SizeType cell_id
+  ClibCell cell
 )
 {
   auto& node = _node(id);
-  node.set_cell(input_list, cell_id);
+  node.set_cell(input_list, cell.id());
 }
 
 // @brief 真理値表型のノードの情報をセットする．
@@ -184,112 +184,119 @@ ModelImpl::set_bdd(
 void
 ModelImpl::set_dff(
   SizeType id,
-  char rs_val
+  char rs_val,
+  SizeType output_id
 )
 {
-  auto& node = _node(id);
-  node.set_dff(rs_val);
-  mDffList.push_back(id);
-}
-
-// @brief DFF型のノードのソースをセットする．
-void
-ModelImpl::set_dff_src(
-  SizeType id,
-  SizeType src_id
-)
-{
-  auto& node = _node(id);
-  node.set_dff_src(src_id);
-}
-
-// @brief DFF型のノードのクロック入力をセットする．
-void
-ModelImpl::set_dff_clock(
-  SizeType id,
-  SizeType clock_id
-)
-{
-  auto& node = _node(id);
-  node.set_dff_clock(clock_id);
-}
-
-// @brief DFF型のノードのリセット入力をセットする．
-void
-ModelImpl::set_dff_reset(
-  SizeType id,
-  SizeType reset_id
-)
-{
-  auto& node = _node(id);
-  node.set_dff_reset(reset_id);
-}
-
-// @brief DFF型のノードのプリセット入力をセットする．
-void
-ModelImpl::set_dff_preset(
-  SizeType id,
-  SizeType preset_id
-)
-{
-  auto& node = _node(id);
-  node.set_dff_preset(preset_id);
+  auto& dff = _dff(id);
+  if ( output_id == BAD_ID ) {
+    output_id = new_input();
+  }
+  dff.set_dff(rs_val, output_id);
 }
 
 // @brief ラッチ型のノードの情報をセットする．
 void
 ModelImpl::set_latch(
   SizeType id,
-  char rs_val
+  char rs_val,
+  SizeType output_id
 )
 {
-  auto& node = _node(id);
-  node.set_latch(rs_val);
-  mLatchList.push_back(id);
+  auto& dff = _dff(id);
+  if ( output_id == BAD_ID ) {
+    output_id = new_input();
+  }
+  dff.set_latch(rs_val, output_id);
 }
 
-// @brief ラッチ型のノードのソースをセットする．
+// @brief DFFセルをセットする．
 void
-ModelImpl::set_latch_src(
+ModelImpl::set_dff_cell(
+  SizeType id,
+  ClibCell cell
+)
+{
+  auto& dff = _dff(id);
+  dff.set_cell(cell.id(), cell.pin_num());
+}
+
+// @brief DFFの名前をセットする．
+void
+ModelImpl::set_dff_name(
+  SizeType id,         ///< [in] ID番号
+  const string& name   ///< [in] 名前
+)
+{
+  auto& dff = _dff(id);
+  dff.set_name(name);
+}
+
+// @brief DFF型のノードのソースをセットする．
+void
+ModelImpl::set_data_src(
   SizeType id,
   SizeType src_id
 )
 {
-  auto& node = _node(id);
-  node.set_latch_src(src_id);
+  auto& dff = _dff(id);
+  dff.set_data_src(src_id);
+}
+
+// @brief DFF型のノードのクロック入力をセットする．
+void
+ModelImpl::set_clock(
+  SizeType id,
+  SizeType clock_id
+)
+{
+  auto& dff = _dff(id);
+  dff.set_clock(clock_id);
 }
 
 // @brief ラッチ型のノードのイネーブル入力をセットする．
 void
-ModelImpl::set_latch_enable(
+ModelImpl::set_enable(
   SizeType id,
   SizeType enable_id
 )
 {
-  auto& node = _node(id);
-  node.set_latch_enable(enable_id);
+  auto& dff = _dff(id);
+  dff.set_enable(enable_id);
 }
 
-// @brief ラッチ型のノードのリセット入力をセットする．
+// @brief DFF型のノードのクリア入力をセットする．
 void
-ModelImpl::set_latch_reset(
+ModelImpl::set_clear(
   SizeType id,
-  SizeType reset_id
+  SizeType clear_id
 )
 {
-  auto& node = _node(id);
-  node.set_latch_reset(reset_id);
+  auto& dff = _dff(id);
+  dff.set_clear(clear_id);
 }
 
-// @brief ラッチ型のノードのプリセット入力をセットする．
+// @brief DFF型のノードのプリセット入力をセットする．
 void
-ModelImpl::set_latch_preset(
+ModelImpl::set_preset(
   SizeType id,
   SizeType preset_id
 )
 {
-  auto& node = _node(id);
-  node.set_latch_preset(preset_id);
+  auto& dff = _dff(id);
+  dff.set_preset(preset_id);
+}
+
+// @brief DFFセルのピンのノードをセットする．
+void
+ModelImpl::set_dff_pin(
+  SizeType id,
+  SizeType pos,
+  SizeType node_id
+)
+{
+  auto& dff = _dff(id);
+  dff.set_pin(pos, node_id);
 }
 
 // @brief 論理ノードのリストを作る．
@@ -303,8 +310,9 @@ ModelImpl::make_logic_list()
     mark.emplace(id);
   }
 
-  // ラッチノードに印を作る．
-  for ( auto id: mDffList ) {
+  // DFFの出力に印を作る．
+  for ( auto& dff: mDffArray ) {
+    auto id = dff.data_output();
     mark.emplace(id);
   }
 
@@ -316,10 +324,9 @@ ModelImpl::make_logic_list()
     order_node(id, mark);
   }
 
-  // ラッチノードのファンインに番号をつける．
-  for ( auto id: mDffList ) {
-    auto& node = _node(id);
-    order_node(node.dff_src(), mark);
+  // DFFのファンインに番号をつける．
+  for ( auto& dff: mDffArray ) {
+    order_node(dff.data_src(), mark);
   }
 
 }

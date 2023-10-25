@@ -26,7 +26,9 @@ class ModelImpl;
 /// - 出力ノードのリスト
 /// - 論理ノードのリスト
 /// - DFFノードのリスト
+/// - DFFセルノードのリスト
 /// - ラッチノードのリスト
+/// - ラッチセルノードのリスト
 /// - カバー(BlifCover)のリスト
 /// - 論理式(Expr)のリスト
 /// - 関数(TvFunc)のリスト
@@ -37,18 +39,32 @@ class ModelImpl;
 ///   * タイプごとの補助情報
 ///   * ファンインノードのリスト
 ///
-/// - Dffタイプは以下の情報を持つ．
+/// - Dffノードは以下の情報を持つ．
 ///   * データ入力ノード
 ///   * クロック入力ノード
 ///   * リセット入力ノード
 ///   * プリセット入力ノード
 ///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
 ///
-/// - ラッチタイプは以下の情報を持つ．
+/// - DFFセルノードは以下の情報を持つ．
+///   * データ入力ノードのリスト
+///   * データ出力ノードのリスト
+///   * クロック入力ノード
+///   * リセット系入力ノード
+///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
+///
+/// - ラッチノードは以下の情報を持つ．
 ///   * データ入力ノード
 ///   * イネーブル入力ノード
 ///   * リセット入力ノード
 ///   * プリセット入力ノード
+///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
+///
+/// - ラッチセルノードは以下の情報を持つ．
+///   * データ入力ノードのリスト
+///   * データ出力ノードのリスト
+///   * イネーブル入力ノード
+///   * リセット系入力ノード
 ///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
 ///
 /// - 実際には出力ノードという種類はなく，他のいずれかの
@@ -71,7 +87,8 @@ class ModelImpl;
 //////////////////////////////////////////////////////////////////////
 class BnModel
 {
-  friend BnNode;
+  friend BnNode; // for parent_model()
+  friend BnDff;  // for parent_model()
 
 private:
 
@@ -131,7 +148,7 @@ public:
   read_blif(
     const string& filename,             ///< [in] ファイル名
     const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& reset_name = "reset"  ///< [in] リセット信号の名前
+    const string& clear_name = "clear"  ///< [in] クリア信号の名前
   );
 
   /// @brief blif ファイルの読み込みを行う(セルライブラリ付き)．
@@ -144,7 +161,7 @@ public:
     const string& filename,              ///< [in] ファイル名
     const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
     const string& clock_name = "clock",  ///< [in] クロック信号の名前
-    const string& reset_name = "reset"   ///< [in] リセット信号の名前
+    const string& clear_name = "clear"   ///< [in] クリア信号の名前
   );
 
   /// @brief iscas89(.bench) ファイルの読み込みを行う．
@@ -167,7 +184,7 @@ public:
   read_aag(
     const string& filename,             ///< [in] ファイル名
     const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& reset_name = "reset"  ///< [in] リセット信号の名前
+    const string& clear_name = "clear"  ///< [in] クリア信号の名前
   );
 
   /// @brief aig ファイルの読み込みを行う．
@@ -179,7 +196,7 @@ public:
   read_aig(
     const string& filename,             ///< [in] ファイル名
     const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& reset_name = "reset"  ///< [in] リセット信号の名前
+    const string& clear_name = "clear"  ///< [in] クリア信号の名前
   );
 
   /// @brief truth ファイルの読み込みを行う．
@@ -205,6 +222,10 @@ public:
   /// @brief 深いコピーを行う．
   BnModel
   copy() const;
+
+  /// @brief セルライブラリを返す．
+  ClibCellLibrary
+  library() const;
 
   /// @brief 名前を返す．
   ///
@@ -270,34 +291,6 @@ public:
   vector<string>
   output_name_list() const;
 
-  /// @brief DFF数を返す．
-  SizeType
-  dff_num() const;
-
-  /// @brief DFFのノードを返す．
-  BnNode
-  dff(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < dff_num() )
-  ) const;
-
-  /// @brief DFFのノードのリストを返す．
-  vector<BnNode>
-  dff_list() const;
-
-  /// @brief ラッチ数を返す．
-  SizeType
-  latch_num() const;
-
-  /// @brief ラッチのノードを返す．
-  BnNode
-  latch(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < latch_num() )
-  ) const;
-
-  /// @brief ラッチのノードのリストを返す．
-  vector<BnNode>
-  latch_list() const;
-
   /// @brief 論理ノード数を返す．
   SizeType
   logic_num() const;
@@ -311,6 +304,20 @@ public:
   /// @brief 論理ノードのリストを返す．
   vector<BnNode>
   logic_list() const;
+
+  /// @brief DFF数を返す．
+  SizeType
+  dff_num() const;
+
+  /// @brief DFFのノードを返す．
+  BnDff
+  dff(
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < dff_num() )
+  ) const;
+
+  /// @brief DFFのリストを返す．
+  vector<BnDff>
+  dff_list() const;
 
   /// @brief カバーの種類の数を返す．
   SizeType
@@ -390,6 +397,12 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief セルライブラリを設定する．
+  void
+  set_celllibrary(
+    ClibCellLibrary lib ///< [in] ライブラリ
+  );
+
   /// @brief 名前を設定する．
   void
   set_name(
@@ -410,7 +423,6 @@ public:
   );
 
   /// @brief 新しい入力ノードを作る．
-  ///
   /// @return 生成したノードを返す．
   BnNode
   new_input(
@@ -418,7 +430,6 @@ public:
   );
 
   /// @brief 新しい出力ノードを作る．
-  ///
   /// @return 新しい出力番号を返す．
   SizeType
   new_output(
@@ -426,7 +437,6 @@ public:
   );
 
   /// @brief 新しいプリミティブ型の論理ノードを作る．
-  ///
   /// @return 生成したノードを返す．
   BnNode
   new_primitive(
@@ -436,7 +446,6 @@ public:
   );
 
   /// @brief 新しいAIG型の論理ノードを作る．
-  ///
   /// @return 生成したノードを返す．
   BnNode
   new_aig(
@@ -448,7 +457,6 @@ public:
   );
 
   /// @brief 新しいカバー型の論理ノードを作る．
-  ///
   /// @return 生成したノードを返す．
   BnNode
   new_cover(
@@ -458,7 +466,6 @@ public:
   );
 
   /// @brief 論理式型の論理ノードを作る．
-  ///
   /// @return 生成したノードを返す．
   BnNode
   new_expr(
@@ -468,12 +475,13 @@ public:
   );
 
   /// @brief セル型の論理ノードを作る．
-  ///
   /// @return 生成したノードを返す．
+  ///
+  /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
   BnNode
   new_cell(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType cell_id,                 ///< [in] セル番号
+    ClibCell cell,                    ///< [in] セル
     const string& name = {}           ///< [in] 名前
   );
 
@@ -488,7 +496,6 @@ public:
   );
 
   /// @brief BDD型の論理ノードを作る．
-  ///
   /// @return 生成したノードを返す．
   BnNode
   new_bdd(
@@ -497,78 +504,73 @@ public:
     const string& name = {}           ///< [in] 名前
   );
 
-  /// @brief DFF型のノードを作る．
-  ///
-  /// @return 生成したノードを返す．
-  BnNode
+  /// @brief DFFを作る．
+  /// @return 生成したDFFを返す．
+  BnDff
   new_dff(
     char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {} ///< [in] 名前
   );
 
-  /// @brief DFFのソースノードをセットする．
-  void
-  set_dff_src(
-    BnNode dff,    ///< [in] DFFノード
-    BnNode src     ///< [in] 入力ノード
-  );
-
-  /// @brief DFFのクロック入力をセットする．
-  void
-  set_dff_clock(
-    BnNode dff,    ///< [in] DFFノード
-    BnNode clock   ///< [in] クロック入力ノード
-  );
-
-  /// @brief DFFのリセット入力をセットする．
-  void
-  set_dff_reset(
-    BnNode dff,    ///< [in] DFFノード
-    BnNode reset   ///< [in] リセット入力ノード
-  );
-
-  /// @brief DFFのプリセット入力をセットする．
-  void
-  set_dff_preset(
-    BnNode dff,    ///< [in] DFFノード
-    BnNode preset  ///< [in] プリセット入力ノード
-  );
-
-  /// @brief ラッチ型のノードを作る．
-  ///
-  /// @return 生成したノードを返す．
-  BnNode
+  /// @brief ラッチを作る．
+  /// @return 生成したDFFを返す．
+  BnDff
   new_latch(
     char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {} ///< [in] 名前
   );
 
-  /// @brief ラッチのソースノードをセットする．
+  /// @brief セルタイプのDFF/ラッチを作る．
+  /// @return 生成したDFFを返す．
+  ///
+  /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
+  BnDff
+  new_dff_cell(
+    ClibCell cell,          ///< [in] セル
+    const string& name = {} ///< [in] 名前
+  );
+
+  /// @brief DFFのソースノードをセットする．
   void
-  set_latch_src(
-    BnNode latch, ///< [in] ラッチノード
+  set_data_src(
+    BnDff dff,    ///< [in] DFFノード
     BnNode src    ///< [in] 入力ノード
+  );
+
+  /// @brief DFFのクロック入力をセットする．
+  void
+  set_clock(
+    BnDff dff,    ///< [in] DFFノード
+    BnNode clock  ///< [in] クロック入力ノード
   );
 
   /// @brief ラッチのイネーブル入力をセットする．
   void
-  set_latch_enable(
-    BnNode latch,   ///< [in] ラッチノード
-    BnNode enable   ///< [in] イネーブル入力
+  set_enable(
+    BnDff latch,   ///< [in] ラッチノード
+    BnNode enable  ///< [in] イネーブル入力
   );
 
-  /// @brief ラッチのリセット入力をセットする．
+  /// @brief DFFのクリア入力をセットする．
   void
-  set_latch_reset(
-    BnNode latch,   ///< [in] ラッチノード
-    BnNode reset    ///< [in] リセット入力
+  set_clear(
+    BnDff dff,    ///< [in] DFFノード
+    BnNode clear  ///< [in] クリア入力ノード
   );
 
-  /// @brief ラッチのプリセット入力をセットする．
+  /// @brief DFFのプリセット入力をセットする．
   void
-  set_latch_preset(
-    BnNode latch,   ///< [in] ラッチノード
-    BnNode preset   ///< [in] プリセット入力
+  set_preset(
+    BnDff dff,    ///< [in] DFFノード
+    BnNode preset ///< [in] プリセット入力ノード
+  );
+
+  /// @brief DFFのピンに対応するノードをセットする．
+  void
+  set_pin(
+    BnDff dff,    ///< [in] DFF
+    SizeType pos, ///< [in] ピン番号
+    BnNode node   ///< [in] ノード
   );
 
   /// @brief 論理ノードのリストを作る．
@@ -607,6 +609,7 @@ public:
 
   /// @}
   //////////////////////////////////////////////////////////////////////
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -718,6 +721,13 @@ private:
     SizeType size,         ///< [in] 入力のサイズ
     const string& funcname ///< [in] 関数名
   ) const;
+
+  /// @brief 本体に登録されているライブラリとセルが属するライブラリが等しいか調べる．
+  void
+  _check_library(
+    ClibCell cell,         ///< [in] セル
+    const string& funcname ///< [in] 関数名
+    ) const;
 
 
 private:

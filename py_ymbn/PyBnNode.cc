@@ -155,13 +155,24 @@ BnNode_is_cell(
 }
 
 PyObject*
-BnNode_is_dff(
+BnNode_is_func(
   PyObject* self,
   PyObject* Py_UNUSED(args)
 )
 {
   auto node = PyBnNode::Get(self);
-  auto r = node.is_dff();
+  auto r = node.is_func();
+  return PyBool_FromLong(r);
+}
+
+PyObject*
+BnNode_is_bdd(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto node = PyBnNode::Get(self);
+  auto r = node.is_bdd();
   return PyBool_FromLong(r);
 }
 
@@ -233,8 +244,10 @@ PyMethodDef BnNode_methods[] = {
    PyDoc_STR("return True if expr node")},
   {"is_cell", BnNode_is_cell, METH_NOARGS,
    PyDoc_STR("return True if cell node")},
-  {"is_dff", BnNode_is_dff, METH_NOARGS,
-   PyDoc_STR("return True if dff node")},
+  {"is_func", BnNode_is_func, METH_NOARGS,
+   PyDoc_STR("return True if TvFunc node")},
+  {"is_bdd", BnNode_is_bdd, METH_NOARGS,
+   PyDoc_STR("return True if BDD node")},
   {"fanin", BnNode_fanin, METH_VARARGS,
    PyDoc_STR("return fanin node")},
   {"fanin_inv", BnNode_fanin_inv, METH_VARARGS,
@@ -489,182 +502,6 @@ BnNode_bdd(
   }
 }
 
-PyObject*
-BnNode_dff_src(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.dff_src();
-    return PyBnNode::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.dff_src");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_dff_clock(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.dff_clock();
-    return PyBnNode::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.dff_clock");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_dff_reset(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.dff_reset();
-    return PyBnNode::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.dff_reset");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_dff_preset(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.dff_preset();
-    return PyBnNode::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.dff_preset");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_dff_rsval(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.dff_rsval();
-    char tmp[2];
-    tmp[0] = val;
-    tmp[1] = '\0';
-    return Py_BuildValue("s", tmp);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.rval");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_latch_src(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.latch_src();
-    return PyBnNode::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.latch_src");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_latch_enable(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.latch_enable();
-    return PyBnNode::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.latch_enable");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_latch_reset(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.latch_reset();
-    return PyBnNode::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.latch_reset");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_latch_preset(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.latch_preset();
-    return PyBnNode::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.latch_preset");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_latch_rsval(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.latch_rsval();
-    char tmp[2];
-    tmp[0] = val;
-    tmp[1] = '\0';
-    return Py_BuildValue("s", tmp);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.rval");
-    return nullptr;
-  }
-}
-
 // getsetter 定義
 PyGetSetDef BnNode_getsetters[] = {
   {"id", BnNode_id, nullptr,
@@ -691,26 +528,6 @@ PyGetSetDef BnNode_getsetters[] = {
    PyDoc_STR("function ID"), nullptr},
   {"bdd_id", BnNode_bdd_id, nullptr,
    PyDoc_STR("BDD ID"), nullptr},
-  {"dff_src", BnNode_dff_src, nullptr,
-   PyDoc_STR("DFF source"), nullptr},
-  {"dff_clock", BnNode_dff_clock, nullptr,
-   PyDoc_STR("DFF clock"), nullptr},
-  {"dff_reset", BnNode_dff_reset, nullptr,
-   PyDoc_STR("DFF reset"), nullptr},
-  {"dff_preset", BnNode_dff_preset, nullptr,
-   PyDoc_STR("DFF preset"), nullptr},
-  {"dff_rsval", BnNode_dff_rsval, nullptr,
-   PyDoc_STR("DFF reset/set value"), nullptr},
-  {"latch_src", BnNode_latch_src, nullptr,
-   PyDoc_STR("latch source"), nullptr},
-  {"latch_enable", BnNode_latch_enable, nullptr,
-   PyDoc_STR("latch enable"), nullptr},
-  {"latch_reset", BnNode_latch_reset, nullptr,
-   PyDoc_STR("latch reset"), nullptr},
-  {"latch_preset", BnNode_latch_preset, nullptr,
-   PyDoc_STR("latch preset"), nullptr},
-  {"latch_rsval", BnNode_latch_rsval, nullptr,
-   PyDoc_STR("latch reset/set value"), nullptr},
   {nullptr, nullptr, nullptr,
    nullptr, nullptr}
 };

@@ -62,82 +62,63 @@ BnNode::type() const
 bool
 BnNode::is_input() const
 {
-  return type() == BnNodeType::Input;
+  return node_impl().is_input();
 }
 
 // @brief 論理ノードの時 true を返す．
 bool
 BnNode::is_logic() const
 {
-  auto type = this->type();
-  return type == BnNodeType::Prim ||
-    type == BnNodeType::Aig ||
-    type == BnNodeType::Cover ||
-    type == BnNodeType::Expr ||
-    type == BnNodeType::Cell;
+  return node_impl().is_logic();
 }
 
 // @brief PRIM タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_primitive() const
 {
-  return type() == BnNodeType::Prim;
+  return node_impl().is_primitive();
 }
 
 // @brief AIG タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_aig() const
 {
-  return type() == BnNodeType::Aig;
+  return type() == BnNodeType::AIG;
 }
 
 // @brief COVER タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_cover() const
 {
-  return type() == BnNodeType::Cover;
+  return type() == BnNodeType::COVER;
 }
 
 // @brief EXPR タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_expr() const
 {
-  return type() == BnNodeType::Expr;
+  return type() == BnNodeType::EXPR;
 }
 
 // @brief CELL タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_cell() const
 {
-  return type() == BnNodeType::Cell;
+  return type() == BnNodeType::CELL;
 }
 
 // @brief FUNC タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_func() const
 {
-  return type() == BnNodeType::TvFunc;
+  return type() == BnNodeType::TVFUNC;
 }
 
 // @brief BDD タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_bdd() const
 {
-  return type() == BnNodeType::Bdd;
-}
-
-// @brief DFFノードの時 true を返す．
-bool
-BnNode::is_dff() const
-{
-  return type() == BnNodeType::Dff;
-}
-
-// @brief ラッチノードの時 true を返す．
-bool
-BnNode::is_latch() const
-{
-  return type() == BnNodeType::Latch;
+  return type() == BnNodeType::BDD;
 }
 
 // @brief 入力番号を返す．
@@ -223,6 +204,14 @@ BnNode::cell_id() const
   return node_impl().cell_id();
 }
 
+// @brief ノードのセルを返す．
+ClibCell
+BnNode::cell() const
+{
+  auto library = mImpl->library();
+  return library.cell(cell_id());
+}
+
 // @brief ノードの関数番号を返す．
 SizeType
 BnNode::func_id() const
@@ -251,76 +240,6 @@ BnNode::bdd() const
 {
   auto id = bdd_id();
   return mImpl->bdd(id);
-}
-
-// @brief DFFノードの入力ノードを返す．
-BnNode
-BnNode::dff_src() const
-{
-  return from_id(node_impl().dff_src());
-}
-
-// @brief DFFノードのクロックノードを返す．
-BnNode
-BnNode::dff_clock() const
-{
-  return from_id(node_impl().dff_clock());
-}
-
-// @brief DFFノードのリセットノードを返す．
-BnNode
-BnNode::dff_reset() const
-{
-  return from_id(node_impl().dff_reset());
-}
-
-// @brief DFFノードのプリセットノードを返す．
-BnNode
-BnNode::dff_preset() const
-{
-  return from_id(node_impl().dff_preset());
-}
-
-// @brief DFFノードのリセット値を返す．
-char
-BnNode::dff_rsval() const
-{
-  return node_impl().dff_rsval();
-}
-
-// @brief ラッチノードの入力ノードを返す．
-BnNode
-BnNode::latch_src() const
-{
-  return from_id(node_impl().latch_src());
-}
-
-// @brief ラッチノードのイネーブルノードを返す．
-BnNode
-BnNode::latch_enable() const
-{
-  return from_id(node_impl().latch_enable());
-}
-
-// @brief ラッチノードのリセットノードを返す．
-BnNode
-BnNode::latch_reset() const
-{
-  return from_id(node_impl().latch_reset());
-}
-
-// @brief ラッチノードのプリセットノードを返す．
-BnNode
-BnNode::latch_preset() const
-{
-  return from_id(node_impl().latch_preset());
-}
-
-// @brief ラッチノードのリセット値を返す．
-char
-BnNode::latch_rsval() const
-{
-  return node_impl().latch_rsval();
 }
 
 // @brief ノードの実体を返す．

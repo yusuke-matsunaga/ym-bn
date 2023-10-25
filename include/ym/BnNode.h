@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/bn.h"
+#include "ym/clib.h"
 #include "ym/logic.h"
 
 
@@ -24,7 +25,7 @@ class NodeImpl;
 /// 以下の情報を持つ．
 /// - ID
 /// - 名前
-/// - 種類(Input, Dff, Latch, Prim, Aig, Cover, Expr, Cell, TvFunc, Bdd)
+/// - 種類(Input, Prim, Aig, Cover, Expr, Cell, TvFunc, Bdd)
 /// - ファンインのノード番号のリスト
 /// - プリミティブタイプ(種類がPrimの時のみ)
 /// - ファンインの極性(種類がAigの時のみ)
@@ -33,8 +34,6 @@ class NodeImpl;
 /// - セル番号(種類がCellの時のみ)
 /// - 真理値表番号(種類がTvFuncの時のみ)
 /// - BDD番号(種類がBddの時のみ)
-/// - DFF のソース，クロック，リセット，プリセット(種類がDffの時のみ)
-/// - ラッチのソース，イネーブル，リセット，プリセット(種類がLatchの時のみ)
 ///
 /// 公開されているメンバ関数はすべて const であり，内容を変更することは
 /// できない．
@@ -51,7 +50,7 @@ public:
   /// @brief コンストラクタ
   BnNode(
     const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
-    SizeType id                       ///< [in] ノード番号
+    SizeType id                        ///< [in] ノード番号
   );
 
   /// @brief デストラクタ
@@ -125,14 +124,6 @@ public:
   bool
   is_bdd() const;
 
-  /// @brief DFFノードの時 true を返す．
-  bool
-  is_dff() const;
-
-  /// @brief ラッチノードの時 true を返す．
-  bool
-  is_latch() const;
-
   /// @brief 入力番号を返す．
   ///
   /// is_input() が true の時のみ意味を持つ．
@@ -196,6 +187,10 @@ public:
   /// is_cell() が true の時のみ意味を持つ．
   SizeType
   cell_id() const;
+
+  /// @brief ノードのセルを返す．
+  ClibCell
+  cell() const;
 
   /// @brief ノードの関数番号を返す．
   ///
@@ -331,7 +326,7 @@ private:
   shared_ptr<ModelImpl> mImpl{nullptr};
 
   // ノード番号
-  SizeType mId{0};
+  SizeType mId{BAD_ID};
 
 };
 

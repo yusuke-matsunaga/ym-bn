@@ -112,19 +112,19 @@ AigParser::read_aag(
     reset_id = model->new_input(reset_name);
   }
   for ( SizeType i = 0; i < L; ++ i ) {
-    SizeType id;
+    SizeType oid;
     SizeType src_lit;
-    if ( !read_latch(id, src_lit) ) {
+    if ( !read_latch(oid, src_lit) ) {
       return false;
     }
     if ( debug ) {
-      cout << "L#" << i << ": " << id << " " << src_lit << endl;
+      cout << "L#" << i << ": " << oid << " " << src_lit << endl;
     }
-    model->set_dff(id, ' ');
+    SizeType dff_id = mModel->new_dff(' ', oid);
     auto src_id = lit2node(src_lit);
-    model->set_dff_src(id, src_id);
-    model->set_dff_clock(id, clock_id);
-    model->set_dff_reset(id, reset_id);
+    model->set_data_src(dff_id, src_id);
+    model->set_clock(dff_id, clock_id);
+    model->set_clear(dff_id, reset_id);
   }
 
   // 出力行の読み込み
@@ -159,11 +159,10 @@ AigParser::read_aag(
 
   // ラッチのソースが定義されているかチェック
   for ( SizeType i = 0; i < mModel->dff_num(); ++ i ) {
-    auto id = mModel->dff(i);
-    auto& node = mModel->node(id);
-    auto src = node.dff_src();
+    auto& dff = mModel->dff(i);
+    auto src = dff.data_src();
     ostringstream buf;
-    buf << "Latch#" << i << "(Node#" << id << ")";
+    buf << "Latch#" << i << "(Node#" << dff.data_output() << ")";
     if ( !check_defined(src, buf.str()) ) {
       return false;
     }
@@ -250,13 +249,13 @@ AigParser::read_aig(
     if ( debug ) {
       cout << "L#" << i << ": " << src_lit << endl;
     }
-    auto id = i + I;
+    auto oid = i + I;
+    auto dff_id = mModel->new_dff(' ', oid);
     bool src_inv;
-    mModel->set_dff(id, ' ');
     auto src_id = lit2node(src_lit, src_inv);
-    mModel->set_dff_src(id, src_id);
-    mModel->set_dff_clock(id, clock_id);
-    mModel->set_dff_reset(id, reset_id);
+    mModel->set_data_src(dff_id, src_id);
+    mModel->set_clock(dff_id, clock_id);
+    mModel->set_clear(dff_id, reset_id);
   }
 
   // 出力行の読み込み
@@ -543,8 +542,7 @@ AigParser::read_symbols()
 	  mModel->set_node_name(id, name);
 	}
 	else if ( prefix == 'l' ) {
-	  auto id = mModel->dff(pos);
-	  mModel->set_node_name(id, name);
+	  mModel->set_dff_name(pos, name);
 	}
 	else if ( prefix == 'o' ) {
 	  mModel->set_output_name(pos, name);

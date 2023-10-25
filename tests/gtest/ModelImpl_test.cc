@@ -54,7 +54,7 @@ TEST( ModelImplTest, new_node )
   EXPECT_EQ( 0, id );
 
   auto& node = model.node(id);
-  EXPECT_EQ( BnNodeType::None, node.type() );
+  EXPECT_EQ( BnNodeType::NONE, node.type() );
 }
 
 TEST( ModelImplTest, set_node_name )
@@ -81,7 +81,7 @@ TEST( ModelImplTest, set_input )
   model.set_input(id);
 
   auto& node = model.node(id);
-  EXPECT_EQ( BnNodeType::Input, node.type() );
+  EXPECT_EQ( BnNodeType::INPUT, node.type() );
 }
 
 TEST( ModelImplTest, set_output )
@@ -117,7 +117,7 @@ TEST( ModelImplTest, set_primitive )
   model.set_primitive(id3, fanin_list, type);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BnNodeType::Prim, node.type() );
+  EXPECT_EQ( BnNodeType::PRIMITIVE, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -147,7 +147,7 @@ TEST( ModelImplTest, set_aig )
   model.set_aig(id3, id1, id2, inv1, inv2);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BnNodeType::Aig, node.type() );
+  EXPECT_EQ( BnNodeType::AIG, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -177,7 +177,7 @@ TEST( ModelImplTest, set_cover )
   model.set_cover(id3, fanin_list, cover_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BnNodeType::Cover, node.type() );
+  EXPECT_EQ( BnNodeType::COVER, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -206,7 +206,7 @@ TEST( ModelImplTest, set_expr )
   model.set_expr(id3, fanin_list, expr_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BnNodeType::Expr, node.type() );
+  EXPECT_EQ( BnNodeType::EXPR, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -235,7 +235,7 @@ TEST( ModelImplTest, set_cell )
   model.set_cell(id3, fanin_list, cell_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BnNodeType::Cell, node.type() );
+  EXPECT_EQ( BnNodeType::CELL, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -264,7 +264,7 @@ TEST( ModelImplTest, set_func )
   model.set_func(id3, fanin_list, func_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BnNodeType::TvFunc, node.type() );
+  EXPECT_EQ( BnNodeType::TVFUNC, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -293,7 +293,7 @@ TEST( ModelImplTest, set_bdd )
   model.set_bdd(id3, fanin_list, bdd_id);
 
   auto& node = model.node(id3);
-  EXPECT_EQ( BnNodeType::Bdd, node.type() );
+  EXPECT_EQ( BnNodeType::BDD, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -313,18 +313,18 @@ TEST( ModelImplTest, new_dff )
 
   char rsval = '1';
   auto id0 = model.new_dff(rsval);
-  model.set_dff_src(id0, src_id);
-  model.set_dff_clock(id0, clock_id);
-  model.set_dff_reset(id0, reset_id);
-  model.set_dff_preset(id0, preset_id);
+  model.set_data_src(id0, src_id);
+  model.set_clock(id0, clock_id);
+  model.set_clear(id0, reset_id);
+  model.set_preset(id0, preset_id);
 
-  auto& node = model.node(id0);
-  EXPECT_EQ( BnNodeType::Dff, node.type() );
-  EXPECT_EQ( src_id, node.dff_src() );
-  EXPECT_EQ( clock_id, node.dff_clock() );
-  EXPECT_EQ( reset_id, node.dff_reset() );
-  EXPECT_EQ( preset_id, node.dff_preset() );
-  EXPECT_EQ( rsval, node.dff_rsval() );
+  auto& dff = model.dff(id0);
+  EXPECT_EQ( BnDffType::DFF, dff.type() );
+  EXPECT_EQ( src_id, dff.data_src() );
+  EXPECT_EQ( clock_id, dff.clock() );
+  EXPECT_EQ( reset_id, dff.clear() );
+  EXPECT_EQ( preset_id, dff.preset() );
+  EXPECT_EQ( rsval, dff.rsval() );
 }
 
 TEST( ModelImplTest, add_cover )

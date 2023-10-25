@@ -26,10 +26,10 @@ BnModel
 BnModel::read_blif(
   const string& filename,
   const string& clock_name,
-  const string& reset_name
+  const string& clear_name
 )
 {
-  return read_blif(filename, ClibCellLibrary{}, clock_name, reset_name);
+  return read_blif(filename, ClibCellLibrary{}, clock_name, clear_name);
 }
 
 // @brief blif ファイルの読み込みを行う(セルライブラリ付き)．
@@ -38,14 +38,14 @@ BnModel::read_blif(
   const string& filename,
   const ClibCellLibrary& cell_library,
   const string& clock_name,
-  const string& reset_name
+  const string& clear_name
 )
 {
   BnModel model;
 
   BlifParser parser{model.mImpl.get()};
   if ( !parser.read(filename, cell_library,
-		    clock_name, reset_name) ) {
+		    clock_name, clear_name) ) {
     ostringstream buf;
     buf << "BnModel::read_blif(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
@@ -828,7 +828,7 @@ BlifParser::read_gate()
       }
 
       set_defined(oid, oloc);
-      mModel->set_cell(oid, id_array, cell.id());
+      mModel->set_cell(oid, id_array, cell);
 
       // 次のトークンを読み込んでおく
       next_token();
@@ -905,11 +905,11 @@ BlifParser::read_latch()
     mClockId = get_clock_id();
 
     set_defined(id2, name2_loc);
-    mModel->set_dff(id2, ' ');
-    mModel->set_dff_src(id2, id1);
-    mModel->set_dff_clock(id2, mClockId);
-    mModel->set_dff_reset(id2, reset_id);
-    mModel->set_dff_preset(id2, preset_id);
+    auto dff_id = mModel->new_dff(' ', id2);
+    mModel->set_data_src(dff_id, id1);
+    mModel->set_clock(dff_id, mClockId);
+    mModel->set_clear(dff_id, reset_id);
+    mModel->set_preset(dff_id, preset_id);
 
     return true;
   }

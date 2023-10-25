@@ -8,6 +8,7 @@
 
 #include "pym/PyBnModel.h"
 #include "pym/PyBnNode.h"
+#include "pym/PyBnDff.h"
 #include "pym/PyClibCellLibrary.h"
 #include "pym/PyModule.h"
 #include "pym/PyBase.h"
@@ -282,7 +283,7 @@ BnModel_dff(
   try {
     auto model = PyBnModel::Get(self);
     auto val = model.dff(pos);
-    return PyBnNode::ToPyObject(val);
+    return PyBnDff::ToPyObject(val);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
@@ -440,7 +441,7 @@ BnModel_dff_list(
 {
   auto model = PyBnModel::Get(self);
   auto val_list = model.dff_list();
-  return PyBnNode::ToPyList(val_list);
+  return PyBnDff::ToPyList(val_list);
 }
 
 PyObject*

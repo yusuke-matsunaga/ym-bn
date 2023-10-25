@@ -8,6 +8,7 @@
 
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
+#include "ym/BnDff.h"
 #include "ModelImpl.h"
 
 
@@ -78,6 +79,13 @@ BnModel
 BnModel::copy() const
 {
   return BnModel{shared_ptr<ModelImpl>{new ModelImpl{*mImpl}}};
+}
+
+// @brief セルライブラリを返す．
+ClibCellLibrary
+BnModel::library() const
+{
+  return mImpl->library();
 }
 
 // @brief 名前を返す．
@@ -197,64 +205,6 @@ BnModel::output_name_list() const
   return mImpl->output_name_list();
 }
 
-// @brief DFF数を返す．
-SizeType
-BnModel::dff_num() const
-{
-  return mImpl->dff_num();
-}
-
-// @brief DFFのノードを返す．
-BnNode
-BnModel::dff(
-  SizeType pos
-) const
-{
-  if ( pos < 0 || dff_num() <= pos ) {
-    ostringstream buf;
-    buf << "Error in BnModel::dff. "
-	<< pos << " is out of range.";
-    throw std::invalid_argument{buf.str()};
-  }
-  return from_id(mImpl->dff(pos));
-}
-
-// @brief DFFのノードのリストを返す．
-vector<BnNode>
-BnModel::dff_list() const
-{
-  return from_id_list(mImpl->dff_list());
-}
-
-// @brief ラッチ数を返す．
-SizeType
-BnModel::latch_num() const
-{
-  return mImpl->latch_num();
-}
-
-// @brief ラッチのノードを返す．
-BnNode
-BnModel::latch(
-  SizeType pos
-) const
-{
-  if ( pos < 0 || latch_num() <= pos ) {
-    ostringstream buf;
-    buf << "Error in BnModel::latch. "
-	<< pos << " is out of range.";
-    throw std::invalid_argument{buf.str()};
-  }
-  return from_id(mImpl->latch(pos));
-}
-
-// @brief ラッチのノードのリストを返す．
-vector<BnNode>
-BnModel::latch_list() const
-{
-  return from_id_list(mImpl->latch_list());
-}
-
 // @brief 論理ノード数を返す．
 SizeType
 BnModel::logic_num() const
@@ -282,6 +232,39 @@ vector<BnNode>
 BnModel::logic_list() const
 {
   return from_id_list(mImpl->logic_list());
+}
+
+// @brief DFF数を返す．
+SizeType
+BnModel::dff_num() const
+{
+  return mImpl->dff_num();
+}
+
+// @brief DFFのノードを返す．
+BnDff
+BnModel::dff(
+  SizeType pos
+) const
+{
+  if ( pos < 0 || dff_num() <= pos ) {
+    ostringstream buf;
+    buf << "Error in BnModel::dff. "
+	<< pos << " is out of range.";
+    throw std::invalid_argument{buf.str()};
+  }
+  return BnDff{mImpl, pos};
+}
+
+// @brief DFFのノードのリストを返す．
+vector<BnDff>
+BnModel::dff_list() const
+{
+  vector<BnDff> ans_list(dff_num());
+  for ( SizeType i = 0; i < dff_num(); ++ i ) {
+    ans_list[i] = BnDff{mImpl, i};
+  }
+  return ans_list;
 }
 
 // @brief カバーの種類の数を返す．
@@ -463,12 +446,13 @@ BnModel::new_expr(
 BnNode
 BnModel::new_cell(
   const vector<BnNode>& input_list,
-  SizeType cell_id,
+  ClibCell cell,
   const string& name
 )
 {
+  _check_library(cell, "new_cell");
   auto input_id_list = to_id_list(input_list, "new_cell");
-  return BnNode{mImpl, mImpl->new_cell(input_id_list, cell_id, name)};
+  return BnNode{mImpl, mImpl->new_cell(input_id_list, cell, name)};
 }
 
 // @brief 真理値表型の論理ノードを作る．
@@ -499,106 +483,99 @@ BnModel::new_bdd(
   return BnNode{mImpl, mImpl->new_bdd(input_id_list, bdd_id, name)};
 }
 
-// @brief DFF型のノードを作る．
-BnNode
+// @brief DFFを作る．
+BnDff
 BnModel::new_dff(
   char rs_val,
   const string& name
 )
 {
-  auto id = mImpl->new_dff(rs_val, name);
-  return BnNode{mImpl, id};
+  auto id = mImpl->new_dff(rs_val, BAD_ID, name);
+  return BnDff{mImpl, id};
 }
 
-// @brief DFFのソースノードをセットする．
-void
-BnModel::set_dff_src(
-  BnNode dff,
-  BnNode src
-)
-{
-  mImpl->set_dff_src(dff.id(), src.id());
-}
-
-// @brief DFFのクロック入力をセットする．
-void
-BnModel::set_dff_clock(
-  BnNode dff,
-  BnNode clock
-)
-{
-  mImpl->set_dff_clock(dff.id(), clock.id());
-}
-
-// @brief DFFのリセット入力をセットする．
-void
-BnModel::set_dff_reset(
-  BnNode dff,
-  BnNode reset
-)
-{
-  mImpl->set_dff_reset(dff.id(), reset.id());
-}
-
-// @brief DFFのプリセット入力をセットする．
-void
-BnModel::set_dff_preset(
-  BnNode dff,
-  BnNode preset
-)
-{
-  mImpl->set_dff_preset(dff.id(), preset.id());
-}
-
-// @brief ラッチ型のノードを作る．
-BnNode
+// @brief ラッチを作る．
+BnDff
 BnModel::new_latch(
   char rs_val,
   const string& name
 )
 {
-  auto id = mImpl->new_latch(rs_val, name);
-  return BnNode{mImpl,id};
+  auto id = mImpl->new_latch(rs_val, BAD_ID, name);
+  return BnDff{mImpl, id};
 }
 
-// @brief ラッチのソースノードをセットする．
+// @brief セルタイプのDFF/ラッチを作る．
+BnDff
+BnModel::new_dff_cell(
+  ClibCell cell,
+  const string& name
+)
+{
+  _check_library(cell, "new_dff_cell");
+  auto id = mImpl->new_dff_cell(cell, name);
+  return BnDff{mImpl, id};
+}
+
+// @brief DFFのソースノードをセットする．
 void
-BnModel::set_latch_src(
-  BnNode latch,
+BnModel::set_data_src(
+  BnDff dff,
   BnNode src
 )
 {
-  mImpl->set_latch_src(latch.id(), src.id());
+  mImpl->set_data_src(dff.id(), src.id());
+}
+
+// @brief DFFのクロック入力をセットする．
+void
+BnModel::set_clock(
+  BnDff dff,
+  BnNode clock
+)
+{
+  mImpl->set_clock(dff.id(), clock.id());
 }
 
 // @brief ラッチのイネーブル入力をセットする．
 void
-BnModel::set_latch_enable(
-  BnNode latch,
+BnModel::set_enable(
+  BnDff latch,
   BnNode enable
 )
 {
-  mImpl->set_latch_enable(latch.id(), enable.id());
+  mImpl->set_enable(latch.id(), enable.id());
 }
 
-// @brief ラッチのリセット入力をセットする．
+// @brief DFFのクリア入力をセットする．
 void
-BnModel::set_latch_reset(
-  BnNode latch,
-  BnNode reset
+BnModel::set_clear(
+  BnDff dff,
+  BnNode clear
 )
 {
-  mImpl->set_latch_reset(latch.id(), reset.id());
+  mImpl->set_clear(dff.id(), clear.id());
 }
 
-// @brief ラッチのプリセット入力をセットする．
+// @brief DFFのプリセット入力をセットする．
 void
-BnModel::set_latch_preset(
-  BnNode latch,
+BnModel::set_preset(
+  BnDff dff,
   BnNode preset
 )
 {
-  mImpl->set_latch_preset(latch.id(), preset.id());
+  mImpl->set_preset(dff.id(), preset.id());
+}
+
+// @brief ピンに対応するノードをセットする．
+void
+BnModel::set_pin(
+  BnDff dff,
+  SizeType pos,
+  BnNode node
+)
+{
+  mImpl->set_dff_pin(dff.id(), pos, node.id());
 }
 
 // @brief 論理ノードのリストを作る．
@@ -687,38 +664,19 @@ BnModel::print(
       << " = " << "Node#" << output(i).id() << endl;
   }
   for ( SizeType i = 0; i < dff_num(); ++ i ) {
-    auto node = dff(i);
-    s << node_name(node);
-    s << ": DFF#" << i << "[" << node.name() << "]"
-      << " src = " << "Node#" << node.dff_src().id()
-      << " clock = " << "Node#" << node.dff_clock().id();
-    if ( node.dff_reset().is_valid() ) {
-      s << " reset = " << "Node#" << node.dff_reset().id();
+    auto dff = this->dff(i);
+    s << dff.name();
+    s << ": DFF#" << i << "[" << dff.name() << "]"
+      << " src = " << "Node#" << dff.data_src().id()
+      << " clock = " << "Node#" << dff.clock().id();
+    if ( dff.clear().is_valid() ) {
+      s << " clear = " << "Node#" << dff.clear().id();
     }
-    if ( node.dff_preset().is_valid() ) {
-      s << " preset = " << "Node#" << node.dff_preset().id();
+    if ( dff.preset().is_valid() ) {
+      s << " preset = " << "Node#" << dff.preset().id();
     }
-    if ( node.dff_rsval() != ' ' ) {
-      s << ", rsval = " << node.dff_rsval();
-    }
-    s << endl;
-  }
-  for ( SizeType i = 0; i < latch_num(); ++ i ) {
-    auto node = latch(i);
-    s << node_name(node);
-    s << ": LATCH#" << i << "[" << node.name() << "]"
-      << " src = " << "Node#" << node.latch_src().id();
-    if ( node.latch_enable().is_valid() ) {
-      s << " enable = " << "Node#" << node.latch_enable().id();
-    }
-    if ( node.latch_reset().is_valid() ) {
-      s << " reset = " << "Node#" << node.latch_reset().id();
-    }
-    if ( node.latch_preset().is_valid() ) {
-      s << " preset = " << "Node#" << node.latch_preset().id();
-    }
-    if ( node.latch_rsval() != ' ' ) {
-      s << ", rsval = " << node.latch_rsval();
+    if ( dff.rsval() != ' ' ) {
+      s << ", rsval = " << dff.rsval();
     }
     s << endl;
   }
@@ -962,6 +920,21 @@ BnModel::_check_bdd_input(
     buf << "Error in BnModel::" << funcname << ". "
 	<< "Input size mismatch.";
       throw std::invalid_argument{buf.str()};
+  }
+}
+
+// @brief 本体に登録されているライブラリとセルが属するライブラリが等しいか調べる．
+void
+BnModel::_check_library(
+  ClibCell cell,
+  const string& funcname
+) const
+{
+  if ( library() != cell.library() ) {
+    ostringstream buf;
+    buf << "Error in BnModel::" << funcname << ". "
+	<< "cell library mismatch";
+    throw std::invalid_argument{buf.str()};
   }
 }
 

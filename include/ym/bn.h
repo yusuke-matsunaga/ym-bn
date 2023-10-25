@@ -39,6 +39,7 @@ const SizeType BAD_ID = -1;
 
 class BnModel;
 class BnNode;
+class BnDff;
 class BnCover;
 
 END_NAMESPACE_YM_BN
@@ -46,20 +47,29 @@ END_NAMESPACE_YM_BN
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @brief ノードの種類を表す列挙型
+/// @brief BnNode の種類を表す列挙型
 //////////////////////////////////////////////////////////////////////
 enum class BnNodeType : std::uint8_t {
-  None,   ///< [in] 不正値
-  Input,  ///< [in] 入力
-  Dff,    ///< [in] DFF
-  Latch,  ///< [in] ラッチ
-  Prim,   ///< [in] プリミティブ型の論理ノード
-  Aig,    ///< [in] AIG型の論理ノード
-  Cover,  ///< [in] カバー型の論理ノード
-  Expr,   ///< [in] 論理式型の論理ノード
-  Cell,   ///< [in] セル型の論理ノード
-  TvFunc, ///< [in] 真理値表型の論理ノード
-  Bdd     ///< [in] BDD型の論理ノード
+  NONE,      ///< 不正値
+  INPUT,     ///< 入力
+  PRIMITIVE, ///< プリミティブ型の論理ノード
+  AIG,       ///< AIG型の論理ノード
+  COVER,     ///< カバー型の論理ノード
+  EXPR,      ///< 論理式型の論理ノード
+  CELL,      ///< セル型の論理ノード
+  TVFUNC,    ///< 真理値表型の論理ノード
+  BDD        ///< BDD型の論理ノード
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @brief BnDff の種類を表す列挙型
+//////////////////////////////////////////////////////////////////////
+enum class BnDffType : std::uint8_t {
+  NONE,   ///< 不正値
+  DFF,    ///< D-FF
+  LATCH,  ///< ラッチ
+  CELL    ///< セル
 };
 
 /// @brief BnNodeType のストリーム出力
@@ -71,23 +81,39 @@ operator<<(
 )
 {
   switch ( type ) {
-  case BnNodeType::None:   s << "None"; break;
-  case BnNodeType::Input:  s << "Input"; break;
-  case BnNodeType::Dff:    s << "Dff"; break;
-  case BnNodeType::Latch:  s << "Latch"; break;
-  case BnNodeType::Prim:   s << "Prim"; break;
-  case BnNodeType::Aig:    s << "Aig"; break;
-  case BnNodeType::Cover:  s << "Cover"; break;
-  case BnNodeType::Expr:   s << "Expr"; break;
-  case BnNodeType::Cell:   s << "Cell"; break;
-  case BnNodeType::TvFunc: s << "TvFunc"; break;
-  case BnNodeType::Bdd:    s << "Bdd"; break;
+  case BnNodeType::NONE:      s << "None"; break;
+  case BnNodeType::INPUT:     s << "Input"; break;
+  case BnNodeType::PRIMITIVE: s << "Primitive"; break;
+  case BnNodeType::AIG:       s << "AIG"; break;
+  case BnNodeType::COVER:     s << "Cover"; break;
+  case BnNodeType::EXPR:      s << "Expr"; break;
+  case BnNodeType::CELL:      s << "Cell"; break;
+  case BnNodeType::TVFUNC:    s << "TvFunc"; break;
+  case BnNodeType::BDD:       s << "BDD"; break;
+  }
+  return s;
+}
+
+/// @brief BnDffType のストリーム出力
+inline
+ostream&
+operator<<(
+  ostream& s,
+  BnDffType type
+)
+{
+  switch ( type ) {
+  case BnDffType::NONE:  s << "None"; break;
+  case BnDffType::DFF:   s << "DFF"; break;
+  case BnDffType::LATCH: s << "Latch"; break;
+  case BnDffType::CELL:  s << "Cell"; break;
   }
   return s;
 }
 
 using BN_NAMESPACE::BnModel;
 using BN_NAMESPACE::BnNode;
+using BN_NAMESPACE::BnDff;
 using BN_NAMESPACE::BnCover;
 
 END_NAMESPACE_YM
