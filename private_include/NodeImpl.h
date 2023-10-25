@@ -223,16 +223,6 @@ public:
     return mExtId;
   }
 
-  /// @brief セル番号を得る．
-  ///
-  /// is_cell() == true の時のみ有効
-  SizeType
-  cell_id() const
-  {
-    check_cell();
-    return mExtId;
-  }
-
   /// @brief 関数番号を得る．
   ///
   /// is_func() == true の時のみ有効
@@ -250,6 +240,16 @@ public:
   bdd_id() const
   {
     check_bdd();
+    return mExtId;
+  }
+
+  /// @brief セル番号を得る．
+  ///
+  /// is_cell() == true の時のみ有効
+  SizeType
+  cell_id() const
+  {
+    check_cell();
     return mExtId;
   }
 

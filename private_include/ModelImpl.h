@@ -13,6 +13,7 @@
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Bdd.h"
+#include "ym/BddMgr.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "NodeImpl.h"
@@ -35,7 +36,7 @@ public:
   /// @brief コピーコンストラクタ
   ModelImpl(
     const ModelImpl& src ///< [in] コピー元のオブジェクト
-  ) = default;
+  );
 
   /// @brief デストラクタ
   ~ModelImpl() = default;
@@ -279,6 +280,14 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 設定用の関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief セルライブラリを設定する．
+  ///
+  /// 既に別のライブラリが設定されていたらエラーとなる．
+  void
+  set_library(
+    ClibCellLibrary library ///< [in] ライブラリ
+  );
 
   /// @brief 名前を設定する．
   void
@@ -745,6 +754,9 @@ private:
 
   // 関数番号をキーにして真理値表型の関数を格納する配列
   vector<TvFunc> mFuncArray;
+
+  // BDDマネージャ
+  BddMgr mBddMgr;
 
   // BDD番号をキーにしてBDDを格納する配列
   vector<Bdd> mBddArray;

@@ -11,6 +11,28 @@
 
 BEGIN_NAMESPACE_YM_BN
 
+// @brief コピーコンストラクタ
+ModelImpl::ModelImpl(
+  const ModelImpl& src
+) : mName{src.mName},
+    mComment{src.mComment},
+    mLibrary{src.mLibrary},
+    mInputList{src.mInputList},
+    mInputNameList{src.mInputNameList},
+    mOutputList{src.mOutputList},
+    mOutputNameList{src.mOutputNameList},
+    mLogicList{src.mLogicList},
+    mNodeArray{src.mNodeArray},
+    mDffArray{src.mDffArray},
+    mCoverArray{src.mCoverArray},
+    mExprArray{src.mExprArray},
+    mFuncArray{src.mFuncArray}
+{
+  for ( auto bdd: src.mBddArray ) {
+    mBddArray.push_back(mBddMgr.copy(bdd));
+  }
+}
+
 // @brief 名前を設定する．
 void
 ModelImpl::set_name(
@@ -29,6 +51,18 @@ ModelImpl::set_comment(
   mComment = comment;
 }
 
+// @brief セルライブラリを設定する．
+void
+ModelImpl::set_library(
+  ClibCellLibrary library
+)
+{
+  if ( mLibrary.is_valid() && mLibrary != library ) {
+    throw std::invalid_argument{"cell library mismatch"};
+  }
+  mLibrary = library;
+}
+
 // @brief 出力の名前を設定する．
 void
 ModelImpl::set_output_name(
@@ -36,7 +70,9 @@ ModelImpl::set_output_name(
   const string& name
 )
 {
-  ASSERT_COND( 0 <= pos && pos < output_num() );
+  if ( pos < 0 || pos >= output_num() ) {
+    throw std::invalid_argument{"Error in ModelImpl::set_output_name(). pos is out of range"};
+  }
   mOutputNameList[pos] = name;
 }
 
@@ -152,6 +188,7 @@ ModelImpl::set_cell(
   ClibCell cell
 )
 {
+  set_library(cell.library());
   auto& node = _node(id);
   node.set_cell(input_list, cell.id());
 }
@@ -217,6 +254,7 @@ ModelImpl::set_dff_cell(
   ClibCell cell
 )
 {
+  set_library(cell.library());
   auto& dff = _dff(id);
   dff.set_cell(cell.id(), cell.pin_num());
 }
@@ -328,7 +366,6 @@ ModelImpl::make_logic_list()
   for ( auto& dff: mDffArray ) {
     order_node(dff.data_src(), mark);
   }
-
 }
 
 // @brief トポロジカルソートを行い mLogicList にセットする．
@@ -360,7 +397,6 @@ ModelImpl::add_cover(
 {
   auto id = cover_num();
   mCoverArray.push_back(BnCover{input_num, cube_list, opat});
-
   return id;
 }
 
@@ -372,7 +408,6 @@ ModelImpl::add_expr(
 {
   auto id = expr_num();
   mExprArray.push_back(expr);
-
   return id;
 }
 
@@ -384,7 +419,6 @@ ModelImpl::add_func(
 {
   auto id = func_num();
   mFuncArray.push_back(func);
-
   return id;
 }
 
@@ -395,8 +429,8 @@ ModelImpl::add_bdd(
 )
 {
   auto id = bdd_num();
-  mBddArray.push_back(bdd);
-
+  // mBddMgr に属する BDD に変換しておく．
+  mBddArray.push_back(mBddMgr.copy(bdd));
   return id;
 }
 

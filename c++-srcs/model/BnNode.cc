@@ -208,8 +208,9 @@ BnNode::cell_id() const
 ClibCell
 BnNode::cell() const
 {
+  auto id = cell_id();
   auto library = mImpl->library();
-  return library.cell(cell_id());
+  return library.cell(id);
 }
 
 // @brief ノードの関数番号を返す．

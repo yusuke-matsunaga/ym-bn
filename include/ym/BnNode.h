@@ -216,66 +216,6 @@ public:
   Bdd
   bdd() const;
 
-  /// @brief DFFノードの入力ノードを返す．
-  ///
-  /// is_dff() が true の時のみ意味を持つ．
-  BnNode
-  dff_src() const;
-
-  /// @brief DFFノードのクロックノードを返す．
-  ///
-  /// is_dff() が true の時のみ意味を持つ．
-  BnNode
-  dff_clock() const;
-
-  /// @brief DFFノードのリセットノードを返す．
-  ///
-  /// is_dff() が true の時のみ意味を持つ．
-  BnNode
-  dff_reset() const;
-
-  /// @brief DFFノードのプリセットノードを返す．
-  ///
-  /// is_dff() が true の時のみ意味を持つ．
-  BnNode
-  dff_preset() const;
-
-  /// @brief DFFノードのリセットとプリセットが共にオンの場合の値を返す．
-  ///
-  /// is_dff() が true の時のみ意味を持つ．
-  char
-  dff_rsval() const;
-
-  /// @brief ラッチノードの入力ノードを返す．
-  ///
-  /// is_latch() が true の時のみ意味を持つ．
-  BnNode
-  latch_src() const;
-
-  /// @brief ラッチノードのイネーブルノードを返す．
-  ///
-  /// is_latch() が true の時のみ意味を持つ．
-  BnNode
-  latch_enable() const;
-
-  /// @brief ラッチノードのリセットノードを返す．
-  ///
-  /// is_latch() が true の時のみ意味を持つ．
-  BnNode
-  latch_reset() const;
-
-  /// @brief ラッチノードのプリセットノードを返す．
-  ///
-  /// is_latch() が true の時のみ意味を持つ．
-  BnNode
-  latch_preset() const;
-
-  /// @brief ラッチノードのリセットとプリセットが共にオンの場合の値を返す．
-  ///
-  /// is_latch() が true の時のみ意味を持つ．
-  char
-  latch_rsval() const;
-
   /// @brief 等価比較演算子
   bool
   operator==(

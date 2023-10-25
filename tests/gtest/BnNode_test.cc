@@ -29,8 +29,9 @@ TEST(BnNodeTest, constructor1)
   EXPECT_THROW( {node.is_cover(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_expr(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_cell(); }, std::invalid_argument );
-  EXPECT_THROW( {node.is_dff(); }, std::invalid_argument );
-  EXPECT_THROW( {node.is_latch(); }, std::invalid_argument );
+  EXPECT_THROW( {node.is_func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.is_bdd(); }, std::invalid_argument );
+  EXPECT_THROW( {node.input_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_num(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin(0); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_list(); }, std::invalid_argument );
@@ -41,20 +42,11 @@ TEST(BnNodeTest, constructor1)
   EXPECT_THROW( {node.expr_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.expr(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.cell(); }, std::invalid_argument );
   EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.func(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_rsval(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_enable(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
 
 TEST(BnNodeTest, bad_id)
@@ -85,8 +77,9 @@ TEST(BnNodeTest, constructor2)
   EXPECT_FALSE( node.is_cover() );
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_dff() );
-  EXPECT_FALSE( node.is_latch() );
+  EXPECT_FALSE( node.is_func() );
+  EXPECT_FALSE( node.is_bdd() );
+  EXPECT_THROW( {node.input_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_num(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin(0); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_list(); }, std::invalid_argument );
@@ -101,16 +94,6 @@ TEST(BnNodeTest, constructor2)
   EXPECT_THROW( {node.func(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_rsval(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_enable(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
 
 TEST( BnNodeTest, input)
@@ -128,8 +111,9 @@ TEST( BnNodeTest, input)
   EXPECT_FALSE( node.is_cover() );
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_dff() );
-  EXPECT_FALSE( node.is_latch() );
+  EXPECT_FALSE( node.is_func() );
+  EXPECT_FALSE( node.is_bdd() );
+  EXPECT_EQ( 0, node.input_id() );
   EXPECT_THROW( {node.fanin_num(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin(0); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_list(); }, std::invalid_argument );
@@ -144,16 +128,6 @@ TEST( BnNodeTest, input)
   EXPECT_THROW( {node.func(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_rsval(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_enable(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
 
 TEST( BnNodeTest, primitive)
@@ -174,13 +148,15 @@ TEST( BnNodeTest, primitive)
   EXPECT_FALSE( node.is_cover() );
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_dff() );
-  EXPECT_FALSE( node.is_latch() );
+  EXPECT_FALSE( node.is_func() );
+  EXPECT_FALSE( node.is_bdd() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     auto node1 = fanin_list[i];
     EXPECT_EQ( node1, node.fanin(i) );
   }
+  EXPECT_EQ( fanin_list, node.fanin_list() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( type, node.primitive_type() );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
@@ -191,16 +167,6 @@ TEST( BnNodeTest, primitive)
   EXPECT_THROW( {node.func(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
-  EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_rsval(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_enable(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
 
 TEST( BnNodeTest, aig )
@@ -221,8 +187,9 @@ TEST( BnNodeTest, aig )
   EXPECT_FALSE( node.is_cover() );
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_dff() );
-  EXPECT_FALSE( node.is_latch() );
+  EXPECT_FALSE( node.is_func() );
+  EXPECT_FALSE( node.is_bdd() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( 2, node.fanin_num() );
   EXPECT_EQ( input1, node.fanin(0) );
   EXPECT_EQ( input2, node.fanin(1) );
@@ -232,22 +199,15 @@ TEST( BnNodeTest, aig )
   EXPECT_EQ( inv0, node.fanin_inv(0) );
   EXPECT_EQ( inv1, node.fanin_inv(1) );
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.cover();}, std::invalid_argument );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.expr();}, std::invalid_argument );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.cell();}, std::invalid_argument );
   EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.func(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
-  EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_rsval(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_enable(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
 
 TEST( BnNodeTest, cover )
@@ -271,30 +231,26 @@ TEST( BnNodeTest, cover )
   EXPECT_TRUE( node.is_cover() );
   EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_dff() );
-  EXPECT_FALSE( node.is_latch() );
+  EXPECT_FALSE( node.is_func() );
+  EXPECT_FALSE( node.is_bdd() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
+  for ( SizeType i = 0; i < node.fanin_num(); ++ i ) {
+    EXPECT_EQ( fanin_list[i], node.fanin(i) );
+  }
   EXPECT_EQ( fanin_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
   EXPECT_EQ( cover_id, node.cover_id() );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.expr();}, std::invalid_argument );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.cell();}, std::invalid_argument );
   EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.func(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
-  EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_rsval(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_enable(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
 
 TEST( BnNodeTest, expr )
@@ -306,7 +262,8 @@ TEST( BnNodeTest, expr )
   vector<BnNode> fanin_list{input1, input2};
   auto lit1 = Expr::make_posi_literal(0);
   auto lit2 = Expr::make_posi_literal(1);
-  SizeType expr_id = model.add_expr(lit1 | lit2);
+  auto expr = lit1 | lit2;
+  SizeType expr_id = model.add_expr(expr);
   auto node = model.new_expr(fanin_list, expr_id);
 
   EXPECT_EQ( BnNodeType::EXPR, node.type() );
@@ -317,41 +274,41 @@ TEST( BnNodeTest, expr )
   EXPECT_FALSE( node.is_cover() );
   EXPECT_TRUE( node.is_expr() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_dff() );
-  EXPECT_FALSE( node.is_latch() );
+  EXPECT_FALSE( node.is_func() );
+  EXPECT_FALSE( node.is_bdd() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
+  for ( SizeType i = 0; i < node.fanin_num(); ++ i ) {
+    EXPECT_EQ( fanin_list[i], node.fanin(i) );
+  }
   EXPECT_EQ( fanin_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
   EXPECT_EQ( expr_id, node.expr_id() );
+  EXPECT_EQ( expr, node.expr() );
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.cell();}, std::invalid_argument );
   EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.func(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
-  EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_rsval(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_enable(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
 
 TEST( BnNodeTest, cell )
 {
+  auto FILENAME = string{DATAPATH} + string{"/HIT018.typ.snp"};
+  auto library = ClibCellLibrary::read_liberty(FILENAME);
+  auto CELL_NAME = "HIT18NAND2P005";
+  auto cell = library.cell(CELL_NAME);
+
   BnModel model;
 
   auto input1 = model.new_input();
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
-  SizeType cell_id = 5;
-  auto node = model.new_cell(fanin_list, cell_id);
+  auto node = model.new_cell(fanin_list, cell);
 
   EXPECT_EQ( BnNodeType::CELL, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -360,107 +317,25 @@ TEST( BnNodeTest, cell )
   EXPECT_FALSE( node.is_aig() );
   EXPECT_FALSE( node.is_cover() );
   EXPECT_FALSE( node.is_expr() );
+  EXPECT_FALSE( node.is_func() );
+  EXPECT_FALSE( node.is_bdd() );
   EXPECT_TRUE( node.is_cell() );
-  EXPECT_FALSE( node.is_dff() );
-  EXPECT_FALSE( node.is_latch() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
+  for ( SizeType i = 0; i < node.fanin_num(); ++ i ) {
+    EXPECT_EQ( fanin_list[i], node.fanin(i) );
+  }
   EXPECT_EQ( fanin_list, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
   EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
   EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
-  EXPECT_EQ( cell_id, node.cell_id() );
+  EXPECT_EQ( cell.id(), node.cell_id() );
+  EXPECT_EQ( cell, node.cell() );
   EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.func(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_src();}, std::invalid_argument );
-  EXPECT_THROW( {node.dff_clock(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.dff_rsval(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_src(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_enable(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_reset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_preset(); }, std::invalid_argument );
-  EXPECT_THROW( {node.latch_rsval(); }, std::invalid_argument );
 }
-
-#if 0
-TEST( BnNodeTest, dff )
-{
-  BnModel model;
-
-  auto src = model.new_input();
-  auto clock = model.new_input();
-  auto reset = model.new_input();
-  auto node = model.new_dff();
-  model.set_dff_src(node, src);
-  model.set_dff_clock(node, clock);
-  model.set_dff_reset(node, reset);
-
-  EXPECT_EQ( BnNodeType::DFF, node.type() );
-  EXPECT_FALSE( node.is_input() );
-  EXPECT_FALSE( node.is_logic() );
-  EXPECT_FALSE( node.is_primitive() );
-  EXPECT_FALSE( node.is_aig() );
-  EXPECT_FALSE( node.is_cover() );
-  EXPECT_FALSE( node.is_expr() );
-  EXPECT_FALSE( node.is_cell() );
-  EXPECT_TRUE( node.is_dff() );
-  EXPECT_FALSE( node.is_latch() );
-  EXPECT_THROW( {node.fanin_num();}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_list();}, std::invalid_argument );
-  EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
-  EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
-  EXPECT_EQ( src, node.dff_src() );
-  EXPECT_EQ( clock, node.dff_clock() );
-  EXPECT_EQ( reset, node.dff_reset() );
-  EXPECT_FALSE( node.dff_preset().is_valid() );
-  EXPECT_EQ( ' ', node.dff_rsval() );
-}
-
-TEST( BnNodeTest, latch )
-{
-  BnModel model;
-
-  auto src = model.new_input();
-  auto enable = model.new_input();
-  auto reset = model.new_input();
-  auto node = model.new_latch();
-  model.set_latch_src(node, src);
-  model.set_latch_enable(node, enable);
-  model.set_latch_reset(node, reset);
-
-  EXPECT_EQ( BnNodeType::Latch, node.type() );
-  EXPECT_FALSE( node.is_input() );
-  EXPECT_FALSE( node.is_logic() );
-  EXPECT_FALSE( node.is_primitive() );
-  EXPECT_FALSE( node.is_aig() );
-  EXPECT_FALSE( node.is_cover() );
-  EXPECT_FALSE( node.is_expr() );
-  EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_dff() );
-  EXPECT_TRUE( node.is_latch() );
-  EXPECT_THROW( {node.fanin_num();}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_list();}, std::invalid_argument );
-  EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
-  EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
-  EXPECT_EQ( src, node.latch_src() );
-  EXPECT_EQ( enable, node.latch_enable() );
-  EXPECT_EQ( reset, node.latch_reset() );
-  EXPECT_FALSE( node.latch_preset().is_valid() );
-  EXPECT_EQ( ' ', node.latch_rsval() );
-}
-#endif
 
 END_NAMESPACE_YM_BN

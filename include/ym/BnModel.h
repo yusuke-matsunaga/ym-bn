@@ -35,14 +35,15 @@ class ModelImpl;
 /// - BDD(Bdd)のリスト
 ///
 /// - 論理ノードは以下の情報を持つ．
-///   * タイプ(Primitive, Aig, Cover, Expr, Func, Bdd, Cell)
+///   * タイプ(BnNodeType)
 ///   * タイプごとの補助情報
 ///   * ファンインノードのリスト
 ///
 /// - Dffノードは以下の情報を持つ．
+///   * タイプ(BnDffType)
 ///   * データ入力ノード
 ///   * クロック入力ノード
-///   * リセット入力ノード
+///   * クリア入力ノード
 ///   * プリセット入力ノード
 ///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
 ///
@@ -51,21 +52,6 @@ class ModelImpl;
 ///   * データ出力ノードのリスト
 ///   * クロック入力ノード
 ///   * リセット系入力ノード
-///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
-///
-/// - ラッチノードは以下の情報を持つ．
-///   * データ入力ノード
-///   * イネーブル入力ノード
-///   * リセット入力ノード
-///   * プリセット入力ノード
-///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
-///
-/// - ラッチセルノードは以下の情報を持つ．
-///   * データ入力ノードのリスト
-///   * データ出力ノードのリスト
-///   * イネーブル入力ノード
-///   * リセット系入力ノード
-///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
 ///
 /// - 実際には出力ノードという種類はなく，他のいずれかの
 ///   ノードとなっている．
@@ -148,7 +134,7 @@ public:
   read_blif(
     const string& filename,             ///< [in] ファイル名
     const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& clear_name = "clear"  ///< [in] クリア信号の名前
+    const string& reset_name = "reset"  ///< [in] リセット信号の名前
   );
 
   /// @brief blif ファイルの読み込みを行う(セルライブラリ付き)．
@@ -161,7 +147,7 @@ public:
     const string& filename,              ///< [in] ファイル名
     const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
     const string& clock_name = "clock",  ///< [in] クロック信号の名前
-    const string& clear_name = "clear"   ///< [in] クリア信号の名前
+    const string& reset_name = "reset"   ///< [in] リセット信号の名前
   );
 
   /// @brief iscas89(.bench) ファイルの読み込みを行う．
@@ -184,7 +170,7 @@ public:
   read_aag(
     const string& filename,             ///< [in] ファイル名
     const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& clear_name = "clear"  ///< [in] クリア信号の名前
+    const string& reset_name = "reset"  ///< [in] リセット信号の名前
   );
 
   /// @brief aig ファイルの読み込みを行う．
@@ -196,7 +182,7 @@ public:
   read_aig(
     const string& filename,             ///< [in] ファイル名
     const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& clear_name = "clear"  ///< [in] クリア信号の名前
+    const string& reset_name = "reset"  ///< [in] リセット信号の名前
   );
 
   /// @brief truth ファイルの読み込みを行う．
@@ -398,6 +384,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief セルライブラリを設定する．
+  ///
+  /// 既に別のライブラリが設定されていたらエラーとなる．
   void
   set_celllibrary(
     ClibCellLibrary lib ///< [in] ライブラリ
@@ -421,6 +409,16 @@ public:
     SizeType pos,      ///< [in] 位置番号 ( 0 <= pos < output_num() )
     const string& name ///< [in] 名前
   );
+
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  /// @name 論理ノードの生成
+  /// @{
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief 新しい入力ノードを作る．
   /// @return 生成したノードを返す．
@@ -458,6 +456,8 @@ public:
 
   /// @brief 新しいカバー型の論理ノードを作る．
   /// @return 生成したノードを返す．
+  ///
+  /// cover_id は add_cover() で登録したものを用いる．
   BnNode
   new_cover(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
@@ -465,13 +465,31 @@ public:
     const string& name = {}           ///< [in] 名前
   );
 
+  /// @brief カバーを追加する．
+  /// @return カバー番号を返す．
+  SizeType
+  add_cover(
+    SizeType input_num,                       ///< [in] 入力数
+    const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
+    char opat                                 ///< [in] 出力パタン ( '1' or '0' )
+  );
+
   /// @brief 論理式型の論理ノードを作る．
   /// @return 生成したノードを返す．
+  ///
+  /// expr_id は add_expr() で登録したものを用いる．
   BnNode
   new_expr(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType expr_id,                 ///< [in] 論理式番号
     const string& name = {}           ///< [in] 名前
+  );
+
+  /// @brief 論理式を追加する．
+  /// @return 論理式番号を返す．
+  SizeType
+  add_expr(
+    const Expr& expr ///< [in] 論理式
   );
 
   /// @brief セル型の論理ノードを作る．
@@ -486,8 +504,9 @@ public:
   );
 
   /// @brief 真理値表型の論理ノードを作る．
-  ///
   /// @return 生成したノードを返す．
+  ///
+  /// func_id は add_func() で登録したものを用いる．
   BnNode
   new_func(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
@@ -495,14 +514,40 @@ public:
     const string& name = {}           ///< [in] 名前
   );
 
+  /// @brief 真理値表を追加する．
+  /// @return 関数番号を返す．
+  SizeType
+  add_func(
+    const TvFunc& func ///< [in] 真理値表型の関数
+  );
+
   /// @brief BDD型の論理ノードを作る．
   /// @return 生成したノードを返す．
+  ///
+  /// bdd_id は add_bdd() で登録したものを用いる．
   BnNode
   new_bdd(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType bdd_id,                  ///< [in] BDD番号
     const string& name = {}           ///< [in] 名前
   );
+
+  /// @brief BDDを追加する．
+  /// @return BDD番号を返す．
+  SizeType
+  add_bdd(
+    const Bdd& bdd ///< [in] BDD
+  );
+
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  /// @name 記憶ノードの生成/設定
+  /// @{
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief DFFを作る．
   /// @return 生成したDFFを返す．
@@ -571,40 +616,6 @@ public:
     BnDff dff,    ///< [in] DFF
     SizeType pos, ///< [in] ピン番号
     BnNode node   ///< [in] ノード
-  );
-
-  /// @brief 論理ノードのリストを作る．
-  void
-  make_logic_list();
-
-  /// @brief カバーを追加する．
-  /// @return カバー番号を返す．
-  SizeType
-  add_cover(
-    SizeType input_num,                       ///< [in] 入力数
-    const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
-    char opat                                 ///< [in] 出力パタン ( '1' or '0' )
-  );
-
-  /// @brief 論理式を追加する．
-  /// @return 論理式番号を返す．
-  SizeType
-  add_expr(
-    const Expr& expr ///< [in] 論理式
-  );
-
-  /// @brief 真理値表を追加する．
-  /// @return 関数番号を返す．
-  SizeType
-  add_func(
-    const TvFunc& func ///< [in] 真理値表型の関数
-  );
-
-  /// @brief BDDを追加する．
-  /// @return BDD番号を返す．
-  SizeType
-  add_bdd(
-    const Bdd& bdd ///< [in] BDD
   );
 
   /// @}

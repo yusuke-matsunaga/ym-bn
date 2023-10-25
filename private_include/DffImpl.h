@@ -136,6 +136,7 @@ public:
   SizeType
   data_output() const
   {
+    check_dff_or_latch();
     return mPinList[4];
   }
 
@@ -208,7 +209,7 @@ public:
   )
   {
     mType = BnDffType::CELL;
-    mPinList = vector<SizeType>(pin_num);
+    mPinList = vector<SizeType>(pin_num, BAD_ID);
     mExtId = cell_id;
   }
 
@@ -269,7 +270,7 @@ public:
   )
   {
     check_dff_or_latch();
-    mPinList[3] = node_id;
+    mPinList[4] = node_id;
   }
 
   /// @brief ピンに対応するノードをセットする．

@@ -136,6 +136,15 @@ BnDff::cell_id() const
   return dff_impl().cell_id();
 }
 
+// @brief セルを返す．
+ClibCell
+BnDff::cell() const
+{
+  auto id = cell_id();
+  auto library = mImpl->library();
+  return library.cell(id);
+}
+
 // @brief セルのピンに対応するノードを返す．
 BnNode
 BnDff::cell_pin(

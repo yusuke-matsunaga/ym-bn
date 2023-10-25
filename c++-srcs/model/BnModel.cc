@@ -335,6 +335,15 @@ BnModel::bdd(
   return mImpl->bdd(bdd_id);
 }
 
+// @brief セルライブラリを設定する．
+void
+BnModel::set_celllibrary(
+  ClibCellLibrary lib
+)
+{
+  mImpl->set_library(lib);
+}
+
 // @brief 名前を設定する．
 void
 BnModel::set_name(
@@ -450,7 +459,6 @@ BnModel::new_cell(
   const string& name
 )
 {
-  _check_library(cell, "new_cell");
   auto input_id_list = to_id_list(input_list, "new_cell");
   return BnNode{mImpl, mImpl->new_cell(input_id_list, cell, name)};
 }
@@ -512,7 +520,6 @@ BnModel::new_dff_cell(
   const string& name
 )
 {
-  _check_library(cell, "new_dff_cell");
   auto id = mImpl->new_dff_cell(cell, name);
   return BnDff{mImpl, id};
 }
@@ -576,13 +583,6 @@ BnModel::set_pin(
 )
 {
   mImpl->set_dff_pin(dff.id(), pos, node.id());
-}
-
-// @brief 論理ノードのリストを作る．
-void
-BnModel::make_logic_list()
-{
-  mImpl->make_logic_list();
 }
 
 // @brief カバーを追加する．

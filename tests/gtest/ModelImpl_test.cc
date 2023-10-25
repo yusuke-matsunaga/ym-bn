@@ -71,15 +71,11 @@ TEST( ModelImplTest, set_node_name )
   EXPECT_EQ( name, node.name() );
 }
 
-TEST( ModelImplTest, set_input )
+TEST( ModelImplTest, new_input )
 {
   ModelImpl model;
 
-  auto id = model.new_node({});
-  EXPECT_EQ( 0, id );
-
-  model.set_input(id);
-
+  auto id = model.new_input({});
   auto& node = model.node(id);
   EXPECT_EQ( BnNodeType::INPUT, node.type() );
 }
@@ -97,24 +93,15 @@ TEST( ModelImplTest, set_output )
   EXPECT_EQ( id, model.output(0) );
 }
 
-TEST( ModelImplTest, set_primitive )
+TEST( ModelImplTest, new_primitive )
 {
   ModelImpl model;
 
-  auto id1 = model.new_node({});
-  EXPECT_EQ( 0, id1 );
-  model.set_input(id1);
-
-  auto id2 = model.new_node({});
-  EXPECT_EQ( 1, id2 );
-  model.set_input(id2);
-
-  auto id3 = model.new_node({});
-  EXPECT_EQ( 2, id3 );
-
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   vector<SizeType> fanin_list{id1, id2};
   PrimType type = PrimType::Xor;
-  model.set_primitive(id3, fanin_list, type);
+  auto id3 = model.new_primitive(fanin_list, type);
 
   auto& node = model.node(id3);
   EXPECT_EQ( BnNodeType::PRIMITIVE, node.type() );
@@ -126,25 +113,16 @@ TEST( ModelImplTest, set_primitive )
   EXPECT_EQ( type, node.primitive_type() );
 }
 
-TEST( ModelImplTest, set_aig )
+TEST( ModelImplTest, new_aig )
 {
   ModelImpl model;
 
-  auto id1 = model.new_node({});
-  EXPECT_EQ( 0, id1 );
-  model.set_input(id1);
-
-  auto id2 = model.new_node({});
-  EXPECT_EQ( 1, id2 );
-  model.set_input(id2);
-
-  auto id3 = model.new_node({});
-  EXPECT_EQ( 2, id3 );
-
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   vector<SizeType> fanin_list{id1, id2};
   bool inv1 = true;
   bool inv2 = false;
-  model.set_aig(id3, id1, id2, inv1, inv2);
+  auto id3 = model.new_aig(id1, id2, inv1, inv2);
 
   auto& node = model.node(id3);
   EXPECT_EQ( BnNodeType::AIG, node.type() );
@@ -157,24 +135,15 @@ TEST( ModelImplTest, set_aig )
   EXPECT_EQ( inv2, node.fanin_inv(1) );
 }
 
-TEST( ModelImplTest, set_cover )
+TEST( ModelImplTest, new_cover )
 {
   ModelImpl model;
 
-  auto id1 = model.new_node({});
-  EXPECT_EQ( 0, id1 );
-  model.set_input(id1);
-
-  auto id2 = model.new_node({});
-  EXPECT_EQ( 1, id2 );
-  model.set_input(id2);
-
-  auto id3 = model.new_node({});
-  EXPECT_EQ( 2, id3 );
-
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   vector<SizeType> fanin_list{id1, id2};
   SizeType cover_id = 3;
-  model.set_cover(id3, fanin_list, cover_id);
+  auto id3 = model.new_cover(fanin_list, cover_id);
 
   auto& node = model.node(id3);
   EXPECT_EQ( BnNodeType::COVER, node.type() );
@@ -186,24 +155,15 @@ TEST( ModelImplTest, set_cover )
   EXPECT_EQ( cover_id, node.cover_id() );
 }
 
-TEST( ModelImplTest, set_expr )
+TEST( ModelImplTest, new_expr )
 {
   ModelImpl model;
 
-  auto id1 = model.new_node({});
-  EXPECT_EQ( 0, id1 );
-  model.set_input(id1);
-
-  auto id2 = model.new_node({});
-  EXPECT_EQ( 1, id2 );
-  model.set_input(id2);
-
-  auto id3 = model.new_node({});
-  EXPECT_EQ( 2, id3 );
-
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   vector<SizeType> fanin_list{id1, id2};
   SizeType expr_id = 3;
-  model.set_expr(id3, fanin_list, expr_id);
+  auto id3 = model.new_expr(fanin_list, expr_id);
 
   auto& node = model.node(id3);
   EXPECT_EQ( BnNodeType::EXPR, node.type() );
@@ -215,53 +175,15 @@ TEST( ModelImplTest, set_expr )
   EXPECT_EQ( expr_id, node.expr_id() );
 }
 
-TEST( ModelImplTest, set_cell )
+TEST( ModelImplTest, new_func )
 {
   ModelImpl model;
 
-  auto id1 = model.new_node({});
-  EXPECT_EQ( 0, id1 );
-  model.set_input(id1);
-
-  auto id2 = model.new_node({});
-  EXPECT_EQ( 1, id2 );
-  model.set_input(id2);
-
-  auto id3 = model.new_node({});
-  EXPECT_EQ( 2, id3 );
-
-  vector<SizeType> fanin_list{id1, id2};
-  SizeType cell_id = 3;
-  model.set_cell(id3, fanin_list, cell_id);
-
-  auto& node = model.node(id3);
-  EXPECT_EQ( BnNodeType::CELL, node.type() );
-  EXPECT_EQ( fanin_list.size(), node.fanin_num() );
-  for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
-    EXPECT_EQ( fanin_list[i], node.fanin(i) );
-  }
-  EXPECT_EQ( fanin_list, node.fanin_list() );
-  EXPECT_EQ( cell_id, node.cell_id() );
-}
-
-TEST( ModelImplTest, set_func )
-{
-  ModelImpl model;
-
-  auto id1 = model.new_node({});
-  EXPECT_EQ( 0, id1 );
-  model.set_input(id1);
-
-  auto id2 = model.new_node({});
-  EXPECT_EQ( 1, id2 );
-  model.set_input(id2);
-
-  auto id3 = model.new_node({});
-  EXPECT_EQ( 2, id3 );
-
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   vector<SizeType> fanin_list{id1, id2};
   SizeType func_id = 3;
-  model.set_func(id3, fanin_list, func_id);
+  auto id3 = model.new_func(fanin_list, func_id);
 
   auto& node = model.node(id3);
   EXPECT_EQ( BnNodeType::TVFUNC, node.type() );
@@ -273,24 +195,15 @@ TEST( ModelImplTest, set_func )
   EXPECT_EQ( func_id, node.func_id() );
 }
 
-TEST( ModelImplTest, set_bdd )
+TEST( ModelImplTest, new_bdd )
 {
   ModelImpl model;
 
-  auto id1 = model.new_node({});
-  EXPECT_EQ( 0, id1 );
-  model.set_input(id1);
-
-  auto id2 = model.new_node({});
-  EXPECT_EQ( 1, id2 );
-  model.set_input(id2);
-
-  auto id3 = model.new_node({});
-  EXPECT_EQ( 2, id3 );
-
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   vector<SizeType> fanin_list{id1, id2};
   SizeType bdd_id = 3;
-  model.set_bdd(id3, fanin_list, bdd_id);
+  auto id3 = model.new_bdd(fanin_list, bdd_id);
 
   auto& node = model.node(id3);
   EXPECT_EQ( BnNodeType::BDD, node.type() );
@@ -302,29 +215,109 @@ TEST( ModelImplTest, set_bdd )
   EXPECT_EQ( bdd_id, node.bdd_id() );
 }
 
+TEST( ModelImplTest, new_cell )
+{
+  auto FILENAME = string{DATAPATH} + string{"/HIT018.typ.snp"};
+  auto library = ClibCellLibrary::read_liberty(FILENAME);
+  auto CELL_NAME = "HIT18NAND2P005";
+  auto cell = library.cell(CELL_NAME);
+
+  ModelImpl model;
+
+  auto id1 = model.new_input({});
+  auto id2 = model.new_input({});
+  vector<SizeType> fanin_list{id1, id2};
+  auto id3 = model.new_cell(fanin_list, cell);
+
+  auto& node = model.node(id3);
+  EXPECT_EQ( BnNodeType::CELL, node.type() );
+  EXPECT_EQ( fanin_list.size(), node.fanin_num() );
+  for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
+    EXPECT_EQ( fanin_list[i], node.fanin(i) );
+  }
+  EXPECT_EQ( fanin_list, node.fanin_list() );
+  EXPECT_EQ( cell.id(), node.cell_id() );
+}
+
 TEST( ModelImplTest, new_dff )
 {
   ModelImpl model;
 
-  auto src_id = model.new_input({});
+  auto src_id = model.new_node({});
   auto clock_id = model.new_node({});
-  auto reset_id = model.new_node({});
+  auto clear_id = model.new_node({});
   auto preset_id = model.new_node({});
 
   char rsval = '1';
   auto id0 = model.new_dff(rsval);
   model.set_data_src(id0, src_id);
   model.set_clock(id0, clock_id);
-  model.set_clear(id0, reset_id);
+  model.set_clear(id0, clear_id);
   model.set_preset(id0, preset_id);
 
   auto& dff = model.dff(id0);
   EXPECT_EQ( BnDffType::DFF, dff.type() );
   EXPECT_EQ( src_id, dff.data_src() );
   EXPECT_EQ( clock_id, dff.clock() );
-  EXPECT_EQ( reset_id, dff.clear() );
+  EXPECT_THROW( {dff.enable();}, std::invalid_argument );
+  EXPECT_EQ( clear_id, dff.clear() );
   EXPECT_EQ( preset_id, dff.preset() );
   EXPECT_EQ( rsval, dff.rsval() );
+}
+
+TEST( ModelImplTest, new_latch )
+{
+  ModelImpl model;
+
+  auto src_id = model.new_node({});
+  auto enable_id = model.new_node({});
+  auto clear_id = model.new_node({});
+
+  char rsval = 'X';
+  auto id0 = model.new_latch(rsval);
+  model.set_data_src(id0, src_id);
+  model.set_enable(id0, enable_id);
+  model.set_clear(id0, clear_id);
+
+  auto& dff = model.dff(id0);
+  EXPECT_EQ( BnDffType::LATCH, dff.type() );
+  EXPECT_EQ( src_id, dff.data_src() );
+  EXPECT_THROW( {dff.clock();}, std::invalid_argument );
+  EXPECT_EQ( enable_id, dff.enable() );
+  EXPECT_EQ( clear_id, dff.clear() );
+  EXPECT_EQ( BAD_ID, dff.preset() );
+  EXPECT_EQ( rsval, dff.rsval() );
+}
+
+TEST( ModelImplTest, new_dff_cell )
+{
+  auto FILENAME = string{DATAPATH} + string{"/HIT018.typ.snp"};
+  auto library = ClibCellLibrary::read_liberty(FILENAME);
+  auto CELL_NAME = "HIT18DFNP010";
+  auto cell = library.cell(CELL_NAME);
+
+  ModelImpl model;
+
+  auto src_id = model.new_node({});
+  auto clock_id = model.new_node({});
+  auto output_id = model.new_input({});
+
+  auto id0 = model.new_dff_cell(cell);
+  model.set_dff_pin(id0, 0, clock_id);
+  model.set_dff_pin(id0, 1, src_id);
+  model.set_dff_pin(id0, 2, output_id);
+
+  auto& dff = model.dff(id0);
+  EXPECT_EQ( BnDffType::CELL, dff.type() );
+  EXPECT_THROW( {dff.data_src();}, std::invalid_argument );
+  EXPECT_THROW( {dff.clock();}, std::invalid_argument );
+  EXPECT_THROW( {dff.enable();}, std::invalid_argument );
+  EXPECT_THROW( {dff.clear();}, std::invalid_argument );
+  EXPECT_THROW( {dff.preset();}, std::invalid_argument );
+  EXPECT_THROW( {dff.rsval();}, std::invalid_argument );
+  EXPECT_EQ( clock_id, dff.cell_pin(0) );
+  EXPECT_EQ( src_id, dff.cell_pin(1) );
+  EXPECT_EQ( output_id, dff.cell_pin(2) );
 }
 
 TEST( ModelImplTest, add_cover )
