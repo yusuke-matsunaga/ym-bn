@@ -19,10 +19,94 @@ TEST( BnModelTest, constructor1 )
 {
   BnModel model;
 
+  EXPECT_FALSE( model.library().is_valid() );
   EXPECT_EQ( string{}, model.name() );
   EXPECT_EQ( string{}, model.comment() );
+  EXPECT_EQ( 0, model.node_num() );
   EXPECT_EQ( 0, model.input_num() );
   EXPECT_EQ( vector<BnNode>{}, model.input_list() );
+  EXPECT_EQ( vector<string>{}, model.input_name_list() );
+  EXPECT_EQ( 0, model.output_num() );
+  EXPECT_EQ( vector<BnNode>{}, model.output_list() );
+  EXPECT_EQ( vector<string>{}, model.output_name_list() );
+  EXPECT_EQ( 0, model.logic_num() );
+  EXPECT_EQ( vector<BnNode>{}, model.logic_list() );
+  EXPECT_EQ( 0, model.dff_num() );
+  EXPECT_EQ( vector<BnDff>{}, model.dff_list() );
+  EXPECT_EQ( 0, model.cover_num() );
+  EXPECT_EQ( 0, model.expr_num() );
+  EXPECT_EQ( 0, model.func_num() );
+  EXPECT_EQ( 0, model.bdd_num() );
+}
+
+TEST( BnModelTest, input_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.input(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, input_name_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.input_name(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, output_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.output(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, output_name_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.output_name(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, logic_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.logic(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, dff_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.dff(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, cover_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.cover(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, expr_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.expr(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, func_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.func(0);}, std::invalid_argument );
+}
+
+TEST( BnModelTest, bdd_bad )
+{
+  BnModel model;
+
+  EXPECT_THROW( {model.bdd(0);}, std::invalid_argument );
 }
 
 TEST( BnModelTest, new_input )
