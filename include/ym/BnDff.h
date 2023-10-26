@@ -167,6 +167,24 @@ public:
     SizeType pos ///< [in] ピン番号
   ) const;
 
+  /// @brief 等価比較演算子
+  bool
+  operator==(
+    const BnDff& right ///< [in] 比較対象のオブジェクト
+  ) const
+  {
+    return mImpl == right.mImpl && mId == right.mId;
+  }
+
+  /// @brief 非等価比較演算子
+  bool
+  operator!=(
+    const BnDff& right ///< [in] 比較対象のオブジェクト
+  ) const
+  {
+    return !operator==(right);
+  }
+
 
 private:
   //////////////////////////////////////////////////////////////////////
