@@ -94,7 +94,7 @@ ModelImpl::set_node_name(
   const string& name
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "set_node_name(id, name)", "id");
   node.set_name(name);
 }
 
@@ -104,7 +104,7 @@ ModelImpl::set_input(
   SizeType id
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "set_input(id", "id");
   auto iid = mInputList.size();
   node.set_input(iid);
   mInputList.push_back(id);
@@ -118,7 +118,7 @@ ModelImpl::new_output(
   const string& name
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "new_output(id, name)", "id");
   SizeType pos = mOutputList.size();
   mOutputList.push_back(id);
   if ( name != string{} ) {
@@ -138,7 +138,7 @@ ModelImpl::set_primitive(
   PrimType type
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "set_primitive(id, input_list, type)", "id");
   node.set_primitive(input_list, type);
 }
 
@@ -152,7 +152,7 @@ ModelImpl::set_aig(
   bool inv1
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "set_aig(id, src0, src1, inv0, inv1)", "id");
   node.set_aig(src0, src1, inv0, inv1);
 }
 
@@ -164,7 +164,7 @@ ModelImpl::set_cover(
   SizeType cover_id
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "set_cover(id, input_list, cover_id)", "id");
   node.set_cover(input_list, cover_id);
 }
 
@@ -176,7 +176,7 @@ ModelImpl::set_expr(
   SizeType expr_id
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "set_expr(id, input_list, expr_id)", "id");
   node.set_expr(input_list, expr_id);
 }
 
@@ -189,7 +189,7 @@ ModelImpl::set_cell(
 )
 {
   set_library(cell.library());
-  auto& node = _node(id);
+  auto& node = _node(id, "set_cell(id, input_list, cell)", "id");
   node.set_cell(input_list, cell.id());
 }
 
@@ -201,7 +201,7 @@ ModelImpl::set_func(
   SizeType func_id
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "set_func(id, input_list, func_id)", "id");
   node.set_func(input_list, func_id);
 }
 
@@ -213,50 +213,8 @@ ModelImpl::set_bdd(
   SizeType bdd_id
 )
 {
-  auto& node = _node(id);
+  auto& node = _node(id, "set_bdd(id, input_list, bdd_id)", "id");
   node.set_bdd(input_list, bdd_id);
-}
-
-// @brief DFF型のノードの情報をセットする．
-void
-ModelImpl::set_dff(
-  SizeType id,
-  char rs_val,
-  SizeType output_id
-)
-{
-  auto& dff = _dff(id);
-  if ( output_id == BAD_ID ) {
-    output_id = new_input();
-  }
-  dff.set_dff(rs_val, output_id);
-}
-
-// @brief ラッチ型のノードの情報をセットする．
-void
-ModelImpl::set_latch(
-  SizeType id,
-  char rs_val,
-  SizeType output_id
-)
-{
-  auto& dff = _dff(id);
-  if ( output_id == BAD_ID ) {
-    output_id = new_input();
-  }
-  dff.set_latch(rs_val, output_id);
-}
-
-// @brief DFFセルをセットする．
-void
-ModelImpl::set_dff_cell(
-  SizeType id,
-  ClibCell cell
-)
-{
-  set_library(cell.library());
-  auto& dff = _dff(id);
-  dff.set_cell(cell.id(), cell.pin_num());
 }
 
 // @brief DFFの名前をセットする．
@@ -266,7 +224,7 @@ ModelImpl::set_dff_name(
   const string& name   ///< [in] 名前
 )
 {
-  auto& dff = _dff(id);
+  auto& dff = _dff(id, "set_dff_name(id, name)", "id");
   dff.set_name(name);
 }
 
@@ -277,7 +235,7 @@ ModelImpl::set_data_src(
   SizeType src_id
 )
 {
-  auto& dff = _dff(id);
+  auto& dff = _dff(id, "set_data_src(id, src_id)", "id");
   dff.set_data_src(src_id);
 }
 
@@ -288,7 +246,7 @@ ModelImpl::set_clock(
   SizeType clock_id
 )
 {
-  auto& dff = _dff(id);
+  auto& dff = _dff(id, "set_clock(id, check_id)", "id");
   dff.set_clock(clock_id);
 }
 
@@ -299,7 +257,7 @@ ModelImpl::set_enable(
   SizeType enable_id
 )
 {
-  auto& dff = _dff(id);
+  auto& dff = _dff(id, "set_enable(id, enable_id)", "id");
   dff.set_enable(enable_id);
 }
 
@@ -310,7 +268,7 @@ ModelImpl::set_clear(
   SizeType clear_id
 )
 {
-  auto& dff = _dff(id);
+  auto& dff = _dff(id, "set_clear(id, clear_id", "id");
   dff.set_clear(clear_id);
 }
 
@@ -321,7 +279,7 @@ ModelImpl::set_preset(
   SizeType preset_id
 )
 {
-  auto& dff = _dff(id);
+  auto& dff = _dff(id, "set_preset(id, preset_id)", "id");
   dff.set_preset(preset_id);
 }
 
@@ -333,8 +291,8 @@ ModelImpl::set_dff_pin(
   SizeType node_id
 )
 {
-  auto& dff = _dff(id);
-  dff.set_pin(pos, node_id);
+  auto& dff = _dff(id, "set_dff_pin(id, pos, node_id)", "id");
+  dff.set_cell_pin(pos, node_id);
 }
 
 // @brief 論理ノードのリストを作る．
@@ -378,7 +336,7 @@ ModelImpl::order_node(
   if ( mark.count(id) > 0 ) {
     return;
   }
-  auto& node = _node(id);
+  auto& node = _node(id, "", "");
   ASSERT_COND( node.is_logic() );
   for ( auto iid: node.fanin_list() ) {
     order_node(iid, mark);

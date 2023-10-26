@@ -79,6 +79,8 @@ ym_add_gtest( bn_BnModel_test
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
+  DEFINITIONS
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
 ym_add_gtest( bn_read_blif_test

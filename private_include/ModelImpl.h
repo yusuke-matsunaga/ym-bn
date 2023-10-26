@@ -88,7 +88,7 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < input_num() )
   ) const
   {
-    ASSERT_COND( 0 <= pos && pos < input_num() );
+    _check_range(pos, input_num(), "input(pos)", "pos");
     return mInputList[pos];
   }
 
@@ -105,7 +105,7 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < input_num() )
   ) const
   {
-    ASSERT_COND( 0 <= pos && pos < input_num() );
+    _check_range(pos, input_num(), "input_name(pos)", "pos");
     return mInputNameList[pos];
   }
 
@@ -129,7 +129,7 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < output_num() )
   ) const
   {
-    ASSERT_COND( 0 <= pos && pos < output_num() );
+    _check_range(pos, output_num(), "output(pos)", "pos");
     return mOutputList[pos];
   }
 
@@ -146,7 +146,7 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < output_num() )
   ) const
   {
-    ASSERT_COND( 0 <= pos && pos < output_num() );
+    _check_range(pos, output_num(), "output_name(pos)", "pos");
     return mOutputNameList[pos];
   }
 
@@ -170,7 +170,7 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < logic_num() )
   ) const
   {
-    ASSERT_COND( 0 <= pos && pos < logic_num() );
+    _check_range(pos, logic_num(), "logic(pos)", "pos");
     return mLogicList[pos];
   }
 
@@ -187,7 +187,7 @@ public:
     SizeType id ///< [in] ID番号
   ) const
   {
-    ASSERT_COND( 0 <= id && id < mNodeArray.size() );
+    _check_range(id, node_num(), "node(id)", "id");
     return mNodeArray[id];
   }
 
@@ -204,6 +204,7 @@ public:
     SizeType id ///< [in] ID番号
   ) const
   {
+    _check_range(id, dff_num(), "dff(id)", "id");
     return mDffArray[id];
   }
 
@@ -220,7 +221,7 @@ public:
     SizeType cover_id ///< [in] カバー番号
   ) const
   {
-    ASSERT_COND( 0 <= cover_id && cover_id < mCoverArray.size() );
+    _check_range(cover_id, cover_num(), "cover(cover_id)", "cover_id");
     return mCoverArray[cover_id];
   }
 
@@ -237,7 +238,7 @@ public:
     SizeType expr_id ///< [in] 論理式番号
   ) const
   {
-    ASSERT_COND( 0 <= expr_id && expr_id < mExprArray.size() );
+    _check_range(expr_id, expr_num(), "expr(expr_id)", "expr_id");
     return mExprArray[expr_id];
   }
 
@@ -254,7 +255,7 @@ public:
     SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
   ) const
   {
-    ASSERT_COND( 0 <= func_id && func_id < func_num() );
+    _check_range(func_id, func_num(), "func(func_id)", "func_id");
     return mFuncArray[func_id];
   }
 
@@ -271,7 +272,7 @@ public:
     SizeType bdd_id ///< [in] BDD番号 ( 0 <= bdd_id < bdd_num() )
   ) const
   {
-    ASSERT_COND( 0 <= bdd_id && bdd_id < bdd_num() );
+    _check_range(bdd_id, bdd_num(), "bdd(bdd_id)", "bdd_id");
     return mBddArray[bdd_id];
   }
 
@@ -400,21 +401,6 @@ public:
     return id;
   }
 
-  /// @brief セル型のノードの情報をセットする．
-  ///
-  /// @return ID番号を返す．
-  SizeType
-  new_cell(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    ClibCell cell,                      ///< [in] セル
-    const string& name = {}             ///< [in] 名前
-  )
-  {
-    auto id = new_node(name);
-    set_cell(id, input_list, cell);
-    return id;
-  }
-
   /// @brief 真理値表型のノードの情報をセットする．
   ///
   /// @return ID番号を返す．
@@ -445,6 +431,21 @@ public:
     return id;
   }
 
+  /// @brief セル型のノードの情報をセットする．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_cell(
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    ClibCell cell,                      ///< [in] セル
+    const string& name = {}             ///< [in] 名前
+  )
+  {
+    auto id = new_node(name);
+    set_cell(id, input_list, cell);
+    return id;
+  }
+
   /// @brief DFFを作る．
   ///
   /// @return ID番号を返す．
@@ -455,8 +456,12 @@ public:
     const string& name = {}      ///< [in] 名前
   )
   {
-    auto id = _new_dff(name);
-    set_dff(id, rs_val, output_id);
+    auto id = dff_num();
+    auto& dff = _new_dff(name);
+    if ( output_id == BAD_ID ) {
+      output_id = new_input();
+    }
+    dff.set_dff(rs_val, output_id);
     return id;
   }
 
@@ -470,8 +475,12 @@ public:
     const string& name = {}      ///< [in] 名前
   )
   {
-    auto id = _new_dff(name);
-    set_latch(id, rs_val, output_id);
+    auto id = dff_num();
+    auto& dff = _new_dff(name);
+    if ( output_id == BAD_ID ) {
+      output_id = new_input();
+    }
+    dff.set_latch(rs_val, output_id);
     return id;
   }
 
@@ -484,8 +493,10 @@ public:
     const string& name = {}    ///< [in] 名前
   )
   {
-    auto id = _new_dff(name);
-    set_dff_cell(id, cell);
+    auto id = dff_num();
+    set_library(cell.library());
+    auto& dff = _new_dff(name);
+    dff.set_cell(cell.id(), cell.pin_num());
     return id;
   }
 
@@ -536,14 +547,6 @@ public:
     SizeType expr_id                    ///< [in] 論理式番号
   );
 
-  /// @brief セル型のノードの情報をセットする．
-  void
-  set_cell(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    ClibCell cell                       ///< [in] セル
-  );
-
   /// @brief 真理値表型のノードの情報をセットする．
   void
   set_func(
@@ -560,27 +563,12 @@ public:
     SizeType bdd_id                     ///< [in] BDD番号
   );
 
-  /// @brief DFF型のノードの情報をセットする．
+  /// @brief セル型のノードの情報をセットする．
   void
-  set_dff(
-    SizeType id,         ///< [in] ID番号
-    char rs_val,         ///< [in] リセットとプリセットが共にオンの時の値
-    SizeType output_id   ///< [in] 出力のノード番号
-  );
-
-  /// @brief ラッチ型のノードの情報をセットする．
-  void
-  set_latch(
-    SizeType id,         ///< [in] ID番号
-    char rs_val,         ///< [in] リセットとプリセットが共にオンの時の値
-    SizeType output_id   ///< [in] 出力のノード番号
-  );
-
-  /// @brief DFFセルをセットする．
-  void
-  set_dff_cell(
-    SizeType id,         ///< [in] ID番号
-    ClibCell cell        ///< [in] セル
+  set_cell(
+    SizeType id,                        ///< [in] ID番号
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    ClibCell cell                       ///< [in] セル
   );
 
   /// @brief DFFの名前をセットする．
@@ -683,31 +671,52 @@ private:
   /// @brief ノードを取り出す．
   NodeImpl&
   _node(
-    SizeType id ///< [in] ID番号
+    SizeType id,              ///< [in] ID番号
+    const string& func_name,  ///< [in] 関数名
+    const string& index_name  ///< [in] ID番号の変数名
   )
   {
-    ASSERT_COND( 0 <= id && id < mNodeArray.size() );
+    _check_range(id, mNodeArray.size(), func_name, index_name);
     return mNodeArray[id];
   }
 
   /// @brief 新しい DffImpl を割り当てる．
-  SizeType
+  DffImpl&
   _new_dff(
     const string& name ///< [in] 名前
   )
   {
-    SizeType id = mDffArray.size();
     mDffArray.push_back(DffImpl{name});
-    return id;
+    return mDffArray.back();
   }
 
   /// @brief DffImpl を取り出す．
   DffImpl&
   _dff(
-    SizeType id ///< [in] ID番号
+    SizeType id,              ///< [in] ID番号
+    const string& func_name,  ///< [in] 関数名
+    const string& index_name  ///< [in] ID番号の変数名
   )
   {
+    _check_range(id, mDffArray.size(), func_name, index_name);
     return mDffArray[id];
+  }
+
+  /// @brief 添字の範囲をチェックする．
+  void
+  _check_range(
+    SizeType index,
+    SizeType num,
+    const string& func_name,
+    const string& index_name
+  ) const
+  {
+    if ( index < 0 || index >= num ) {
+      ostringstream buf;
+      buf << "Error in ModelImpl::" << func_name << "."
+	  << " " << index_name << " is out of range.";
+      throw std::invalid_argument{buf.str()};
+    }
   }
 
 

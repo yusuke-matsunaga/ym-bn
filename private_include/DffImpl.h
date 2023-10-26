@@ -159,6 +159,9 @@ public:
   ) const
   {
     check_cell();
+    if ( pos < 0 || pos >= mPinList.size() ) {
+      throw std::invalid_argument{"Error in DffImpl::cell_pin(pos). pos is out of range."};
+    }
     return mPinList[pos];
   }
 
@@ -275,12 +278,15 @@ public:
 
   /// @brief ピンに対応するノードをセットする．
   void
-  set_pin(
+  set_cell_pin(
     SizeType pos,
     SizeType node_id
   )
   {
     check_cell();
+    if ( pos < 0 || pos >= mPinList.size() ) {
+      throw std::invalid_argument{"Error in DffImpl::set_pin(pos, node_id). pos is out of range."};
+    }
     mPinList[pos] = node_id;
   }
 
