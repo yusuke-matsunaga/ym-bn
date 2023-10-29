@@ -24,7 +24,7 @@ TEST( BnModelTest, read_iscas1 )
   EXPECT_EQ( ni, model.input_num() );
   EXPECT_EQ( no, model.output_num() );
   EXPECT_EQ( ng, model.logic_num() );
-  EXPECT_EQ( nd, model.dff_num() );
+  EXPECT_EQ( nd, model.seq_num() );
 
   // 出力結果の回帰テスト
   ostringstream s1;

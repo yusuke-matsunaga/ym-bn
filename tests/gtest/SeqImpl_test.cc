@@ -1,23 +1,23 @@
 
-/// @file DffImpl_test.cc
-/// @brief DffImpl_test の実装ファイル
+/// @file SeqImpl_test.cc
+/// @brief SeqImpl_test の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "DffImpl.h"
+#include "SeqImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BN
 
-TEST( DffImplTest, constructor1 )
+TEST( SeqImplTest, constructor1 )
 {
   string name{"abcd"};
-  DffImpl node{name};
+  SeqImpl node{name};
 
-  EXPECT_EQ( BnDffType::NONE, node.type() );
+  EXPECT_EQ( BnSeqType::NONE, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -32,25 +32,25 @@ TEST( DffImplTest, constructor1 )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( DffImplTest, set_name )
+TEST( SeqImplTest, set_name )
 {
   string name{"xyz"};
-  DffImpl node{""};
+  SeqImpl node{""};
 
   node.set_name(name);
 
   EXPECT_EQ( name, node.name() );
 }
 
-TEST( DffImplTest, set_dff )
+TEST( SeqImplTest, set_dff )
 {
-  DffImpl node{""};
+  SeqImpl node{""};
 
   char rsval = '0';
   SizeType oid = 10;
   node.set_dff(rsval, oid);
 
-  EXPECT_EQ( BnDffType::DFF, node.type() );
+  EXPECT_EQ( BnSeqType::DFF, node.type() );
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -65,15 +65,15 @@ TEST( DffImplTest, set_dff )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( DffImplTest, set_latch )
+TEST( SeqImplTest, set_latch )
 {
-  DffImpl node{""};
+  SeqImpl node{""};
 
   char rsval = '1';
   SizeType oid = 10;
   node.set_latch(rsval, oid);
 
-  EXPECT_EQ( BnDffType::LATCH, node.type() );
+  EXPECT_EQ( BnSeqType::LATCH, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_TRUE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -88,15 +88,15 @@ TEST( DffImplTest, set_latch )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( DffImplTest, set_cell )
+TEST( SeqImplTest, set_cell )
 {
-  DffImpl node{""};
+  SeqImpl node{""};
 
   SizeType cell_id = 21;
   SizeType pin_num = 3;
   node.set_cell(cell_id, pin_num);
 
-  EXPECT_EQ( BnDffType::CELL, node.type() );
+  EXPECT_EQ( BnSeqType::CELL, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_TRUE( node.is_cell() );
@@ -114,9 +114,9 @@ TEST( DffImplTest, set_cell )
   }
 }
 
-TEST( DffImplTest, set_data_src )
+TEST( SeqImplTest, set_data_src )
 {
-  DffImpl node{""};
+  SeqImpl node{""};
 
   char rsval = '0';
   SizeType oid = 10;
@@ -124,7 +124,7 @@ TEST( DffImplTest, set_data_src )
   SizeType src_id = 20;
   node.set_data_src(src_id);
 
-  EXPECT_EQ( BnDffType::DFF, node.type() );
+  EXPECT_EQ( BnSeqType::DFF, node.type() );
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -139,9 +139,9 @@ TEST( DffImplTest, set_data_src )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( DffImplTest, set_clock )
+TEST( SeqImplTest, set_clock )
 {
-  DffImpl node{""};
+  SeqImpl node{""};
 
   char rsval = '0';
   SizeType oid = 10;
@@ -149,7 +149,7 @@ TEST( DffImplTest, set_clock )
   SizeType clock_id = 30;
   node.set_clock(clock_id);
 
-  EXPECT_EQ( BnDffType::DFF, node.type() );
+  EXPECT_EQ( BnSeqType::DFF, node.type() );
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -164,9 +164,9 @@ TEST( DffImplTest, set_clock )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( DffImplTest, set_enable )
+TEST( SeqImplTest, set_enable )
 {
-  DffImpl node{""};
+  SeqImpl node{""};
 
   char rsval = '1';
   SizeType oid = 10;
@@ -174,7 +174,7 @@ TEST( DffImplTest, set_enable )
   SizeType enable_id = 11;
   node.set_enable(enable_id);
 
-  EXPECT_EQ( BnDffType::LATCH, node.type() );
+  EXPECT_EQ( BnSeqType::LATCH, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_TRUE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -189,9 +189,9 @@ TEST( DffImplTest, set_enable )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( DffImplTest, set_clear )
+TEST( SeqImplTest, set_clear )
 {
-  DffImpl node{""};
+  SeqImpl node{""};
 
   char rsval = '0';
   SizeType oid = 10;
@@ -199,7 +199,7 @@ TEST( DffImplTest, set_clear )
   SizeType clear_id = 30;
   node.set_clear(clear_id);
 
-  EXPECT_EQ( BnDffType::DFF, node.type() );
+  EXPECT_EQ( BnSeqType::DFF, node.type() );
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -214,9 +214,9 @@ TEST( DffImplTest, set_clear )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( DffImplTest, set_preset )
+TEST( SeqImplTest, set_preset )
 {
-  DffImpl node{""};
+  SeqImpl node{""};
 
   char rsval = '1';
   SizeType oid = 10;
@@ -224,7 +224,7 @@ TEST( DffImplTest, set_preset )
   SizeType preset_id = 11;
   node.set_preset(preset_id);
 
-  EXPECT_EQ( BnDffType::LATCH, node.type() );
+  EXPECT_EQ( BnSeqType::LATCH, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_TRUE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );

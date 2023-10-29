@@ -8,7 +8,7 @@
 
 #include "pym/PyBnModel.h"
 #include "pym/PyBnNode.h"
-#include "pym/PyBnDff.h"
+#include "pym/PyBnSeq.h"
 #include "pym/PyClibCellLibrary.h"
 #include "pym/PyModule.h"
 #include "pym/PyBase.h"
@@ -271,7 +271,7 @@ BnModel_logic(
 }
 
 PyObject*
-BnModel_dff(
+BnModel_seq_node(
   PyObject* self,
   PyObject* args
 )
@@ -282,12 +282,12 @@ BnModel_dff(
   }
   try {
     auto model = PyBnModel::Get(self);
-    auto val = model.dff(pos);
-    return PyBnDff::ToPyObject(val);
+    auto val = model.seq_node(pos);
+    return PyBnSeq::ToPyObject(val);
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
-    buff << "dff(\"" << pos << "\") failed";
+    buff << "seq_node(\"" << pos << "\") failed";
     PyErr_SetString(PyExc_ValueError, buff.str().c_str());
     return nullptr;
   }
@@ -355,9 +355,9 @@ PyMethodDef BnModel_methods[] = {
   {"output_name", BnModel_output_name,
    METH_VARARGS,
    PyDoc_STR("returns output name")},
-  {"dff", BnModel_dff,
+  {"seq_node", BnModel_seq_node,
    METH_VARARGS,
-   PyDoc_STR("returns DFF node")},
+   PyDoc_STR("returns SEQ node")},
   {"logic", BnModel_logic,
    METH_VARARGS,
    PyDoc_STR("returns logic node")},
@@ -423,25 +423,25 @@ BnModel_input_name_list(
 }
 
 PyObject*
-BnModel_dff_num(
+BnModel_seq_num(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
   auto model = PyBnModel::Get(self);
-  auto val = model.dff_num();
+  auto val = model.seq_num();
   return Py_BuildValue("i", val);
 }
 
 PyObject*
-BnModel_dff_list(
+BnModel_seq_list(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
   auto model = PyBnModel::Get(self);
-  auto val_list = model.dff_list();
-  return PyBnDff::ToPyList(val_list);
+  auto val_list = model.seq_node_list();
+  return PyBnSeq::ToPyList(val_list);
 }
 
 PyObject*
@@ -528,8 +528,8 @@ PyGetSetDef BnModel_getsetters[] = {
   {"input_num", BnModel_input_num, nullptr, PyDoc_STR("input num"), nullptr},
   {"input_list", BnModel_input_list, nullptr, PyDoc_STR("input list"), nullptr},
   {"input_name_list", BnModel_input_name_list, nullptr, PyDoc_STR("input list"), nullptr},
-  {"dff_num", BnModel_dff_num, nullptr, PyDoc_STR("DFF num"), nullptr},
-  {"dff_list", BnModel_dff_list, nullptr, PyDoc_STR("DFF list"), nullptr},
+  {"seq_num", BnModel_seq_num, nullptr, PyDoc_STR("SEQ node num"), nullptr},
+  {"seq_node_list", BnModel_seq_list, nullptr, PyDoc_STR("SEQ node list"), nullptr},
   {"output_num", BnModel_output_num, nullptr, PyDoc_STR("output num"), nullptr},
   {"output_list", BnModel_output_list, nullptr, PyDoc_STR("output list"), nullptr},
   {"output_name_list", BnModel_output_name_list, nullptr, PyDoc_STR("output list"), nullptr},

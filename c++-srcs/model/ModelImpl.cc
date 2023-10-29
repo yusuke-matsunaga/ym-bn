@@ -23,7 +23,7 @@ ModelImpl::ModelImpl(
     mOutputNameList{src.mOutputNameList},
     mLogicList{src.mLogicList},
     mNodeArray{src.mNodeArray},
-    mDffArray{src.mDffArray},
+    mSeqArray{src.mSeqArray},
     mCoverArray{src.mCoverArray},
     mExprArray{src.mExprArray},
     mFuncArray{src.mFuncArray}
@@ -217,15 +217,15 @@ ModelImpl::set_bdd(
   node.set_bdd(input_list, bdd_id);
 }
 
-// @brief DFFの名前をセットする．
+// @brief SEQノードの名前をセットする．
 void
-ModelImpl::set_dff_name(
+ModelImpl::set_seq_name(
   SizeType id,         ///< [in] ID番号
   const string& name   ///< [in] 名前
 )
 {
-  auto& dff = _dff(id, "set_dff_name(id, name)", "id");
-  dff.set_name(name);
+  auto& seq = _seq(id, "set_seq_name(id, name)", "id");
+  seq.set_name(name);
 }
 
 // @brief DFF型のノードのソースをセットする．
@@ -235,8 +235,8 @@ ModelImpl::set_data_src(
   SizeType src_id
 )
 {
-  auto& dff = _dff(id, "set_data_src(id, src_id)", "id");
-  dff.set_data_src(src_id);
+  auto& seq = _seq(id, "set_data_src(id, src_id)", "id");
+  seq.set_data_src(src_id);
 }
 
 // @brief DFF型のノードのクロック入力をセットする．
@@ -246,8 +246,8 @@ ModelImpl::set_clock(
   SizeType clock_id
 )
 {
-  auto& dff = _dff(id, "set_clock(id, check_id)", "id");
-  dff.set_clock(clock_id);
+  auto& seq= _seq(id, "set_clock(id, check_id)", "id");
+  seq.set_clock(clock_id);
 }
 
 // @brief ラッチ型のノードのイネーブル入力をセットする．
@@ -257,8 +257,8 @@ ModelImpl::set_enable(
   SizeType enable_id
 )
 {
-  auto& dff = _dff(id, "set_enable(id, enable_id)", "id");
-  dff.set_enable(enable_id);
+  auto& seq = _seq(id, "set_enable(id, enable_id)", "id");
+  seq.set_enable(enable_id);
 }
 
 // @brief DFF型のノードのクリア入力をセットする．
@@ -268,8 +268,8 @@ ModelImpl::set_clear(
   SizeType clear_id
 )
 {
-  auto& dff = _dff(id, "set_clear(id, clear_id", "id");
-  dff.set_clear(clear_id);
+  auto& seq = _seq(id, "set_clear(id, clear_id", "id");
+  seq.set_clear(clear_id);
 }
 
 // @brief DFF型のノードのプリセット入力をセットする．
@@ -279,20 +279,20 @@ ModelImpl::set_preset(
   SizeType preset_id
 )
 {
-  auto& dff = _dff(id, "set_preset(id, preset_id)", "id");
-  dff.set_preset(preset_id);
+  auto& seq = _seq(id, "set_preset(id, preset_id)", "id");
+  seq.set_preset(preset_id);
 }
 
 // @brief DFFセルのピンのノードをセットする．
 void
-ModelImpl::set_dff_pin(
+ModelImpl::set_seq_pin(
   SizeType id,
   SizeType pos,
   SizeType node_id
 )
 {
-  auto& dff = _dff(id, "set_dff_pin(id, pos, node_id)", "id");
-  dff.set_cell_pin(pos, node_id);
+  auto& seq = _seq(id, "set_dff_pin(id, pos, node_id)", "id");
+  seq.set_cell_pin(pos, node_id);
 }
 
 // @brief 論理ノードのリストを作る．
@@ -307,8 +307,8 @@ ModelImpl::make_logic_list()
   }
 
   // DFFの出力に印を作る．
-  for ( auto& dff: mDffArray ) {
-    auto id = dff.data_output();
+  for ( auto& seq: mSeqArray ) {
+    auto id = seq.data_output();
     mark.emplace(id);
   }
 
@@ -321,8 +321,8 @@ ModelImpl::make_logic_list()
   }
 
   // DFFのファンインに番号をつける．
-  for ( auto& dff: mDffArray ) {
-    order_node(dff.data_src(), mark);
+  for ( auto& seq: mSeqArray ) {
+    order_node(seq.data_src(), mark);
   }
 }
 

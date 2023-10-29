@@ -39,7 +39,7 @@ const SizeType BAD_ID = -1;
 
 class BnModel;
 class BnNode;
-class BnDff;
+class BnSeq;
 class BnCover;
 
 END_NAMESPACE_YM_BN
@@ -63,9 +63,9 @@ enum class BnNodeType : std::uint8_t {
 
 
 //////////////////////////////////////////////////////////////////////
-/// @brief BnDff の種類を表す列挙型
+/// @brief BnSeq の種類を表す列挙型
 //////////////////////////////////////////////////////////////////////
-enum class BnDffType : std::uint8_t {
+enum class BnSeqType : std::uint8_t {
   NONE,   ///< 不正値
   DFF,    ///< D-FF
   LATCH,  ///< ラッチ
@@ -94,26 +94,26 @@ operator<<(
   return s;
 }
 
-/// @brief BnDffType のストリーム出力
+/// @brief BnSeqType のストリーム出力
 inline
 ostream&
 operator<<(
   ostream& s,
-  BnDffType type
+  BnSeqType type
 )
 {
   switch ( type ) {
-  case BnDffType::NONE:  s << "None"; break;
-  case BnDffType::DFF:   s << "DFF"; break;
-  case BnDffType::LATCH: s << "Latch"; break;
-  case BnDffType::CELL:  s << "Cell"; break;
+  case BnSeqType::NONE:  s << "None"; break;
+  case BnSeqType::DFF:   s << "DFF"; break;
+  case BnSeqType::LATCH: s << "Latch"; break;
+  case BnSeqType::CELL:  s << "Cell"; break;
   }
   return s;
 }
 
 using BN_NAMESPACE::BnModel;
 using BN_NAMESPACE::BnNode;
-using BN_NAMESPACE::BnDff;
+using BN_NAMESPACE::BnSeq;
 using BN_NAMESPACE::BnCover;
 
 END_NAMESPACE_YM

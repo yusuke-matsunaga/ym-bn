@@ -1,28 +1,28 @@
-#ifndef PYBFDFF_H
-#define PYBFDFF_H
+#ifndef PYBNSEQ_H
+#define PYBNSEQ_H
 
-/// @file PyBnDff.h
-/// @brief PyBnDff のヘッダファイル
+/// @file PyBnSeq.h
+/// @brief PyBnSeq のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include "ym/BnDff.h"
+#include "ym/BnSeq.h"
 
 
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PyBnDff PyBnDff.h "PyBnDff.h"
-/// @brief Python 用の BnDff 拡張
+/// @class PyBnSeq PyBnSeq.h "PyBnSeq.h"
+/// @brief Python 用の BnSeq 拡張
 ///
 /// 複数の関数をひとまとめにしているだけなので実は名前空間として用いている．
 //////////////////////////////////////////////////////////////////////
-class PyBnDff
+class PyBnSeq
 {
 public:
   //////////////////////////////////////////////////////////////////////
@@ -37,44 +37,44 @@ public:
     PyObject* m ///< [in] 親のモジュールを表す PyObject
   );
 
-  /// @brief BnDff を表す PyObject を作る．
+  /// @brief BnSeq を表す PyObject を作る．
   /// @return 生成した PyObject を返す．
   ///
   /// 返り値は新しい参照が返される．
   static
   PyObject*
   ToPyObject(
-    BnDff val ///< [in] 値
+    BnSeq val ///< [in] 値
   );
 
-  /// @brief BnDff のリストを表す PyObject を作る．
+  /// @brief BnSeq のリストを表す PyObject を作る．
   /// @return 生成した PyObject を返す．
   ///
   /// 返り値は新しい参照が返される．
   static
   PyObject*
   ToPyList(
-    const vector<BnDff>& val_list ///< [in] 値のリスト
+    const vector<BnSeq>& val_list ///< [in] 値のリスト
   );
 
-  /// @brief PyObject が BnDff タイプか調べる．
+  /// @brief PyObject が BnSeq タイプか調べる．
   static
   bool
   Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
-  /// @brief BnDff を表す PyObject から BnDff を取り出す．
-  /// @return BnDff を返す．
+  /// @brief BnSeq を表す PyObject から BnSeq を取り出す．
+  /// @return BnSeq を返す．
   ///
   /// Check(obj) == true であると仮定している．
   static
-  BnDff
+  BnSeq
   Get(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 
-  /// @brief BnDff を表すオブジェクトの型定義を返す．
+  /// @brief BnSeq を表すオブジェクトの型定義を返す．
   static
   PyTypeObject*
   _typeobject();
@@ -83,4 +83,4 @@ public:
 
 END_NAMESPACE_YM
 
-#endif // PYBFDFF_H
+#endif // PYBNSEQ_H

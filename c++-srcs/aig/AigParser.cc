@@ -158,11 +158,11 @@ AigParser::read_aag(
   }
 
   // ラッチのソースが定義されているかチェック
-  for ( SizeType i = 0; i < mModel->dff_num(); ++ i ) {
-    auto& dff = mModel->dff(i);
-    auto src = dff.data_src();
+  for ( SizeType i = 0; i < mModel->seq_num(); ++ i ) {
+    auto& seq = mModel->seq_node(i);
+    auto src = seq.data_src();
     ostringstream buf;
-    buf << "Latch#" << i << "(Node#" << dff.data_output() << ")";
+    buf << "Latch#" << i << "(Node#" << seq.data_output() << ")";
     if ( !check_defined(src, buf.str()) ) {
       return false;
     }
@@ -542,7 +542,7 @@ AigParser::read_symbols()
 	  mModel->set_node_name(id, name);
 	}
 	else if ( prefix == 'l' ) {
-	  mModel->set_dff_name(pos, name);
+	  mModel->set_seq_name(pos, name);
 	}
 	else if ( prefix == 'o' ) {
 	  mModel->set_output_name(pos, name);

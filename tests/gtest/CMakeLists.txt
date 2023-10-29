@@ -27,8 +27,8 @@ ym_add_gtest( bn_NodeImpl_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   )
 
-ym_add_gtest( bn_DffImpl_test
-  DffImpl_test.cc
+ym_add_gtest( bn_SeqImpl_test
+  SeqImpl_test.cc
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
@@ -63,8 +63,8 @@ ym_add_gtest( bn_BnNode_test
   "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
-ym_add_gtest( bn_BnDff_test
-  BnDff_test.cc
+ym_add_gtest( bn_BnSeq_test
+  BnSeq_test.cc
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>

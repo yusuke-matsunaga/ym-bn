@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
-#include "ym/BnDff.h"
+#include "ym/BnSeq.h"
 #include "ModelImpl.h"
 
 
@@ -31,8 +31,8 @@ TEST( BnModelTest, constructor1 )
   EXPECT_EQ( vector<string>{}, model.output_name_list() );
   EXPECT_EQ( 0, model.logic_num() );
   EXPECT_EQ( vector<BnNode>{}, model.logic_list() );
-  EXPECT_EQ( 0, model.dff_num() );
-  EXPECT_EQ( vector<BnDff>{}, model.dff_list() );
+  EXPECT_EQ( 0, model.seq_num() );
+  EXPECT_EQ( vector<BnSeq>{}, model.seq_node_list() );
   EXPECT_EQ( 0, model.cover_num() );
   EXPECT_EQ( 0, model.expr_num() );
   EXPECT_EQ( 0, model.func_num() );
@@ -74,11 +74,11 @@ TEST( BnModelTest, logic_bad )
   EXPECT_THROW( {model.logic(0);}, std::invalid_argument );
 }
 
-TEST( BnModelTest, dff_bad )
+TEST( BnModelTest, seq_node_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.dff(0);}, std::invalid_argument );
+  EXPECT_THROW( {model.seq_node(0);}, std::invalid_argument );
 }
 
 TEST( BnModelTest, cover_bad )
@@ -341,7 +341,7 @@ TEST( BnModelTest, new_dff)
   EXPECT_TRUE( node.is_valid() );
   EXPECT_EQ( model, node.parent_model() );
   EXPECT_EQ( name, node.name() );
-  EXPECT_EQ( BnDffType::DFF, node.type() );
+  EXPECT_EQ( BnSeqType::DFF, node.type() );
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -365,7 +365,7 @@ TEST( BnModelTest, new_latch)
   EXPECT_TRUE( node.is_valid() );
   EXPECT_EQ( model, node.parent_model() );
   EXPECT_EQ( string{}, node.name() );
-  EXPECT_EQ( BnDffType::LATCH, node.type() );
+  EXPECT_EQ( BnSeqType::LATCH, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_TRUE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
@@ -380,7 +380,7 @@ TEST( BnModelTest, new_latch)
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
 }
 
-TEST( BnModelTest, new_dff_cell )
+TEST( BnModelTest, new_seq_cell )
 {
   auto FILENAME = string{DATAPATH} + string{"/HIT018.typ.snp"};
   auto library = ClibCellLibrary::read_liberty(FILENAME);
@@ -389,12 +389,12 @@ TEST( BnModelTest, new_dff_cell )
 
   BnModel model;
   auto name = "xyz";
-  auto node = model.new_dff_cell(cell, name);
+  auto node = model.new_seq_cell(cell, name);
 
   EXPECT_TRUE( node.is_valid() );
   EXPECT_EQ( model, node.parent_model() );
   EXPECT_EQ( name, node.name() );
-  EXPECT_EQ( BnDffType::CELL, node.type() );
+  EXPECT_EQ( BnSeqType::CELL, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_TRUE( node.is_cell() );

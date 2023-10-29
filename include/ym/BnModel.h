@@ -25,10 +25,7 @@ class ModelImpl;
 /// - 入力ノードのリスト
 /// - 出力ノードのリスト
 /// - 論理ノードのリスト
-/// - DFFノードのリスト
-/// - DFFセルノードのリスト
-/// - ラッチノードのリスト
-/// - ラッチセルノードのリスト
+/// - SEQノードのリスト
 /// - カバー(BlifCover)のリスト
 /// - 論理式(Expr)のリスト
 /// - 関数(TvFunc)のリスト
@@ -39,19 +36,13 @@ class ModelImpl;
 ///   * タイプごとの補助情報
 ///   * ファンインノードのリスト
 ///
-/// - Dffノードは以下の情報を持つ．
-///   * タイプ(BnDffType)
+/// - SEQノードは以下の情報を持つ．
+///   * タイプ(BnSeqType)
 ///   * データ入力ノード
 ///   * クロック入力ノード
 ///   * クリア入力ノード
 ///   * プリセット入力ノード
 ///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
-///
-/// - DFFセルノードは以下の情報を持つ．
-///   * データ入力ノードのリスト
-///   * データ出力ノードのリスト
-///   * クロック入力ノード
-///   * リセット系入力ノード
 ///
 /// - 実際には出力ノードという種類はなく，他のいずれかの
 ///   ノードとなっている．
@@ -74,7 +65,7 @@ class ModelImpl;
 class BnModel
 {
   friend BnNode; // for parent_model()
-  friend BnDff;  // for parent_model()
+  friend BnSeq;  // for parent_model()
 
 private:
 
@@ -291,19 +282,19 @@ public:
   vector<BnNode>
   logic_list() const;
 
-  /// @brief DFF数を返す．
+  /// @brief SEQノード数を返す．
   SizeType
-  dff_num() const;
+  seq_num() const;
 
-  /// @brief DFFのノードを返す．
-  BnDff
-  dff(
+  /// @brief SEQノードを返す．
+  BnSeq
+  seq_node(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < dff_num() )
   ) const;
 
-  /// @brief DFFのリストを返す．
-  vector<BnDff>
-  dff_list() const;
+  /// @brief SEQノードのリストを返す．
+  vector<BnSeq>
+  seq_node_list() const;
 
   /// @brief カバーの種類の数を返す．
   SizeType
@@ -545,75 +536,75 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  /// @name 記憶ノードの生成/設定
+  /// @name SEQノードの生成/設定
   /// @{
   //////////////////////////////////////////////////////////////////////
 
   /// @brief DFFを作る．
-  /// @return 生成したDFFを返す．
-  BnDff
+  /// @return 生成したSEQノードを返す．
+  BnSeq
   new_dff(
     char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {} ///< [in] 名前
   );
 
   /// @brief ラッチを作る．
-  /// @return 生成したDFFを返す．
-  BnDff
+  /// @return 生成したSEQノードを返す．
+  BnSeq
   new_latch(
     char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
     const string& name = {} ///< [in] 名前
   );
 
-  /// @brief セルタイプのDFF/ラッチを作る．
-  /// @return 生成したDFFを返す．
+  /// @brief セルタイプのSEQノードを作る．
+  /// @return 生成したSEQノードを返す．
   ///
   /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
-  BnDff
-  new_dff_cell(
+  BnSeq
+  new_seq_cell(
     ClibCell cell,          ///< [in] セル
     const string& name = {} ///< [in] 名前
   );
 
-  /// @brief DFFのソースノードをセットする．
+  /// @brief DFF/ラッチのソースノードをセットする．
   void
   set_data_src(
-    BnDff dff,    ///< [in] DFFノード
+    BnSeq seq,    ///< [in] SEQノード
     BnNode src    ///< [in] 入力ノード
   );
 
   /// @brief DFFのクロック入力をセットする．
   void
   set_clock(
-    BnDff dff,    ///< [in] DFFノード
+    BnSeq seq,    ///< [in] SEQノード
     BnNode clock  ///< [in] クロック入力ノード
   );
 
   /// @brief ラッチのイネーブル入力をセットする．
   void
   set_enable(
-    BnDff latch,   ///< [in] ラッチノード
+    BnSeq seq,   ///< [in] SEQノード
     BnNode enable  ///< [in] イネーブル入力
   );
 
-  /// @brief DFFのクリア入力をセットする．
+  /// @brief DFF/ラッチのクリア入力をセットする．
   void
   set_clear(
-    BnDff dff,    ///< [in] DFFノード
+    BnSeq seq,    ///< [in] SEQノード
     BnNode clear  ///< [in] クリア入力ノード
   );
 
-  /// @brief DFFのプリセット入力をセットする．
+  /// @brief DFF/ラッチのプリセット入力をセットする．
   void
   set_preset(
-    BnDff dff,    ///< [in] DFFノード
+    BnSeq seq,    ///< [in] SEQノード
     BnNode preset ///< [in] プリセット入力ノード
   );
 
-  /// @brief DFFのピンに対応するノードをセットする．
+  /// @brief セルのピンに対応するノードをセットする．
   void
-  set_pin(
-    BnDff dff,    ///< [in] DFF
+  set_seq_pin(
+    BnSeq seq,    ///< [in] SEQノード
     SizeType pos, ///< [in] ピン番号
     BnNode node   ///< [in] ノード
   );

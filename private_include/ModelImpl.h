@@ -17,7 +17,7 @@
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "NodeImpl.h"
-#include "DffImpl.h"
+#include "SeqImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -191,21 +191,21 @@ public:
     return mNodeArray[id];
   }
 
-  /// @brief DFF数を返す．
+  /// @brief SEQノード数を返す．
   SizeType
-  dff_num() const
+  seq_num() const
   {
-    return mDffArray.size();
+    return mSeqArray.size();
   }
 
-  /// @brief DFFを取り出す．
-  const DffImpl&
-  dff(
+  /// @brief SEQノードを取り出す．
+  const SeqImpl&
+  seq_node(
     SizeType id ///< [in] ID番号
   ) const
   {
-    _check_range(id, dff_num(), "dff(id)", "id");
-    return mDffArray[id];
+    _check_range(id, seq_num(), "seq_node(id)", "id");
+    return mSeqArray[id];
   }
 
   /// @brief カバーの種類の数を返す．
@@ -456,12 +456,12 @@ public:
     const string& name = {}      ///< [in] 名前
   )
   {
-    auto id = dff_num();
-    auto& dff = _new_dff(name);
+    auto id = seq_num();
+    auto& seq = _new_seq(name);
     if ( output_id == BAD_ID ) {
       output_id = new_input();
     }
-    dff.set_dff(rs_val, output_id);
+    seq.set_dff(rs_val, output_id);
     return id;
   }
 
@@ -475,12 +475,12 @@ public:
     const string& name = {}      ///< [in] 名前
   )
   {
-    auto id = dff_num();
-    auto& dff = _new_dff(name);
+    auto id = seq_num();
+    auto& seq = _new_seq(name);
     if ( output_id == BAD_ID ) {
       output_id = new_input();
     }
-    dff.set_latch(rs_val, output_id);
+    seq.set_latch(rs_val, output_id);
     return id;
   }
 
@@ -488,15 +488,15 @@ public:
   ///
   /// @return ID番号を返す．
   SizeType
-  new_dff_cell(
+  new_seq_cell(
     ClibCell cell,             ///< [in] セル番号
     const string& name = {}    ///< [in] 名前
   )
   {
-    auto id = dff_num();
+  auto id = seq_num();
     set_library(cell.library());
-    auto& dff = _new_dff(name);
-    dff.set_cell(cell.id(), cell.pin_num());
+    auto& seq = _new_seq(name);
+    seq.set_cell(cell.id(), cell.pin_num());
     return id;
   }
 
@@ -571,51 +571,51 @@ public:
     ClibCell cell                       ///< [in] セル
   );
 
-  /// @brief DFFの名前をセットする．
+  /// @brief SEQノードの名前をセットする．
   void
-  set_dff_name(
+  set_seq_name(
     SizeType id,         ///< [in] ID番号
     const string& name   ///< [in] 名前
   );
 
-  /// @brief DFF型のノードのソースをセットする．
+  /// @brief DFF/ラッチのソースをセットする．
   void
   set_data_src(
     SizeType id,         ///< [in] ID番号
     SizeType src_id      ///< [in] ソースのID番号
   );
 
-  /// @brief DFF型のノードのクロック入力をセットする．
+  /// @brief DFFのクロック入力をセットする．
   void
   set_clock(
     SizeType id,         ///< [in] ID番号
     SizeType clock_id    ///< [in] クロックのID番号
   );
 
-  /// @brief ラッチ型のノードのイネーブル入力をセットする．
+  /// @brief ラッチのイネーブル入力をセットする．
   void
   set_enable(
     SizeType id,         ///< [in] ID番号
     SizeType enable_id   ///< [in] イネーブルのID番号
   );
 
-  /// @brief DFF型のノードのクリア入力をセットする．
+  /// @brief DFF/ラッチのクリア入力をセットする．
   void
   set_clear(
     SizeType id,         ///< [in] ID番号
     SizeType clear_id    ///< [in] クリアのID番号
   );
 
-  /// @brief DFF型のノードのプリセット入力をセットする．
+  /// @brief DFF/ラッチのプリセット入力をセットする．
   void
   set_preset(
     SizeType id,         ///< [in] ID番号
     SizeType preset_id   ///< [in] プリセットのID番号
   );
 
-  /// @brief DFFセルのピンのノードをセットする．
+  /// @brief セル型のSEQノードのピンのノードをセットする．
   void
-  set_dff_pin(
+  set_seq_pin(
     SizeType id,         ///< [in] ID番号
     SizeType pos,        ///< [in] ピン番号
     SizeType node_id     ///< [in] ノード番号
@@ -680,26 +680,26 @@ private:
     return mNodeArray[id];
   }
 
-  /// @brief 新しい DffImpl を割り当てる．
-  DffImpl&
-  _new_dff(
+  /// @brief 新しい SeqImpl を割り当てる．
+  SeqImpl&
+  _new_seq(
     const string& name ///< [in] 名前
   )
   {
-    mDffArray.push_back(DffImpl{name});
-    return mDffArray.back();
+    mSeqArray.push_back(SeqImpl{name});
+    return mSeqArray.back();
   }
 
-  /// @brief DffImpl を取り出す．
-  DffImpl&
-  _dff(
+  /// @brief SeqImpl を取り出す．
+  SeqImpl&
+  _seq(
     SizeType id,              ///< [in] ID番号
     const string& func_name,  ///< [in] 関数名
     const string& index_name  ///< [in] ID番号の変数名
   )
   {
-    _check_range(id, mDffArray.size(), func_name, index_name);
-    return mDffArray[id];
+    _check_range(id, mSeqArray.size(), func_name, index_name);
+    return mSeqArray[id];
   }
 
   /// @brief 添字の範囲をチェックする．
@@ -752,8 +752,8 @@ private:
   // ノードの配列
   vector<NodeImpl> mNodeArray;
 
-  // DFFの配列
-  vector<DffImpl> mDffArray;
+  // SEQノードの配列
+  vector<SeqImpl> mSeqArray;
 
   // カバー番号をキーにしてカバーを格納する配列
   vector<BnCover> mCoverArray;

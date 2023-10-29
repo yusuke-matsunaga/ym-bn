@@ -27,7 +27,7 @@ TEST( BnModelTest, read_aag1)
 
   EXPECT_EQ( ni, bnet.input_num() );
   EXPECT_EQ( no, bnet.output_num() );
-  EXPECT_EQ( nd, bnet.dff_num() );
+  EXPECT_EQ( nd, bnet.seq_num() );
   EXPECT_EQ( ng, bnet.logic_num() );
 }
 

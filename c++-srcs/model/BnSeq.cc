@@ -1,12 +1,12 @@
 
-/// @file BnDff.cc
-/// @brief BnDff の実装ファイル
+/// @file BnSeq.cc
+/// @brief BnSeq の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BnDff.h"
+#include "ym/BnSeq.h"
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
 #include "ModelImpl.h"
@@ -15,13 +15,13 @@
 BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnDff
+// クラス BnSeq
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-BnDff::BnDff(
+BnSeq::BnSeq(
   const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
-  SizeType id                        ///< [in] DFF番号
+  SizeType id                        ///< [in] ID番号
 ) : mImpl{impl},
     mId{id}
 {
@@ -31,114 +31,114 @@ BnDff::BnDff(
 }
 
 // @brief デストラクタ
-BnDff::~BnDff()
+BnSeq::~BnSeq()
 {
 }
 
 // @brief 親の BnModel を返す．
 BnModel
-BnDff::parent_model() const
+BnSeq::parent_model() const
 {
   if ( !is_valid() ) {
-    throw std::invalid_argument{"BnDff:: invalid data"};
+    throw std::invalid_argument{"BnSeq:: invalid data"};
   }
   return BnModel{mImpl};
 }
 
 // @brief 名前を返す．
 const string&
-BnDff::name() const
+BnSeq::name() const
 {
-  return dff_impl().name();
+  return seq_impl().name();
 }
 
 // @brief 種類を返す．
-BnDffType
-BnDff::type() const
+BnSeqType
+BnSeq::type() const
 {
-  return dff_impl().type();
+  return seq_impl().type();
 }
 
 // @brief DFFタイプの時に true を返す．
 bool
-BnDff::is_dff() const
+BnSeq::is_dff() const
 {
-  return dff_impl().is_dff();
+  return seq_impl().is_dff();
 }
 
 // @brief ラッチタイプの時に true を返す．
 bool
-BnDff::is_latch() const
+BnSeq::is_latch() const
 {
-  return dff_impl().is_latch();
+  return seq_impl().is_latch();
 }
 
 // @brief セルタイプの時に true を返す．
 bool
-BnDff::is_cell() const
+BnSeq::is_cell() const
 {
-  return dff_impl().is_cell();
+  return seq_impl().is_cell();
 }
 
 // @brief データ入力ノードを返す．
 BnNode
-BnDff::data_src() const
+BnSeq::data_src() const
 {
-  return from_id(dff_impl().data_src());
+  return from_id(seq_impl().data_src());
 }
 
 // @brief クロック入力ノードを返す．
 BnNode
-BnDff::clock() const
+BnSeq::clock() const
 {
-  return from_id(dff_impl().clock());
+  return from_id(seq_impl().clock());
 }
 
 // @brief イネーブル入力ノードを返す．
 BnNode
-BnDff::enable() const
+BnSeq::enable() const
 {
-  return from_id(dff_impl().enable());
+  return from_id(seq_impl().enable());
 }
 
 // @brief クリア入力ノードを返す．
 BnNode
-BnDff::clear() const
+BnSeq::clear() const
 {
-  return from_id(dff_impl().clear());
+  return from_id(seq_impl().clear());
 }
 
 // @brief プリセット入力ノードを返す．
 BnNode
-BnDff::preset() const
+BnSeq::preset() const
 {
-  return from_id(dff_impl().preset());
+  return from_id(seq_impl().preset());
 }
 
 // @brief クリアとプリセットが衝突したときの挙動を返す．
 char
-BnDff::rsval() const
+BnSeq::rsval() const
 {
-  return dff_impl().rsval();
+  return seq_impl().rsval();
 }
 
 // @brief データ出力ノードを返す．
 BnNode
-BnDff::data_output() const
+BnSeq::data_output() const
 {
-  return from_id(dff_impl().data_output());
+  return from_id(seq_impl().data_output());
 }
 
 // @brief セル番号を返す．
 SizeType
-BnDff::cell_id() const
+BnSeq::cell_id() const
 {
-  return dff_impl().cell_id();
+  return seq_impl().cell_id();
 }
 
 // @brief セルを返す．
 ClibCell
-BnDff::cell() const
+BnSeq::cell() const
 {
   auto id = cell_id();
   auto library = mImpl->library();
@@ -147,26 +147,26 @@ BnDff::cell() const
 
 // @brief セルのピンに対応するノードを返す．
 BnNode
-BnDff::cell_pin(
+BnSeq::cell_pin(
   SizeType pos
 ) const
 {
-  return from_id(dff_impl().cell_pin(pos));
+  return from_id(seq_impl().cell_pin(pos));
 }
 
 // @brief 実体を返す．
-const DffImpl&
-BnDff::dff_impl() const
+const SeqImpl&
+BnSeq::seq_impl() const
 {
   if ( !is_valid() ) {
-    throw std::invalid_argument{"BnDff: invalid data"};
+    throw std::invalid_argument{"BnSeq: invalid data"};
   }
-  return mImpl->dff(mId);
+  return mImpl->seq_node(mId);
 }
 
 // @brief ID 番号から BnNode を作る．
 BnNode
-BnDff::from_id(
+BnSeq::from_id(
   SizeType id
 ) const
 {

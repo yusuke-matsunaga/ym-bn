@@ -8,7 +8,7 @@
 
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
-#include "ym/BnDff.h"
+#include "ym/BnSeq.h"
 #include "ModelImpl.h"
 
 
@@ -234,35 +234,35 @@ BnModel::logic_list() const
   return from_id_list(mImpl->logic_list());
 }
 
-// @brief DFF数を返す．
+// @brief SEQノード数を返す．
 SizeType
-BnModel::dff_num() const
+BnModel::seq_num() const
 {
-  return mImpl->dff_num();
+  return mImpl->seq_num();
 }
 
-// @brief DFFのノードを返す．
-BnDff
-BnModel::dff(
+// @brief SEQノードを返す．
+BnSeq
+BnModel::seq_node(
   SizeType pos
 ) const
 {
-  if ( pos < 0 || dff_num() <= pos ) {
+  if ( pos < 0 || seq_num() <= pos ) {
     ostringstream buf;
-    buf << "Error in BnModel::dff. "
-	<< pos << " is out of range.";
+    buf << "Error in BnModel::seq_node(pos). "
+  	    << pos << " is out of range.";
     throw std::invalid_argument{buf.str()};
   }
-  return BnDff{mImpl, pos};
+  return BnSeq{mImpl, pos};
 }
 
-// @brief DFFのノードのリストを返す．
-vector<BnDff>
-BnModel::dff_list() const
+// @brief SEQノードのリストを返す．
+vector<BnSeq>
+BnModel::seq_node_list() const
 {
-  vector<BnDff> ans_list(dff_num());
-  for ( SizeType i = 0; i < dff_num(); ++ i ) {
-    ans_list[i] = BnDff{mImpl, i};
+  vector<BnSeq> ans_list(seq_num());
+  for ( SizeType i = 0; i < seq_num(); ++ i ) {
+    ans_list[i] = BnSeq{mImpl, i};
   }
   return ans_list;
 }
@@ -492,42 +492,42 @@ BnModel::new_bdd(
 }
 
 // @brief DFFを作る．
-BnDff
+BnSeq
 BnModel::new_dff(
   char rs_val,
   const string& name
 )
 {
   auto id = mImpl->new_dff(rs_val, BAD_ID, name);
-  return BnDff{mImpl, id};
+  return BnSeq{mImpl, id};
 }
 
 // @brief ラッチを作る．
-BnDff
+BnSeq
 BnModel::new_latch(
   char rs_val,
   const string& name
 )
 {
   auto id = mImpl->new_latch(rs_val, BAD_ID, name);
-  return BnDff{mImpl, id};
+  return BnSeq{mImpl, id};
 }
 
-// @brief セルタイプのDFF/ラッチを作る．
-BnDff
-BnModel::new_dff_cell(
+// @brief セルタイプのSEQノードを作る．
+BnSeq
+BnModel::new_seq_cell(
   ClibCell cell,
   const string& name
 )
 {
-  auto id = mImpl->new_dff_cell(cell, name);
-  return BnDff{mImpl, id};
+  auto id = mImpl->new_seq_cell(cell, name);
+  return BnSeq{mImpl, id};
 }
 
 // @brief DFFのソースノードをセットする．
 void
 BnModel::set_data_src(
-  BnDff dff,
+  BnSeq dff,
   BnNode src
 )
 {
@@ -537,7 +537,7 @@ BnModel::set_data_src(
 // @brief DFFのクロック入力をセットする．
 void
 BnModel::set_clock(
-  BnDff dff,
+  BnSeq dff,
   BnNode clock
 )
 {
@@ -547,7 +547,7 @@ BnModel::set_clock(
 // @brief ラッチのイネーブル入力をセットする．
 void
 BnModel::set_enable(
-  BnDff latch,
+  BnSeq latch,
   BnNode enable
 )
 {
@@ -557,7 +557,7 @@ BnModel::set_enable(
 // @brief DFFのクリア入力をセットする．
 void
 BnModel::set_clear(
-  BnDff dff,
+  BnSeq dff,
   BnNode clear
 )
 {
@@ -567,7 +567,7 @@ BnModel::set_clear(
 // @brief DFFのプリセット入力をセットする．
 void
 BnModel::set_preset(
-  BnDff dff,
+  BnSeq dff,
   BnNode preset
 )
 {
@@ -576,13 +576,13 @@ BnModel::set_preset(
 
 // @brief ピンに対応するノードをセットする．
 void
-BnModel::set_pin(
-  BnDff dff,
+BnModel::set_seq_pin(
+  BnSeq dff,
   SizeType pos,
   BnNode node
 )
 {
-  mImpl->set_dff_pin(dff.id(), pos, node.id());
+  mImpl->set_seq_pin(dff.id(), pos, node.id());
 }
 
 // @brief カバーを追加する．
@@ -663,20 +663,20 @@ BnModel::print(
     s << "OUTPUT#" << i << "[" << output_name(i) << "]"
       << " = " << "Node#" << output(i).id() << endl;
   }
-  for ( SizeType i = 0; i < dff_num(); ++ i ) {
-    auto dff = this->dff(i);
-    s << dff.name();
-    s << ": DFF#" << i << "[" << dff.name() << "]"
-      << " src = " << "Node#" << dff.data_src().id()
-      << " clock = " << "Node#" << dff.clock().id();
-    if ( dff.clear().is_valid() ) {
-      s << " clear = " << "Node#" << dff.clear().id();
+  for ( SizeType i = 0; i < seq_num(); ++ i ) {
+    auto seq = seq_node(i);
+    s << seq.name();
+    s << ": SEQ#" << i << "[" << seq.name() << "]"
+      << " src = " << "Node#" << seq.data_src().id()
+      << " clock = " << "Node#" << seq.clock().id();
+    if ( seq.clear().is_valid() ) {
+      s << " clear = " << "Node#" << seq.clear().id();
     }
-    if ( dff.preset().is_valid() ) {
-      s << " preset = " << "Node#" << dff.preset().id();
+    if ( seq.preset().is_valid() ) {
+      s << " preset = " << "Node#" << seq.preset().id();
     }
-    if ( dff.rsval() != ' ' ) {
-      s << ", rsval = " << dff.rsval();
+    if ( seq.rsval() != ' ' ) {
+      s << ", rsval = " << seq.rsval();
     }
     s << endl;
   }

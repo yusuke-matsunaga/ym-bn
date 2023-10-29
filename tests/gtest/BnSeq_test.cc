@@ -1,13 +1,13 @@
 
-/// @file BnDff_test.cc
-/// @brief BnDff_test の実装ファイル
+/// @file BnSeq_test.cc
+/// @brief BnSeq_test の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "ym/BnDff.h"
+#include "ym/BnSeq.h"
 #include "ym/BnNode.h"
 #include "ym/BnModel.h"
 #include "ModelImpl.h"
@@ -15,9 +15,9 @@
 
 BEGIN_NAMESPACE_YM_BN
 
-TEST(BnDffTest, constructor1)
+TEST(BnSeqTest, constructor1)
 {
-  BnDff node;
+  BnSeq node;
 
   EXPECT_FALSE( node.is_valid() );
   EXPECT_THROW( {node.parent_model(); }, std::invalid_argument );
@@ -38,26 +38,26 @@ TEST(BnDffTest, constructor1)
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
 }
 
-TEST(BnDffTest, bad_id)
+TEST(BnSeqTest, bad_id)
 {
   shared_ptr<ModelImpl> model{new ModelImpl};
 
-  BnDff node{model, BAD_ID};
+  BnSeq node{model, BAD_ID};
 
   EXPECT_FALSE( node.is_valid() );
 }
 
-TEST(BnDffTest, constructor2)
+TEST(BnSeqTest, constructor2)
 {
   shared_ptr<ModelImpl> model{new ModelImpl};
 
   auto id = model->new_dff();
 
-  BnDff node{model, id};
+  BnSeq node{model, id};
 
   EXPECT_TRUE( node.is_valid() );
   EXPECT_EQ( string{}, node.name() );
-  EXPECT_EQ( BnDffType::DFF, node.type() );
+  EXPECT_EQ( BnSeqType::DFF, node.type() );
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );

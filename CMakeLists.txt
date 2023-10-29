@@ -66,7 +66,7 @@ set ( bn_SOURCES
   c++-srcs/model/BnModel.cc
   c++-srcs/model/BnNode.cc
   c++-srcs/model/BnCover.cc
-  c++-srcs/model/BnDff.cc
+  c++-srcs/model/BnSeq.cc
   c++-srcs/model/ModelImpl.cc
   )
 

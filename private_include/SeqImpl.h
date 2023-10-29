@@ -1,8 +1,8 @@
-#ifndef DFFIMPL_H
-#define DFFIMPL_H
+#ifndef SEQIMPL_H
+#define SEQIMPL_H
 
-/// @file DffImpl.h
-/// @brief DffImpl のヘッダファイル
+/// @file SeqImpl.h
+/// @brief SeqImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -14,22 +14,22 @@
 BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
-/// @class DffImpl DffImpl.h "DffImpl.h"
+/// @class SeqImpl SeqImpl.h "SeqImpl.h"
 /// @brief BnModel の DFF を表すクラス
 //////////////////////////////////////////////////////////////////////
-class DffImpl
+class SeqImpl
 {
 public:
 
   /// @brief コンストラクタ
-  DffImpl(
+  SeqImpl(
     const string& name ///< [in] 名前
   ) : mName{name}
   {
   }
 
   /// @brief デストラクタ
-  ~DffImpl() = default;
+  ~SeqImpl() = default;
 
 
 public:
@@ -38,7 +38,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 種類を返す．
-  BnDffType
+  BnSeqType
   type() const
   {
     return mType;
@@ -48,21 +48,21 @@ public:
   bool
   is_dff() const
   {
-    return type() == BnDffType::DFF;
+    return type() == BnSeqType::DFF;
   }
 
   /// @brief ラッチタイプの時に true を返す．
   bool
   is_latch() const
   {
-    return type() == BnDffType::LATCH;
+    return type() == BnSeqType::LATCH;
   }
 
   /// @brief セルタイプの時に true を返す．
   bool
   is_cell() const
   {
-    return type() == BnDffType::CELL;
+    return type() == BnSeqType::CELL;
   }
 
   /// @brief 名前を返す．
@@ -160,7 +160,7 @@ public:
   {
     check_cell();
     if ( pos < 0 || pos >= mPinList.size() ) {
-      throw std::invalid_argument{"Error in DffImpl::cell_pin(pos). pos is out of range."};
+      throw std::invalid_argument{"Error in SeqImpl::cell_pin(pos). pos is out of range."};
     }
     return mPinList[pos];
   }
@@ -187,7 +187,7 @@ public:
     SizeType output_id
   )
   {
-    mType = BnDffType::DFF;
+    mType = BnSeqType::DFF;
     mPinList = {BAD_ID, BAD_ID, BAD_ID, BAD_ID, output_id};
     mExtId = static_cast<SizeType>(rs_val);
   }
@@ -199,7 +199,7 @@ public:
     SizeType output_id
   )
   {
-    mType = BnDffType::LATCH;
+    mType = BnSeqType::LATCH;
     mPinList = {BAD_ID, BAD_ID, BAD_ID, BAD_ID, output_id};
     mExtId = static_cast<SizeType>(rs_val);
   }
@@ -211,7 +211,7 @@ public:
     SizeType pin_num
   )
   {
-    mType = BnDffType::CELL;
+    mType = BnSeqType::CELL;
     mPinList = vector<SizeType>(pin_num, BAD_ID);
     mExtId = cell_id;
   }
@@ -285,7 +285,7 @@ public:
   {
     check_cell();
     if ( pos < 0 || pos >= mPinList.size() ) {
-      throw std::invalid_argument{"Error in DffImpl::set_pin(pos, node_id). pos is out of range."};
+      throw std::invalid_argument{"Error in SeqImpl::set_pin(pos, node_id). pos is out of range."};
     }
     mPinList[pos] = node_id;
   }
@@ -339,7 +339,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // DFF の種類
-  BnDffType mType{BnDffType::NONE};
+  BnSeqType mType{BnSeqType::NONE};
 
   // 名前
   string mName;
@@ -354,4 +354,4 @@ private:
 
 END_NAMESPACE_YM_BN
 
-#endif // DFFIMPL_H
+#endif // SEQIMPL_H

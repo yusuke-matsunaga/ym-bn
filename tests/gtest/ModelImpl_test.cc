@@ -21,7 +21,7 @@ TEST( ModelImplTest, constructor1 )
   EXPECT_EQ( 0, model.node_num() );
   EXPECT_EQ( 0, model.input_num() );
   EXPECT_EQ( 0, model.output_num() );
-  EXPECT_EQ( 0, model.dff_num() );
+  EXPECT_EQ( 0, model.seq_num() );
   EXPECT_EQ( 0, model.logic_num() );
   EXPECT_EQ( 0, model.cover_num() );
   EXPECT_EQ( 0, model.expr_num() );
@@ -71,11 +71,11 @@ TEST( ModelImplTest, node_bad )
   EXPECT_THROW( {model.node(1);}, std::invalid_argument );
 }
 
-TEST( ModelImplTest, dff_bad )
+TEST( ModelImplTest, seq_node_bad )
 {
   ModelImpl model;
 
-  EXPECT_THROW( {model.dff(1);}, std::invalid_argument );
+  EXPECT_THROW( {model.seq_node(1);}, std::invalid_argument );
 }
 
 TEST( ModelImplTest, cover_bad )
@@ -373,14 +373,14 @@ TEST( ModelImplTest, new_dff )
   model.set_clear(id0, clear_id);
   model.set_preset(id0, preset_id);
 
-  auto& dff = model.dff(id0);
-  EXPECT_EQ( BnDffType::DFF, dff.type() );
-  EXPECT_EQ( src_id, dff.data_src() );
-  EXPECT_EQ( clock_id, dff.clock() );
-  EXPECT_THROW( {dff.enable();}, std::invalid_argument );
-  EXPECT_EQ( clear_id, dff.clear() );
-  EXPECT_EQ( preset_id, dff.preset() );
-  EXPECT_EQ( rsval, dff.rsval() );
+  auto& seq = model.seq_node(id0);
+  EXPECT_EQ( BnSeqType::DFF, seq.type() );
+  EXPECT_EQ( src_id, seq.data_src() );
+  EXPECT_EQ( clock_id, seq.clock() );
+  EXPECT_THROW( {seq.enable();}, std::invalid_argument );
+  EXPECT_EQ( clear_id, seq.clear() );
+  EXPECT_EQ( preset_id, seq.preset() );
+  EXPECT_EQ( rsval, seq.rsval() );
 }
 
 TEST( ModelImplTest, new_latch )
@@ -397,17 +397,17 @@ TEST( ModelImplTest, new_latch )
   model.set_enable(id0, enable_id);
   model.set_clear(id0, clear_id);
 
-  auto& dff = model.dff(id0);
-  EXPECT_EQ( BnDffType::LATCH, dff.type() );
-  EXPECT_EQ( src_id, dff.data_src() );
-  EXPECT_THROW( {dff.clock();}, std::invalid_argument );
-  EXPECT_EQ( enable_id, dff.enable() );
-  EXPECT_EQ( clear_id, dff.clear() );
-  EXPECT_EQ( BAD_ID, dff.preset() );
-  EXPECT_EQ( rsval, dff.rsval() );
+  auto& seq = model.seq_node(id0);
+  EXPECT_EQ( BnSeqType::LATCH, seq.type() );
+  EXPECT_EQ( src_id, seq.data_src() );
+  EXPECT_THROW( {seq.clock();}, std::invalid_argument );
+  EXPECT_EQ( enable_id, seq.enable() );
+  EXPECT_EQ( clear_id, seq.clear() );
+  EXPECT_EQ( BAD_ID, seq.preset() );
+  EXPECT_EQ( rsval, seq.rsval() );
 }
 
-TEST( ModelImplTest, new_dff_cell )
+TEST( ModelImplTest, new_seq_cell )
 {
   auto FILENAME = string{DATAPATH} + string{"/HIT018.typ.snp"};
   auto library = ClibCellLibrary::read_liberty(FILENAME);
@@ -420,22 +420,22 @@ TEST( ModelImplTest, new_dff_cell )
   auto clock_id = model.new_node({});
   auto output_id = model.new_input({});
 
-  auto id0 = model.new_dff_cell(cell);
-  model.set_dff_pin(id0, 0, clock_id);
-  model.set_dff_pin(id0, 1, src_id);
-  model.set_dff_pin(id0, 2, output_id);
+  auto id0 = model.new_seq_cell(cell);
+  model.set_seq_pin(id0, 0, clock_id);
+  model.set_seq_pin(id0, 1, src_id);
+  model.set_seq_pin(id0, 2, output_id);
 
-  auto& dff = model.dff(id0);
-  EXPECT_EQ( BnDffType::CELL, dff.type() );
-  EXPECT_THROW( {dff.data_src();}, std::invalid_argument );
-  EXPECT_THROW( {dff.clock();}, std::invalid_argument );
-  EXPECT_THROW( {dff.enable();}, std::invalid_argument );
-  EXPECT_THROW( {dff.clear();}, std::invalid_argument );
-  EXPECT_THROW( {dff.preset();}, std::invalid_argument );
-  EXPECT_THROW( {dff.rsval();}, std::invalid_argument );
-  EXPECT_EQ( clock_id, dff.cell_pin(0) );
-  EXPECT_EQ( src_id, dff.cell_pin(1) );
-  EXPECT_EQ( output_id, dff.cell_pin(2) );
+  auto& seq = model.seq_node(id0);
+  EXPECT_EQ( BnSeqType::CELL, seq.type() );
+  EXPECT_THROW( {seq.data_src();}, std::invalid_argument );
+  EXPECT_THROW( {seq.clock();}, std::invalid_argument );
+  EXPECT_THROW( {seq.enable();}, std::invalid_argument );
+  EXPECT_THROW( {seq.clear();}, std::invalid_argument );
+  EXPECT_THROW( {seq.preset();}, std::invalid_argument );
+  EXPECT_THROW( {seq.rsval();}, std::invalid_argument );
+  EXPECT_EQ( clock_id, seq.cell_pin(0) );
+  EXPECT_EQ( src_id, seq.cell_pin(1) );
+  EXPECT_EQ( output_id, seq.cell_pin(2) );
 }
 
 TEST( ModelImplTest, set_node_name )
@@ -712,24 +712,24 @@ TEST( ModelImplTest, set_cell_bad )
   EXPECT_THROW( {model.set_cell(id2 + 1, fanin_list, cell);}, std::invalid_argument );
 }
 
-TEST( ModelImplTest, set_dff_name )
+TEST( ModelImplTest, set_seq_name )
 {
   ModelImpl model;
 
   auto id = model.new_dff();
   string name{"abcd"};
-  model.set_dff_name(id, name);
+  model.set_seq_name(id, name);
 
-  auto& dff = model.dff(id);
-  EXPECT_EQ( name, dff.name() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( name, seq.name() );
 }
 
-TEST( ModelImplTest, set_dff_name_bad )
+TEST( ModelImplTest, set_seq_name_bad )
 {
   ModelImpl model;
 
   string name{"abcd"};
-  EXPECT_THROW( {model.set_dff_name(0, name);}, std::invalid_argument );
+  EXPECT_THROW( {model.set_seq_name(0, name);}, std::invalid_argument );
 }
 
 TEST( ModelImplTest, set_data_src_dff )
@@ -739,8 +739,8 @@ TEST( ModelImplTest, set_data_src_dff )
   auto id = model.new_dff();
   auto src_id = model.new_node();
   model.set_data_src(id, src_id);
-  auto& dff = model.dff(id);
-  EXPECT_EQ( src_id, dff.data_src() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( src_id, seq.data_src() );
 }
 
 TEST( ModelImplTest, set_data_src_bad )
@@ -758,8 +758,8 @@ TEST( ModelImplTest, set_data_src_latch )
   auto id = model.new_latch();
   auto src_id = model.new_node();
   model.set_data_src(id, src_id);
-  auto& dff = model.dff(id);
-  EXPECT_EQ( src_id, dff.data_src() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( src_id, seq.data_src() );
 }
 
 TEST( ModelImplTest, set_data_src_cell_bad )
@@ -771,7 +771,7 @@ TEST( ModelImplTest, set_data_src_cell_bad )
 
   ModelImpl model;
 
-  auto id = model.new_dff_cell(cell);
+  auto id = model.new_seq_cell(cell);
   auto src_id = model.new_node();
   EXPECT_THROW( {model.set_data_src(id, src_id);}, std::invalid_argument );
 }
@@ -783,8 +783,8 @@ TEST( ModelImplTest, set_clock )
   auto id = model.new_dff();
   auto clock_id = model.new_node();
   model.set_clock(id, clock_id);
-  auto& dff = model.dff(id);
-  EXPECT_EQ( clock_id, dff.clock() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( clock_id, seq.clock() );
 }
 
 TEST( ModelImplTest, set_clock_bad )
@@ -813,7 +813,7 @@ TEST( ModelImplTest, set_clock_cell_bad )
 
   ModelImpl model;
 
-  auto id = model.new_dff_cell(cell);
+  auto id = model.new_seq_cell(cell);
   auto clock_id = model.new_node();
   EXPECT_THROW( {model.set_clock(id, clock_id);}, std::invalid_argument );
 }
@@ -825,8 +825,8 @@ TEST( ModelImplTest, set_enable )
   auto id = model.new_latch();
   auto enable_id = model.new_node();
   model.set_enable(id, enable_id);
-  auto& dff = model.dff(id);
-  EXPECT_EQ( enable_id, dff.enable() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( enable_id, seq.enable() );
 }
 
 TEST( ModelImplTest, set_enable_bad )
@@ -855,7 +855,7 @@ TEST( ModelImplTest, set_enable_cell_bad )
 
   ModelImpl model;
 
-  auto id = model.new_dff_cell(cell);
+  auto id = model.new_seq_cell(cell);
   auto enable_id = model.new_node();
   EXPECT_THROW( {model.set_enable(id, enable_id);}, std::invalid_argument );
 }
@@ -867,8 +867,8 @@ TEST( ModelImplTest, set_clear_dff )
   auto id = model.new_dff();
   auto clear_id = model.new_node();
   model.set_clear(id, clear_id);
-  auto& dff = model.dff(id);
-  EXPECT_EQ( clear_id, dff.clear() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( clear_id, seq.clear() );
 }
 
 TEST( ModelImplTest, set_clear_bad )
@@ -886,8 +886,8 @@ TEST( ModelImplTest, set_clear_latch )
   auto id = model.new_latch();
   auto clear_id = model.new_node();
   model.set_clear(id, clear_id);
-  auto& dff = model.dff(id);
-  EXPECT_EQ( clear_id, dff.clear() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( clear_id, seq.clear() );
 }
 
 TEST( ModelImplTest, set_clear_cell_bad )
@@ -899,7 +899,7 @@ TEST( ModelImplTest, set_clear_cell_bad )
 
   ModelImpl model;
 
-  auto id = model.new_dff_cell(cell);
+  auto id = model.new_seq_cell(cell);
   auto clear_id = model.new_node();
   EXPECT_THROW( {model.set_clear(id, clear_id);}, std::invalid_argument );
 }
@@ -911,8 +911,8 @@ TEST( ModelImplTest, set_preset_dff )
   auto id = model.new_dff();
   auto preset_id = model.new_node();
   model.set_preset(id, preset_id);
-  auto& dff = model.dff(id);
-  EXPECT_EQ( preset_id, dff.preset() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( preset_id, seq.preset() );
 }
 
 TEST( ModelImplTest, set_preset_bad )
@@ -930,8 +930,8 @@ TEST( ModelImplTest, set_preset_latch )
   auto id = model.new_latch();
   auto preset_id = model.new_node();
   model.set_preset(id, preset_id);
-  auto& dff = model.dff(id);
-  EXPECT_EQ( preset_id, dff.preset() );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( preset_id, seq.preset() );
 }
 
 TEST( ModelImplTest, set_preset_cell_bad )
@@ -943,12 +943,12 @@ TEST( ModelImplTest, set_preset_cell_bad )
 
   ModelImpl model;
 
-  auto id = model.new_dff_cell(cell);
+  auto id = model.new_seq_cell(cell);
   auto preset_id = model.new_node();
   EXPECT_THROW( {model.set_preset(id, preset_id);}, std::invalid_argument );
 }
 
-TEST( ModelImplTest, set_dff_pin )
+TEST( ModelImplTest, set_seq_pin )
 {
   auto FILENAME = string{DATAPATH} + string{"/HIT018.typ.snp"};
   auto library = ClibCellLibrary::read_liberty(FILENAME);
@@ -957,29 +957,29 @@ TEST( ModelImplTest, set_dff_pin )
 
   ModelImpl model;
 
-  auto id = model.new_dff_cell(cell);
+  auto id = model.new_seq_cell(cell);
   auto clock = model.new_node();
   auto src = model.new_node();
   auto output = model.new_input();
-  model.set_dff_pin(id, 0, clock);
-  model.set_dff_pin(id, 1, src);
-  model.set_dff_pin(id, 2, output);
+  model.set_seq_pin(id, 0, clock);
+  model.set_seq_pin(id, 1, src);
+  model.set_seq_pin(id, 2, output);
 
-  auto& dff = model.dff(id);
-  EXPECT_EQ( clock, dff.cell_pin(0) );
-  EXPECT_EQ( src, dff.cell_pin(1) );
-  EXPECT_EQ( output, dff.cell_pin(2) );
+  auto& seq = model.seq_node(id);
+  EXPECT_EQ( clock, seq.cell_pin(0) );
+  EXPECT_EQ( src, seq.cell_pin(1) );
+  EXPECT_EQ( output, seq.cell_pin(2) );
 }
 
-TEST( ModelImplTest, set_dff_pin_bad )
+TEST( ModelImplTest, set_seq_pin_bad )
 {
   ModelImpl model;
 
   auto clock = model.new_node();
-  EXPECT_THROW( {model.set_dff_pin(0, 0, clock);}, std::invalid_argument );
+  EXPECT_THROW( {model.set_seq_pin(0, 0, clock);}, std::invalid_argument );
 }
 
-TEST( ModelImplTest, set_dff_pin_bad2 )
+TEST( ModelImplTest, set_seq_pin_bad2 )
 {
   auto FILENAME = string{DATAPATH} + string{"/HIT018.typ.snp"};
   auto library = ClibCellLibrary::read_liberty(FILENAME);
@@ -988,10 +988,10 @@ TEST( ModelImplTest, set_dff_pin_bad2 )
 
   ModelImpl model;
 
-  auto id = model.new_dff_cell(cell);
+  auto id = model.new_seq_cell(cell);
   auto clock = model.new_node();
 
-  EXPECT_THROW( {model.set_dff_pin(id, 3, clock);}, std::invalid_argument );
+  EXPECT_THROW( {model.set_seq_pin(id, 3, clock);}, std::invalid_argument );
 }
 
 TEST( ModelImplTest, add_cover )

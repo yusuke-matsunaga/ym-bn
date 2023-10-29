@@ -1,8 +1,8 @@
-#ifndef BNDFF_H
-#define BNDFF_H
+#ifndef BNSEQ_H
+#define BNSEQ_H
 
-/// @file BnDff.h
-/// @brief BnDff のヘッダファイル
+/// @file BnSeq.h
+/// @brief BnSeq のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -16,21 +16,21 @@
 BEGIN_NAMESPACE_YM_BN
 
 class ModelImpl;
-class DffImpl;
+class SeqImpl;
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDff BnDff.h "BnDff.h"
+/// @class BnSeq BnSeq.h "BnSeq.h"
 /// @brief BnModel の DFF を表すクラス
 ///
 /// 以下の3種類のタイプがある．
-/// - BnDffType::DFF:   クリア・プリセット(オプション)付きのDフリップフロップ
-/// - BnDffType::LATCH: クリア・プリセット(オプション)付きのラッチ
-/// - BnDfftype::CELL:  DFF/ラッチタイプのセル
+/// - BnSeqType::DFF:   クリア・プリセット(オプション)付きのDフリップフロップ
+/// - BnSeqType::LATCH: クリア・プリセット(オプション)付きのラッチ
+/// - BnSeqtype::CELL:  DFF/ラッチタイプのセル
 ///
 /// セルタイプの場合にはそのセルがフリップフロップかラッチかの区別はしていない．
 ///
 /// 以下の情報を持つ．
-/// - ID番号: 同一の BnModel 内の BnDff に対してユニークとなる．
+/// - ID番号: 同一の BnModel 内の BnSeq に対してユニークとなる．
 /// - 名前: 場合によっては空文字列となる．
 ///
 /// DFF/LATCH タイプの場合は以下の情報を持つ．
@@ -47,23 +47,23 @@ class DffImpl;
 ///
 /// 実際にはこのクラスは ModelImpl へのポインタとID番号しか持たない．
 //////////////////////////////////////////////////////////////////////
-class BnDff
+class BnSeq
 {
 public:
 
   /// @brief 空のコンストラクタ
   ///
   /// 不正な値となる．
-  BnDff() = default;
+  BnSeq() = default;
 
   /// @brief コンストラクタ
-  BnDff(
+  BnSeq(
     const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
     SizeType id                        ///< [in] DFF番号
   );
 
   /// @brief デストラクタ
-  ~BnDff();
+  ~BnSeq();
 
 
 public:
@@ -94,7 +94,7 @@ public:
   name() const;
 
   /// @brief 種類を返す．
-  BnDffType
+  BnSeqType
   type() const;
 
   /// @brief DFFタイプの時に true を返す．
@@ -170,7 +170,7 @@ public:
   /// @brief 等価比較演算子
   bool
   operator==(
-    const BnDff& right ///< [in] 比較対象のオブジェクト
+    const BnSeq& right ///< [in] 比較対象のオブジェクト
   ) const
   {
     return mImpl == right.mImpl && mId == right.mId;
@@ -179,7 +179,7 @@ public:
   /// @brief 非等価比較演算子
   bool
   operator!=(
-    const BnDff& right ///< [in] 比較対象のオブジェクト
+    const BnSeq& right ///< [in] 比較対象のオブジェクト
   ) const
   {
     return !operator==(right);
@@ -192,8 +192,8 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 実体を返す．
-  const DffImpl&
-  dff_impl() const;
+  const SeqImpl&
+  seq_impl() const;
 
   /// @brief ID 番号から BnNode を作る．
   BnNode
@@ -218,4 +218,4 @@ private:
 
 END_NAMESPACE_YM_BN
 
-#endif // BNDFF_H
+#endif // BNSEQ_H
