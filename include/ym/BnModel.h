@@ -289,7 +289,7 @@ public:
   /// @brief SEQノードを返す．
   BnSeq
   seq_node(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < dff_num() )
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < seq_num() )
   ) const;
 
   /// @brief SEQノードのリストを返す．
