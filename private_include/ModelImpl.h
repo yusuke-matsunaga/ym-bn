@@ -351,6 +351,7 @@ public:
   {
     auto id = new_node(name);
     set_primitive(id, input_list, type);
+    mLogicList.push_back(id);
     return id;
   }
 
@@ -368,6 +369,7 @@ public:
   {
     auto id = new_node(name);
     set_aig(id, src0, src1, inv0, inv1);
+    mLogicList.push_back(id);
     return id;
   }
 
@@ -383,6 +385,7 @@ public:
   {
     auto id = new_node(name);
     set_cover(id, input_list, cover_id);
+    mLogicList.push_back(id);
     return id;
   }
 
@@ -398,6 +401,7 @@ public:
   {
     auto id = new_node(name);
     set_expr(id, input_list, expr_id);
+    mLogicList.push_back(id);
     return id;
   }
 
@@ -413,6 +417,7 @@ public:
   {
     auto id = new_node(name);
     set_func(id, input_list, func_id);
+    mLogicList.push_back(id);
     return id;
   }
 
@@ -428,6 +433,7 @@ public:
   {
     auto id = new_node(name);
     set_bdd(id, input_list, bdd_id);
+    mLogicList.push_back(id);
     return id;
   }
 
@@ -443,6 +449,7 @@ public:
   {
     auto id = new_node(name);
     set_cell(id, input_list, cell);
+    mLogicList.push_back(id);
     return id;
   }
 
