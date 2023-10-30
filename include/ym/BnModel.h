@@ -422,7 +422,8 @@ public:
   /// @return 新しい出力番号を返す．
   SizeType
   new_output(
-    BnNode src ///< [in] ソースのノード
+    BnNode src,             ///< [in] ソースのノード
+    const string& name = {} ///< [in] 出力名
   );
 
   /// @brief 新しいプリミティブ型の論理ノードを作る．

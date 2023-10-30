@@ -390,10 +390,11 @@ BnModel::new_input(
 // @brief 新しい出力ノードを作る．
 SizeType
 BnModel::new_output(
-  BnNode src
+  BnNode src,
+  const string& name
 )
 {
-  return mImpl->new_output(src.id());
+  return mImpl->new_output(src.id(), name);
 }
 
 // @brief 新しいプリミティブ型の論理ノードを作る．
