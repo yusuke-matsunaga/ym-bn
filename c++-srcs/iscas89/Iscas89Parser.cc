@@ -192,7 +192,7 @@ Iscas89Parser::read_input(
   }
 
   set_defined(name_id, loc);
-  mModel->set_input(name_id);
+  mModel->set_input(name_id, name);
 
   return true;
 }
@@ -209,7 +209,8 @@ Iscas89Parser::read_output(
     return false;
   }
   FileRegion loc{first_loc, last_loc};
-  mModel->new_output(name_id);
+  auto name = id2str(name_id);
+  mModel->new_output(name_id, name);
 
   return true;
 }

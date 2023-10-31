@@ -398,7 +398,7 @@ BlifParser::read_inputs()
       }
 
       set_defined(id, name_loc);
-      mModel->set_input(id);
+      mModel->set_input(id, name);
       ++ n_token;
     }
     else if ( tk == BlifToken::NL ) {
@@ -430,7 +430,7 @@ BlifParser::read_outputs()
       auto name = cur_string();
       auto name_loc = cur_loc();
       auto id = find_id(name, name_loc);
-      mModel->new_output(id);
+      mModel->new_output(id, name);
       ++ n_token;
     }
     else if ( tk == BlifToken::NL ) {
