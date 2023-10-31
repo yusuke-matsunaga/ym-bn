@@ -91,8 +91,6 @@ TruthReader::read(
       model->new_output(id);
     }
   }
-
-  model->make_logic_list();
 }
 
 END_NAMESPACE_YM_BN

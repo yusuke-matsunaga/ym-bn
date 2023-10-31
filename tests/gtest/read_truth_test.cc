@@ -12,7 +12,7 @@
 
 BEGIN_NAMESPACE_YM
 
-TEST( BnModelTest, read_iscas1 )
+TEST( BnModelTest, read_truth )
 {
   string filename = "ex61.truth";
   string path = DATAPATH + filename;
