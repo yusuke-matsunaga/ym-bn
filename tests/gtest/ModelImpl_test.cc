@@ -192,6 +192,24 @@ TEST( ModelImplTest, new_input )
   EXPECT_EQ( BnNodeType::INPUT, node.type() );
 }
 
+TEST( ModelImplTest, new_seq_output )
+{
+  ModelImpl model;
+
+  auto seq_id = model.new_dff();
+  auto id = model.new_seq_output(seq_id, {});
+  auto& node = model.node(id);
+  EXPECT_EQ( BnNodeType::SEQ_OUTPUT, node.type() );
+}
+
+TEST( ModelImplTest, new_seq_output_bad )
+{
+  ModelImpl model;
+
+  SizeType seq_id = 0;
+  EXPECT_THROW( {model.new_seq_output(seq_id, {});}, std::invalid_argument );
+}
+
 TEST( ModelImplTest, new_output )
 {
   ModelImpl model;

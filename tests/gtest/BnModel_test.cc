@@ -351,9 +351,13 @@ TEST( BnModelTest, new_dff)
   EXPECT_FALSE( node.clear().is_valid() );
   EXPECT_FALSE( node.preset().is_valid() );
   EXPECT_EQ( rsval, node.rsval() );
-  EXPECT_TRUE( node.data_output().is_valid() );
   EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
+
+  auto onode = node.data_output();
+  EXPECT_TRUE( onode.is_valid() );
+  EXPECT_TRUE( onode.is_seq_output() );
+  EXPECT_EQ( model, onode.parent_model() );
 }
 
 TEST( BnModelTest, new_latch)
@@ -375,9 +379,13 @@ TEST( BnModelTest, new_latch)
   EXPECT_FALSE( node.clear().is_valid() );
   EXPECT_FALSE( node.preset().is_valid() );
   EXPECT_EQ( ' ', node.rsval() );
-  EXPECT_TRUE( node.data_output().is_valid() );
   EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
+
+  auto onode = node.data_output();
+  EXPECT_TRUE( onode.is_valid() );
+  EXPECT_TRUE( onode.is_seq_output() );
+  EXPECT_EQ( model, onode.parent_model() );
 }
 
 TEST( BnModelTest, new_seq_cell )

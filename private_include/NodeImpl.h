@@ -52,6 +52,13 @@ public:
     return mType == BnNodeType::INPUT;
   }
 
+  /// @brief BnSeq の出力の時 true を返す．
+  bool
+  is_seq_output() const
+  {
+    return mType == BnNodeType::SEQ_OUTPUT;
+  }
+
   /// @brief 論理ノードの時 true を返す．
   bool
   is_logic() const
@@ -146,13 +153,22 @@ public:
     return mExtId;
   }
 
+  /// @brief SEQ 番号を返す．
+  ///
+  /// is_seq_output() が true の時のみ意味を持つ．
+  SizeType
+  seq_id() const
+  {
+    check_seq_output();
+    return mExtId;
+  }
+
   /// @brief ファンイン数を返す．
   ///
-  /// is_logic() が true の時のみ意味を持つ．
+  /// is_logic() が false の時は 0 を返す．
   SizeType
   fanin_num() const
   {
-    check_logic();
     return mFaninList.size();
   }
 
@@ -164,7 +180,6 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < fanin_num() )
   ) const
   {
-    check_logic();
     if ( pos < 0 || fanin_num() <= pos ) {
       throw std::invalid_argument{"index out of range"};
     }
@@ -173,11 +188,10 @@ public:
 
   /// @brief ファンイン番号のリストを返す．
   ///
-  /// is_logic() が true の時のみ意味を持つ．
+  /// is_logic() が false の時は空リストを返す．
   const vector<SizeType>&
   fanin_list() const
   {
-    check_logic();
     return mFaninList;
   }
 
@@ -278,6 +292,16 @@ public:
     mExtId = iid;
   }
 
+  /// @brief BnSeq の出力として定義されたことをセットする．
+  void
+  set_seq_output(
+    SizeType seq_id ///< [in] BnSeq のID番号
+  )
+  {
+    mType = BnNodeType::SEQ_OUTPUT;
+    mExtId = seq_id;
+  }
+
   /// @brief プリミティブタイプをセットする．
   void
   set_primitive(
@@ -376,6 +400,15 @@ private:
   {
     if ( !is_input() ) {
       throw std::invalid_argument{"not an input type"};
+    }
+  }
+
+  /// @brief seq_output タイプかどうかチェックする．
+  void
+  check_seq_output() const
+  {
+    if ( !is_seq_output() ) {
+      throw std::invalid_argument{"not a seq output type"};
     }
   }
 

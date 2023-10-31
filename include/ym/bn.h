@@ -50,15 +50,16 @@ BEGIN_NAMESPACE_YM
 /// @brief BnNode の種類を表す列挙型
 //////////////////////////////////////////////////////////////////////
 enum class BnNodeType : std::uint8_t {
-  NONE,      ///< 不正値
-  INPUT,     ///< 入力
-  PRIMITIVE, ///< プリミティブ型の論理ノード
-  AIG,       ///< AIG型の論理ノード
-  COVER,     ///< カバー型の論理ノード
-  EXPR,      ///< 論理式型の論理ノード
-  CELL,      ///< セル型の論理ノード
-  TVFUNC,    ///< 真理値表型の論理ノード
-  BDD        ///< BDD型の論理ノード
+  NONE,       ///< 不正値
+  INPUT,      ///< 入力
+  SEQ_OUTPUT, ///< BnSeq の出力(疑似入力)
+  PRIMITIVE,  ///< プリミティブ型の論理ノード
+  AIG,        ///< AIG型の論理ノード
+  COVER,      ///< カバー型の論理ノード
+  EXPR,       ///< 論理式型の論理ノード
+  CELL,       ///< セル型の論理ノード
+  TVFUNC,     ///< 真理値表型の論理ノード
+  BDD         ///< BDD型の論理ノード
 };
 
 
@@ -81,15 +82,16 @@ operator<<(
 )
 {
   switch ( type ) {
-  case BnNodeType::NONE:      s << "None"; break;
-  case BnNodeType::INPUT:     s << "Input"; break;
-  case BnNodeType::PRIMITIVE: s << "Primitive"; break;
-  case BnNodeType::AIG:       s << "AIG"; break;
-  case BnNodeType::COVER:     s << "Cover"; break;
-  case BnNodeType::EXPR:      s << "Expr"; break;
-  case BnNodeType::CELL:      s << "Cell"; break;
-  case BnNodeType::TVFUNC:    s << "TvFunc"; break;
-  case BnNodeType::BDD:       s << "BDD"; break;
+  case BnNodeType::NONE:       s << "None"; break;
+  case BnNodeType::INPUT:      s << "Input"; break;
+  case BnNodeType::SEQ_OUTPUT: s << "Seq Output"; break;
+  case BnNodeType::PRIMITIVE:  s << "Primitive"; break;
+  case BnNodeType::AIG:        s << "AIG"; break;
+  case BnNodeType::COVER:      s << "Cover"; break;
+  case BnNodeType::EXPR:       s << "Expr"; break;
+  case BnNodeType::CELL:       s << "Cell"; break;
+  case BnNodeType::TVFUNC:     s << "TvFunc"; break;
+  case BnNodeType::BDD:        s << "BDD"; break;
   }
   return s;
 }

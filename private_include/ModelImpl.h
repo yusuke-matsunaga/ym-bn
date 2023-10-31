@@ -330,6 +330,22 @@ public:
     return id;
   }
 
+  /// @brief 新しい BnSeq の出力ノードを作る．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  new_seq_output(
+    SizeType seq_id,        ///< [in] BnSeq の ID 番号
+    const string& name = {} ///< [in] 名前
+  )
+  {
+    _check_range(seq_id, seq_num(), "new_seq_output(seq_id, name)", "seq_id");
+    auto id = new_node(name);
+    auto& node = mNodeArray[id];
+    node.set_seq_output(seq_id);
+    return id;
+  }
+
   /// @brief 新しい出力ノードを作る．
   ///
   /// @return 新しい出力番号を返す．
@@ -466,7 +482,7 @@ public:
     auto id = seq_num();
     auto& seq = _new_seq(name);
     if ( output_id == BAD_ID ) {
-      output_id = new_input();
+      output_id = new_seq_output(id);
     }
     seq.set_dff(rs_val, output_id);
     return id;
@@ -485,7 +501,7 @@ public:
     auto id = seq_num();
     auto& seq = _new_seq(name);
     if ( output_id == BAD_ID ) {
-      output_id = new_input();
+      output_id = new_seq_output(id);
     }
     seq.set_latch(rs_val, output_id);
     return id;

@@ -106,9 +106,9 @@ ModelImpl::set_input(
 {
   auto& node = _node(id, "set_input(id", "id");
   auto iid = mInputList.size();
-  node.set_input(iid);
   mInputList.push_back(id);
   mInputNameList.push_back(node.name());
+  node.set_input(iid);
 }
 
 // @brief 新しい出力ノードを作る．

@@ -8,6 +8,7 @@
 
 #include "ym/BnNode.h"
 #include "ym/BnModel.h"
+#include "ym/BnSeq.h"
 #include "ModelImpl.h"
 
 
@@ -63,6 +64,13 @@ bool
 BnNode::is_input() const
 {
   return node_impl().is_input();
+}
+
+// @brief BnSeq の出力ノードの時 true を返す．
+bool
+BnNode::is_seq_output() const
+{
+  return node_impl().is_seq_output();
 }
 
 // @brief 論理ノードの時 true を返す．
@@ -126,6 +134,13 @@ SizeType
 BnNode::input_id() const
 {
   return node_impl().input_id();
+}
+
+// @brief 関連する BnSeq を返す．
+BnSeq
+BnNode::seq_node() const
+{
+  return BnSeq{mImpl, node_impl().seq_id()};
 }
 
 // @brief ノードのファンイン数を返す．

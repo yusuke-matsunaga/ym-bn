@@ -92,6 +92,10 @@ public:
   bool
   is_input() const;
 
+  /// @brief BnSeq の出力ノードの時 true を返す．
+  bool
+  is_seq_output() const;
+
   /// @brief 論理ノードの時 true を返す．
   bool
   is_logic() const;
@@ -130,9 +134,16 @@ public:
   SizeType
   input_id() const;
 
+  /// @brief 関連する BnSeq を返す．
+  ///
+  /// is_seq_output() が true の時のみ意味を持つ．
+  BnSeq
+  seq_node() const;
+
   /// @brief ファンイン数を返す．
   ///
   /// is_logic() が true の時のみ意味を持つ．
+  /// is_logic() が false の時は 0 を返す．
   SizeType
   fanin_num() const;
 
@@ -147,6 +158,7 @@ public:
   /// @brief ファンインのノードのリストを返す．
   ///
   /// is_logic() が true の時のみ意味を持つ．
+  /// is_logic() が false の時は空リストを返す．
   vector<BnNode>
   fanin_list() const;
 

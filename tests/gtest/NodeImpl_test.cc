@@ -21,6 +21,7 @@ TEST( NodeImplTest, constructor1 )
 
   EXPECT_EQ( BnNodeType::NONE, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -31,8 +32,9 @@ TEST( NodeImplTest, constructor1 )
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_EQ( name, node.name() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_num();}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_list();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
+  EXPECT_EQ( 0, node.fanin_num() );
+  EXPECT_EQ( vector<SizeType>{}, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
@@ -62,6 +64,7 @@ TEST( NodeImplTest, set_input )
 
   EXPECT_EQ( BnNodeType::INPUT, node.type() );
   EXPECT_TRUE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -71,8 +74,41 @@ TEST( NodeImplTest, set_input )
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_EQ( iid, node.input_id() );
-  EXPECT_THROW( {node.fanin_num();}, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_list();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
+  EXPECT_EQ( 0, node.fanin_num() );
+  EXPECT_EQ( vector<SizeType>{}, node.fanin_list() );
+  EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
+  EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
+  EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
+  EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.func_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.bdd_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+}
+
+TEST( NodeImplTest, set_seq_output )
+{
+  NodeImpl node{""};
+
+  SizeType seq_id = 10;
+  node.set_seq_output(seq_id);
+
+  EXPECT_EQ( BnNodeType::SEQ_OUTPUT, node.type() );
+  EXPECT_FALSE( node.is_input() );
+  EXPECT_TRUE( node.is_seq_output() );
+  EXPECT_FALSE( node.is_logic() );
+  EXPECT_FALSE( node.is_primitive() );
+  EXPECT_FALSE( node.is_aig() );
+  EXPECT_FALSE( node.is_cover() );
+  EXPECT_FALSE( node.is_expr() );
+  EXPECT_FALSE( node.is_cell() );
+  EXPECT_FALSE( node.is_func() );
+  EXPECT_FALSE( node.is_bdd() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_EQ( seq_id, node.seq_id() );
+  EXPECT_EQ( 0, node.fanin_num() );
+  EXPECT_EQ( vector<SizeType>{}, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
@@ -93,6 +129,7 @@ TEST( NodeImplTest, set_primitive )
 
   EXPECT_EQ( BnNodeType::PRIMITIVE, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_TRUE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -102,6 +139,7 @@ TEST( NodeImplTest, set_primitive )
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -129,6 +167,7 @@ TEST( NodeImplTest, set_aig )
 
   EXPECT_EQ( BnNodeType::AIG, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_TRUE( node.is_aig() );
@@ -138,6 +177,7 @@ TEST( NodeImplTest, set_aig )
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
   EXPECT_EQ( 2, node.fanin_num() );
   EXPECT_EQ( src0, node.fanin(0) );
   EXPECT_EQ( src1, node.fanin(1) );
@@ -163,6 +203,7 @@ TEST( NodeImplTest, set_cover )
 
   EXPECT_EQ( BnNodeType::COVER, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -172,6 +213,7 @@ TEST( NodeImplTest, set_cover )
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -197,6 +239,7 @@ TEST( NodeImplTest, set_expr )
 
   EXPECT_EQ( BnNodeType::EXPR, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -206,6 +249,7 @@ TEST( NodeImplTest, set_expr )
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -231,6 +275,7 @@ TEST( NodeImplTest, set_func )
 
   EXPECT_EQ( BnNodeType::TVFUNC, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -240,6 +285,7 @@ TEST( NodeImplTest, set_func )
   EXPECT_TRUE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -265,6 +311,7 @@ TEST( NodeImplTest, set_bdd )
 
   EXPECT_EQ( BnNodeType::BDD, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -274,6 +321,7 @@ TEST( NodeImplTest, set_bdd )
   EXPECT_FALSE( node.is_func() );
   EXPECT_TRUE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
@@ -298,6 +346,7 @@ TEST( NodeImplTest, set_cell )
 
   EXPECT_EQ( BnNodeType::CELL, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -307,6 +356,7 @@ TEST( NodeImplTest, set_cell )
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     EXPECT_EQ( fanin_list[i], node.fanin(i) );

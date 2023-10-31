@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 #include "ym/BnNode.h"
 #include "ym/BnModel.h"
+#include "ym/BnSeq.h"
 #include "ModelImpl.h"
 
 
@@ -23,6 +24,7 @@ TEST(BnNodeTest, constructor1)
   EXPECT_THROW( {node.name(); }, std::invalid_argument );
   EXPECT_THROW( {node.type(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_input(); }, std::invalid_argument );
+  EXPECT_THROW( {node.is_seq_output(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_logic(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_primitive(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_aig(); }, std::invalid_argument );
@@ -32,6 +34,7 @@ TEST(BnNodeTest, constructor1)
   EXPECT_THROW( {node.is_func(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_bdd(); }, std::invalid_argument );
   EXPECT_THROW( {node.input_id(); }, std::invalid_argument );
+  EXPECT_THROW( {node.seq_node(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_num(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin(0); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_list(); }, std::invalid_argument );
@@ -71,6 +74,7 @@ TEST(BnNodeTest, constructor2)
   EXPECT_EQ( name, node.name() );
   EXPECT_EQ( BnNodeType::NONE, node.type() );
   EXPECT_FALSE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -80,9 +84,10 @@ TEST(BnNodeTest, constructor2)
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_num(); }, std::invalid_argument );
+  EXPECT_THROW( {node.seq_node(); }, std::invalid_argument );
+  EXPECT_EQ( 0, node.fanin_num() );
   EXPECT_THROW( {node.fanin(0); }, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_list(); }, std::invalid_argument );
+  EXPECT_EQ( vector<BnNode>{}, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0); }, std::invalid_argument );
   EXPECT_THROW( {node.cover_id(); }, std::invalid_argument );
@@ -108,6 +113,7 @@ TEST( BnNodeTest, set_input)
   EXPECT_TRUE( node.is_valid() );
   EXPECT_EQ( BnNodeType::INPUT, node.type() );
   EXPECT_TRUE( node.is_input() );
+  EXPECT_FALSE( node.is_seq_output() );
   EXPECT_FALSE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
@@ -117,9 +123,10 @@ TEST( BnNodeTest, set_input)
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
   EXPECT_EQ( 0, node.input_id() );
-  EXPECT_THROW( {node.fanin_num(); }, std::invalid_argument );
+  EXPECT_THROW( {node.seq_node(); }, std::invalid_argument );
+  EXPECT_EQ( 0, node.fanin_num());
   EXPECT_THROW( {node.fanin(0); }, std::invalid_argument );
-  EXPECT_THROW( {node.fanin_list(); }, std::invalid_argument );
+  EXPECT_EQ( vector<BnNode>{}, node.fanin_list() );
   EXPECT_THROW( {node.primitive_type(); }, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0); }, std::invalid_argument );
   EXPECT_THROW( {node.cover_id(); }, std::invalid_argument );

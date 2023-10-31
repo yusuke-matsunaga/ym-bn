@@ -262,8 +262,8 @@ Iscas89Parser::read_gate(
     set_defined(name_id, loc);
     if ( mClockId == BAD_ID ) {
       mClockId = new_node(mClockName, {});
-      mModel->set_input(mClockId);
       set_defined(mClockId, {});
+      mModel->set_input(mClockId);
     }
     auto oname = id2str(name_id);
     auto dff_id = mModel->new_dff(' ', name_id, oname);

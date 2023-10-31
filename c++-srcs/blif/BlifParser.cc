@@ -399,7 +399,6 @@ BlifParser::read_inputs()
 
       set_defined(id, name_loc);
       mModel->set_input(id);
-
       ++ n_token;
     }
     else if ( tk == BlifToken::NL ) {
