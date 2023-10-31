@@ -905,7 +905,7 @@ BlifParser::read_latch()
     mClockId = get_clock_id();
 
     set_defined(id2, name2_loc);
-    auto dff_id = mModel->new_dff(' ', id2);
+    auto dff_id = mModel->new_dff(' ', id2, name2);
     mModel->set_data_src(dff_id, id1);
     mModel->set_clock(dff_id, mClockId);
     mModel->set_clear(dff_id, reset_id);

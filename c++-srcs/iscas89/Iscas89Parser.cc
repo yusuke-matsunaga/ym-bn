@@ -265,7 +265,8 @@ Iscas89Parser::read_gate(
       mModel->set_input(mClockId);
       set_defined(mClockId, {});
     }
-    auto dff_id = mModel->new_dff(' ', name_id);
+    auto oname = id2str(name_id);
+    auto dff_id = mModel->new_dff(' ', name_id, oname);
     mModel->set_data_src(dff_id, iname_id);
     mModel->set_clock(dff_id, mClockId);
     return true;

@@ -657,24 +657,25 @@ BnModel::print(
   }
   for ( SizeType i = 0;i < input_num(); ++ i ) {
     auto node = input(i);
-    s << node_name(node)
-      << ": INPUT#" << node.input_id() << "[" << input_name(i) << "]" << endl;
+    s << "INPUT#" << i << "[" << input_name(i) << "]"
+      << " = " << node_name(node) << endl;
   }
   for ( SizeType i = 0; i < output_num(); ++ i ) {
     s << "OUTPUT#" << i << "[" << output_name(i) << "]"
-      << " = " << "Node#" << output(i).id() << endl;
+      << " = " << node_name(output(i)) << endl;
   }
   for ( SizeType i = 0; i < seq_num(); ++ i ) {
     auto seq = seq_node(i);
-    s << seq.name();
-    s << ": SEQ#" << i << "[" << seq.name() << "]"
-      << " src = " << "Node#" << seq.data_src().id()
-      << " clock = " << "Node#" << seq.clock().id();
+    s << "SEQ#" << i << "[" << seq.name() << "]:"
+      << " type = " << seq.type()
+      << " output = " << node_name(seq.data_output())
+      << " src = " << node_name(seq.data_src())
+      << " clock = " << node_name(seq.clock());
     if ( seq.clear().is_valid() ) {
-      s << " clear = " << "Node#" << seq.clear().id();
+      s << " clear = " << node_name(seq.clear());
     }
     if ( seq.preset().is_valid() ) {
-      s << " preset = " << "Node#" << seq.preset().id();
+      s << " preset = " << node_name(seq.preset());
     }
     if ( seq.rsval() != ' ' ) {
       s << ", rsval = " << seq.rsval();
@@ -683,7 +684,7 @@ BnModel::print(
   }
   for ( auto node: logic_list() ) {
     s << node_name(node)
-      << ": ";
+      << " = ";
     if ( node.is_primitive() ) {
       s << node.primitive_type();
     }
@@ -710,7 +711,7 @@ BnModel::print(
     }
     s << " (";
     for ( auto inode: node.fanin_list() ) {
-      s << " " << inode.id();
+      s << " " << node_name(inode);
     }
     s << ")" << endl;
   }

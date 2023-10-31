@@ -30,7 +30,7 @@ TEST( BnModelTest, read_truth )
   ostringstream s1;
   model.print(s1);
 
-  string ref_path = DATAPATH + string{"ex61.bnfe"};
+  string ref_path = DATAPATH + string{"ex61.bn"};
   ifstream s2{ref_path};
   ASSERT_TRUE( s2 );
   string ref_contents;
