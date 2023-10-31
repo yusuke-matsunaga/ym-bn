@@ -141,7 +141,7 @@ public:
     SizeType id ///< [in] ID番号
   ) const
   {
-    return mModel->node(id).name();
+    return mNameDict.at(id);
   }
 
 
@@ -220,11 +220,10 @@ private:
   /// @return ID番号を返す．
   SizeType
   new_node(
-    const string& name,   ///< [in] 名前
     const FileRegion& loc ///< [in] ファイル上の位置
   )
   {
-    auto id = mModel->new_node(name);
+    auto id = mModel->new_node();
     mRefLocDict.emplace(id, loc);
     return id;
   }
@@ -238,11 +237,12 @@ private:
     const FileRegion& loc
   )
   {
-    if ( mIdHash.count(name) > 0 ) {
-      return mIdHash.at(name);
+    if ( mIdDict.count(name) > 0 ) {
+      return mIdDict.at(name);
     }
-    SizeType id = new_node(name, loc);
-    mIdHash.emplace(name, id);
+    SizeType id = new_node(loc);
+    mIdDict.emplace(name, id);
+    mNameDict.emplace(id, name);
     return id;
   }
 
@@ -310,8 +310,11 @@ private:
   // クロック入力のノード番号
   SizeType mClockId;
 
-  // 名前をキーにした識別子のハッシュ表
-  unordered_map<string, SizeType> mIdHash;
+  // 名前をキーにした識別子の辞書
+  unordered_map<string, SizeType> mIdDict;
+
+  // ID をキーにして名前を格納する辞書
+  unordered_map<SizeType, string> mNameDict;
 
   // 参照された位置を記録する配列
   unordered_map<SizeType, FileRegion> mRefLocDict;

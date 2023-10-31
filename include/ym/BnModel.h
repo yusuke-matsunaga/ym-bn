@@ -55,12 +55,13 @@ class ModelImpl;
 ///   * aig(.aag, .aig)
 ///   * truth(IWLS2022)
 ///
-/// - 読み込んだファイルによってはノードはユニークな名前を持つ．
-/// - 入力名は入力ノード名と等しい
-/// - blif/iscas89 の場合は出力名は出力として参照されているノード名と
-///   等しい．
+/// - 回路名，コメント，入出力名をオプションとして持つ．
+/// - 本来，入出力名はユニークであるべきだが，blif/iscas89
+///   の場合は出力名は出力として参照されているノード名と等しい．
 ///   そのため入力ノードがそのまま出力となっている場合には
 ///   入力と出力に同じ名前を持つことになる．
+/// - 複数の入出力をまとめてポートを定義することもできる．
+///   ポート情報もオプションで保持される．
 //////////////////////////////////////////////////////////////////////
 class BnModel
 {
@@ -394,6 +395,13 @@ public:
     const string& comment ///< [in] コメント
   );
 
+  /// @brief 入力の名前を設定する．
+  void
+  set_input_name(
+    SizeType pos,      ///< [in] 位置番号 ( 0 <= pos < input_num() )
+    const string& name ///< [in] 名前
+  );
+
   /// @brief 出力の名前を設定する．
   void
   set_output_name(
@@ -431,8 +439,7 @@ public:
   BnNode
   new_primitive(
     const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
-    PrimType type,                    ///< [in] プリミティブタイプ
-    const string& name = {}           ///< [in] 名前
+    PrimType type                     ///< [in] プリミティブタイプ
   );
 
   /// @brief 新しいAIG型の論理ノードを作る．
@@ -442,8 +449,7 @@ public:
     BnNode src0,            ///< [in] ソース0のノード
     BnNode src1,            ///< [in] ソース1のノード
     bool inv0,              ///< [in] ソース0の反転属性
-    bool inv1,              ///< [in] ソース1の反転属性
-    const string& name = {} ///< [in] 名前
+    bool inv1               ///< [in] ソース1の反転属性
   );
 
   /// @brief 新しいカバー型の論理ノードを作る．
@@ -453,8 +459,7 @@ public:
   BnNode
   new_cover(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType cover_id,                ///< [in] カバー番号
-    const string& name = {}           ///< [in] 名前
+    SizeType cover_id                 ///< [in] カバー番号
   );
 
   /// @brief カバーを追加する．
@@ -473,8 +478,7 @@ public:
   BnNode
   new_expr(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType expr_id,                 ///< [in] 論理式番号
-    const string& name = {}           ///< [in] 名前
+    SizeType expr_id                  ///< [in] 論理式番号
   );
 
   /// @brief 論理式を追加する．
@@ -491,8 +495,7 @@ public:
   BnNode
   new_cell(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    ClibCell cell,                    ///< [in] セル
-    const string& name = {}           ///< [in] 名前
+    ClibCell cell                     ///< [in] セル
   );
 
   /// @brief 真理値表型の論理ノードを作る．
@@ -502,8 +505,7 @@ public:
   BnNode
   new_func(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType func_id,                 ///< [in] 関数番号
-    const string& name = {}           ///< [in] 名前
+    SizeType func_id                  ///< [in] 関数番号
   );
 
   /// @brief 真理値表を追加する．
@@ -520,8 +522,7 @@ public:
   BnNode
   new_bdd(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType bdd_id,                  ///< [in] BDD番号
-    const string& name = {}           ///< [in] 名前
+    SizeType bdd_id                   ///< [in] BDD番号
   );
 
   /// @brief BDDを追加する．

@@ -261,9 +261,9 @@ Iscas89Parser::read_gate(
     FileRegion loc{first_loc, last_loc};
     set_defined(name_id, loc);
     if ( mClockId == BAD_ID ) {
-      mClockId = new_node(mClockName, {});
+      mClockId = new_node({});
       set_defined(mClockId, {});
-      mModel->set_input(mClockId);
+      mModel->set_input(mClockId, mClockName);
     }
     auto oname = id2str(name_id);
     auto dff_id = mModel->new_dff(' ', name_id, oname);

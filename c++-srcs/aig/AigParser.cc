@@ -407,7 +407,7 @@ AigParser::initialize(
 )
 {
   for ( SizeType i = 0; i < M; ++ i ) {
-    model->new_node({});
+    model->new_node();
   }
   mModel = model;
   mDefined = vector<bool>(M, false);
@@ -538,8 +538,7 @@ AigParser::read_symbols()
 	SizeType pos = atoi(pos_str.substr(1, string::npos).c_str());
 	char prefix = pos_str[0];
 	if ( prefix == 'i' ) {
-	  auto id = mModel->input(pos);
-	  mModel->set_node_name(id, name);
+	  mModel->set_input_name(pos, name);
 	}
 	else if ( prefix == 'l' ) {
 	  mModel->set_seq_name(pos, name);
@@ -667,7 +666,7 @@ AigParser::lit2node(
     if ( mInvDict.count(id) > 0 ) {
       return mInvDict.at(id);
     }
-    auto inv_id = mModel->new_node("");
+    auto inv_id = mModel->new_node();
     mModel->set_primitive(inv_id, {id}, PrimType::Not);
     return inv_id;
   }
@@ -679,7 +678,7 @@ SizeType
 AigParser::const0()
 {
   if ( mConst0 == -1 ) {
-    mConst0 = mModel->new_node("const0");
+    mConst0 = mModel->new_node();
     mModel->set_primitive(mConst0, {}, PrimType::C0);
   }
   return mConst0;
@@ -690,7 +689,7 @@ SizeType
 AigParser::const1()
 {
   if ( mConst1 == -1 ) {
-    mConst1 = mModel->new_node("const1");
+    mConst1 = mModel->new_node();
     mModel->set_primitive(mConst0, {}, PrimType::C1);
   }
   return mConst1;

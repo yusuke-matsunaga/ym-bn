@@ -16,8 +16,7 @@ BEGIN_NAMESPACE_YM_BN
 
 TEST( NodeImplTest, constructor1 )
 {
-  string name{"abcd"};
-  NodeImpl node{name};
+  NodeImpl node;
 
   EXPECT_EQ( BnNodeType::NONE, node.type() );
   EXPECT_FALSE( node.is_input() );
@@ -30,7 +29,6 @@ TEST( NodeImplTest, constructor1 )
   EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_func() );
   EXPECT_FALSE( node.is_bdd() );
-  EXPECT_EQ( name, node.name() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_THROW( {node.seq_id();}, std::invalid_argument );
   EXPECT_EQ( 0, node.fanin_num() );
@@ -45,19 +43,9 @@ TEST( NodeImplTest, constructor1 )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( NodeImplTest, set_name )
-{
-  string name{"xyz"};
-  NodeImpl node{""};
-
-  node.set_name(name);
-
-  EXPECT_EQ( name, node.name() );
-}
-
 TEST( NodeImplTest, set_input )
 {
-  NodeImpl node{""};
+  NodeImpl node;
 
   SizeType iid = 10;
   node.set_input(iid);
@@ -89,7 +77,7 @@ TEST( NodeImplTest, set_input )
 
 TEST( NodeImplTest, set_seq_output )
 {
-  NodeImpl node{""};
+  NodeImpl node;
 
   SizeType seq_id = 10;
   node.set_seq_output(seq_id);
@@ -121,7 +109,7 @@ TEST( NodeImplTest, set_seq_output )
 
 TEST( NodeImplTest, set_primitive )
 {
-  NodeImpl node{""};
+  NodeImpl node;
 
   vector<SizeType> fanin_list{0, 1, 4};
   PrimType type = PrimType::Nand;
@@ -157,7 +145,7 @@ TEST( NodeImplTest, set_primitive )
 
 TEST( NodeImplTest, set_aig )
 {
-  NodeImpl node{""};
+  NodeImpl node;
 
   SizeType src0 = 2;
   SizeType src1 = 10;
@@ -195,7 +183,7 @@ TEST( NodeImplTest, set_aig )
 
 TEST( NodeImplTest, set_cover )
 {
-  NodeImpl node{""};
+  NodeImpl node;
 
   vector<SizeType> fanin_list{3, 5};
   SizeType cover_id = 15;
@@ -231,7 +219,7 @@ TEST( NodeImplTest, set_cover )
 
 TEST( NodeImplTest, set_expr )
 {
-  NodeImpl node{""};
+  NodeImpl node;
 
   vector<SizeType> fanin_list{2, 6, 8, 10};
   SizeType expr_id = 9;
@@ -267,7 +255,7 @@ TEST( NodeImplTest, set_expr )
 
 TEST( NodeImplTest, set_func )
 {
-  NodeImpl node{""};
+  NodeImpl node;
 
   vector<SizeType> fanin_list{2, 6, 8, 10};
   SizeType func_id = 9;
@@ -303,7 +291,7 @@ TEST( NodeImplTest, set_func )
 
 TEST( NodeImplTest, set_bdd )
 {
-  NodeImpl node{""};
+  NodeImpl node;
 
   vector<SizeType> fanin_list{2, 6, 8, 10};
   SizeType bdd_id = 9;
@@ -339,7 +327,8 @@ TEST( NodeImplTest, set_bdd )
 
 TEST( NodeImplTest, set_cell )
 {
-  NodeImpl node{""};
+  NodeImpl node;
+
   vector<SizeType> fanin_list{2, 6, 8, 10};
   SizeType cell_id = 99;
   node.set_cell(fanin_list, cell_id);

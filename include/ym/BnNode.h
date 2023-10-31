@@ -24,7 +24,6 @@ class NodeImpl;
 ///
 /// 以下の情報を持つ．
 /// - ID
-/// - 名前
 /// - 種類(Input, Prim, Aig, Cover, Expr, Cell, TvFunc, Bdd)
 /// - ファンインのノード番号のリスト
 /// - プリミティブタイプ(種類がPrimの時のみ)
@@ -79,10 +78,6 @@ public:
   {
     return mId;
   }
-
-  /// @brief ノード名を返す．
-  const string&
-  name() const;
 
   /// @brief ノードの種類を返す．
   BnNodeType

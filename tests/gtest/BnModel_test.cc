@@ -119,7 +119,7 @@ TEST( BnModelTest, new_input )
   EXPECT_TRUE( node.is_valid() );
   EXPECT_TRUE( node.is_input() );
   EXPECT_EQ( model, node.parent_model() );
-  EXPECT_EQ( name1, node.name() );
+  EXPECT_EQ( name1, model.input_name(0) );
 }
 
 TEST( BnModelTest, new_primitive)

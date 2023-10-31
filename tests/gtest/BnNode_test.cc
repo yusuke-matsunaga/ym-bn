@@ -21,7 +21,6 @@ TEST(BnNodeTest, constructor1)
 
   EXPECT_FALSE( node.is_valid() );
   EXPECT_THROW( {node.parent_model(); }, std::invalid_argument );
-  EXPECT_THROW( {node.name(); }, std::invalid_argument );
   EXPECT_THROW( {node.type(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_input(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_seq_output(); }, std::invalid_argument );
@@ -65,13 +64,11 @@ TEST(BnNodeTest, constructor2)
 {
   shared_ptr<ModelImpl> model{new ModelImpl};
 
-  string name{"abc"};
-  auto id = model->new_node(name);
+  auto id = model->new_node();
 
   BnNode node{model, id};
 
   EXPECT_TRUE( node.is_valid() );
-  EXPECT_EQ( name, node.name() );
   EXPECT_EQ( BnNodeType::NONE, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_FALSE( node.is_seq_output() );

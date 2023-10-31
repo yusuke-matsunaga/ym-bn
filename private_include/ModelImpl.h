@@ -302,6 +302,13 @@ public:
     const string& comment ///< [in] コメント
   );
 
+  /// @brief 入力の名前を設定する．
+  void
+  set_input_name(
+    SizeType pos,      ///< [in] 位置番号 ( 0 <= pos < input_num() )
+    const string& name ///< [in] 名前
+  );
+
   /// @brief 出力の名前を設定する．
   void
   set_output_name(
@@ -313,9 +320,7 @@ public:
   ///
   /// @return ID番号を返す．
   SizeType
-  new_node(
-    const string& name = {} ///< [in] 名前
-  );
+  new_node();
 
   /// @brief 新しい入力ノードを作る．
   ///
@@ -325,8 +330,8 @@ public:
     const string& name = {} ///< [in] 名前
   )
   {
-    auto id = new_node(name);
-    set_input(id);
+    auto id = new_node();
+    set_input(id, name);
     return id;
   }
 
@@ -335,12 +340,11 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_seq_output(
-    SizeType seq_id,        ///< [in] BnSeq の ID 番号
-    const string& name = {} ///< [in] 名前
+    SizeType seq_id        ///< [in] BnSeq の ID 番号
   )
   {
-    _check_range(seq_id, seq_num(), "new_seq_output(seq_id, name)", "seq_id");
-    auto id = new_node(name);
+    _check_range(seq_id, seq_num(), "new_seq_output(seq_id)", "seq_id");
+    auto id = new_node();
     auto& node = mNodeArray[id];
     node.set_seq_output(seq_id);
     return id;
@@ -361,11 +365,10 @@ public:
   SizeType
   new_primitive(
     const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    PrimType type,                      ///< [in] プリミティブタイプ
-    const string& name = {}             ///< [in] 名前
+    PrimType type                       ///< [in] プリミティブタイプ
   )
   {
-    auto id = new_node(name);
+    auto id = new_node();
     set_primitive(id, input_list, type);
     mLogicList.push_back(id);
     return id;
@@ -379,11 +382,10 @@ public:
     SizeType src0,          ///< [in] ソース0のID番号
     SizeType src1,          ///< [in] ソース1のID番号
     bool inv0,              ///< [in] ソース0の反転属性
-    bool inv1,              ///< [in] ソース1の反転属性
-    const string& name = {} ///< [in] 名前
+    bool inv1               ///< [in] ソース1の反転属性
   )
   {
-    auto id = new_node(name);
+    auto id = new_node();
     set_aig(id, src0, src1, inv0, inv1);
     mLogicList.push_back(id);
     return id;
@@ -395,11 +397,10 @@ public:
   SizeType
   new_cover(
     const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cover_id,                  ///< [in] カバー番号
-    const string& name = {}             ///< [in] 名前
+    SizeType cover_id                   ///< [in] カバー番号
   )
   {
-    auto id = new_node(name);
+    auto id = new_node();
     set_cover(id, input_list, cover_id);
     mLogicList.push_back(id);
     return id;
@@ -411,11 +412,10 @@ public:
   SizeType
   new_expr(
     const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType expr_id,                   ///< [in] 論理式番号
-    const string& name = {}             ///< [in] 名前
+    SizeType expr_id                    ///< [in] 論理式番号
   )
   {
-    auto id = new_node(name);
+    auto id = new_node();
     set_expr(id, input_list, expr_id);
     mLogicList.push_back(id);
     return id;
@@ -427,11 +427,10 @@ public:
   SizeType
   new_func(
     const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType func_id,                   ///< [in] 関数番号
-    const string& name = {}             ///< [in] 名前
+    SizeType func_id                    ///< [in] 関数番号
   )
   {
-    auto id = new_node(name);
+    auto id = new_node();
     set_func(id, input_list, func_id);
     mLogicList.push_back(id);
     return id;
@@ -443,11 +442,10 @@ public:
   SizeType
   new_bdd(
     const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType bdd_id,                    ///< [in] BDD番号
-    const string& name = {}             ///< [in] 名前
+    SizeType bdd_id                     ///< [in] BDD番号
   )
   {
-    auto id = new_node(name);
+    auto id = new_node();
     set_bdd(id, input_list, bdd_id);
     mLogicList.push_back(id);
     return id;
@@ -459,11 +457,10 @@ public:
   SizeType
   new_cell(
     const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    ClibCell cell,                      ///< [in] セル
-    const string& name = {}             ///< [in] 名前
+    ClibCell cell                       ///< [in] セル
   )
   {
-    auto id = new_node(name);
+    auto id = new_node();
     set_cell(id, input_list, cell);
     mLogicList.push_back(id);
     return id;
@@ -523,17 +520,11 @@ public:
     return id;
   }
 
-  /// @brief ノードに名前をつける．
-  void
-  set_node_name(
-    SizeType id,       ///< [in] ID番号
-    const string& name ///< [in] 名前
-  );
-
   /// @brief 対応するID番号に入力用の印を付ける．
   void
   set_input(
-    SizeType id ///< [in] ID番号
+    SizeType id,            ///< [in] ID番号
+    const string& name = {} ///< [in] 名前
   );
 
   /// @brief プリミティブ型のノードの情報をセットする．

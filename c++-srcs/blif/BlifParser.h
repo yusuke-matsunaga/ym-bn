@@ -67,12 +67,13 @@ private:
     const FileRegion& loc ///< [in] name の位置
   )
   {
-    if ( mNodeHash.count(name) > 0 ) {
-      return mNodeHash.at(name);
+    if ( mIdDict.count(name) > 0 ) {
+      return mIdDict.at(name);
     }
     mRefLocArray.push_back(loc);
-    auto id = mModel->new_node(name);
-    mNodeHash.emplace(name, id);
+    auto id = mModel->new_node();
+    mIdDict.emplace(name, id);
+    mNameDict.emplace(id, name);
     return id;
   }
 
@@ -82,7 +83,7 @@ private:
     SizeType id ///< [in] ID番号
   )
   {
-    return mModel->node(id).name();
+    return mNameDict.at(id);
   }
 
   /// @brief 参照位置を返す．
@@ -244,8 +245,11 @@ private:
   // モデル名
   string mModelName;
 
-  // 名前をキーにしたノード番号のハッシュ表
-  unordered_map<string, SizeType> mNodeHash;
+  // 名前をキーにしたノード番号の辞書
+  unordered_map<string, SizeType> mIdDict;
+
+  // ID番号をキーにした名前の辞書
+  unordered_map<SizeType, string> mNameDict;
 
   // ノードを参照している箇所の配列
   vector<FileRegion> mRefLocArray;

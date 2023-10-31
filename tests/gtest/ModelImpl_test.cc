@@ -176,7 +176,7 @@ TEST( ModelImplTest, new_node )
 {
   ModelImpl model;
 
-  auto id = model.new_node({});
+  auto id = model.new_node();
   EXPECT_EQ( 0, id );
 
   auto& node = model.node(id);
@@ -187,7 +187,7 @@ TEST( ModelImplTest, new_input )
 {
   ModelImpl model;
 
-  auto id = model.new_input({});
+  auto id = model.new_input();
   auto& node = model.node(id);
   EXPECT_EQ( BnNodeType::INPUT, node.type() );
 }
@@ -197,7 +197,7 @@ TEST( ModelImplTest, new_seq_output )
   ModelImpl model;
 
   auto seq_id = model.new_dff();
-  auto id = model.new_seq_output(seq_id, {});
+  auto id = model.new_seq_output(seq_id);
   auto& node = model.node(id);
   EXPECT_EQ( BnNodeType::SEQ_OUTPUT, node.type() );
 }
@@ -207,14 +207,14 @@ TEST( ModelImplTest, new_seq_output_bad )
   ModelImpl model;
 
   SizeType seq_id = 0;
-  EXPECT_THROW( {model.new_seq_output(seq_id, {});}, std::invalid_argument );
+  EXPECT_THROW( {model.new_seq_output(seq_id);}, std::invalid_argument );
 }
 
 TEST( ModelImplTest, new_output )
 {
   ModelImpl model;
 
-  auto id = model.new_node({});
+  auto id = model.new_node();
 
   auto oid = model.new_output(id);
 
@@ -379,10 +379,10 @@ TEST( ModelImplTest, new_dff )
 {
   ModelImpl model;
 
-  auto src_id = model.new_node({});
-  auto clock_id = model.new_node({});
-  auto clear_id = model.new_node({});
-  auto preset_id = model.new_node({});
+  auto src_id = model.new_node();
+  auto clock_id = model.new_node();
+  auto clear_id = model.new_node();
+  auto preset_id = model.new_node();
 
   char rsval = '1';
   auto id0 = model.new_dff(rsval);
@@ -405,9 +405,9 @@ TEST( ModelImplTest, new_latch )
 {
   ModelImpl model;
 
-  auto src_id = model.new_node({});
-  auto enable_id = model.new_node({});
-  auto clear_id = model.new_node({});
+  auto src_id = model.new_node();
+  auto enable_id = model.new_node();
+  auto clear_id = model.new_node();
 
   char rsval = 'X';
   auto id0 = model.new_latch(rsval);
@@ -434,9 +434,9 @@ TEST( ModelImplTest, new_seq_cell )
 
   ModelImpl model;
 
-  auto src_id = model.new_node({});
-  auto clock_id = model.new_node({});
-  auto output_id = model.new_input({});
+  auto src_id = model.new_node();
+  auto clock_id = model.new_node();
+  auto output_id = model.new_input();
 
   auto id0 = model.new_seq_cell(cell);
   model.set_seq_pin(id0, 0, clock_id);
@@ -454,28 +454,6 @@ TEST( ModelImplTest, new_seq_cell )
   EXPECT_EQ( clock_id, seq.cell_pin(0) );
   EXPECT_EQ( src_id, seq.cell_pin(1) );
   EXPECT_EQ( output_id, seq.cell_pin(2) );
-}
-
-TEST( ModelImplTest, set_node_name )
-{
-  ModelImpl model;
-
-  auto id = model.new_node({});
-  EXPECT_EQ( 0, id );
-
-  string name{"xyz"};
-  model.set_node_name(id, name);
-
-  auto& node = model.node(id);
-  EXPECT_EQ( name, node.name() );
-}
-
-TEST( ModelImplTest, set_node_name_bad )
-{
-  ModelImpl model;
-  string name{"xyz"};
-
-  EXPECT_THROW( {model.set_node_name(0, name);}, std::invalid_argument );
 }
 
 TEST( ModelImplTest, set_input )

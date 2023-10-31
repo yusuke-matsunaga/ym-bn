@@ -63,6 +63,19 @@ ModelImpl::set_library(
   mLibrary = library;
 }
 
+// @brief 入力の名前を設定する．
+void
+ModelImpl::set_input_name(
+  SizeType pos,
+  const string& name
+)
+{
+  if ( pos < 0 || pos >= input_num() ) {
+    throw std::invalid_argument{"Error in ModelImpl::set_input_name(pos, name). pos is out of range"};
+  }
+  mInputNameList[pos] = name;
+}
+
 // @brief 出力の名前を設定する．
 void
 ModelImpl::set_output_name(
@@ -71,43 +84,31 @@ ModelImpl::set_output_name(
 )
 {
   if ( pos < 0 || pos >= output_num() ) {
-    throw std::invalid_argument{"Error in ModelImpl::set_output_name(). pos is out of range"};
+    throw std::invalid_argument{"Error in ModelImpl::set_output_name(pos, name). pos is out of range"};
   }
   mOutputNameList[pos] = name;
 }
 
 // @brief 新しいノードを作る．
 SizeType
-ModelImpl::new_node(
-  const string& name
-)
+ModelImpl::new_node()
 {
   auto id = mNodeArray.size();
-  mNodeArray.push_back({name});
+  mNodeArray.push_back(NodeImpl{});
   return id;
-}
-
-// @brief ノードに名前をつける．
-void
-ModelImpl::set_node_name(
-  SizeType id,
-  const string& name
-)
-{
-  auto& node = _node(id, "set_node_name(id, name)", "id");
-  node.set_name(name);
 }
 
 // @brief 対応するID番号に入力用の印を付ける．
 void
 ModelImpl::set_input(
-  SizeType id
+  SizeType id,
+  const string& name
 )
 {
-  auto& node = _node(id, "set_input(id", "id");
+  auto& node = _node(id, "set_input(id, name)", "id");
   auto iid = mInputList.size();
   mInputList.push_back(id);
-  mInputNameList.push_back(node.name());
+  mInputNameList.push_back(name);
   node.set_input(iid);
 }
 
@@ -121,12 +122,7 @@ ModelImpl::new_output(
   auto& node = _node(id, "new_output(id, name)", "id");
   SizeType pos = mOutputList.size();
   mOutputList.push_back(id);
-  if ( name != string{} ) {
-    mOutputNameList.push_back(name);
-  }
-  else {
-    mOutputNameList.push_back(node.name());
-  }
+  mOutputNameList.push_back(name);
   return pos;
 }
 

@@ -267,17 +267,6 @@ BnNode_id(
 }
 
 PyObject*
-BnNode_name(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  auto node = PyBnNode::Get(self);
-  auto name = node.name();
-  return Py_BuildValue("s", name.c_str());
-}
-
-PyObject*
 BnNode_type(
   PyObject* self,
   void* Py_UNUSED(closure)
@@ -506,8 +495,6 @@ BnNode_bdd(
 PyGetSetDef BnNode_getsetters[] = {
   {"id", BnNode_id, nullptr,
    PyDoc_STR("ID"), nullptr},
-  {"name", BnNode_name, nullptr,
-   PyDoc_STR("name"), nullptr},
   {"input_id", BnNode_input_id, nullptr,
    PyDoc_STR("input ID"), nullptr},
   {"fanin_num", BnNode_fanin_num, nullptr,

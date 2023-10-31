@@ -401,12 +401,11 @@ BnModel::new_output(
 BnNode
 BnModel::new_primitive(
   const vector<BnNode>& input_list,
-  PrimType type,
-  const string& name
+  PrimType type
 )
 {
   auto input_id_list = to_id_list(input_list, "new_primitive");
-  return BnNode{mImpl, mImpl->new_primitive(input_id_list, type, name)};
+  return BnNode{mImpl, mImpl->new_primitive(input_id_list, type)};
 }
 
 // @brief 新しいAIG型の論理ノードを作る．
@@ -415,81 +414,75 @@ BnModel::new_aig(
   BnNode src0,
   BnNode src1,
   bool inv0,
-  bool inv1,
-  const string& name
+  bool inv1
 )
 {
   auto src0_id = to_id(src0, "new_aig");
   auto src1_id = to_id(src1, "new_aig");
-  return BnNode{mImpl, mImpl->new_aig(src0_id, src1_id, inv0, inv1, name)};
+  return BnNode{mImpl, mImpl->new_aig(src0_id, src1_id, inv0, inv1)};
 }
 
 // @brief 新しいカバー型の論理ノードを作る．
 BnNode
 BnModel::new_cover(
   const vector<BnNode>& input_list,
-  SizeType cover_id,
-  const string& name
+  SizeType cover_id
 )
 {
   auto input_id_list = to_id_list(input_list, "new_cover");
   _check_cover(cover_id, "new_cover");
   _check_cover_input(cover_id, input_list.size(), "new_cover");
-  return BnNode{mImpl, mImpl->new_cover(input_id_list, cover_id, name)};
+  return BnNode{mImpl, mImpl->new_cover(input_id_list, cover_id)};
 }
 
 // @brief 論理式型の論理ノードを作る．
 BnNode
 BnModel::new_expr(
   const vector<BnNode>& input_list,
-  SizeType expr_id,
-  const string& name
+  SizeType expr_id
 )
 {
   auto input_id_list = to_id_list(input_list, "new_expr");
   _check_expr(expr_id, "new_expr");
   _check_expr_input(expr_id, input_list.size(), "new_expr");
-  return BnNode{mImpl, mImpl->new_expr(input_id_list, expr_id, name)};
+  return BnNode{mImpl, mImpl->new_expr(input_id_list, expr_id)};
 }
 
 // @brief セル型の論理ノードを作る．
 BnNode
 BnModel::new_cell(
   const vector<BnNode>& input_list,
-  ClibCell cell,
-  const string& name
+  ClibCell cell
 )
 {
   auto input_id_list = to_id_list(input_list, "new_cell");
-  return BnNode{mImpl, mImpl->new_cell(input_id_list, cell, name)};
+  return BnNode{mImpl, mImpl->new_cell(input_id_list, cell)};
 }
 
 // @brief 真理値表型の論理ノードを作る．
 BnNode
 BnModel::new_func(
   const vector<BnNode>& input_list,
-  SizeType func_id,
-  const string& name
+  SizeType func_id
 )
 {
   auto input_id_list = to_id_list(input_list, "new_func");
   _check_func(func_id, "new_func");
   _check_func_input(func_id, input_list.size(), "new_func");
-  return BnNode{mImpl, mImpl->new_func(input_id_list, func_id, name)};
+  return BnNode{mImpl, mImpl->new_func(input_id_list, func_id)};
 }
 
 // @brief BDD型の論理ノードを作る．
 BnNode
 BnModel::new_bdd(
   const vector<BnNode>& input_list,
-  SizeType bdd_id,
-  const string& name
+  SizeType bdd_id
 )
 {
   auto input_id_list = to_id_list(input_list, "new_bdd");
   _check_bdd(bdd_id, "new_bdd");
   _check_bdd_input(bdd_id, input_list.size(), "new_bdd");
-  return BnNode{mImpl, mImpl->new_bdd(input_id_list, bdd_id, name)};
+  return BnNode{mImpl, mImpl->new_bdd(input_id_list, bdd_id)};
 }
 
 // @brief DFFを作る．
@@ -635,9 +628,6 @@ node_name(
 {
   ostringstream buf;
   buf << "Node#" << node.id();
-  if ( node.name() != string{} ) {
-    buf << "(" << node.name() << ")";
-  }
   return buf.str();
 }
 

@@ -23,11 +23,7 @@ class NodeImpl
 public:
 
   /// @brief コンストラクタ
-  NodeImpl(
-    const string& name ///< [in] 名前
-  ) : mName{name}
-  {
-  }
+  NodeImpl() = default;
 
   /// @brief デストラクタ
   ~NodeImpl() = default;
@@ -134,13 +130,6 @@ public:
   is_bdd() const
   {
     return mType == BnNodeType::BDD;
-  }
-
-  /// @brief 名前を返す．
-  const string&
-  name() const
-  {
-    return mName;
   }
 
   /// @brief 入力番号を返す．
@@ -272,15 +261,6 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 設定用の関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief 名前を設定する．
-  void
-  set_name(
-    const string& name
-  )
-  {
-    mName = name;
-  }
 
   /// @brief 入力として定義されたことをセットする．
   void
@@ -492,9 +472,6 @@ private:
 
   // ノードの種類
   BnNodeType mType{BnNodeType::NONE};
-
-  // 名前
-  string mName;
 
   // ファンインのID番号のリスト
   vector<SizeType> mFaninList;

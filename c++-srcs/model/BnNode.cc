@@ -45,13 +45,6 @@ BnNode::parent_model() const
   return BnModel{mImpl};
 }
 
-// @brief ノード名を返す．
-const string&
-BnNode::name() const
-{
-  return node_impl().name();
-}
-
 // @brief ノードの種類を返す．
 BnNodeType
 BnNode::type() const
