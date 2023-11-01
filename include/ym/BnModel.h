@@ -11,6 +11,7 @@
 #include "ym/bn.h"
 #include "ym/clib.h"
 #include "ym/logic.h"
+#include "ym/json.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -100,6 +101,10 @@ public:
   operator=(
     const BnModel& src ///< [in] コピー元のオブジェクト
   );
+
+  /// @brief 深いコピーを行う．
+  BnModel
+  copy() const;
 
   /// @brief ムーブ代入演算子
   BnModel&
@@ -197,25 +202,9 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 深いコピーを行う．
-  BnModel
-  copy() const;
-
   /// @brief セルライブラリを返す．
   ClibCellLibrary
   library() const;
-
-  /// @brief 名前を返す．
-  ///
-  /// 空の場合もある．
-  string
-  name() const;
-
-  /// @brief コメントを返す．
-  ///
-  /// 空の場合もある．
-  string
-  comment() const;
 
   /// @brief ノード数を返す．
   SizeType
@@ -235,16 +224,6 @@ public:
   vector<BnNode>
   input_list() const;
 
-  /// @brief 入力名を返す．
-  string
-  input_name(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < input_num() )
-  ) const;
-
-  /// @brief 入力名のリストを返す．
-  vector<string>
-  input_name_list() const;
-
   /// @brief 出力数を返す．
   SizeType
   output_num() const;
@@ -258,16 +237,6 @@ public:
   /// @brief 出力のノードのリストを返す．
   vector<BnNode>
   output_list() const;
-
-  /// @brief 出力名を返す．
-  string
-  output_name(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < output_num() )
-  ) const;
-
-  /// @brief 出力名のリストを返す．
-  vector<string>
-  output_name_list() const;
 
   /// @brief 論理ノード数を返す．
   SizeType
@@ -371,6 +340,46 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
+  /// @name オプション情報を取得する関数
+  /// @{
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief オプション情報を表す JSON オブジェクトを返す．
+  JsonValue
+  option() const;
+
+  /// @brief 名前を返す．
+  string
+  name() const;
+
+  /// @brief コメントを返す．
+  string
+  comment() const;
+
+  /// @brief 入力名を返す．
+  string
+  input_name(
+    SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
+  ) const;
+
+  /// @brief 出力名を返す．
+  string
+  output_name(
+    SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
+  ) const;
+
+  /// @brief ラッチ名を返す．
+  string
+  seq_name(
+    SizeType seq_id ///< [in] ラッチ番号 ( 0 <= seq_id < seq_num() )
+  ) const;
+
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
   /// @name 内容を設定する関数
   /// @{
   //////////////////////////////////////////////////////////////////////
@@ -383,30 +392,26 @@ public:
     ClibCellLibrary lib ///< [in] ライブラリ
   );
 
-  /// @brief 名前を設定する．
+  /// @brief オプション情報をセットする．
   void
-  set_name(
-    const string& name ///< [in] 名前
+  set_option(
+    const JsonValue& option ///< [in] 追加するオプション
   );
 
-  /// @brief コメントを設定する．
+  /// @brief 入出力数をセットする．
+  ///
+  /// 以前の内容はクリアされる．
   void
-  set_comment(
-    const string& comment ///< [in] コメント
+  set_iosize(
+    SizeType input_num,     ///< [in] 入力数
+    SizeType output_num     ///< [in] 出力数
   );
 
-  /// @brief 入力の名前を設定する．
+  /// @brief 出力ノードをセットする．
   void
-  set_input_name(
-    SizeType pos,      ///< [in] 位置番号 ( 0 <= pos < input_num() )
-    const string& name ///< [in] 名前
-  );
-
-  /// @brief 出力の名前を設定する．
-  void
-  set_output_name(
-    SizeType pos,      ///< [in] 位置番号 ( 0 <= pos < output_num() )
-    const string& name ///< [in] 名前
+  set_output(
+    SizeType pos,           ///< [in] 位置番号 ( 0 <= pos < output_num() )
+    BnNode src              ///< [in] ソースのノード
   );
 
   /// @}
@@ -419,19 +424,16 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 新しい入力ノードを作る．
+  /// @brief 入力ノードを作る．
   /// @return 生成したノードを返す．
   BnNode
-  new_input(
-    const string& name = {} ///< [in] 名前
-  );
+  new_input();
 
-  /// @brief 新しい出力ノードを作る．
-  /// @return 新しい出力番号を返す．
+  /// @brief 出力ノードを作る．
+  /// @return 生成した出力ノードの出力番号を返す．
   SizeType
   new_output(
-    BnNode src,             ///< [in] ソースのノード
-    const string& name = {} ///< [in] 出力名
+    BnNode src ///< [in] ソースノード
   );
 
   /// @brief 新しいプリミティブ型の論理ノードを作る．
@@ -546,16 +548,14 @@ public:
   /// @return 生成したSEQノードを返す．
   BnSeq
   new_dff(
-    char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
-    const string& name = {} ///< [in] 名前
+    char rs_val = ' '      ///< [in] リセットとプリセットが共にオンの時の値
   );
 
   /// @brief ラッチを作る．
   /// @return 生成したSEQノードを返す．
   BnSeq
   new_latch(
-    char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
-    const string& name = {} ///< [in] 名前
+    char rs_val = ' '      ///< [in] リセットとプリセットが共にオンの時の値
   );
 
   /// @brief セルタイプのSEQノードを作る．
@@ -564,8 +564,7 @@ public:
   /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
   BnSeq
   new_seq_cell(
-    ClibCell cell,          ///< [in] セル
-    const string& name = {} ///< [in] 名前
+    ClibCell cell          ///< [in] セル
   );
 
   /// @brief DFF/ラッチのソースノードをセットする．

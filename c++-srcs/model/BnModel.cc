@@ -52,6 +52,13 @@ BnModel::operator=(
   return *this;
 }
 
+// @brief 深いコピーを行う．
+BnModel
+BnModel::copy() const
+{
+  return BnModel{shared_ptr<ModelImpl>{new ModelImpl{*mImpl}}};
+}
+
 // @brief ムーブ代入演算子
 BnModel&
 BnModel::operator=(
@@ -74,32 +81,11 @@ BnModel::~BnModel()
 {
 }
 
-// @brief 深いコピーを行う．
-BnModel
-BnModel::copy() const
-{
-  return BnModel{shared_ptr<ModelImpl>{new ModelImpl{*mImpl}}};
-}
-
 // @brief セルライブラリを返す．
 ClibCellLibrary
 BnModel::library() const
 {
   return mImpl->library();
-}
-
-// @brief 名前を返す．
-string
-BnModel::name() const
-{
-  return mImpl->name();
-}
-
-// @brief コメントを返す．
-string
-BnModel::comment() const
-{
-  return mImpl->comment();
 }
 
 // @brief ノード数を返す．
@@ -132,28 +118,6 @@ BnModel::input_list() const
   return from_id_list(mImpl->input_list());
 }
 
-// @brief 入力名を返す．
-string
-BnModel::input_name(
-  SizeType pos
-) const
-{
-  if ( pos < 0 || input_num() <= pos ) {
-    ostringstream buf;
-    buf << "Error in BnModel::input_name. "
-	<< pos << " is out of range.";
-    throw std::invalid_argument{buf.str()};
-  }
-  return mImpl->input_name(pos);
-}
-
-// @brief 入力名のリストを返す．
-vector<string>
-BnModel::input_name_list() const
-{
-  return mImpl->input_name_list();
-}
-
 // @brief 入力数を返す．
 SizeType
 BnModel::output_num() const
@@ -181,28 +145,6 @@ vector<BnNode>
 BnModel::output_list() const
 {
   return from_id_list(mImpl->output_list());
-}
-
-// @brief 出力名を返す．
-string
-BnModel::output_name(
-  SizeType pos
-) const
-{
-  if ( pos < 0 || output_num() <= pos ) {
-    ostringstream buf;
-    buf << "Error in BnModel::output_name. "
-	<< pos << " is out of range.";
-    throw std::invalid_argument{buf.str()};
-  }
-  return mImpl->output_name(pos);
-}
-
-// @brief 出力名のリストを返す．
-vector<string>
-BnModel::output_name_list() const
-{
-  return mImpl->output_name_list();
 }
 
 // @brief 論理ノード数を返す．
@@ -335,6 +277,54 @@ BnModel::bdd(
   return mImpl->bdd(bdd_id);
 }
 
+// @brief オプション情報を表す JSON オブジェクトを返す．
+JsonValue
+BnModel::option() const
+{
+  return mImpl->option();
+}
+
+// @brief 名前を返す．
+string
+BnModel::name() const
+{
+  return mImpl->name();
+}
+
+// @brief コメントを返す．
+string
+BnModel::comment() const
+{
+  return mImpl->comment();
+}
+
+// @brief 入力名を返す．
+string
+BnModel::input_name(
+  SizeType input_id
+) const
+{
+  return mImpl->input_name(input_id);
+}
+
+// @brief 出力名を返す．
+string
+BnModel::output_name(
+  SizeType output_id
+) const
+{
+  return mImpl->output_name(output_id);
+}
+
+// @brief ラッチ名を返す．
+string
+BnModel::seq_name(
+  SizeType seq_id
+) const
+{
+  return mImpl->seq_name(seq_id);
+}
+
 // @brief セルライブラリを設定する．
 void
 BnModel::set_celllibrary(
@@ -344,57 +334,49 @@ BnModel::set_celllibrary(
   mImpl->set_library(lib);
 }
 
-// @brief 名前を設定する．
+// @brief オプション情報をセットする．
 void
-BnModel::set_name(
-  const string& name
+BnModel::set_option(
+  const JsonValue& option
 )
 {
-  mImpl->set_name(name);
+  mImpl->set_option(option);
 }
 
-// @brief コメントを設定する．
+// @brief 入出力数をセットする．
 void
-BnModel::set_comment(
-  const string& comment
+BnModel::set_iosize(
+  SizeType input_num,
+  SizeType output_num
 )
 {
-  mImpl->set_comment(comment);
+  mImpl->set_iosize(input_num, output_num);
 }
 
-// @brief 出力の名前を設定する．
+// @brief 出力ノードをセットする．
 void
-BnModel::set_output_name(
+BnModel::set_output(
   SizeType pos,
-  const string& name
+  BnNode src
 )
 {
-  if ( pos < 0 || output_num() <= pos ) {
-    ostringstream buf;
-    buf << "Error in BnModel::output. "
-	<< pos << " is out of range.";
-    throw std::invalid_argument{buf.str()};
-  }
-  mImpl->set_output_name(pos, name);
+  mImpl->set_output(pos, src.id());
 }
 
-// @brief 新しい入力ノードを作る．
+// @brief 入力ノードを作る．
 BnNode
-BnModel::new_input(
-  const string& name
-)
+BnModel::new_input()
 {
-  return BnNode{mImpl, mImpl->new_input(name)};
+  return BnNode{mImpl, mImpl->new_input()};
 }
 
-// @brief 新しい出力ノードを作る．
+// @brief 出力ノードを作る．
 SizeType
 BnModel::new_output(
-  BnNode src,
-  const string& name
+  BnNode src
 )
 {
-  return mImpl->new_output(src.id(), name);
+  return mImpl->new_output(src.id());
 }
 
 // @brief 新しいプリミティブ型の論理ノードを作る．
@@ -488,33 +470,30 @@ BnModel::new_bdd(
 // @brief DFFを作る．
 BnSeq
 BnModel::new_dff(
-  char rs_val,
-  const string& name
+  char rs_val
 )
 {
-  auto id = mImpl->new_dff(rs_val, BAD_ID, name);
+  auto id = mImpl->new_dff(rs_val, BAD_ID);
   return BnSeq{mImpl, id};
 }
 
 // @brief ラッチを作る．
 BnSeq
 BnModel::new_latch(
-  char rs_val,
-  const string& name
+  char rs_val
 )
 {
-  auto id = mImpl->new_latch(rs_val, BAD_ID, name);
+  auto id = mImpl->new_latch(rs_val, BAD_ID);
   return BnSeq{mImpl, id};
 }
 
 // @brief セルタイプのSEQノードを作る．
 BnSeq
 BnModel::new_seq_cell(
-  ClibCell cell,
-  const string& name
+  ClibCell cell
 )
 {
-  auto id = mImpl->new_seq_cell(cell, name);
+  auto id = mImpl->new_seq_cell(cell);
   return BnSeq{mImpl, id};
 }
 
@@ -656,7 +635,7 @@ BnModel::print(
   }
   for ( SizeType i = 0; i < seq_num(); ++ i ) {
     auto seq = seq_node(i);
-    s << "SEQ#" << i << "[" << seq.name() << "]:"
+    s << "SEQ#" << i << "[" << seq_name(i) << "]:"
       << " type = " << seq.type()
       << " output = " << node_name(seq.data_output())
       << " src = " << node_name(seq.data_src())

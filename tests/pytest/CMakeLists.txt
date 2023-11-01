@@ -38,6 +38,7 @@ add_executable( py_ymbn
   $<TARGET_OBJECTS:ym_bn_obj>
   $<TARGET_OBJECTS:ym_cell_obj>
   $<TARGET_OBJECTS:ym_logic_obj>
+  $<TARGET_OBJECTS:ym_json_obj>
   $<TARGET_OBJECTS:ym_base_obj>
   )
 
@@ -62,6 +63,7 @@ add_executable( py_ymbn_d
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 

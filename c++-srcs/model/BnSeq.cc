@@ -45,13 +45,6 @@ BnSeq::parent_model() const
   return BnModel{mImpl};
 }
 
-// @brief 名前を返す．
-const string&
-BnSeq::name() const
-{
-  return seq_impl().name();
-}
-
 // @brief 種類を返す．
 BnSeqType
 BnSeq::type() const

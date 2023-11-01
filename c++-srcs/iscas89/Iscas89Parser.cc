@@ -192,7 +192,9 @@ Iscas89Parser::read_input(
   }
 
   set_defined(name_id, loc);
-  mModel->set_input(name_id, name);
+  auto iid = mModel->input_num();
+  mModel->set_input(name_id);
+  mModel->set_input_name(iid, name);
 
   return true;
 }
@@ -209,8 +211,10 @@ Iscas89Parser::read_output(
     return false;
   }
   FileRegion loc{first_loc, last_loc};
+  auto oid = mModel->output_num();
+  mModel->new_output(name_id);
   auto name = id2str(name_id);
-  mModel->new_output(name_id, name);
+  mModel->set_output_name(oid, name);
 
   return true;
 }
@@ -264,12 +268,15 @@ Iscas89Parser::read_gate(
     if ( mClockId == BAD_ID ) {
       mClockId = new_node({});
       set_defined(mClockId, {});
-      mModel->set_input(mClockId, mClockName);
+      auto iid = mModel->input_num();
+      mModel->set_input(mClockId);
+      mModel->set_input_name(iid, mClockName);
     }
     auto oname = id2str(name_id);
-    auto dff_id = mModel->new_dff(' ', name_id, oname);
+    auto dff_id = mModel->new_dff(' ', name_id);
     mModel->set_data_src(dff_id, iname_id);
     mModel->set_clock(dff_id, mClockId);
+    mModel->set_seq_name(dff_id, oname);
     return true;
   }
 #if 0

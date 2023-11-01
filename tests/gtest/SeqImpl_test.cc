@@ -14,14 +14,12 @@ BEGIN_NAMESPACE_YM_BN
 
 TEST( SeqImplTest, constructor1 )
 {
-  string name{"abcd"};
-  SeqImpl node{name};
+  SeqImpl node;
 
   EXPECT_EQ( BnSeqType::NONE, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_EQ( name, node.name() );
   EXPECT_THROW( {node.data_src();}, std::invalid_argument );
   EXPECT_THROW( {node.clock();}, std::invalid_argument );
   EXPECT_THROW( {node.enable();}, std::invalid_argument );
@@ -32,19 +30,9 @@ TEST( SeqImplTest, constructor1 )
   EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
 }
 
-TEST( SeqImplTest, set_name )
-{
-  string name{"xyz"};
-  SeqImpl node{""};
-
-  node.set_name(name);
-
-  EXPECT_EQ( name, node.name() );
-}
-
 TEST( SeqImplTest, set_dff )
 {
-  SeqImpl node{""};
+  SeqImpl node;
 
   char rsval = '0';
   SizeType oid = 10;
@@ -54,7 +42,6 @@ TEST( SeqImplTest, set_dff )
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_EQ( BAD_ID, node.data_src() );
   EXPECT_EQ( BAD_ID, node.clock() );
   EXPECT_THROW( {node.enable();}, std::invalid_argument );
@@ -67,7 +54,7 @@ TEST( SeqImplTest, set_dff )
 
 TEST( SeqImplTest, set_latch )
 {
-  SeqImpl node{""};
+  SeqImpl node;
 
   char rsval = '1';
   SizeType oid = 10;
@@ -77,7 +64,6 @@ TEST( SeqImplTest, set_latch )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_TRUE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_EQ( BAD_ID, node.data_src() );
   EXPECT_THROW( {node.clock();}, std::invalid_argument );
   EXPECT_EQ( BAD_ID, node.enable() );
@@ -90,7 +76,7 @@ TEST( SeqImplTest, set_latch )
 
 TEST( SeqImplTest, set_cell )
 {
-  SeqImpl node{""};
+  SeqImpl node;
 
   SizeType cell_id = 21;
   SizeType pin_num = 3;
@@ -100,7 +86,6 @@ TEST( SeqImplTest, set_cell )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_TRUE( node.is_cell() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_THROW( {node.data_src();}, std::invalid_argument );
   EXPECT_THROW( {node.clock();}, std::invalid_argument );
   EXPECT_THROW( {node.enable();}, std::invalid_argument );
@@ -116,7 +101,7 @@ TEST( SeqImplTest, set_cell )
 
 TEST( SeqImplTest, set_data_src )
 {
-  SeqImpl node{""};
+  SeqImpl node;
 
   char rsval = '0';
   SizeType oid = 10;
@@ -128,7 +113,6 @@ TEST( SeqImplTest, set_data_src )
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_EQ( src_id, node.data_src() );
   EXPECT_EQ( BAD_ID, node.clock() );
   EXPECT_THROW( {node.enable();}, std::invalid_argument );
@@ -141,7 +125,7 @@ TEST( SeqImplTest, set_data_src )
 
 TEST( SeqImplTest, set_clock )
 {
-  SeqImpl node{""};
+  SeqImpl node;
 
   char rsval = '0';
   SizeType oid = 10;
@@ -153,7 +137,6 @@ TEST( SeqImplTest, set_clock )
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_EQ( BAD_ID, node.data_src() );
   EXPECT_EQ( clock_id, node.clock() );
   EXPECT_THROW( {node.enable();}, std::invalid_argument );
@@ -166,7 +149,7 @@ TEST( SeqImplTest, set_clock )
 
 TEST( SeqImplTest, set_enable )
 {
-  SeqImpl node{""};
+  SeqImpl node;
 
   char rsval = '1';
   SizeType oid = 10;
@@ -178,7 +161,6 @@ TEST( SeqImplTest, set_enable )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_TRUE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_EQ( BAD_ID, node.data_src() );
   EXPECT_THROW( {node.clock();}, std::invalid_argument );
   EXPECT_EQ( enable_id, node.enable() );
@@ -191,7 +173,7 @@ TEST( SeqImplTest, set_enable )
 
 TEST( SeqImplTest, set_clear )
 {
-  SeqImpl node{""};
+  SeqImpl node;
 
   char rsval = '0';
   SizeType oid = 10;
@@ -203,7 +185,6 @@ TEST( SeqImplTest, set_clear )
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_EQ( BAD_ID, node.data_src() );
   EXPECT_EQ( BAD_ID, node.clock() );
   EXPECT_THROW( {node.enable();}, std::invalid_argument );
@@ -216,7 +197,7 @@ TEST( SeqImplTest, set_clear )
 
 TEST( SeqImplTest, set_preset )
 {
-  SeqImpl node{""};
+  SeqImpl node;
 
   char rsval = '1';
   SizeType oid = 10;
@@ -228,7 +209,6 @@ TEST( SeqImplTest, set_preset )
   EXPECT_FALSE( node.is_dff() );
   EXPECT_TRUE( node.is_latch() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_EQ( BAD_ID, node.data_src() );
   EXPECT_THROW( {node.clock();}, std::invalid_argument );
   EXPECT_EQ( BAD_ID, node.enable() );

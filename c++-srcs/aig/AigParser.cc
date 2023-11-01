@@ -90,7 +90,7 @@ AigParser::read_aag(
     return false;
   }
 
-  initialize(M, model);
+  initialize(M, I, O, model);
 
   // 入力行の読み込み
   for ( SizeType i = 0; i < I; ++ i ) {
@@ -108,8 +108,8 @@ AigParser::read_aag(
   SizeType clock_id = BAD_ID;
   SizeType reset_id = BAD_ID;
   if ( L > 0 ) {
-    clock_id = model->new_input(clock_name);
-    reset_id = model->new_input(reset_name);
+    clock_id = model->new_input();
+    reset_id = model->new_input();
   }
   for ( SizeType i = 0; i < L; ++ i ) {
     SizeType oid;
@@ -227,19 +227,14 @@ AigParser::read_aig(
 	 << " " << A << endl;
   }
 
-  initialize(M, model);
-
-  // 入力の情報を作る．
-  for ( SizeType i = 0; i < I; ++ i ) {
-    mModel->set_input(i);
-  }
+  initialize(M, I, O, model);
 
   // ラッチ行の読み込み
   SizeType clock_id = BAD_ID;
   SizeType reset_id = BAD_ID;
   if ( L > 0 ) {
-    clock_id = model->new_input(clock_name);
-    reset_id = model->new_input(reset_name);
+    clock_id = model->new_input();
+    reset_id = model->new_input();
   }
   for ( SizeType i = 0; i < L; ++ i ) {
     SizeType src_lit;
@@ -268,7 +263,7 @@ AigParser::read_aig(
       cout << "O#" << i << ": " << src_lit << endl;
     }
     auto src_id = lit2node(src_lit);
-    mModel->new_output(src_id);
+    mModel->set_output(i, src_id);
   }
 
   // AND行の読み込み
@@ -403,6 +398,8 @@ AigParser::read_aig_header(
 void
 AigParser::initialize(
   SizeType M,
+  SizeType I,
+  SizeType O,
   ModelImpl* model
 )
 {
@@ -526,6 +523,10 @@ AigParser::read_symbols()
   string linebuf;
   string comment;
   bool symbol_mode = true;
+  auto option = JsonValue::Object();
+  auto input_name = JsonValue::Object();
+  auto output_name = JsonValue::Object();
+  auto seq_name = JsonValue::Object();
   while ( getline(*mS, linebuf) ) {
     if ( symbol_mode ) {
       if ( linebuf == "c" ) {
@@ -536,18 +537,22 @@ AigParser::read_symbols()
 	auto pos_str = linebuf.substr(0, p);
 	auto name = linebuf.substr(p + 1, string::npos);
 	SizeType pos = atoi(pos_str.substr(1, string::npos).c_str());
+	ostringstream buf;
+	buf << pos;
 	char prefix = pos_str[0];
 	if ( prefix == 'i' ) {
 	  mModel->set_input_name(pos, name);
 	}
 	else if ( prefix == 'l' ) {
-	  mModel->set_seq_name(pos, name);
-	}
-	else if ( prefix == 'o' ) {
 	  mModel->set_output_name(pos, name);
 	}
+	else if ( prefix == 'o' ) {
+	  mModel->set_seq_name(pos, name);
+	}
 	else {
-	  ASSERT_NOT_REACHED;
+	  ostringstream buf;
+	  buf << prefix << ": Illegal prefix";
+	  throw std::invalid_argument{buf.str()};
 	}
       }
     }

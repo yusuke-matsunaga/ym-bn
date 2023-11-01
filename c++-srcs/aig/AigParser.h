@@ -96,6 +96,8 @@ private:
   void
   initialize(
     SizeType M,      ///< [in] 総ノード数
+    SizeType I,      ///< [in] 入力数
+    SizeType O,      ///< [in] 出力数
     ModelImpl* model ///< [in] 結果を格納するオブジェクト
   );
 

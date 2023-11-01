@@ -22,11 +22,7 @@ class SeqImpl
 public:
 
   /// @brief コンストラクタ
-  SeqImpl(
-    const string& name ///< [in] 名前
-  ) : mName{name}
-  {
-  }
+  SeqImpl() = default;
 
   /// @brief デストラクタ
   ~SeqImpl() = default;
@@ -63,13 +59,6 @@ public:
   is_cell() const
   {
     return type() == BnSeqType::CELL;
-  }
-
-  /// @brief 名前を返す．
-  const string&
-  name() const
-  {
-    return mName;
   }
 
   /// @brief データ入力ノードを返す．
@@ -170,15 +159,6 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 設定用の関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief 名前を設定する．
-  void
-  set_name(
-    const string& name
-  )
-  {
-    mName = name;
-  }
 
   /// @brief DFFタイプをセットする．
   void
@@ -340,9 +320,6 @@ private:
 
   // DFF の種類
   BnSeqType mType{BnSeqType::NONE};
-
-  // 名前
-  string mName;
 
   // 入出力ピンのノード番号のリスト
   vector<SizeType> mPinList;

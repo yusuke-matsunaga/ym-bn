@@ -60,36 +60,33 @@ TruthReader::read(
   }
 
   SizeType no = func_vect.size();
-  if ( no > 0 ) {
-    // 入力数が全て等しいかチェック
-    SizeType ni = func_vect[0].input_num();
-    for ( SizeType i = 1; i < no; ++ i ) {
-      auto& func = func_vect[i];
-      if ( func.input_num() != ni ) {
-	cout << "ni = " << ni << ", func_vect[" << i << "].input_num() = "
-	     << func.input_num() << endl;
-	throw std::invalid_argument{"the number of inputs should be the same for all outputs"};
-      }
+  if ( no == 0 ) {
+    return;
+  }
+
+  // 入力数が全て等しいかチェック
+  SizeType ni = func_vect[0].input_num();
+  for ( SizeType i = 1; i < no; ++ i ) {
+    auto& func = func_vect[i];
+    if ( func.input_num() != ni ) {
+      cout << "ni = " << ni << ", func_vect[" << i << "].input_num() = "
+	   << func.input_num() << endl;
+      throw std::invalid_argument{"the number of inputs should be the same for all outputs"};
     }
-    // 入力の生成
-    vector<SizeType> input_list(ni);
-    for ( SizeType i = 0; i < ni; ++ i ) {
-      auto id = model->new_input();
-      input_list[i] = id;
-    }
-    // 論理ノードの生成
-    // 注意が必要なのは .truth フォーマットでは最上位の変数が
-    // 最後の変数だということ．
-    // ファンインリストは input_list の逆順になる．
-    vector<SizeType> fanin_list(ni);
-    for ( SizeType i = 0; i < ni; ++ i ) {
-      fanin_list[i] = input_list[ni - i - 1];
-    }
-    for ( SizeType i = 0; i < no; ++ i ) {
-      auto func_id = model->add_func(func_vect[i]);
-      auto id = model->new_func(fanin_list, func_id);
-      model->new_output(id);
-    }
+  }
+  // 入力/出力の生成
+  model->set_iosize(ni, no);
+  // 論理ノードの生成
+  // 注意が必要なのは .truth フォーマットでは最上位の変数が
+  // 最後の変数だということ．
+  vector<SizeType> fanin_list(ni);
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    fanin_list[i] = ni - i - 1;
+  }
+  for ( SizeType i = 0; i < no; ++ i ) {
+    auto func_id = model->add_func(func_vect[i]);
+    auto id = model->new_func(fanin_list, func_id);
+    model->set_output(i, id);
   }
 }
 

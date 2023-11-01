@@ -89,10 +89,6 @@ public:
     return mId;
   }
 
-  /// @brief 名前を返す．
-  const string&
-  name() const;
-
   /// @brief 種類を返す．
   BnSeqType
   type() const;

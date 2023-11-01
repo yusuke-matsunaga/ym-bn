@@ -398,7 +398,10 @@ BlifParser::read_inputs()
       }
 
       set_defined(id, name_loc);
-      mModel->set_input(id, name);
+      auto iid = mModel->input_num();
+      mModel->set_input(id);
+      mModel->set_input_name(iid, name);
+
       ++ n_token;
     }
     else if ( tk == BlifToken::NL ) {
@@ -430,7 +433,9 @@ BlifParser::read_outputs()
       auto name = cur_string();
       auto name_loc = cur_loc();
       auto id = find_id(name, name_loc);
-      mModel->new_output(id, name);
+      auto oid = mModel->output_num();
+      mModel->new_output(id);
+      mModel->set_output_name(oid, name);
       ++ n_token;
     }
     else if ( tk == BlifToken::NL ) {
@@ -904,11 +909,12 @@ BlifParser::read_latch()
     mClockId = get_clock_id();
 
     set_defined(id2, name2_loc);
-    auto dff_id = mModel->new_dff(' ', id2, name2);
+    auto dff_id = mModel->new_dff(' ', id2);
     mModel->set_data_src(dff_id, id1);
     mModel->set_clock(dff_id, mClockId);
     mModel->set_clear(dff_id, reset_id);
     mModel->set_preset(dff_id, preset_id);
+    mModel->set_seq_name(dff_id, name2);
 
     return true;
   }
@@ -990,8 +996,10 @@ SizeType
 BlifParser::get_clock_id()
 {
   if ( mClockId == BAD_ID ) {
-    mClockId = mModel->new_input(mClockName);
+    auto iid = mModel->input_num();
+    mClockId = mModel->new_input();
     set_defined(mClockId, {});
+    mModel->set_input_name(iid, mClockName);
   }
   return mClockId;
 }
@@ -1001,8 +1009,10 @@ SizeType
 BlifParser::get_reset_id()
 {
   if ( mResetId == BAD_ID ) {
-    mResetId = mModel->new_input(mResetName);
+    auto iid = mModel->input_num();
+    mResetId = mModel->new_input();
     set_defined(mResetId, {});
+    mModel->set_input_name(iid, mResetName);
   }
   return mResetId;
 }

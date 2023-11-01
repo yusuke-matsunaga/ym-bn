@@ -166,7 +166,8 @@ BnSeq_name(
 )
 {
   auto dff = PyBnSeq::Get(self);
-  auto name = dff.name();
+  auto model = dff.parent_model();
+  auto name = model.seq_name(dff.id());
   return Py_BuildValue("s", name.c_str());
 }
 

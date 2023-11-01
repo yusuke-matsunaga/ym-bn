@@ -11,16 +11,18 @@
 
 BEGIN_NAMESPACE_YM_BN
 
+// @brief コンストラクタ
+ModelImpl::ModelImpl() : mOption{JsonValue::Object()}
+{
+}
+
 // @brief コピーコンストラクタ
 ModelImpl::ModelImpl(
   const ModelImpl& src
-) : mName{src.mName},
-    mComment{src.mComment},
-    mLibrary{src.mLibrary},
+) : mLibrary{src.mLibrary},
+    mOption{src.mOption},
     mInputList{src.mInputList},
-    mInputNameList{src.mInputNameList},
     mOutputList{src.mOutputList},
-    mOutputNameList{src.mOutputNameList},
     mLogicList{src.mLogicList},
     mNodeArray{src.mNodeArray},
     mSeqArray{src.mSeqArray},
@@ -31,24 +33,6 @@ ModelImpl::ModelImpl(
   for ( auto bdd: src.mBddArray ) {
     mBddArray.push_back(mBddMgr.copy(bdd));
   }
-}
-
-// @brief 名前を設定する．
-void
-ModelImpl::set_name(
-  const string& name
-)
-{
-  mName = name;
-}
-
-// @brief コメントを設定する．
-void
-ModelImpl::set_comment(
-  const string& comment
-)
-{
-  mComment = comment;
 }
 
 // @brief セルライブラリを設定する．
@@ -63,232 +47,80 @@ ModelImpl::set_library(
   mLibrary = library;
 }
 
-// @brief 入力の名前を設定する．
+// @brief 入力名をセットする．
 void
 ModelImpl::set_input_name(
-  SizeType pos,
+  SizeType input_id,
   const string& name
 )
 {
-  if ( pos < 0 || pos >= input_num() ) {
-    throw std::invalid_argument{"Error in ModelImpl::set_input_name(pos, name). pos is out of range"};
+  if ( input_id < 0 || input_id >= input_num() ) {
+    throw std::invalid_argument{"Error in ModelImpl::set_input_name(input_id, name). input_id is out of range"};
   }
-  mInputNameList[pos] = name;
+  if ( !mOption.has_key("symbol_dict") ) {
+    auto symbol_dict = JsonValue::Object();
+    mOption.emplace("symbol_dict", symbol_dict);
+  }
+  auto symbol_dict = mOption.at("symbol_dict");
+  ostringstream buf;
+  buf << "I" << input_id;
+  symbol_dict.emplace(buf.str(), name);
 }
 
-// @brief 出力の名前を設定する．
+// @brief 出力名をセットする．
 void
 ModelImpl::set_output_name(
-  SizeType pos,
+  SizeType output_id,
   const string& name
 )
 {
-  if ( pos < 0 || pos >= output_num() ) {
-    throw std::invalid_argument{"Error in ModelImpl::set_output_name(pos, name). pos is out of range"};
+  if ( output_id < 0 || output_id >= output_num() ) {
+    throw std::invalid_argument{"Error in ModelImpl::set_output_name(output_id, name). output_id is out of range"};
   }
-  mOutputNameList[pos] = name;
+  if ( !mOption.has_key("symbol_dict") ) {
+    auto symbol_dict = JsonValue::Object();
+    mOption.emplace("symbol_dict", symbol_dict);
+  }
+  auto symbol_dict = mOption.at("symbol_dict");
+  ostringstream buf;
+  buf << "O" << output_id;
+  symbol_dict.emplace(buf.str(), name);
 }
 
-// @brief 新しいノードを作る．
-SizeType
-ModelImpl::new_node()
-{
-  auto id = mNodeArray.size();
-  mNodeArray.push_back(NodeImpl{});
-  return id;
-}
-
-// @brief 対応するID番号に入力用の印を付ける．
-void
-ModelImpl::set_input(
-  SizeType id,
-  const string& name
-)
-{
-  auto& node = _node(id, "set_input(id, name)", "id");
-  auto iid = mInputList.size();
-  mInputList.push_back(id);
-  mInputNameList.push_back(name);
-  node.set_input(iid);
-}
-
-// @brief 新しい出力ノードを作る．
-SizeType
-ModelImpl::new_output(
-  SizeType id,
-  const string& name
-)
-{
-  auto& node = _node(id, "new_output(id, name)", "id");
-  SizeType pos = mOutputList.size();
-  mOutputList.push_back(id);
-  mOutputNameList.push_back(name);
-  return pos;
-}
-
-// @brief プリミティブ型のノードの情報をセットする．
-void
-ModelImpl::set_primitive(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  PrimType type
-)
-{
-  auto& node = _node(id, "set_primitive(id, input_list, type)", "id");
-  node.set_primitive(input_list, type);
-}
-
-// @brief AIG型のノードの情報をセットする．
-void
-ModelImpl::set_aig(
-  SizeType id,
-  SizeType src0,
-  SizeType src1,
-  bool inv0,
-  bool inv1
-)
-{
-  auto& node = _node(id, "set_aig(id, src0, src1, inv0, inv1)", "id");
-  node.set_aig(src0, src1, inv0, inv1);
-}
-
-// @brief カバー型のノードの情報をセットする．
-void
-ModelImpl::set_cover(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType cover_id
-)
-{
-  auto& node = _node(id, "set_cover(id, input_list, cover_id)", "id");
-  node.set_cover(input_list, cover_id);
-}
-
-// @brief 論理式型のノードの情報をセットする．
-void
-ModelImpl::set_expr(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType expr_id
-)
-{
-  auto& node = _node(id, "set_expr(id, input_list, expr_id)", "id");
-  node.set_expr(input_list, expr_id);
-}
-
-// @brief セル型のノードの情報をセットする．
-void
-ModelImpl::set_cell(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  ClibCell cell
-)
-{
-  set_library(cell.library());
-  auto& node = _node(id, "set_cell(id, input_list, cell)", "id");
-  node.set_cell(input_list, cell.id());
-}
-
-// @brief 真理値表型のノードの情報をセットする．
-void
-ModelImpl::set_func(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType func_id
-)
-{
-  auto& node = _node(id, "set_func(id, input_list, func_id)", "id");
-  node.set_func(input_list, func_id);
-}
-
-// @brief BDD型のノードの情報をセットする．
-void
-ModelImpl::set_bdd(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  SizeType bdd_id
-)
-{
-  auto& node = _node(id, "set_bdd(id, input_list, bdd_id)", "id");
-  node.set_bdd(input_list, bdd_id);
-}
-
-// @brief SEQノードの名前をセットする．
+// @brief SEQ名をセットする．
 void
 ModelImpl::set_seq_name(
-  SizeType id,         ///< [in] ID番号
-  const string& name   ///< [in] 名前
+  SizeType seq_id,
+  const string& name
 )
 {
-  auto& seq = _seq(id, "set_seq_name(id, name)", "id");
-  seq.set_name(name);
+  if ( seq_id < 0 || seq_id >= seq_num() ) {
+    throw std::invalid_argument{"Error in ModelImpl::set_seq_name(seq_id, name). seq_id is out of range"};
+  }
+  if ( !mOption.has_key("symbol_dict") ) {
+    auto symbol_dict = JsonValue::Object();
+    mOption.emplace("symbol_dict", symbol_dict);
+  }
+  auto symbol_dict = mOption.at("symbol_dict");
+  ostringstream buf;
+  buf << "Q" << seq_id;
+  symbol_dict.emplace(buf.str(), name);
 }
 
-// @brief DFF型のノードのソースをセットする．
+// @brief 入出力数をセットする．
 void
-ModelImpl::set_data_src(
-  SizeType id,
-  SizeType src_id
+ModelImpl::set_iosize(
+  SizeType input_num,
+  SizeType output_num
 )
 {
-  auto& seq = _seq(id, "set_data_src(id, src_id)", "id");
-  seq.set_data_src(src_id);
-}
-
-// @brief DFF型のノードのクロック入力をセットする．
-void
-ModelImpl::set_clock(
-  SizeType id,
-  SizeType clock_id
-)
-{
-  auto& seq= _seq(id, "set_clock(id, check_id)", "id");
-  seq.set_clock(clock_id);
-}
-
-// @brief ラッチ型のノードのイネーブル入力をセットする．
-void
-ModelImpl::set_enable(
-  SizeType id,
-  SizeType enable_id
-)
-{
-  auto& seq = _seq(id, "set_enable(id, enable_id)", "id");
-  seq.set_enable(enable_id);
-}
-
-// @brief DFF型のノードのクリア入力をセットする．
-void
-ModelImpl::set_clear(
-  SizeType id,
-  SizeType clear_id
-)
-{
-  auto& seq = _seq(id, "set_clear(id, clear_id", "id");
-  seq.set_clear(clear_id);
-}
-
-// @brief DFF型のノードのプリセット入力をセットする．
-void
-ModelImpl::set_preset(
-  SizeType id,
-  SizeType preset_id
-)
-{
-  auto& seq = _seq(id, "set_preset(id, preset_id)", "id");
-  seq.set_preset(preset_id);
-}
-
-// @brief DFFセルのピンのノードをセットする．
-void
-ModelImpl::set_seq_pin(
-  SizeType id,
-  SizeType pos,
-  SizeType node_id
-)
-{
-  auto& seq = _seq(id, "set_dff_pin(id, pos, node_id)", "id");
-  seq.set_cell_pin(pos, node_id);
+  for ( SizeType i = 0; i < input_num; ++ i ) {
+    auto id = new_node();
+    set_input(id);
+  }
+  for ( SizeType i = 0; i < output_num; ++ i ) {
+    mOutputList.push_back(BAD_ID);
+  }
 }
 
 // @brief 論理ノードのリストを作る．

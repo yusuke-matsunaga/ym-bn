@@ -40,7 +40,7 @@ TEST( ModelImplTest, input_name_bad )
 {
   ModelImpl model;
 
-  EXPECT_THROW( {model.input_name(1);}, std::invalid_argument );
+  EXPECT_EQ( string{}, model.input_name(1) );
 }
 
 TEST( ModelImplTest, output_bad )
@@ -54,7 +54,7 @@ TEST( ModelImplTest, output_name_bad )
 {
   ModelImpl model;
 
-  EXPECT_THROW( {model.output_name(1);}, std::invalid_argument );
+  EXPECT_EQ( string{}, model.output_name(1) );
 }
 
 TEST( ModelImplTest, logic_bad )
@@ -138,6 +138,7 @@ TEST( ModelImplTest, set_name )
   ModelImpl model;
 
   string name{"abcd"};
+
   model.set_name(name);
 
   EXPECT_EQ( name, model.name() );
@@ -148,6 +149,7 @@ TEST( ModelImplTest, set_comment )
   ModelImpl model;
 
   string comment{"abcd"};
+
   model.set_comment(comment);
 
   EXPECT_EQ( comment, model.comment() );
@@ -160,16 +162,10 @@ TEST( ModelImplTest, set_output_name )
   auto id1 = model.new_node();
   auto oid = model.new_output(id1);
   string name{"abc"};
+
   model.set_output_name(oid, name);
 
   EXPECT_EQ( name, model.output_name(oid) );
-}
-
-TEST( ModelImplTest, set_output_name_bad )
-{
-  ModelImpl model;
-
-  EXPECT_THROW( {model.set_output_name(0, "xxx");}, std::invalid_argument );
 }
 
 TEST( ModelImplTest, new_node )
@@ -360,8 +356,8 @@ TEST( ModelImplTest, new_cell )
 
   ModelImpl model;
 
-  auto id1 = model.new_input({});
-  auto id2 = model.new_input({});
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   vector<SizeType> fanin_list{id1, id2};
   auto id3 = model.new_cell(fanin_list, cell);
 
@@ -677,8 +673,8 @@ TEST( ModelImplTest, set_cell )
 
   ModelImpl model;
 
-  auto id1 = model.new_input({});
-  auto id2 = model.new_input({});
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   auto id3 = model.new_node();
   vector<SizeType> fanin_list{id1, id2};
   model.set_cell(id3, fanin_list, cell);
@@ -702,8 +698,8 @@ TEST( ModelImplTest, set_cell_bad )
 
   ModelImpl model;
 
-  auto id1 = model.new_input({});
-  auto id2 = model.new_input({});
+  auto id1 = model.new_input();
+  auto id2 = model.new_input();
   vector<SizeType> fanin_list{id1, id2};
   EXPECT_THROW( {model.set_cell(id2 + 1, fanin_list, cell);}, std::invalid_argument );
 }
@@ -714,18 +710,10 @@ TEST( ModelImplTest, set_seq_name )
 
   auto id = model.new_dff();
   string name{"abcd"};
+
   model.set_seq_name(id, name);
 
-  auto& seq = model.seq_node(id);
-  EXPECT_EQ( name, seq.name() );
-}
-
-TEST( ModelImplTest, set_seq_name_bad )
-{
-  ModelImpl model;
-
-  string name{"abcd"};
-  EXPECT_THROW( {model.set_seq_name(0, name);}, std::invalid_argument );
+  EXPECT_EQ( name, model.seq_name(id) );
 }
 
 TEST( ModelImplTest, set_data_src_dff )

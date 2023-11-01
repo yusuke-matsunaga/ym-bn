@@ -24,6 +24,7 @@ add_executable ( read_blif
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
@@ -40,6 +41,7 @@ add_executable ( read_iscas89
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
@@ -56,6 +58,7 @@ add_executable ( read_aag
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
@@ -72,6 +75,7 @@ add_executable ( read_truth
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 

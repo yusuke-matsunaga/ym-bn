@@ -22,7 +22,6 @@ TEST(BnSeqTest, constructor1)
   EXPECT_FALSE( node.is_valid() );
   EXPECT_THROW( {node.parent_model(); }, std::invalid_argument );
   EXPECT_EQ( BAD_ID, node.id() );
-  EXPECT_THROW( {node.name(); }, std::invalid_argument );
   EXPECT_THROW( {node.type(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_dff(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_latch(); }, std::invalid_argument );
@@ -56,7 +55,6 @@ TEST(BnSeqTest, constructor2)
   BnSeq node{model, id};
 
   EXPECT_TRUE( node.is_valid() );
-  EXPECT_EQ( string{}, node.name() );
   EXPECT_EQ( BnSeqType::DFF, node.type() );
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );

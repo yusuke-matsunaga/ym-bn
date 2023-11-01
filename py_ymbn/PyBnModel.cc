@@ -418,7 +418,11 @@ BnModel_input_name_list(
 )
 {
   auto model = PyBnModel::Get(self);
-  auto val_list = model.input_name_list();
+  SizeType n = model.input_num();
+  vector<string> val_list(n);
+  for ( SizeType i = 0; i < n; ++ i ) {
+    val_list[i] = model.input_name(i);
+  }
   return PyBase::ToPyList(val_list);
 }
 
@@ -473,7 +477,11 @@ BnModel_output_name_list(
 )
 {
   auto model = PyBnModel::Get(self);
-  auto val_list = model.output_name_list();
+  SizeType n = model.output_num();
+  vector<string> val_list(n);
+  for ( SizeType i = 0; i < n; ++ i ) {
+    val_list[i] = model.output_name(i);
+  }
   return PyBase::ToPyList(val_list);
 }
 
