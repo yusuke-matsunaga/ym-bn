@@ -365,18 +365,31 @@ BnModel::set_output(
 
 // @brief 入力ノードを作る．
 BnNode
-BnModel::new_input()
+BnModel::new_input(
+  const string& name
+)
 {
-  return BnNode{mImpl, mImpl->new_input()};
+  auto id = mImpl->new_input();
+  BnNode node{mImpl, id};
+  if ( name != string{} ) {
+    auto iid = node.input_id();
+    mImpl->set_input_name(iid, name);
+  }
+  return node;
 }
 
 // @brief 出力ノードを作る．
 SizeType
 BnModel::new_output(
-  BnNode src
+  BnNode src,
+  const string& name
 )
 {
-  return mImpl->new_output(src.id());
+  auto oid = mImpl->new_output(src.id());
+  if ( name != string{} ) {
+    mImpl->set_output_name(oid, name);
+  }
+  return oid;
 }
 
 // @brief 新しいプリミティブ型の論理ノードを作る．
@@ -470,30 +483,42 @@ BnModel::new_bdd(
 // @brief DFFを作る．
 BnSeq
 BnModel::new_dff(
-  char rs_val
+  char rs_val,
+  const string& name
 )
 {
   auto id = mImpl->new_dff(rs_val, BAD_ID);
+  if ( name != string{} ) {
+    mImpl->set_seq_name(id, name);
+  }
   return BnSeq{mImpl, id};
 }
 
 // @brief ラッチを作る．
 BnSeq
 BnModel::new_latch(
-  char rs_val
+  char rs_val,
+  const string& name
 )
 {
   auto id = mImpl->new_latch(rs_val, BAD_ID);
+  if ( name != string{} ) {
+    mImpl->set_seq_name(id, name);
+  }
   return BnSeq{mImpl, id};
 }
 
 // @brief セルタイプのSEQノードを作る．
 BnSeq
 BnModel::new_seq_cell(
-  ClibCell cell
+  ClibCell cell,
+  const string& name
 )
 {
   auto id = mImpl->new_seq_cell(cell);
+  if ( name != string{} ) {
+    mImpl->set_seq_name(id, name);
+  }
   return BnSeq{mImpl, id};
 }
 

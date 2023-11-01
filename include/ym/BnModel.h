@@ -427,13 +427,16 @@ public:
   /// @brief 入力ノードを作る．
   /// @return 生成したノードを返す．
   BnNode
-  new_input();
+  new_input(
+    const string& name = {} ///< [in] 名前
+  );
 
   /// @brief 出力ノードを作る．
   /// @return 生成した出力ノードの出力番号を返す．
   SizeType
   new_output(
-    BnNode src ///< [in] ソースノード
+    BnNode src,             ///< [in] ソースノード
+    const string& name = {} ///< [in] 名前
   );
 
   /// @brief 新しいプリミティブ型の論理ノードを作る．
@@ -548,14 +551,16 @@ public:
   /// @return 生成したSEQノードを返す．
   BnSeq
   new_dff(
-    char rs_val = ' '      ///< [in] リセットとプリセットが共にオンの時の値
+    char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
+    const string& name = {} ///< [in] 名前
   );
 
   /// @brief ラッチを作る．
   /// @return 生成したSEQノードを返す．
   BnSeq
   new_latch(
-    char rs_val = ' '      ///< [in] リセットとプリセットが共にオンの時の値
+    char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
+    const string& name = {} ///< [in] 名前
   );
 
   /// @brief セルタイプのSEQノードを作る．
@@ -564,7 +569,8 @@ public:
   /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
   BnSeq
   new_seq_cell(
-    ClibCell cell          ///< [in] セル
+    ClibCell cell,          ///< [in] セル
+    const string& name = {} ///< [in] 名前
   );
 
   /// @brief DFF/ラッチのソースノードをセットする．
