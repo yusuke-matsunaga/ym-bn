@@ -48,7 +48,7 @@ TEST( BnModelTest, input_name_bad )
 {
   BnModel model;
 
-  EXPECT_EQ( string{}, model.input_name(0) );
+  EXPECT_THROW( {model.input_name(0);}, std::invalid_argument );
 }
 
 TEST( BnModelTest, output_bad )
@@ -62,7 +62,7 @@ TEST( BnModelTest, output_name_bad )
 {
   BnModel model;
 
-  EXPECT_EQ( string{}, model.output_name(0) );
+  EXPECT_THROW( {model.output_name(0);}, std::invalid_argument );
 }
 
 TEST( BnModelTest, logic_bad )

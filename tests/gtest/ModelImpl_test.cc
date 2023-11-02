@@ -40,7 +40,7 @@ TEST( ModelImplTest, input_name_bad )
 {
   ModelImpl model;
 
-  EXPECT_EQ( string{}, model.input_name(1) );
+  EXPECT_THROW( {model.input_name(1);}, std::invalid_argument );
 }
 
 TEST( ModelImplTest, output_bad )
@@ -54,7 +54,7 @@ TEST( ModelImplTest, output_name_bad )
 {
   ModelImpl model;
 
-  EXPECT_EQ( string{}, model.output_name(1) );
+  EXPECT_THROW( {model.output_name(1);}, std::invalid_argument );
 }
 
 TEST( ModelImplTest, logic_bad )

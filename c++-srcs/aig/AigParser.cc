@@ -523,10 +523,6 @@ AigParser::read_symbols()
   string linebuf;
   string comment;
   bool symbol_mode = true;
-  auto option = JsonValue::Object();
-  auto input_name = JsonValue::Object();
-  auto output_name = JsonValue::Object();
-  auto seq_name = JsonValue::Object();
   while ( getline(*mS, linebuf) ) {
     if ( symbol_mode ) {
       if ( linebuf == "c" ) {

@@ -12,7 +12,7 @@
 BEGIN_NAMESPACE_YM_BN
 
 // @brief コンストラクタ
-ModelImpl::ModelImpl() : mOption{JsonValue::Object()}
+ModelImpl::ModelImpl()
 {
 }
 
@@ -20,7 +20,9 @@ ModelImpl::ModelImpl() : mOption{JsonValue::Object()}
 ModelImpl::ModelImpl(
   const ModelImpl& src
 ) : mLibrary{src.mLibrary},
-    mOption{src.mOption},
+    mName{src.mName},
+    mComment{src.mComment},
+    mSymbolDict{src.mSymbolDict},
     mInputList{src.mInputList},
     mOutputList{src.mOutputList},
     mLogicList{src.mLogicList},
@@ -35,6 +37,29 @@ ModelImpl::ModelImpl(
   }
 }
 
+// @brief オプション情報を返す．
+JsonValue
+ModelImpl::option() const
+{
+  unordered_map<string, JsonValue> src_dict;
+  if ( name() != string{} ) {
+    src_dict.emplace("name", JsonValue{name()});
+  }
+  if ( comment() != string{} ) {
+    src_dict.emplace("comment", JsonValue{comment()});
+  }
+  if ( !mSymbolDict.empty() ) {
+    unordered_map<string, JsonValue> symbol_dict;
+    for ( auto& p: mSymbolDict ) {
+      auto key = p.first;
+      auto value = p.second;
+      symbol_dict.emplace(key, JsonValue{value});
+    }
+    src_dict.emplace("symbol_dict", JsonValue{symbol_dict});
+  }
+  return JsonValue{src_dict};
+}
+
 // @brief セルライブラリを設定する．
 void
 ModelImpl::set_library(
@@ -47,64 +72,25 @@ ModelImpl::set_library(
   mLibrary = library;
 }
 
-// @brief 入力名をセットする．
+// @brief オプション情報をセットする．
 void
-ModelImpl::set_input_name(
-  SizeType input_id,
-  const string& name
+ModelImpl::set_option(
+  const JsonValue& option
 )
 {
-  if ( input_id < 0 || input_id >= input_num() ) {
-    throw std::invalid_argument{"Error in ModelImpl::set_input_name(input_id, name). input_id is out of range"};
+  if ( option.has_key("name") ) {
+    set_name(option.at("name").get_string());
   }
-  if ( !mOption.has_key("symbol_dict") ) {
-    auto symbol_dict = JsonValue::Object();
-    mOption.emplace("symbol_dict", symbol_dict);
+  if ( option.has_key("comment") ) {
+    set_comment(option.at("comment").get_string());
   }
-  auto symbol_dict = mOption.at("symbol_dict");
-  ostringstream buf;
-  buf << "I" << input_id;
-  symbol_dict.emplace(buf.str(), name);
-}
-
-// @brief 出力名をセットする．
-void
-ModelImpl::set_output_name(
-  SizeType output_id,
-  const string& name
-)
-{
-  if ( output_id < 0 || output_id >= output_num() ) {
-    throw std::invalid_argument{"Error in ModelImpl::set_output_name(output_id, name). output_id is out of range"};
+  if ( option.has_key("symbol_dict") ) {
+    for ( auto& p: option.item_list() ) {
+      auto key = p.first;
+      auto value = p.second.get_string();
+      mSymbolDict.emplace(key, value);
+    }
   }
-  if ( !mOption.has_key("symbol_dict") ) {
-    auto symbol_dict = JsonValue::Object();
-    mOption.emplace("symbol_dict", symbol_dict);
-  }
-  auto symbol_dict = mOption.at("symbol_dict");
-  ostringstream buf;
-  buf << "O" << output_id;
-  symbol_dict.emplace(buf.str(), name);
-}
-
-// @brief SEQ名をセットする．
-void
-ModelImpl::set_seq_name(
-  SizeType seq_id,
-  const string& name
-)
-{
-  if ( seq_id < 0 || seq_id >= seq_num() ) {
-    throw std::invalid_argument{"Error in ModelImpl::set_seq_name(seq_id, name). seq_id is out of range"};
-  }
-  if ( !mOption.has_key("symbol_dict") ) {
-    auto symbol_dict = JsonValue::Object();
-    mOption.emplace("symbol_dict", symbol_dict);
-  }
-  auto symbol_dict = mOption.at("symbol_dict");
-  ostringstream buf;
-  buf << "Q" << seq_id;
-  symbol_dict.emplace(buf.str(), name);
 }
 
 // @brief 論理ノードのリストを作る．

@@ -57,29 +57,20 @@ public:
 
   /// @brief オプション情報を返す．
   JsonValue
-  option() const
-  {
-    return mOption;
-  }
+  option() const;
 
   /// @brief 名前を返す．
   string
   name() const
   {
-    if ( mOption.has_key("name") ) {
-      return mOption["name"].get_string();
-    }
-    return string{};
+    return mName;
   }
 
   /// @brief コメントを返す．
   string
   comment() const
   {
-    if ( mOption.has_key("comment") ) {
-      return mOption["comment"].get_string();
-    }
-    return string{};
+    return mComment;
   }
 
   /// @brief 入力名を返す．
@@ -88,14 +79,10 @@ public:
     SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
   ) const
   {
-    if ( mOption.has_key("symbol_dict") ) {
-      auto dict = mOption.at("symbol_dict");
-      ostringstream buf;
-      buf << "I" << input_id;
-      auto key = buf.str();
-      if ( dict.has_key(key) ) {
-	return dict.at(key).get_string();
-      }
+    _check_range(input_id, input_num(), "input_name(input_id)", "input_id");
+    auto key = _input_key(input_id);
+    if ( mSymbolDict.count(key) > 0 ) {
+      return mSymbolDict.at(key);
     }
     return string{};
   }
@@ -106,14 +93,10 @@ public:
     SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
   ) const
   {
-    if ( mOption.has_key("symbol_dict") ) {
-      auto dict = mOption.at("symbol_dict");
-      ostringstream buf;
-      buf << "O" << output_id;
-      auto key = buf.str();
-      if ( dict.has_key(key) ) {
-	return dict.at(key).get_string();
-      }
+    _check_range(output_id, output_num(), "output_name(output_id)", "output_id");
+    auto key = _output_key(output_id);
+    if ( mSymbolDict.count(key) > 0 ) {
+      return mSymbolDict.at(key);
     }
     return string{};
   }
@@ -124,14 +107,10 @@ public:
     SizeType seq_id ///< [in] ラッチ番号 ( 0 <= seq_id < seq_num() )
   ) const
   {
-    if ( mOption.has_key("symbol_dict") ) {
-      auto dict = mOption.at("symbol_dict");
-      ostringstream buf;
-      buf << "Q" << seq_id;
-      auto key = buf.str();
-      if ( dict.has_key(key) ) {
-	return dict.at(key).get_string();
-      }
+    _check_range(seq_id, seq_num(), "seq_name(seq_id)", "seq_id");
+    auto key = _seq_key(seq_id);
+    if ( mSymbolDict.count(key) > 0 ) {
+      return mSymbolDict.at(key);
     }
     return string{};
   }
@@ -327,11 +306,8 @@ public:
   /// @brief オプション情報をセットする．
   void
   set_option(
-    const JsonValue& option ///< [in] 追加するオプション
-  )
-  {
-    mOption = option;
-  }
+    const JsonValue& option ///< [in] 設定するオプション
+  );
 
   /// @brief 名前を設定する．
   void
@@ -339,7 +315,7 @@ public:
     const string& name ///< [in] 名前
   )
   {
-    mOption.emplace("name", name);
+    mName = name;
   }
 
   /// @brief コメントを設定する．
@@ -348,7 +324,7 @@ public:
     const string& comment ///< [in] コメント
   )
   {
-    mOption.emplace("comment", comment);
+    mComment = comment;
   }
 
   /// @brief 入力名をセットする．
@@ -356,21 +332,36 @@ public:
   set_input_name(
     SizeType input_id, ///< [in] 入力番号 ( 0 <= input_id < input_num() )
     const string& name ///< [in] 名前
-  );
+  )
+  {
+    _check_range(input_id, input_num(), "set_input_name(input_id, name)", "input_id");
+    auto key = _input_key(input_id);
+    mSymbolDict.emplace(key, name);
+  }
 
   /// @brief 出力名をセットする．
   void
   set_output_name(
     SizeType output_id, ///< [in] 出力番号 ( 0 <= output_id < output_num() )
     const string& name  ///< [in] 名前
-  );
+  )
+  {
+    _check_range(output_id, output_num(), "set_output_name(output_id, name)", "output_id");
+    auto key = _output_key(output_id);
+    mSymbolDict.emplace(key, name);
+  }
 
   /// @brief SEQ名をセットする．
   void
   set_seq_name(
     SizeType seq_id,   ///< [in] SEQ番号 ( 0 <= seq_id < seq_num() )
     const string& name ///< [in] 名前
-  );
+  )
+  {
+    _check_range(seq_id, seq_num(), "set_seq_name(seq_id, name)", "seq_id");
+    auto key = _seq_key(seq_id);
+    mSymbolDict.emplace(key, name);
+  }
 
   /// @brief 対応するID番号に入力用の印を付ける．
   void
@@ -855,6 +846,39 @@ private:
     }
   }
 
+  /// @brief SymbolDict の入力用のキーを作る．
+  string
+  _input_key(
+    SizeType input_id
+  ) const
+  {
+    ostringstream buf;
+    buf << "I" << input_id;
+    return buf.str();
+  }
+
+  /// @brief SymbolDict の出力用のキーを作る．
+  string
+  _output_key(
+    SizeType output_id
+  ) const
+  {
+    ostringstream buf;
+    buf << "O" << output_id;
+    return buf.str();
+  }
+
+  /// @brief SymbolDict のSEQ用のキーを作る．
+  string
+  _seq_key(
+    SizeType seq_id
+  ) const
+  {
+    ostringstream buf;
+    buf << "Q" << seq_id;
+    return buf.str();
+  }
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -864,8 +888,14 @@ private:
   // セルライブラリ
   ClibCellLibrary mLibrary;
 
-  // オプジョン情報
-  JsonValue mOption;
+  // 名前
+  string mName;
+
+  // コメント
+  string mComment;
+
+  // シンボルの辞書
+  unordered_map<string, string> mSymbolDict;
 
   // 入力のノード番号のリスト
   vector<SizeType> mInputList;
