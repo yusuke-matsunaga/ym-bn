@@ -411,4 +411,28 @@ TEST( BnModelTest, new_seq_cell )
   EXPECT_FALSE( node.cell_pin(2).is_valid() );
 }
 
+TEST( BnModelTest, clear )
+{
+  BnModel model;
+
+  auto input1 = model.new_input();
+  auto input2 = model.new_input();
+  vector<BnNode> fanin_list{input1, input2};
+  PrimType type = PrimType::And;
+  auto node = model.new_primitive(fanin_list, type);
+
+  EXPECT_EQ( 2, model.input_num() );
+  EXPECT_EQ( 1, model.logic_num() );
+
+  auto model_copy = model;
+
+  model.clear();
+
+  EXPECT_EQ( 0, model.input_num() );
+  EXPECT_EQ( 0, model.logic_num() );
+
+  EXPECT_EQ( 2, model_copy.input_num() );
+  EXPECT_EQ( 1, model_copy.logic_num() );
+}
+
 END_NAMESPACE_YM_BN

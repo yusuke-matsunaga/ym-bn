@@ -325,6 +325,13 @@ BnModel::seq_name(
   return mImpl->seq_name(seq_id);
 }
 
+// @brief 内容をクリアする．
+void
+BnModel::clear()
+{
+  mImpl = shared_ptr<ModelImpl>{new ModelImpl};
+}
+
 // @brief セルライブラリを設定する．
 void
 BnModel::set_celllibrary(
