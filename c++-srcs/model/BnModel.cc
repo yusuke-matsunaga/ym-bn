@@ -343,26 +343,6 @@ BnModel::set_option(
   mImpl->set_option(option);
 }
 
-// @brief 入出力数をセットする．
-void
-BnModel::set_iosize(
-  SizeType input_num,
-  SizeType output_num
-)
-{
-  mImpl->set_iosize(input_num, output_num);
-}
-
-// @brief 出力ノードをセットする．
-void
-BnModel::set_output(
-  SizeType pos,
-  BnNode src
-)
-{
-  mImpl->set_output(pos, src.id());
-}
-
 // @brief 入力ノードを作る．
 BnNode
 BnModel::new_input(

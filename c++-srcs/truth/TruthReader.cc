@@ -74,8 +74,12 @@ TruthReader::read(
       throw std::invalid_argument{"the number of inputs should be the same for all outputs"};
     }
   }
-  // 入力/出力の生成
-  model->set_iosize(ni, no);
+
+  // 入力の生成
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    model->new_input();
+  }
+
   // 論理ノードの生成
   // 注意が必要なのは .truth フォーマットでは最上位の変数が
   // 最後の変数だということ．
@@ -83,10 +87,10 @@ TruthReader::read(
   for ( SizeType i = 0; i < ni; ++ i ) {
     fanin_list[i] = ni - i - 1;
   }
-  for ( SizeType i = 0; i < no; ++ i ) {
-    auto func_id = model->add_func(func_vect[i]);
+  for ( auto& func: func_vect ) {
+    auto func_id = model->add_func(func);
     auto id = model->new_func(fanin_list, func_id);
-    model->set_output(i, id);
+    model->new_output(id);
   }
 }
 

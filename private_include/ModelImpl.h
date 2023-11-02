@@ -372,15 +372,6 @@ public:
     const string& name ///< [in] 名前
   );
 
-  /// @brief 入出力数をセットする．
-  ///
-  /// 以前の内容はクリアされる．
-  void
-  set_iosize(
-    SizeType input_num,     ///< [in] 入力数
-    SizeType output_num     ///< [in] 出力数
-  );
-
   /// @brief 対応するID番号に入力用の印を付ける．
   void
   set_input(

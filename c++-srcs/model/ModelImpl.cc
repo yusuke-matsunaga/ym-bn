@@ -107,22 +107,6 @@ ModelImpl::set_seq_name(
   symbol_dict.emplace(buf.str(), name);
 }
 
-// @brief 入出力数をセットする．
-void
-ModelImpl::set_iosize(
-  SizeType input_num,
-  SizeType output_num
-)
-{
-  for ( SizeType i = 0; i < input_num; ++ i ) {
-    auto id = new_node();
-    set_input(id);
-  }
-  for ( SizeType i = 0; i < output_num; ++ i ) {
-    mOutputList.push_back(BAD_ID);
-  }
-}
-
 // @brief 論理ノードのリストを作る．
 void
 ModelImpl::make_logic_list()

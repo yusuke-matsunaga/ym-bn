@@ -398,22 +398,6 @@ public:
     const JsonValue& option ///< [in] 追加するオプション
   );
 
-  /// @brief 入出力数をセットする．
-  ///
-  /// 以前の内容はクリアされる．
-  void
-  set_iosize(
-    SizeType input_num,     ///< [in] 入力数
-    SizeType output_num     ///< [in] 出力数
-  );
-
-  /// @brief 出力ノードをセットする．
-  void
-  set_output(
-    SizeType pos,           ///< [in] 位置番号 ( 0 <= pos < output_num() )
-    BnNode src              ///< [in] ソースのノード
-  );
-
   /// @}
   //////////////////////////////////////////////////////////////////////
 
