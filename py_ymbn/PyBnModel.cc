@@ -127,7 +127,7 @@ BnModel_read_aag(
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
-    buff << "read_iscas89(\"" << filename << "\") failed";
+    buff << "read_aag(\"" << filename << "\") failed";
     PyErr_SetString(PyExc_ValueError, buff.str().c_str());
     return nullptr;
   }
@@ -149,7 +149,29 @@ BnModel_read_aig(
   }
   catch ( std::invalid_argument ) {
     ostringstream buff;
-    buff << "read_iscas89(\"" << filename << "\") failed";
+    buff << "read_aig(\"" << filename << "\") failed";
+    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+    return nullptr;
+  }
+}
+
+PyObject*
+BnModel_read_truth(
+  PyObject* Py_UNUSED(self),
+  PyObject* args
+)
+{
+  const char* filename = nullptr;
+  if ( !PyArg_ParseTuple(args, "s", &filename) ) {
+    return nullptr;
+  }
+  try {
+    auto model = BnModel::read_truth(filename);
+    return PyBnModel::ToPyObject(model);
+  }
+  catch ( std::invalid_argument ) {
+    ostringstream buff;
+    buff << "read_truth(\"" << filename << "\") failed";
     PyErr_SetString(PyExc_ValueError, buff.str().c_str());
     return nullptr;
   }
@@ -294,6 +316,29 @@ BnModel_seq_node(
 }
 
 PyObject*
+BnModel_seq_name(
+  PyObject* self,
+  PyObject* args
+)
+{
+  SizeType pos{0};
+  if ( !PyArg_ParseTuple(args, "k", &pos) ) {
+    return nullptr;
+  }
+  try {
+    auto model = PyBnModel::Get(self);
+    auto val = model.seq_name(pos);
+    return Py_BuildValue("s", val.c_str());
+  }
+  catch ( std::invalid_argument ) {
+    ostringstream buff;
+    buff << "seq_name(\"" << pos << "\") failed";
+    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+    return nullptr;
+  }
+}
+
+PyObject*
 BnModel_print(
   PyObject* self,
   PyObject* args,
@@ -343,6 +388,9 @@ PyMethodDef BnModel_methods[] = {
   {"read_aig", reinterpret_cast<PyCFunction>(BnModel_read_aig),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'aig' file")},
+  {"read_truth", reinterpret_cast<PyCFunction>(BnModel_read_truth),
+   METH_VARARGS | METH_KEYWORDS | METH_STATIC,
+   PyDoc_STR("read 'truth' file")},
   {"input", BnModel_input,
    METH_VARARGS,
    PyDoc_STR("returns input node")},
@@ -358,6 +406,9 @@ PyMethodDef BnModel_methods[] = {
   {"seq_node", BnModel_seq_node,
    METH_VARARGS,
    PyDoc_STR("returns SEQ node")},
+  {"seq_name", BnModel_seq_name,
+   METH_VARARGS,
+   PyDoc_STR("returns SEQ name")},
   {"logic", BnModel_logic,
    METH_VARARGS,
    PyDoc_STR("returns logic node")},
@@ -449,6 +500,21 @@ BnModel_seq_list(
 }
 
 PyObject*
+BnModel_seq_name_list(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto model = PyBnModel::Get(self);
+  SizeType n = model.seq_num();
+  vector<string> val_list(n);
+  for ( SizeType i = 0; i < n; ++ i ) {
+    val_list[i] = model.seq_name(i);
+  }
+  return PyBase::ToPyList(val_list);
+}
+
+PyObject*
 BnModel_output_num(
   PyObject* self,
   void* Py_UNUSED(closure)
@@ -529,22 +595,37 @@ BnModel_expr_num(
   return Py_BuildValue("i", val);
 }
 
+#if 0
+PyObject*
+BnModel_option(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto model = PyBnModel::Get(self);
+  auto val = model.option();
+  return Py_BuildValue("i", val);
+}
+#endif
+
 // getsetter 定義
 PyGetSetDef BnModel_getsetters[] = {
   {"name", BnModel_name, nullptr, PyDoc_STR("name"), nullptr},
   {"comment", BnModel_comment, nullptr, PyDoc_STR("comment"), nullptr},
   {"input_num", BnModel_input_num, nullptr, PyDoc_STR("input num"), nullptr},
   {"input_list", BnModel_input_list, nullptr, PyDoc_STR("input list"), nullptr},
-  {"input_name_list", BnModel_input_name_list, nullptr, PyDoc_STR("input list"), nullptr},
+  {"input_name_list", BnModel_input_name_list, nullptr, PyDoc_STR("input name list"), nullptr},
   {"seq_num", BnModel_seq_num, nullptr, PyDoc_STR("SEQ node num"), nullptr},
   {"seq_node_list", BnModel_seq_list, nullptr, PyDoc_STR("SEQ node list"), nullptr},
+  {"seq_name_list", BnModel_seq_name_list, nullptr, PyDoc_STR("SEQ name list"), nullptr},
   {"output_num", BnModel_output_num, nullptr, PyDoc_STR("output num"), nullptr},
   {"output_list", BnModel_output_list, nullptr, PyDoc_STR("output list"), nullptr},
-  {"output_name_list", BnModel_output_name_list, nullptr, PyDoc_STR("output list"), nullptr},
+  {"output_name_list", BnModel_output_name_list, nullptr, PyDoc_STR("output name list"), nullptr},
   {"logic_num", BnModel_logic_num, nullptr, PyDoc_STR("logic gate num"), nullptr},
   {"logic_list", BnModel_logic_list, nullptr, PyDoc_STR("logic gate list"), nullptr},
   {"cover_num", BnModel_cover_num, nullptr, PyDoc_STR("cover num"), nullptr},
   {"expr_num", BnModel_expr_num, nullptr, PyDoc_STR("expr num"), nullptr},
+  //{"option", BnModel_option, nullptr, PyDoc_STR("option JSON object"), nullptr},
   {nullptr, nullptr, nullptr, nullptr}
 };
 

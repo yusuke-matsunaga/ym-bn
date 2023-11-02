@@ -8,6 +8,7 @@
 
 #include "pym/PyBnNode.h"
 #include "pym/PyBnModel.h"
+#include "pym/PyBnSeq.h"
 #include "pym/PyExpr.h"
 #include "pym/PyTvFunc.h"
 #include "pym/PyBdd.h"
@@ -85,6 +86,17 @@ BnNode_is_input(
 {
   auto node = PyBnNode::Get(self);
   auto r = node.is_input();
+  return PyBool_FromLong(r);
+}
+
+PyObject*
+BnNode_is_seq_output(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto node = PyBnNode::Get(self);
+  auto r = node.is_seq_output();
   return PyBool_FromLong(r);
 }
 
@@ -232,6 +244,8 @@ PyMethodDef BnNode_methods[] = {
    PyDoc_STR("return parent model")},
   {"is_input", BnNode_is_input, METH_NOARGS,
    PyDoc_STR("return True if input")},
+  {"is_seq_output", BnNode_is_seq_output, METH_NOARGS,
+   PyDoc_STR("return True if SEQ output")},
   {"is_logic", BnNode_is_logic, METH_NOARGS,
    PyDoc_STR("return True if logic node")},
   {"is_primitive", BnNode_is_primitive, METH_NOARGS,
@@ -292,6 +306,23 @@ BnNode_input_id(
   }
   catch ( std::invalid_argument ) {
     PyErr_SetString(PyExc_ValueError, "Error in BnNode.input_id");
+    return nullptr;
+  }
+}
+
+PyObject*
+BnNode_seq_node(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  try {
+    auto node = PyBnNode::Get(self);
+    auto val = node.seq_node();
+    return PyBnSeq::ToPyObject(val);
+  }
+  catch ( std::invalid_argument ) {
+    PyErr_SetString(PyExc_ValueError, "Error in BnNode.seq_node");
     return nullptr;
   }
 }
@@ -497,6 +528,8 @@ PyGetSetDef BnNode_getsetters[] = {
    PyDoc_STR("ID"), nullptr},
   {"input_id", BnNode_input_id, nullptr,
    PyDoc_STR("input ID"), nullptr},
+  {"seq_node", BnNode_seq_node, nullptr,
+   PyDoc_STR("SEQ node"), nullptr},
   {"fanin_num", BnNode_fanin_num, nullptr,
    PyDoc_STR("fanin num"), nullptr},
   {"fanin_list", BnNode_fanin_list, nullptr,
