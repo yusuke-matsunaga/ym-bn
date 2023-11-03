@@ -64,6 +64,8 @@ set ( bn_SOURCES
   #c++-srcs/iscas89/MuxHandler.cc
   c++-srcs/truth/TruthReader.cc
   c++-srcs/model/BnModel.cc
+  c++-srcs/model/BnModel_modify.cc
+  c++-srcs/model/BnModel_check.cc
   c++-srcs/model/BnNode.cc
   c++-srcs/model/BnCover.cc
   c++-srcs/model/BnSeq.cc

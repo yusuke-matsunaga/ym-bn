@@ -60,6 +60,26 @@ ModelImpl::option() const
   return JsonValue{src_dict};
 }
 
+// @brief 内容をクリアする．
+void
+ModelImpl::clear()
+{
+  mLibrary = ClibCellLibrary{};
+  mName = string{};
+  mComment = string{};
+  mSymbolDict.clear();
+  mInputList.clear();
+  mOutputList.clear();
+  mLogicList.clear();
+  mNodeArray.clear();
+  mSeqArray.clear();
+  mCoverArray.clear();
+  mExprArray.clear();
+  mFuncArray.clear();
+  mBddArray.clear();
+  // BddMgr に関しては完全な初期化は行えない．
+}
+
 // @brief セルライブラリを設定する．
 void
 ModelImpl::set_library(

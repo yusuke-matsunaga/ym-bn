@@ -63,6 +63,10 @@ class ModelImpl;
 ///   入力と出力に同じ名前を持つことになる．
 /// - 複数の入出力をまとめてポートを定義することもできる．
 ///   ポート情報もオプションで保持される．
+///
+/// - 実装は本体の ModelImpl の shared_ptr<> を持つ．
+///   ただし，同一の BnModel に属する BnNode, BnSeq 内でしか
+///   共有しない．
 //////////////////////////////////////////////////////////////////////
 class BnModel
 {
@@ -84,31 +88,13 @@ public:
 
   /// @brief コピーコンストラクタ
   ///
-  /// '浅い'コピーを行う．
+  /// '深い'コピーを行う．
   BnModel(
     const BnModel& src ///< [in] コピー元のオブジェクト
   );
 
   /// @brief ムーブコンストラクタ
   BnModel(
-    BnModel&& src ///< [in] ムーブ元のオブジェクト
-  );
-
-  /// @brief コピー代入演算子
-  ///
-  /// '浅い'コピーを行う．
-  BnModel&
-  operator=(
-    const BnModel& src ///< [in] コピー元のオブジェクト
-  );
-
-  /// @brief 深いコピーを行う．
-  BnModel
-  copy() const;
-
-  /// @brief ムーブ代入演算子
-  BnModel&
-  operator=(
     BnModel&& src ///< [in] ムーブ元のオブジェクト
   );
 
