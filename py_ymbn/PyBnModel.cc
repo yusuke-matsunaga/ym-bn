@@ -10,8 +10,15 @@
 #include "pym/PyBnNode.h"
 #include "pym/PyBnSeq.h"
 #include "pym/PyClibCellLibrary.h"
+#include "pym/PyClibCell.h"
+#include "pym/PyExpr.h"
+#include "pym/PyTvFunc.h"
+#include "pym/PyBdd.h"
+#include "pym/PyPrimType.h"
+#include "pym/PyLiteral.h"
 #include "pym/PyModule.h"
 #include "pym/PyBase.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -92,11 +99,19 @@ BnModel_read_blif(
 PyObject*
 BnModel_read_iscas89(
   PyObject* Py_UNUSED(self),
-  PyObject* args
+  PyObject* args,
+  PyObject* kwds
 )
 {
+  static const char* kwlist[] = {
+    "filename",
+    nullptr
+  };
+
   const char* filename = nullptr;
-  if ( !PyArg_ParseTuple(args, "s", &filename) ) {
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "s",
+				    const_cast<char**>(kwlist),
+				    &filename) ) {
     return nullptr;
   }
   try {
@@ -114,11 +129,19 @@ BnModel_read_iscas89(
 PyObject*
 BnModel_read_aag(
   PyObject* Py_UNUSED(self),
-  PyObject* args
+  PyObject* args,
+  PyObject* kwds
 )
 {
+  static const char* kwlist[] = {
+    "filename",
+    nullptr
+  };
+
   const char* filename = nullptr;
-  if ( !PyArg_ParseTuple(args, "s", &filename) ) {
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "s",
+				    const_cast<char**>(kwlist),
+				    &filename) ) {
     return nullptr;
   }
   try {
@@ -136,11 +159,19 @@ BnModel_read_aag(
 PyObject*
 BnModel_read_aig(
   PyObject* Py_UNUSED(self),
-  PyObject* args
+  PyObject* args,
+  PyObject* kwds
 )
 {
+  static const char* kwlist[] = {
+    "filename",
+    nullptr
+  };
+
   const char* filename = nullptr;
-  if ( !PyArg_ParseTuple(args, "s", &filename) ) {
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "s",
+				    const_cast<char**>(kwlist),
+				    &filename) ) {
     return nullptr;
   }
   try {
@@ -158,11 +189,19 @@ BnModel_read_aig(
 PyObject*
 BnModel_read_truth(
   PyObject* Py_UNUSED(self),
-  PyObject* args
+  PyObject* args,
+  PyObject* kwds
 )
 {
+  static const char* kwlist[] = {
+    "filename",
+    nullptr
+  };
+
   const char* filename = nullptr;
-  if ( !PyArg_ParseTuple(args, "s", &filename) ) {
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "s",
+				    const_cast<char**>(kwlist),
+				    &filename) ) {
     return nullptr;
   }
   try {
@@ -374,21 +413,837 @@ BnModel_print(
   Py_RETURN_NONE;
 }
 
+PyObject*
+BnModel_clear(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto model = PyBnModel::Get(self);
+  model.clear();
+  Py_RETURN_NONE;
+}
+
+PyObject*
+BnModel_set_celllibrary(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "library",
+    nullptr
+  };
+
+  PyObject* obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!",
+				    const_cast<char**>(kwlist),
+				    PyClibCellLibrary::_typeobject(), &obj) ) {
+    return nullptr;
+  }
+  auto model = PyBnModel::Get(self);
+  auto library = PyClibCellLibrary::Get(obj);
+  model.set_celllibrary(library);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+BnModel_set_option(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "option",
+    nullptr
+  };
+
+  const char* option_str = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "s",
+				    const_cast<char**>(kwlist),
+				    &option_str) ) {
+    return nullptr;
+  }
+  auto model = PyBnModel::Get(self);
+  auto option = JsonValue::parse(option_str);
+  model.set_option(option);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+BnModel_new_input(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "name",
+    nullptr
+  };
+
+  const char* name_str = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "|s",
+				    const_cast<char**>(kwlist),
+				    &name_str) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  string name;
+  if ( name_str ) {
+    name = name_str;
+  }
+  auto node = model.new_input(name);
+
+  return PyBnNode::ToPyObject(node);
+}
+
+PyObject*
+BnModel_new_output(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "src",
+    "name",
+    nullptr
+  };
+
+  PyObject* src_obj = nullptr;
+  const char* name_str = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!|s",
+				    const_cast<char**>(kwlist),
+				    PyBnNode::_typeobject(), &src_obj,
+				    &name_str) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto src = PyBnNode::Get(src_obj);
+  string name;
+  if ( name_str ) {
+    name = name_str;
+  }
+  auto val = model.new_output(src, name);
+
+  return Py_BuildValue("k", val);
+}
+
+bool
+parse_input_list(
+  PyObject* input_list_obj,
+  vector<BnNode>& input_list
+)
+{
+  if ( !PySequence_Check(input_list_obj) ) {
+    PyErr_SetString(PyExc_TypeError, "1st argument should be a sequence type");
+    return false;
+  }
+  SizeType n = PySequence_Size(input_list_obj);
+  input_list = vector<BnNode>(n);
+  for ( SizeType i = 0; i < n; ++ i ) {
+    auto obj1 = PySequence_GetItem(input_list_obj, i);
+    if ( !PyBnNode::Check(obj1) ) {
+      PyErr_SetString(PyExc_TypeError, "1st argument should be a sequence of BnNode");
+      return false;
+    }
+    input_list[i] = PyBnNode::Get(obj1);
+  }
+  return true;
+}
+
+PyObject*
+BnModel_new_primitive(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "input_list",
+    "type",
+    nullptr
+  };
+
+  PyObject* input_list_obj = nullptr;
+  PyObject* type_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "OO!",
+				    const_cast<char**>(kwlist),
+				    &input_list_obj,
+				    PyPrimType::_typeobject(), &type_obj) ) {
+    return nullptr;
+  }
+
+  vector<BnNode> input_list;
+  if ( !parse_input_list(input_list_obj, input_list) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto type = PyPrimType::Get(type_obj);
+  auto node = model.new_primitive(input_list, type);
+
+  return PyBnNode::ToPyObject(node);
+}
+
+PyObject*
+BnModel_new_aig(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "src0",
+    "src1",
+    "inv0",
+    "inv1",
+    nullptr
+  };
+
+  PyObject* src0_obj = nullptr;
+  PyObject* src1_obj = nullptr;
+  int inv0 = false;
+  int inv1 = false;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O!pp",
+				    const_cast<char**>(kwlist),
+				    PyBnNode::_typeobject(), &src0_obj,
+				    PyBnNode::_typeobject(), &src1_obj,
+				    &inv0, &inv1) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto src0 = PyBnNode::Get(src0_obj);
+  auto src1 = PyBnNode::Get(src1_obj);
+  auto node = model.new_aig(src0, src1,
+			    static_cast<bool>(inv0),
+			    static_cast<bool>(inv1));
+
+  return PyBnNode::ToPyObject(node);
+}
+
+PyObject*
+BnModel_new_cover(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "input_list",
+    "cover_id",
+    nullptr
+  };
+
+  PyObject* input_list_obj = nullptr;
+  SizeType cover_id = 0;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "Ok",
+				    const_cast<char**>(kwlist),
+				    &input_list_obj,
+				    &cover_id) ) {
+    return nullptr;
+  }
+  vector<BnNode> input_list;
+  if ( !parse_input_list(input_list_obj, input_list) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto node = model.new_cover(input_list, cover_id);
+
+  return PyBnNode::ToPyObject(node);
+}
+
+PyObject*
+BnModel_new_expr(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "input_list",
+    "expr_id",
+    nullptr
+  };
+
+  PyObject* input_list_obj = nullptr;
+  SizeType expr_id = 0;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "Ok",
+				    const_cast<char**>(kwlist),
+				    &input_list_obj,
+				    &expr_id) ) {
+    return nullptr;
+  }
+  vector<BnNode> input_list;
+  if ( !parse_input_list(input_list_obj, input_list) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto node = model.new_expr(input_list, expr_id);
+
+  return PyBnNode::ToPyObject(node);
+}
+
+PyObject*
+BnModel_new_func(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "input_list",
+    "func_id",
+    nullptr
+  };
+
+  PyObject* input_list_obj = nullptr;
+  SizeType func_id = 0;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "Ok",
+				    const_cast<char**>(kwlist),
+				    &input_list_obj,
+				    &func_id) ) {
+    return nullptr;
+  }
+  vector<BnNode> input_list;
+  if ( !parse_input_list(input_list_obj, input_list) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto node = model.new_func(input_list, func_id);
+
+  return PyBnNode::ToPyObject(node);
+}
+
+PyObject*
+BnModel_new_bdd(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "input_list",
+    "bdd_id",
+    nullptr
+  };
+
+  PyObject* input_list_obj = nullptr;
+  SizeType bdd_id = 0;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "Ok",
+				    const_cast<char**>(kwlist),
+				    &input_list_obj,
+				    &bdd_id) ) {
+    return nullptr;
+  }
+  vector<BnNode> input_list;
+  if ( !parse_input_list(input_list_obj, input_list) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto node = model.new_bdd(input_list, bdd_id);
+
+  return PyBnNode::ToPyObject(node);
+}
+
+PyObject*
+BnModel_new_cell(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "input_list",
+    "cell",
+    nullptr
+  };
+
+  PyObject* input_list_obj = nullptr;
+  PyObject* cell_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "OO!",
+				    const_cast<char**>(kwlist),
+				    &input_list_obj,
+				    PyClibCell::_typeobject(), &cell_obj) ) {
+    return nullptr;
+  }
+  vector<BnNode> input_list;
+  if ( !parse_input_list(input_list_obj, input_list) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto cell = PyClibCell::Get(cell_obj);
+  auto node = model.new_cell(input_list, cell);
+
+  return PyBnNode::ToPyObject(node);
+}
+
+PyObject*
+BnModel_add_cover(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "input_num",
+    "cube_list",
+    "opat",
+    nullptr
+  };
+
+  SizeType input_num = 0;
+  PyObject* cube_list_obj = nullptr;
+  const char* opat_str = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "kOs",
+				    const_cast<char**>(kwlist),
+				    &input_num,
+				    &cube_list_obj,
+				    &opat_str) ) {
+    return nullptr;
+  }
+
+  if ( !PySequence_Check(cube_list_obj) ) {
+    PyErr_SetString(PyExc_TypeError, "2nd argument should be a list of list of Literals");
+    return nullptr;
+  }
+  SizeType n = PySequence_Size(cube_list_obj);
+  vector<vector<Literal>> cube_list(n);
+  for ( SizeType i = 0; i < n; ++ i ) {
+    auto obj1 = PySequence_GetItem(cube_list_obj, i);
+    if ( !PySequence_Check(obj1) ) {
+      PyErr_SetString(PyExc_TypeError, "2nd argument should be a list of list of Literals");
+      return nullptr;
+    }
+    SizeType m = PySequence_Size(obj1);
+    cube_list[i] = vector<Literal>(m);
+    for ( SizeType j = 0; j < m; ++ j ) {
+      auto obj2 = PySequence_GetItem(obj1, j);
+      if ( !PyLiteral::Check(obj2) ) {
+	PyErr_SetString(PyExc_TypeError, "2nd argument should be a list of list of Literals");
+	return nullptr;
+      }
+      cube_list[i][j] = PyLiteral::Get(obj2);
+    }
+  }
+  char opat;
+  if ( strcmp(opat_str, "0") == 0 ) {
+    opat = '0';
+  }
+  else if ( strcmp(opat_str, "1") == 0 ) {
+    opat = '1';
+  }
+  else {
+    PyErr_SetString(PyExc_ValueError, "3rd argument should be '0' or '1'");
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto val = model.add_cover(input_num, cube_list, opat);
+
+  return Py_BuildValue("k", val);
+}
+
+PyObject*
+BnModel_add_expr(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "expr",
+    nullptr
+  };
+
+  PyObject* expr_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!",
+				    const_cast<char**>(kwlist),
+				    PyExpr::_typeobject, &expr_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto expr = PyExpr::Get(expr_obj);
+  auto val = model.add_expr(expr);
+
+  return Py_BuildValue("k", val);
+}
+
+PyObject*
+BnModel_add_func(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "func",
+    nullptr
+  };
+
+  PyObject* func_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!",
+				    const_cast<char**>(kwlist),
+				    PyTvFunc::_typeobject, &func_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto func = PyTvFunc::Get(func_obj);
+  auto val = model.add_func(func);
+
+  return Py_BuildValue("k", val);
+}
+
+PyObject*
+BnModel_add_bdd(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "bdd",
+    nullptr
+  };
+
+  PyObject* bdd_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!",
+				    const_cast<char**>(kwlist),
+				    PyBdd::_typeobject, &bdd_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto bdd = PyBdd::Get(bdd_obj);
+  auto val = model.add_bdd(bdd);
+
+  return Py_BuildValue("k", val);
+}
+
+PyObject*
+BnModel_new_dff(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "rs_val",
+    "name",
+    nullptr
+  };
+
+  const char* rs_val_str = nullptr;
+  const char* name_str = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "|ss",
+				    const_cast<char**>(kwlist),
+				    &rs_val_str, &name_str) ) {
+    return nullptr;
+  }
+  char rs_val = ' ';
+  string name;
+  if ( rs_val_str != nullptr ) {
+    if ( strlen(rs_val_str) != 1 ) {
+      PyErr_SetString(PyExc_ValueError, "Illegal value for 1st argument");
+      return nullptr;
+    }
+    rs_val = rs_val_str[0];
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto seq = model.new_dff(rs_val, name);
+
+  return PyBnSeq::ToPyObject(seq);
+}
+
+PyObject*
+BnModel_new_latch(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "rs_val",
+    "name",
+    nullptr
+  };
+
+  const char* rs_val_str = nullptr;
+  const char* name_str = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "|ss",
+				    const_cast<char**>(kwlist),
+				    &rs_val_str, &name_str) ) {
+    return nullptr;
+  }
+  char rs_val = ' ';
+  if ( rs_val_str != nullptr ) {
+    if ( strlen(rs_val_str) != 1 ) {
+      PyErr_SetString(PyExc_ValueError, "Illegal value for 1st argument");
+      return nullptr;
+    }
+    rs_val = rs_val_str[0];
+  }
+  string name;
+  if ( name_str != nullptr ) {
+    name = string{name_str};
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto seq = model.new_latch(rs_val, name);
+
+  return PyBnSeq::ToPyObject(seq);
+}
+
+PyObject*
+BnModel_new_seq_cell(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "cell",
+    "name",
+    nullptr
+  };
+
+  PyObject* cell_obj = nullptr;
+  const char* name_str = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!|s",
+				    const_cast<char**>(kwlist),
+				    PyClibCell::_typeobject(), &cell_obj,
+				    &name_str) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto cell = PyClibCell::Get(cell_obj);
+  string name;
+  if ( name_str != nullptr ) {
+    name = string{name_str};
+  }
+  auto seq = model.new_seq_cell(cell, name);
+
+  return PyBnSeq::ToPyObject(seq);
+}
+
+PyObject*
+BnModel_set_data_src(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "seq",
+    "src",
+    nullptr
+  };
+
+  PyObject* seq_obj = nullptr;
+  PyObject* src_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O!",
+				    const_cast<char**>(kwlist),
+				    PyBnSeq::_typeobject(), &seq_obj,
+				    PyBnNode::_typeobject(), &src_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto seq = PyBnSeq::Get(seq_obj);
+  auto src = PyBnNode::Get(src_obj);
+  model.set_data_src(seq, src);
+
+  Py_RETURN_NONE;
+}
+
+PyObject*
+BnModel_set_clock(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "seq",
+    "clock",
+    nullptr
+  };
+
+  PyObject* seq_obj = nullptr;
+  PyObject* clock_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O!",
+				    const_cast<char**>(kwlist),
+				    PyBnSeq::_typeobject(), &seq_obj,
+				    PyBnNode::_typeobject(), &clock_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto seq = PyBnSeq::Get(seq_obj);
+  auto clock = PyBnNode::Get(clock_obj);
+  model.set_clock(seq, clock);
+
+  Py_RETURN_NONE;
+}
+
+PyObject*
+BnModel_set_enable(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "seq",
+    "enable",
+    nullptr
+  };
+
+  PyObject* seq_obj = nullptr;
+  PyObject* src_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O!",
+				    const_cast<char**>(kwlist),
+				    PyBnSeq::_typeobject(), &seq_obj,
+				    PyBnNode::_typeobject(), &src_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto seq = PyBnSeq::Get(seq_obj);
+  auto src = PyBnNode::Get(src_obj);
+  model.set_enable(seq, src);
+
+  Py_RETURN_NONE;
+}
+
+PyObject*
+BnModel_set_clear(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "seq",
+    "clear",
+    nullptr
+  };
+
+  PyObject* seq_obj = nullptr;
+  PyObject* src_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O!",
+				    const_cast<char**>(kwlist),
+				    PyBnSeq::_typeobject(), &seq_obj,
+				    PyBnNode::_typeobject(), &src_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto seq = PyBnSeq::Get(seq_obj);
+  auto src = PyBnNode::Get(src_obj);
+  model.set_clear(seq, src);
+
+  Py_RETURN_NONE;
+}
+
+PyObject*
+BnModel_set_preset(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "seq",
+    "preset",
+    nullptr
+  };
+
+  PyObject* seq_obj = nullptr;
+  PyObject* src_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O!",
+				    const_cast<char**>(kwlist),
+				    PyBnSeq::_typeobject(), &seq_obj,
+				    PyBnNode::_typeobject(), &src_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto seq = PyBnSeq::Get(seq_obj);
+  auto src = PyBnNode::Get(src_obj);
+  model.set_preset(seq, src);
+
+  Py_RETURN_NONE;
+}
+
+PyObject*
+BnModel_set_seq_pin(
+  PyObject* self,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  const char* kwlist[] = {
+    "seq",
+    "pos",
+    "node",
+    nullptr
+  };
+
+  PyObject* seq_obj = nullptr;
+  SizeType pos = 0;
+  PyObject* src_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!kO!",
+				    const_cast<char**>(kwlist),
+				    PyBnSeq::_typeobject(), &seq_obj,
+				    &pos,
+				    PyBnNode::_typeobject(), &src_obj) ) {
+    return nullptr;
+  }
+
+  auto model = PyBnModel::Get(self);
+  auto seq = PyBnSeq::Get(seq_obj);
+  auto src = PyBnNode::Get(src_obj);
+  model.set_seq_pin(seq, pos, src);
+
+  Py_RETURN_NONE;
+}
+
 // メソッド定義
 PyMethodDef BnModel_methods[] = {
-  {"read_blif", reinterpret_cast<PyCFunction>(BnModel_read_blif),
+  {"read_blif",
+   reinterpret_cast<PyCFunction>(BnModel_read_blif),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'blif' file")},
-  {"read_iscas89", reinterpret_cast<PyCFunction>(BnModel_read_iscas89),
+  {"read_iscas89",
+   reinterpret_cast<PyCFunction>(BnModel_read_iscas89),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'iscas89(.bench)' file")},
-  {"read_aag", reinterpret_cast<PyCFunction>(BnModel_read_aag),
+  {"read_aag",
+   reinterpret_cast<PyCFunction>(BnModel_read_aag),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'aag' file")},
-  {"read_aig", reinterpret_cast<PyCFunction>(BnModel_read_aig),
+  {"read_aig",
+   reinterpret_cast<PyCFunction>(BnModel_read_aig),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'aig' file")},
-  {"read_truth", reinterpret_cast<PyCFunction>(BnModel_read_truth),
+  {"read_truth",
+   reinterpret_cast<PyCFunction>(BnModel_read_truth),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'truth' file")},
   {"input", BnModel_input,
@@ -412,9 +1267,105 @@ PyMethodDef BnModel_methods[] = {
   {"logic", BnModel_logic,
    METH_VARARGS,
    PyDoc_STR("returns logic node")},
-  {"print", reinterpret_cast<PyCFunction>(BnModel_print),
+  {"print",
+   reinterpret_cast<PyCFunction>(BnModel_print),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("print contents")},
+  {"clear", BnModel_clear,
+   METH_NOARGS,
+   PyDoc_STR("clear")},
+  {"set_celllibrary",
+   reinterpret_cast<PyCFunction>(BnModel_set_celllibrary),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("set cell library")},
+  {"set_option",
+   reinterpret_cast<PyCFunction>(BnModel_set_option),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("set option information")},
+  {"new_input",
+   reinterpret_cast<PyCFunction>(BnModel_new_input),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new input node")},
+  {"new_output",
+   reinterpret_cast<PyCFunction>(BnModel_new_output),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new output node")},
+  {"new_primitive",
+   reinterpret_cast<PyCFunction>(BnModel_new_primitive),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new primitive node")},
+  {"new_aig",
+   reinterpret_cast<PyCFunction>(BnModel_new_aig),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new AIG node")},
+  {"new_cover",
+   reinterpret_cast<PyCFunction>(BnModel_new_cover),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new COVER node")},
+  {"new_expr",
+   reinterpret_cast<PyCFunction>(BnModel_new_expr),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new EXPR node")},
+  {"new_func",
+   reinterpret_cast<PyCFunction>(BnModel_new_func),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new TVFUNC node")},
+  {"new_bdd",
+   reinterpret_cast<PyCFunction>(BnModel_new_bdd),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new BDD node")},
+  {"add_cover",
+   reinterpret_cast<PyCFunction>(BnModel_add_cover),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("register a COVER")},
+  {"add_expr",
+   reinterpret_cast<PyCFunction>(BnModel_add_expr),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("register an expression")},
+  {"add_func",
+   reinterpret_cast<PyCFunction>(BnModel_add_func),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("register a TVFUNC")},
+  {"add_bdd",
+   reinterpret_cast<PyCFunction>(BnModel_add_bdd),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("register a BDD")},
+  {"new_dff",
+   reinterpret_cast<PyCFunction>(BnModel_new_dff),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new DFF")},
+  {"new_latch",
+   reinterpret_cast<PyCFunction>(BnModel_new_latch),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new latch")},
+  {"new_seq_cell",
+   reinterpret_cast<PyCFunction>(BnModel_new_seq_cell),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("new SEQ cell")},
+  {"set_data_src",
+   reinterpret_cast<PyCFunction>(BnModel_set_data_src),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("set DFF/latch's data-src")},
+  {"set_clock",
+   reinterpret_cast<PyCFunction>(BnModel_set_clock),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("set DFF's clock")},
+  {"set_enable",
+   reinterpret_cast<PyCFunction>(BnModel_set_enable),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("set latch's enable")},
+  {"set_clear",
+   reinterpret_cast<PyCFunction>(BnModel_set_clear),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("set DFF/latch's clear")},
+  {"set_preset",
+   reinterpret_cast<PyCFunction>(BnModel_set_preset),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("set DFF/latch's preset")},
+  {"set_seq_pin",
+   reinterpret_cast<PyCFunction>(BnModel_set_seq_pin),
+   METH_VARARGS | METH_KEYWORDS,
+   PyDoc_STR("set SEQ cell's pin")},
   {nullptr, nullptr, 0, nullptr}
 };
 
