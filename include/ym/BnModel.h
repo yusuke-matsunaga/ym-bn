@@ -441,15 +441,6 @@ public:
     SizeType cover_id                 ///< [in] カバー番号
   );
 
-  /// @brief カバーを追加する．
-  /// @return カバー番号を返す．
-  SizeType
-  add_cover(
-    SizeType input_num,                       ///< [in] 入力数
-    const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
-    char opat                                 ///< [in] 出力パタン ( '1' or '0' )
-  );
-
   /// @brief 論理式型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
@@ -458,23 +449,6 @@ public:
   new_expr(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType expr_id                  ///< [in] 論理式番号
-  );
-
-  /// @brief 論理式を追加する．
-  /// @return 論理式番号を返す．
-  SizeType
-  add_expr(
-    const Expr& expr ///< [in] 論理式
-  );
-
-  /// @brief セル型の論理ノードを作る．
-  /// @return 生成したノードを返す．
-  ///
-  /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
-  BnNode
-  new_cell(
-    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    ClibCell cell                     ///< [in] セル
   );
 
   /// @brief 真理値表型の論理ノードを作る．
@@ -487,13 +461,6 @@ public:
     SizeType func_id                  ///< [in] 関数番号
   );
 
-  /// @brief 真理値表を追加する．
-  /// @return 関数番号を返す．
-  SizeType
-  add_func(
-    const TvFunc& func ///< [in] 真理値表型の関数
-  );
-
   /// @brief BDD型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
@@ -502,6 +469,49 @@ public:
   new_bdd(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
     SizeType bdd_id                   ///< [in] BDD番号
+  );
+
+  /// @brief セル型の論理ノードを作る．
+  /// @return 生成したノードを返す．
+  ///
+  /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
+  BnNode
+  new_cell(
+    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
+    ClibCell cell                     ///< [in] セル
+  );
+
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  /// @name 論理関数表現の登録
+  /// @{
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief カバーを追加する．
+  /// @return カバー番号を返す．
+  SizeType
+  add_cover(
+    SizeType input_num,                       ///< [in] 入力数
+    const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
+    char opat                                 ///< [in] 出力パタン ( '1' or '0' )
+  );
+
+  /// @brief 論理式を追加する．
+  /// @return 論理式番号を返す．
+  SizeType
+  add_expr(
+    const Expr& expr ///< [in] 論理式
+  );
+
+  /// @brief 真理値表を追加する．
+  /// @return 関数番号を返す．
+  SizeType
+  add_func(
+    const TvFunc& func ///< [in] 真理値表型の関数
   );
 
   /// @brief BDDを追加する．
