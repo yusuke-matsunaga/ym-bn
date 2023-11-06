@@ -201,6 +201,8 @@ public:
   input_num() const;
 
   /// @brief 入力のノードを返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnNode
   input(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < input_num() )
@@ -215,6 +217,8 @@ public:
   output_num() const;
 
   /// @brief 入力のノードを返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnNode
   output(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < output_num() )
@@ -229,6 +233,8 @@ public:
   logic_num() const;
 
   /// @brief 論理ノードを返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnNode
   logic(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < logic_num() )
@@ -243,6 +249,8 @@ public:
   seq_num() const;
 
   /// @brief SEQノードを返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnSeq
   seq_node(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < seq_num() )
@@ -257,6 +265,8 @@ public:
   cover_num() const;
 
   /// @brief カバーを取り出す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   const BnCover&
   cover(
     SizeType cover_id ///< [in] カバー番号
@@ -267,6 +277,8 @@ public:
   expr_num() const;
 
   /// @brief 論理式を返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   const Expr&
   expr(
     SizeType expr_id ///< [in] 論理式番号 ( 0 <= expr_id < expr_num() )
@@ -277,6 +289,8 @@ public:
   func_num() const;
 
   /// @brief 真理値表型の関数を返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   const TvFunc&
   func(
     SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
@@ -287,6 +301,8 @@ public:
   bdd_num() const;
 
   /// @brief BDDを返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   Bdd
   bdd(
     SizeType bdd_id ///< [in] BDD番号 ( 0 <= bdd_id < bdd_num() )
@@ -343,18 +359,24 @@ public:
   comment() const;
 
   /// @brief 入力名を返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   string
   input_name(
     SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
   ) const;
 
   /// @brief 出力名を返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   string
   output_name(
     SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
   ) const;
 
   /// @brief ラッチ名を返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   string
   seq_name(
     SizeType seq_id ///< [in] ラッチ番号 ( 0 <= seq_id < seq_num() )
@@ -376,7 +398,7 @@ public:
 
   /// @brief セルライブラリを設定する．
   ///
-  /// 既に別のライブラリが設定されていたらエラーとなる．
+  /// 既に別のライブラリが設定されていたら std::invalid_argument 例外を送出する．
   void
   set_celllibrary(
     ClibCellLibrary lib ///< [in] ライブラリ
@@ -407,6 +429,9 @@ public:
 
   /// @brief 出力ノードを作る．
   /// @return 生成した出力ノードの出力番号を返す．
+  ///
+  /// - src は同じ BnModel に属するノードでなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   SizeType
   new_output(
     BnNode src,             ///< [in] ソースノード
@@ -415,6 +440,9 @@ public:
 
   /// @brief 新しいプリミティブ型の論理ノードを作る．
   /// @return 生成したノードを返す．
+  ///
+  /// - input の要素は同じ BnModel に属するノードでなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_primitive(
     const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
@@ -423,6 +451,9 @@ public:
 
   /// @brief 新しいAIG型の論理ノードを作る．
   /// @return 生成したノードを返す．
+  ///
+  /// - src0, src1 は同じ BnModel に属するノードでなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_aig(
     BnNode src0,            ///< [in] ソース0のノード
@@ -434,7 +465,10 @@ public:
   /// @brief 新しいカバー型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
-  /// cover_id は add_cover() で登録したものを用いる．
+  /// - cover_id は add_cover() で登録したものを用いる．
+  /// - input の要素は同じ BnModel に属するノードでなければならない．
+  /// - カバーの入力数と input_list のサイズは一致しなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_cover(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
@@ -444,7 +478,10 @@ public:
   /// @brief 論理式型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
-  /// expr_id は add_expr() で登録したものを用いる．
+  /// - expr_id は add_expr() で登録したものを用いる．
+  /// - input の要素は同じ BnModel に属するノードでなければならない．
+  /// - 論理式の入力数と input_list のサイズは一致しなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_expr(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
@@ -454,7 +491,10 @@ public:
   /// @brief 真理値表型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
-  /// func_id は add_func() で登録したものを用いる．
+  /// - func_id は add_func() で登録したものを用いる．
+  /// - input の要素は同じ BnModel に属するノードでなければならない．
+  /// - 関数の入力数と input_list のサイズは一致しなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_func(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
@@ -464,7 +504,10 @@ public:
   /// @brief BDD型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
-  /// bdd_id は add_bdd() で登録したものを用いる．
+  /// - bdd_id は add_bdd() で登録したものを用いる．
+  /// - input の要素は同じ BnModel に属するノードでなければならない．
+  /// - BDDの入力数と input_list のサイズは一致しなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_bdd(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
@@ -474,7 +517,10 @@ public:
   /// @brief セル型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
-  /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
+  /// - input の要素は同じ BnModel に属するノードでなければならない．
+  /// - cell はこのモデルに設定されているセルライブラリのセルでなければならない．
+  /// - セルDの入力数と input_list のサイズは一致しなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_cell(
     const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
@@ -493,6 +539,11 @@ public:
 
   /// @brief カバーを追加する．
   /// @return カバー番号を返す．
+  ///
+  /// - cube_list の要素は全て同じサイズのリストでなければならない．
+  /// - かつ，そのサイズは input_num と等しくなければならない．
+  /// - opat は '0' か '1' でなければならない．
+  /// - 上記の条件に合わない場合は std::invalid_argument 例外を送出する．
   SizeType
   add_cover(
     SizeType input_num,                       ///< [in] 入力数
@@ -533,6 +584,9 @@ public:
 
   /// @brief DFFを作る．
   /// @return 生成したSEQノードを返す．
+  ///
+  /// - rs_val は ' ', '0', '1', 'X', 'T' のいずれか
+  /// - そうでなければ std::invalid_argument 例外を送出する．
   BnSeq
   new_dff(
     char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
@@ -541,6 +595,9 @@ public:
 
   /// @brief ラッチを作る．
   /// @return 生成したSEQノードを返す．
+  ///
+  /// - rs_val は ' ', '0', '1', 'X', 'T' のいずれか
+  /// - そうでなければ std::invalid_argument 例外を送出する．
   BnSeq
   new_latch(
     char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
@@ -550,7 +607,9 @@ public:
   /// @brief セルタイプのSEQノードを作る．
   /// @return 生成したSEQノードを返す．
   ///
-  /// cell はこのモデルに設定されているセルライブラリのセルでなければならない．
+  /// - cell はこのモデルに設定されているセルライブラリのセルでなければならない．
+  /// - cell が順序回路でなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnSeq
   new_seq_cell(
     ClibCell cell,          ///< [in] セル
@@ -558,6 +617,10 @@ public:
   );
 
   /// @brief DFF/ラッチのソースノードをセットする．
+  ///
+  /// - seq は同じ BnModel に属していなければならない．
+  /// - src は同じ BnModel に属していなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   void
   set_data_src(
     BnSeq seq,    ///< [in] SEQノード
@@ -565,6 +628,10 @@ public:
   );
 
   /// @brief DFFのクロック入力をセットする．
+  ///
+  /// - seq は同じ BnModel に属していなければならない．
+  /// - clock は同じ BnModel に属していなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   void
   set_clock(
     BnSeq seq,    ///< [in] SEQノード
@@ -572,13 +639,21 @@ public:
   );
 
   /// @brief ラッチのイネーブル入力をセットする．
+  ///
+  /// - seq は同じ BnModel に属していなければならない．
+  /// - enable は同じ BnModel に属していなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   void
   set_enable(
-    BnSeq seq,   ///< [in] SEQノード
+    BnSeq seq,     ///< [in] SEQノード
     BnNode enable  ///< [in] イネーブル入力
   );
 
   /// @brief DFF/ラッチのクリア入力をセットする．
+  ///
+  /// - seq は同じ BnModel に属していなければならない．
+  /// - clear は同じ BnModel に属していなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   void
   set_clear(
     BnSeq seq,    ///< [in] SEQノード
@@ -586,6 +661,10 @@ public:
   );
 
   /// @brief DFF/ラッチのプリセット入力をセットする．
+  ///
+  /// - seq は同じ BnModel に属していなければならない．
+  /// - preset は同じ BnModel に属していなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   void
   set_preset(
     BnSeq seq,    ///< [in] SEQノード
@@ -593,6 +672,11 @@ public:
   );
 
   /// @brief セルのピンに対応するノードをセットする．
+  ///
+  /// - seq は同じ BnModel に属していなければならない．
+  /// - node は同じ BnModel に属していなければならない．
+  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
+  /// - pos が範囲外の時は std::out_of_range 例外を送出する．
   void
   set_seq_pin(
     BnSeq seq,    ///< [in] SEQノード
