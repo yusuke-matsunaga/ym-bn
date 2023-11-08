@@ -30,6 +30,7 @@ ym_add_object_library ( py_ymbn
   PyBnModel.cc
   PyBnNode.cc
   PyBnSeq.cc
+  PyBnFunc.cc
   )
 
 add_library ( py_ymbnlib

@@ -42,13 +42,6 @@ CoverMgr::CoverMgr(
 {
 }
 
-// @brief 登録されているカバー数を返す．
-SizeType
-CoverMgr::cover_num() const
-{
-  return mModel->cover_num();
-}
-
 // @brief パタン文字列からカバーを返す．
 SizeType
 CoverMgr::pat2cover(
@@ -102,7 +95,7 @@ CoverMgr::new_cover(
     cube_list.push_back(cube);
   }
 
-  return mModel->add_cover(input_num, cube_list, opat);
+  return mModel->reg_cover(input_num, cube_list, opat);
 }
 
 END_NAMESPACE_YM_BN

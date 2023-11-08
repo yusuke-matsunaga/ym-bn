@@ -87,9 +87,9 @@ TruthReader::read(
   for ( SizeType i = 0; i < ni; ++ i ) {
     fanin_list[i] = ni - i - 1;
   }
-  for ( auto& func: func_vect ) {
-    auto func_id = model->add_func(func);
-    auto id = model->new_func(fanin_list, func_id);
+  for ( auto& tvfunc: func_vect ) {
+    auto func = model->reg_tvfunc(tvfunc);
+    auto id = model->new_func(fanin_list, func);
     model->new_output(id);
   }
 }

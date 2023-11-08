@@ -9,6 +9,7 @@
 #include "ym/BnNode.h"
 #include "ym/BnModel.h"
 #include "ym/BnSeq.h"
+#include "ym/BnFunc.h"
 #include "ModelImpl.h"
 
 
@@ -49,35 +50,35 @@ BnNode::parent_model() const
 BnNodeType
 BnNode::type() const
 {
-  return node_impl().type();
+  return _impl().type();
 }
 
 // @brief 入力ノードの時 true を返す．
 bool
 BnNode::is_input() const
 {
-  return node_impl().is_input();
+  return _impl().is_input();
 }
 
 // @brief BnSeq の出力ノードの時 true を返す．
 bool
 BnNode::is_seq_output() const
 {
-  return node_impl().is_seq_output();
+  return _impl().is_seq_output();
 }
 
 // @brief 論理ノードの時 true を返す．
 bool
 BnNode::is_logic() const
 {
-  return node_impl().is_logic();
+  return _impl().is_logic();
 }
 
 // @brief PRIM タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_primitive() const
 {
-  return node_impl().is_primitive();
+  return _impl().is_primitive();
 }
 
 // @brief AIG タイプの論理ノードの時 true を返す．
@@ -87,18 +88,11 @@ BnNode::is_aig() const
   return type() == BnNodeType::AIG;
 }
 
-// @brief COVER タイプの論理ノードの時 true を返す．
+// @brief 関数タイプの論理ノードの時 true を返す．
 bool
-BnNode::is_cover() const
+BnNode::is_func() const
 {
-  return type() == BnNodeType::COVER;
-}
-
-// @brief EXPR タイプの論理ノードの時 true を返す．
-bool
-BnNode::is_expr() const
-{
-  return type() == BnNodeType::EXPR;
+  return type() == BnNodeType::FUNC;
 }
 
 // @brief CELL タイプの論理ノードの時 true を返す．
@@ -108,39 +102,25 @@ BnNode::is_cell() const
   return type() == BnNodeType::CELL;
 }
 
-// @brief FUNC タイプの論理ノードの時 true を返す．
-bool
-BnNode::is_func() const
-{
-  return type() == BnNodeType::TVFUNC;
-}
-
-// @brief BDD タイプの論理ノードの時 true を返す．
-bool
-BnNode::is_bdd() const
-{
-  return type() == BnNodeType::BDD;
-}
-
 // @brief 入力番号を返す．
 SizeType
 BnNode::input_id() const
 {
-  return node_impl().input_id();
+  return _impl().input_id();
 }
 
 // @brief 関連する BnSeq を返す．
 BnSeq
 BnNode::seq_node() const
 {
-  return BnSeq{mImpl, node_impl().seq_id()};
+  return BnSeq{mImpl, _impl().seq_id()};
 }
 
 // @brief ノードのファンイン数を返す．
 SizeType
 BnNode::fanin_num() const
 {
-  return node_impl().fanin_num();
+  return _impl().fanin_num();
 }
 
 // @brief ノードのファンインのノードを返す．
@@ -149,21 +129,21 @@ BnNode::fanin(
   SizeType pos
 ) const
 {
-  return from_id(node_impl().fanin(pos));
+  return from_id(_impl().fanin(pos));
 }
 
 // @brief ノードのファンインのノードのリストを返す．
 vector<BnNode>
 BnNode::fanin_list() const
 {
-  return from_id_list(node_impl().fanin_list());
+  return from_id_list(_impl().fanin_list());
 }
 
 // @brief ノードのプリミティブタイプを返す．
 PrimType
 BnNode::primitive_type() const
 {
-  return node_impl().primitive_type();
+  return _impl().primitive_type();
 }
 
 // @brief ファンインの反転属性を返す．
@@ -172,88 +152,27 @@ BnNode::fanin_inv(
   SizeType pos
 ) const
 {
-  return node_impl().fanin_inv(pos);
+  return _impl().fanin_inv(pos);
 }
 
-// @brief カバー番号を返す．
-SizeType
-BnNode::cover_id() const
+// @brief ノードの関数情報を返す．
+BnFunc
+BnNode::local_func() const
 {
-  return node_impl().cover_id();
-}
-
-// @brief ノードのカバーを返す．
-const BnCover&
-BnNode::cover() const
-{
-  auto id = cover_id();
-  return mImpl->cover(id);
-}
-
-// @brief 論理式番号を返す．
-SizeType
-BnNode::expr_id() const
-{
-  return node_impl().expr_id();
-}
-
-// @brief 論理式を返す．
-const Expr&
-BnNode::expr() const
-{
-  auto id = expr_id();
-  return mImpl->expr(id);
-}
-
-// @brief ノードのセル番号を返す．
-SizeType
-BnNode::cell_id() const
-{
-  return node_impl().cell_id();
+  return BnFunc{mImpl, _impl().local_func_id()};
 }
 
 // @brief ノードのセルを返す．
 ClibCell
 BnNode::cell() const
 {
-  auto id = cell_id();
-  auto library = mImpl->library();
-  return library.cell(id);
-}
-
-// @brief ノードの関数番号を返す．
-SizeType
-BnNode::func_id() const
-{
-  return node_impl().func_id();
-}
-
-// @brief 関数を返す．
-const TvFunc&
-BnNode::func() const
-{
-  auto id = func_id();
-  return mImpl->func(id);
-}
-
-// @brief ノードのBDD番号を返す．
-SizeType
-BnNode::bdd_id() const
-{
-  return node_impl().bdd_id();
-}
-
-// @brief BDDを返す．
-Bdd
-BnNode::bdd() const
-{
-  auto id = bdd_id();
-  return mImpl->bdd(id);
+  auto cell_id = _impl().cell_id();
+  return mImpl->library().cell(cell_id);
 }
 
 // @brief ノードの実体を返す．
 const NodeImpl&
-BnNode::node_impl() const
+BnNode::_impl() const
 {
   if ( !is_valid() ) {
     throw std::invalid_argument{"BnNode: invalid data"};

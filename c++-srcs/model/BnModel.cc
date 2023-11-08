@@ -9,6 +9,7 @@
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
 #include "ym/BnSeq.h"
+#include "ym/BnFunc.h"
 #include "ModelImpl.h"
 
 
@@ -78,6 +79,7 @@ BnModel::input(
   SizeType pos
 ) const
 {
+  _check_input_id(pos);
   return from_id(mImpl->input(pos));
 }
 
@@ -101,12 +103,7 @@ BnModel::output(
   SizeType pos
 ) const
 {
-  if ( pos < 0 || output_num() <= pos ) {
-    ostringstream buf;
-    buf << "Error in BnModel::output. "
-	<< pos << " is out of range.";
-    throw std::invalid_argument{buf.str()};
-  }
+  _check_output_id(pos);
   return from_id(mImpl->output(pos));
 }
 
@@ -130,12 +127,7 @@ BnModel::logic(
   SizeType pos
 ) const
 {
-  if ( pos < 0 || logic_num() <= pos ) {
-    ostringstream buf;
-    buf << "Error in BnModel::logic. "
-	<< pos << " is out of range.";
-    throw std::invalid_argument{buf.str()};
-  }
+  _check_logic_id(pos);
   return from_id(mImpl->logic(pos));
 }
 
@@ -159,12 +151,7 @@ BnModel::seq_node(
   SizeType pos
 ) const
 {
-  if ( pos < 0 || seq_num() <= pos ) {
-    ostringstream buf;
-    buf << "Error in BnModel::seq_node(pos). "
-  	    << pos << " is out of range.";
-    throw std::invalid_argument{buf.str()};
-  }
+  _check_seq_id(pos);
   return BnSeq{mImpl, pos};
 }
 
@@ -179,72 +166,25 @@ BnModel::seq_node_list() const
   return ans_list;
 }
 
-// @brief カバーの種類の数を返す．
-SizeType
-BnModel::cover_num() const
-{
-  return mImpl->cover_num();
-}
-
-// @brief カバーを取り出す．
-const BnCover&
-BnModel::cover(
-  SizeType cover_id
-) const
-{
-  _check_cover(cover_id, "cover");
-  return mImpl->cover(cover_id);
-}
-
-// @brief 論理式の数を返す．
-SizeType
-BnModel::expr_num() const
-{
-  return mImpl->expr_num();
-}
-
-// @brief 論理式を返す．
-const Expr&
-BnModel::expr(
-  SizeType expr_id
-) const
-{
-  _check_expr(expr_id, "expr");
-  return mImpl->expr(expr_id);
-}
-
-// @brief 真理値表型の関数の数を返す．
+// @brief 関数情報の数を返す．
 SizeType
 BnModel::func_num() const
 {
   return mImpl->func_num();
 }
 
-// @brief 真理値表型の関数を返す．
-const TvFunc&
+// @brief 関数情報を取り出す．
+BnFunc
 BnModel::func(
   SizeType func_id
 ) const
 {
-  _check_func(func_id, "func");
-  return mImpl->func(func_id);
-}
-
-// @brief BDDの数を返す．
-SizeType
-BnModel::bdd_num() const
-{
-  return mImpl->bdd_num();
-}
-
-// @brief BDDを返す．
-Bdd
-BnModel::bdd(
-  SizeType bdd_id
-) const
-{
-  _check_bdd(bdd_id, "bdd");
-  return mImpl->bdd(bdd_id);
+  if ( func_id < 0 || func_num() <= func_id ) {
+    ostringstream buf;
+    buf << "'func_id'(" << func_id << ") is out of range";
+    throw std::out_of_range{buf.str()};
+  }
+  return BnFunc{mImpl, func_id};
 }
 
 // @brief オプション情報を表す JSON オブジェクトを返す．
@@ -274,6 +214,7 @@ BnModel::input_name(
   SizeType input_id
 ) const
 {
+  _check_input_id(input_id);
   return mImpl->input_name(input_id);
 }
 
@@ -283,6 +224,7 @@ BnModel::output_name(
   SizeType output_id
 ) const
 {
+  _check_output_id(output_id);
   return mImpl->output_name(output_id);
 }
 
@@ -292,6 +234,7 @@ BnModel::seq_name(
   SizeType seq_id
 ) const
 {
+  _check_seq_id(seq_id);
   return mImpl->seq_name(seq_id);
 }
 
@@ -358,20 +301,11 @@ BnModel::print(
     else if ( node.is_aig() ) {
       s << "AIG[" << node.fanin_inv(0) << node.fanin_inv(1) << "]";
     }
-    else if ( node.is_cover() ) {
-      s << "Cover#" << node.cover_id();
-    }
-    else if ( node.is_expr() ) {
-      s << "Expr#" << node.expr_id();
+    else if ( node.is_func() ) {
+      s << "Func#" << node.local_func().id();
     }
     else if ( node.is_cell() ) {
-      s << "Cell#" << node.cell_id();
-    }
-    else if ( node.is_func() ) {
-      s << "Func#" << node.func_id();
-    }
-    else if ( node.is_bdd() ) {
-      s << "Bdd#" << node.bdd_id();
+      s << "Cell#" << node.cell().id();
     }
     else {
       ASSERT_NOT_REACHED;
@@ -382,26 +316,11 @@ BnModel::print(
     }
     s << ")" << endl;
   }
-  if ( cover_num() > 0 ) {
-    s << endl;
-    for ( SizeType id = 0; id < cover_num(); ++ id ) {
-      s << "Cover#" << id << ":" << endl;
-      auto& cover = this->cover(id);
-      cover.print(s);
-    }
-  }
-  if ( expr_num() > 0 ) {
-    s << endl;
-    for ( SizeType id = 0; id < expr_num(); ++ id ) {
-      s << "Expr#" << id << ":" << endl
-	<< expr(id) << endl;
-    }
-  }
   if ( func_num() > 0 ) {
     s << endl;
     for ( SizeType id = 0; id < func_num(); ++ id ) {
-      s << "Func#" << id << ":" << endl
-	<< func(id) << endl;
+      s << "Func#" << id << ":" << endl;
+      func(id).print(s);
     }
   }
 }
@@ -428,37 +347,17 @@ BnModel::from_id_list(
   return node_list;
 }
 
-// @brief BnNode から ID 番号を取り出す．
-SizeType
-BnModel::to_id(
-  const BnNode& node,
-  const string& funcname
-) const
-{
-  if ( node.is_valid() ) {
-    if ( node.parent_model() != *this ) {
-      ostringstream buf;
-      buf << "Error in BnModel::" << funcname
-	  << ".  "
-	  << "Illega node with different model.";
-      throw std::invalid_argument{buf.str()};
-    }
-    return node.id();
-  }
-  return BAD_ID;
-}
-
 // @brief vector<BnNode> から ID番号のリストを取り出す．
 vector<SizeType>
 BnModel::to_id_list(
-  const vector<BnNode>& node_list,
-  const string& funcname
+  const vector<BnNode>& node_list
 ) const
 {
   vector<SizeType> id_list;
   id_list.reserve(node_list.size());
   for ( auto& node: node_list ) {
-    auto id = to_id(node, funcname);
+    _check_node(node);
+    auto id = node.id();
     id_list.push_back(id);
   }
   return id_list;

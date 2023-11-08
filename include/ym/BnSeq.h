@@ -31,7 +31,6 @@ class SeqImpl;
 ///
 /// 以下の情報を持つ．
 /// - ID番号: 同一の BnModel 内の BnSeq に対してユニークとなる．
-/// - 名前: 場合によっては空文字列となる．
 ///
 /// DFF/LATCH タイプの場合は以下の情報を持つ．
 /// - データ出力ノード
@@ -46,6 +45,10 @@ class SeqImpl;
 /// - セルの各ピンに対応するノード
 ///
 /// 実際にはこのクラスは ModelImpl へのポインタとID番号しか持たない．
+///
+/// 空のコンストラクタで作られたインスタンスは不正値となる．
+/// その場合，is_valid() = false, id() = BAD_ID となる以外は
+/// 全てのメンバ関数の呼び出しが std::invalid_argument 例外を送出する．
 //////////////////////////////////////////////////////////////////////
 class BnSeq
 {
@@ -107,57 +110,72 @@ public:
 
   /// @brief データ入力ノードを返す．
   ///
-  /// is_dff() == true or is_latch() == true
+  /// - is_dff() == true or is_latch() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   BnNode
   data_src() const;
 
   /// @brief クロック入力ノードを返す．
   ///
-  /// is_dff() == true
+  /// - is_dff() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   BnNode
   clock() const;
 
   /// @brief イネーブル入力ノードを返す．
   ///
-  /// is_latch() == true
+  /// - is_latch() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   BnNode
   enable() const;
 
   /// @brief クリア入力ノードを返す．
   ///
-  /// is_dff() == true or is_latch() == true
+  /// - is_dff() == true or is_latch() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   BnNode
   clear() const;
 
   /// @brief プリセット入力ノードを返す．
   ///
-  /// is_dff() == true or is_latch() == true
+  /// - is_dff() == true or is_latch() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   BnNode
   preset() const;
 
   /// @brief クリアとプリセットが衝突したときの挙動を返す．
   ///
-  /// is_dff() == true or is_latch() == true
+  /// - is_dff() == true or is_latch() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   char
   rsval() const;
 
   /// @brief データ出力ノードを返す．
+  ///
+  /// - is_dff() == true or is_latch() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   BnNode
   data_output() const;
 
   /// @brief セル番号を返す．
   ///
-  /// is_cell() == true
+  /// - is_cell() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   SizeType
   cell_id() const;
 
   /// @brief セルを返す．
+  ///
+  /// - is_cell() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
   ClibCell
   cell() const;
 
   /// @brief セルのピンに対応するノードを返す．
   ///
-  /// is_cell() == true
+  /// - is_cell() == true の時のみ意味を持つ．
+  /// - それ以外は std::invalid_argument 例外を送出する．
+  /// - pos が範囲外の時は std::out_of_range 例外を送出する．
   BnNode
   cell_pin(
     SizeType pos ///< [in] ピン番号

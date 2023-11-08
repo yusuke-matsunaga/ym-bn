@@ -9,12 +9,12 @@
 #include "pym/PyBnNode.h"
 #include "pym/PyBnModel.h"
 #include "pym/PyBnSeq.h"
-#include "pym/PyExpr.h"
-#include "pym/PyTvFunc.h"
-#include "pym/PyBdd.h"
+#include "pym/PyBnFunc.h"
 #include "pym/PyPrimType.h"
+#include "pym/PyClibCell.h"
 #include "pym/PyModule.h"
 #include "ym/BnNode.h"
+#include "ym/BnFunc.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -134,39 +134,6 @@ BnNode_is_aig(
 }
 
 PyObject*
-BnNode_is_cover(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
-)
-{
-  auto node = PyBnNode::Get(self);
-  auto r = node.is_cover();
-  return PyBool_FromLong(r);
-}
-
-PyObject*
-BnNode_is_expr(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
-)
-{
-  auto node = PyBnNode::Get(self);
-  auto r = node.is_expr();
-  return PyBool_FromLong(r);
-}
-
-PyObject*
-BnNode_is_cell(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
-)
-{
-  auto node = PyBnNode::Get(self);
-  auto r = node.is_cell();
-  return PyBool_FromLong(r);
-}
-
-PyObject*
 BnNode_is_func(
   PyObject* self,
   PyObject* Py_UNUSED(args)
@@ -178,13 +145,13 @@ BnNode_is_func(
 }
 
 PyObject*
-BnNode_is_bdd(
+BnNode_is_cell(
   PyObject* self,
   PyObject* Py_UNUSED(args)
 )
 {
   auto node = PyBnNode::Get(self);
-  auto r = node.is_bdd();
+  auto r = node.is_cell();
   return PyBool_FromLong(r);
 }
 
@@ -252,16 +219,10 @@ PyMethodDef BnNode_methods[] = {
    PyDoc_STR("return True if primitive node")},
   {"is_aig", BnNode_is_aig, METH_NOARGS,
    PyDoc_STR("return True if aig node")},
-  {"is_cover", BnNode_is_cover, METH_NOARGS,
-   PyDoc_STR("return True if cover node")},
-  {"is_expr", BnNode_is_expr, METH_NOARGS,
-   PyDoc_STR("return True if expr node")},
-  {"is_cell", BnNode_is_cell, METH_NOARGS,
-   PyDoc_STR("return True if cell node")},
   {"is_func", BnNode_is_func, METH_NOARGS,
    PyDoc_STR("return True if TvFunc node")},
-  {"is_bdd", BnNode_is_bdd, METH_NOARGS,
-   PyDoc_STR("return True if BDD node")},
+  {"is_cell", BnNode_is_cell, METH_NOARGS,
+   PyDoc_STR("return True if cell node")},
   {"fanin", BnNode_fanin, METH_VARARGS,
    PyDoc_STR("return fanin node")},
   {"fanin_inv", BnNode_fanin_inv, METH_VARARGS,
@@ -387,91 +348,6 @@ BnNode_primitive_type(
 }
 
 PyObject*
-BnNode_cover_id(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.cover_id();
-    return Py_BuildValue("k", val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.cover_id");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_expr_id(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.expr_id();
-    return Py_BuildValue("k", val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.expr_id");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_expr(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.expr();
-    return PyExpr::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.expr");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_cell_id(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.cell_id();
-    return Py_BuildValue("k", val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.cell_id");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_func_id(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.func_id();
-    return Py_BuildValue("k", val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.func_id");
-    return nullptr;
-  }
-}
-
-PyObject*
 BnNode_func(
   PyObject* self,
   void* Py_UNUSED(closure)
@@ -479,8 +355,8 @@ BnNode_func(
 {
   try {
     auto node = PyBnNode::Get(self);
-    auto& val = node.func();
-    return PyTvFunc::ToPyObject(val);
+    const auto& val = node.local_func();
+    return PyBnFunc::ToPyObject(val);
   }
   catch ( std::invalid_argument ) {
     PyErr_SetString(PyExc_ValueError, "Error in BnNode.func");
@@ -489,35 +365,18 @@ BnNode_func(
 }
 
 PyObject*
-BnNode_bdd_id(
+BnNode_cell(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
   try {
     auto node = PyBnNode::Get(self);
-    auto val = node.bdd_id();
-    return Py_BuildValue("k", val);
+    auto val = node.cell();
+    return PyClibCell::ToPyObject(val);
   }
   catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.bdd_id");
-    return nullptr;
-  }
-}
-
-PyObject*
-BnNode_bdd(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  try {
-    auto node = PyBnNode::Get(self);
-    auto val = node.bdd();
-    return PyBdd::ToPyObject(val);
-  }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnNode.bdd");
+    PyErr_SetString(PyExc_ValueError, "Error in BnNode.cell_id");
     return nullptr;
   }
 }
@@ -536,18 +395,10 @@ PyGetSetDef BnNode_getsetters[] = {
    PyDoc_STR("fanin list"), nullptr},
   {"primitive_type", BnNode_primitive_type, nullptr,
    PyDoc_STR("primitive type"), nullptr},
-  {"cover_id", BnNode_cover_id, nullptr,
-   PyDoc_STR("cover ID"), nullptr},
-  {"expr_id", BnNode_expr_id, nullptr,
-   PyDoc_STR("expr ID"), nullptr},
-  {"expr", BnNode_expr, nullptr,
-   PyDoc_STR("expr"), nullptr},
-  {"cell_id", BnNode_cell_id, nullptr,
-   PyDoc_STR("Cell ID"), nullptr},
-  {"func_id", BnNode_func_id, nullptr,
-   PyDoc_STR("function ID"), nullptr},
-  {"bdd_id", BnNode_bdd_id, nullptr,
-   PyDoc_STR("BDD ID"), nullptr},
+  {"func", BnNode_func, nullptr,
+   PyDoc_STR("local function"), nullptr},
+  {"cell", BnNode_cell, nullptr,
+   PyDoc_STR("Cell"), nullptr},
   {nullptr, nullptr, nullptr,
    nullptr, nullptr}
 };

@@ -110,7 +110,7 @@ public:
   {
     set_defined(id, loc);
     auto expr_id = reg_expr(expr);
-    mModel->set_expr(id, fanin_list, expr_id);
+    mModel->set_func(id, fanin_list, expr_id);
   }
 
   /// @brief '(' ')' で囲まれた名前を読み込む．

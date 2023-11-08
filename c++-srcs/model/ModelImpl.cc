@@ -28,12 +28,12 @@ ModelImpl::ModelImpl(
     mLogicList{src.mLogicList},
     mNodeArray{src.mNodeArray},
     mSeqArray{src.mSeqArray},
-    mCoverArray{src.mCoverArray},
-    mExprArray{src.mExprArray},
-    mFuncArray{src.mFuncArray}
+    mFuncArray(src.mFuncArray.size())
 {
-  for ( auto bdd: src.mBddArray ) {
-    mBddArray.push_back(mBddMgr.copy(bdd));
+  mFuncArray.reserve(src.mFuncArray.size());
+  for ( auto& func_ptr: src.mFuncArray ) {
+    auto new_func = func_ptr->copy(mBddMgr);
+    mFuncArray.push_back(unique_ptr<FuncImpl>(new_func));
   }
 }
 
@@ -73,10 +73,7 @@ ModelImpl::clear()
   mLogicList.clear();
   mNodeArray.clear();
   mSeqArray.clear();
-  mCoverArray.clear();
-  mExprArray.clear();
   mFuncArray.clear();
-  mBddArray.clear();
   // BddMgr に関しては完全な初期化は行えない．
 }
 
@@ -86,9 +83,6 @@ ModelImpl::set_library(
   ClibCellLibrary library
 )
 {
-  if ( mLibrary.is_valid() && mLibrary != library ) {
-    throw std::invalid_argument{"cell library mismatch"};
-  }
   mLibrary = library;
 }
 
@@ -163,50 +157,55 @@ ModelImpl::order_node(
   mark.emplace(id);
 }
 
-// @brief カバーを追加する．
+// @brief カバーを登録する．
 SizeType
-ModelImpl::add_cover(
+ModelImpl::reg_cover(
   SizeType input_num,
   const vector<vector<Literal>>& cube_list,
   char opat
 )
 {
-  auto id = cover_num();
-  mCoverArray.push_back(BnCover{input_num, cube_list, opat});
+  auto id = func_num();
+  auto func = FuncImpl::new_cover(input_num, cube_list, opat);
+  mFuncArray.push_back(unique_ptr<FuncImpl>(func));
   return id;
 }
 
-// @brief 論理式を追加する．
+// @brief 論理式を登録する．
 SizeType
-ModelImpl::add_expr(
+ModelImpl::reg_expr(
   const Expr& expr
 )
 {
-  auto id = expr_num();
-  mExprArray.push_back(expr);
+  auto id = func_num();
+  auto func = FuncImpl::new_expr(expr);
+  mFuncArray.push_back(unique_ptr<FuncImpl>(func));
   return id;
 }
 
-// @brief 真理値表を追加する．
+// @brief 真理値表を登録する．
 SizeType
-ModelImpl::add_func(
-  const TvFunc& func
+ModelImpl::reg_tvfunc(
+  const TvFunc& tvfunc
 )
 {
   auto id = func_num();
-  mFuncArray.push_back(func);
+  auto func = FuncImpl::new_tvfunc(tvfunc);
+  mFuncArray.push_back(unique_ptr<FuncImpl>(func));
   return id;
 }
 
-// @brief BDDを追加する．
+// @brief BDDを登録する．
 SizeType
-ModelImpl::add_bdd(
+ModelImpl::reg_bdd(
   const Bdd& bdd
 )
 {
-  auto id = bdd_num();
+  auto id = func_num();
   // mBddMgr に属する BDD に変換しておく．
-  mBddArray.push_back(mBddMgr.copy(bdd));
+  auto my_bdd = mBddMgr.copy(bdd);
+  auto func = FuncImpl::new_bdd(my_bdd);
+  mFuncArray.push_back(unique_ptr<FuncImpl>(func));
   return id;
 }
 

@@ -9,7 +9,6 @@
 /// All rights reserved.
 
 #include "ym/bn.h"
-#include "ym/BnCover.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Bdd.h"
@@ -19,6 +18,7 @@
 #include "ym/JsonValue.h"
 #include "NodeImpl.h"
 #include "SeqImpl.h"
+#include "FuncImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -79,7 +79,6 @@ public:
     SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
   ) const
   {
-    _check_range(input_id, input_num(), "input_name(input_id)", "input_id");
     auto key = _input_key(input_id);
     if ( mSymbolDict.count(key) > 0 ) {
       return mSymbolDict.at(key);
@@ -93,7 +92,6 @@ public:
     SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
   ) const
   {
-    _check_range(output_id, output_num(), "output_name(output_id)", "output_id");
     auto key = _output_key(output_id);
     if ( mSymbolDict.count(key) > 0 ) {
       return mSymbolDict.at(key);
@@ -107,7 +105,6 @@ public:
     SizeType seq_id ///< [in] ラッチ番号 ( 0 <= seq_id < seq_num() )
   ) const
   {
-    _check_range(seq_id, seq_num(), "seq_name(seq_id)", "seq_id");
     auto key = _seq_key(seq_id);
     if ( mSymbolDict.count(key) > 0 ) {
       return mSymbolDict.at(key);
@@ -135,7 +132,6 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < input_num() )
   ) const
   {
-    _check_range(pos, input_num(), "input(pos)", "pos");
     return mInputList[pos];
   }
 
@@ -159,7 +155,6 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < output_num() )
   ) const
   {
-    _check_range(pos, output_num(), "output(pos)", "pos");
     return mOutputList[pos];
   }
 
@@ -183,7 +178,6 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < logic_num() )
   ) const
   {
-    _check_range(pos, logic_num(), "logic(pos)", "pos");
     return mLogicList[pos];
   }
 
@@ -200,7 +194,6 @@ public:
     SizeType id ///< [in] ID番号
   ) const
   {
-    _check_range(id, node_num(), "node(id)", "id");
     return mNodeArray[id];
   }
 
@@ -217,76 +210,23 @@ public:
     SizeType id ///< [in] ID番号
   ) const
   {
-    _check_range(id, seq_num(), "seq_node(id)", "id");
     return mSeqArray[id];
   }
 
-  /// @brief カバーの種類の数を返す．
-  SizeType
-  cover_num() const
-  {
-    return mCoverArray.size();
-  }
-
-  /// @brief カバーを取り出す．
-  const BnCover&
-  cover(
-    SizeType cover_id ///< [in] カバー番号
-  ) const
-  {
-    _check_range(cover_id, cover_num(), "cover(cover_id)", "cover_id");
-    return mCoverArray[cover_id];
-  }
-
-  /// @brief 論理式の数を返す．
-  SizeType
-  expr_num() const
-  {
-    return mExprArray.size();
-  }
-
-  /// @brief 論理式を取り出す．
-  const Expr&
-  expr(
-    SizeType expr_id ///< [in] 論理式番号
-  ) const
-  {
-    _check_range(expr_id, expr_num(), "expr(expr_id)", "expr_id");
-    return mExprArray[expr_id];
-  }
-
-  /// @brief 真理値表型の関数の数を返す．
+  /// @brief 関数の数を返す．
   SizeType
   func_num() const
   {
     return mFuncArray.size();
   }
 
-  /// @brief 真理値表型の関数を返す．
-  const TvFunc&
+  /// @brief 関数情報を返す．
+  const FuncImpl&
   func(
     SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
   ) const
   {
-    _check_range(func_id, func_num(), "func(func_id)", "func_id");
-    return mFuncArray[func_id];
-  }
-
-  /// @brief BDDの数を返す．
-  SizeType
-  bdd_num() const
-  {
-    return mBddArray.size();
-  }
-
-  /// @brief BDDを返す．
-  const Bdd&
-  bdd(
-    SizeType bdd_id ///< [in] BDD番号 ( 0 <= bdd_id < bdd_num() )
-  ) const
-  {
-    _check_range(bdd_id, bdd_num(), "bdd(bdd_id)", "bdd_id");
-    return mBddArray[bdd_id];
+    return *mFuncArray[func_id];
   }
 
 
@@ -338,7 +278,6 @@ public:
     const string& name ///< [in] 名前
   )
   {
-    _check_range(input_id, input_num(), "set_input_name(input_id, name)", "input_id");
     auto key = _input_key(input_id);
     mSymbolDict.emplace(key, name);
   }
@@ -350,7 +289,6 @@ public:
     const string& name  ///< [in] 名前
   )
   {
-    _check_range(output_id, output_num(), "set_output_name(output_id, name)", "output_id");
     auto key = _output_key(output_id);
     mSymbolDict.emplace(key, name);
   }
@@ -362,7 +300,6 @@ public:
     const string& name ///< [in] 名前
   )
   {
-    _check_range(seq_id, seq_num(), "set_seq_name(seq_id, name)", "seq_id");
     auto key = _seq_key(seq_id);
     mSymbolDict.emplace(key, name);
   }
@@ -386,8 +323,6 @@ public:
     SizeType src_id         ///< [in] ソースのID番号
   )
   {
-    _check_range(pos, output_num(), "set_output(pos, src_id)", "pos");
-    _check_range(src_id, node_num(), "set_output(pos, src_id)", "src_id");
     mOutputList[pos] = src_id;
   }
 
@@ -421,7 +356,6 @@ public:
     SizeType seq_id        ///< [in] BnSeq の ID 番号
   )
   {
-    _check_range(seq_id, seq_num(), "new_seq_output(seq_id)", "seq_id");
     auto id = new_node();
     auto& node = mNodeArray[id];
     node.set_seq_output(seq_id);
@@ -436,7 +370,6 @@ public:
     SizeType src_id ///< [in] ソースのID番号
   )
   {
-    _check_range(src_id, mNodeArray.size(), "new_output(src_id)", "src_id");
     auto oid = mOutputList.size();
     mOutputList.push_back(src_id);
     return oid;
@@ -474,37 +407,7 @@ public:
     return id;
   }
 
-  /// @brief 新しいカバー型の論理ノードを作る．
-  ///
-  /// @return ID番号を返す．
-  SizeType
-  new_cover(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cover_id                   ///< [in] カバー番号
-  )
-  {
-    auto id = new_node();
-    set_cover(id, input_list, cover_id);
-    mLogicList.push_back(id);
-    return id;
-  }
-
-  /// @brief 論理式型のノードの情報をセットする．
-  ///
-  /// @return ID番号を返す．
-  SizeType
-  new_expr(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType expr_id                    ///< [in] 論理式番号
-  )
-  {
-    auto id = new_node();
-    set_expr(id, input_list, expr_id);
-    mLogicList.push_back(id);
-    return id;
-  }
-
-  /// @brief 真理値表型のノードの情報をセットする．
+  /// @brief 関数型のノードの情報をセットする．
   ///
   /// @return ID番号を返す．
   SizeType
@@ -515,21 +418,6 @@ public:
   {
     auto id = new_node();
     set_func(id, input_list, func_id);
-    mLogicList.push_back(id);
-    return id;
-  }
-
-  /// @brief BDD型のノードの情報をセットする．
-  ///
-  /// @return ID番号を返す．
-  SizeType
-  new_bdd(
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType bdd_id                     ///< [in] BDD番号
-  )
-  {
-    auto id = new_node();
-    set_bdd(id, input_list, bdd_id);
     mLogicList.push_back(id);
     return id;
   }
@@ -626,31 +514,7 @@ public:
     node.set_aig(src0, src1, inv0, inv1);
   }
 
-  /// @brief カバー型のノードの情報をセットする．
-  void
-  set_cover(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType cover_id                   ///< [in] カバー番号
-  )
-  {
-    auto& node = _node(id, "set_cover(id, input_list, cover_id)", "id");
-    node.set_cover(input_list, cover_id);
-  }
-
-  /// @brief 論理式型のノードの情報をセットする．
-  void
-  set_expr(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType expr_id                    ///< [in] 論理式番号
-  )
-  {
-    auto& node = _node(id, "set_expr(id, input_list, expr_id)", "id");
-    node.set_expr(input_list, expr_id);
-  }
-
-  /// @brief 真理値表型のノードの情報をセットする．
+  /// @brief 関数型のノードの情報をセットする．
   void
   set_func(
     SizeType id,                        ///< [in] ID番号
@@ -660,18 +524,6 @@ public:
   {
     auto& node = _node(id, "set_func(id, input_list, func_id)", "id");
     node.set_func(input_list, func_id);
-  }
-
-  /// @brief BDD型のノードの情報をセットする．
-  void
-  set_bdd(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType bdd_id                     ///< [in] BDD番号
-  )
-  {
-    auto& node = _node(id, "set_bdd(id, input_list, bdd_id)", "id");
-    node.set_bdd(input_list, bdd_id);
   }
 
   /// @brief セル型のノードの情報をセットする．
@@ -758,33 +610,33 @@ public:
   void
   make_logic_list();
 
-  /// @brief カバーを追加する．
-  /// @return カバー番号を返す．
+  /// @brief カバーを登録する．
+  /// @return 関数番号を返す．
   SizeType
-  add_cover(
+  reg_cover(
     SizeType input_num,                       ///< [in] 入力数
     const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
     char opat                                 ///< [in] 出力パタン ( '1' or '0' )
   );
 
-  /// @brief 論理式を追加する．
-  /// @return 論理式番号を返す．
+  /// @brief 論理式を登録する．
+  /// @return 関数番号を返す．
   SizeType
-  add_expr(
+  reg_expr(
     const Expr& expr ///< [in] 論理式
   );
 
-  /// @brief 真理値表を追加する．
+  /// @brief 真理値表を登録する．
   /// @return 関数番号を返す．
   SizeType
-  add_func(
+  reg_tvfunc(
     const TvFunc& func ///< [in] 真理値表型の関数
   );
 
-  /// @brief BDDを追加する．
-  /// @return BDD番号を返す．
+  /// @brief BDDを登録する．
+  /// @return 関数番号を返す．
   SizeType
-  add_bdd(
+  reg_bdd(
     const Bdd& bdd ///< [in] BDD
   );
 
@@ -809,7 +661,6 @@ private:
     const string& index_name  ///< [in] ID番号の変数名
   )
   {
-    _check_range(id, mNodeArray.size(), func_name, index_name);
     return mNodeArray[id];
   }
 
@@ -829,25 +680,16 @@ private:
     const string& index_name  ///< [in] ID番号の変数名
   )
   {
-    _check_range(id, mSeqArray.size(), func_name, index_name);
     return mSeqArray[id];
   }
 
-  /// @brief 添字の範囲をチェックする．
-  void
-  _check_range(
-    SizeType index,
-    SizeType num,
-    const string& func_name,
-    const string& index_name
-  ) const
+  /// @brief FuncImpl を取り出す．
+  FuncImpl&
+  _func(
+    SizeType id
+  )
   {
-    if ( index < 0 || index >= num ) {
-      ostringstream buf;
-      buf << "Error in ModelImpl::" << func_name << "."
-	  << " " << index_name << " is out of range.";
-      throw std::invalid_argument{buf.str()};
-    }
+    return *mFuncArray[id];
   }
 
   /// @brief SymbolDict の入力用のキーを作る．
@@ -916,20 +758,11 @@ private:
   // SEQノードの配列
   vector<SeqImpl> mSeqArray;
 
-  // カバー番号をキーにしてカバーを格納する配列
-  vector<BnCover> mCoverArray;
-
-  // 論理式番号をキーにして論理式を格納する配列
-  vector<Expr> mExprArray;
-
-  // 関数番号をキーにして真理値表型の関数を格納する配列
-  vector<TvFunc> mFuncArray;
+  // 関数番号をキーにして FuncImpl を格納する配列
+  vector<unique_ptr<FuncImpl>> mFuncArray;
 
   // BDDマネージャ
   BddMgr mBddMgr;
-
-  // BDD番号をキーにしてBDDを格納する配列
-  vector<Bdd> mBddArray;
 
 };
 

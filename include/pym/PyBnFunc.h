@@ -1,28 +1,28 @@
-#ifndef PYBNNODE_H
-#define PYBNNODE_H
+#ifndef PYBNFUNC_H
+#define PYBNFUNC_H
 
-/// @file PyBnNode.h
-/// @brief PyBnNode のヘッダファイル
+/// @file PyBnFunc.h
+/// @brief PyBnFunc のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include "ym/BnNode.h"
+#include "ym/BnFunc.h"
 
 
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PyBnNode PyBnNode.h "PyBnNode.h"
-/// @brief Python 用の BnNode 拡張
+/// @class PyBnFunc PyBnFunc.h "PyBnFunc.h"
+/// @brief Python 用の BnFunc 拡張
 ///
 /// 複数の関数をひとまとめにしているだけなので実は名前空間として用いている．
 //////////////////////////////////////////////////////////////////////
-class PyBnNode
+class PyBnFunc
 {
 public:
   //////////////////////////////////////////////////////////////////////
@@ -37,44 +37,34 @@ public:
     PyObject* m ///< [in] 親のモジュールを表す PyObject
   );
 
-  /// @brief BnNode を表す PyObject を作る．
+  /// @brief BnFunc を表す PyObject を作る．
   /// @return 生成した PyObject を返す．
   ///
   /// 返り値は新しい参照が返される．
   static
   PyObject*
   ToPyObject(
-    BnNode val ///< [in] 値
+    BnFunc val ///< [in] 値
   );
 
-  /// @brief BnNode のリストを表す PyObject を作る．
-  /// @return 生成した PyObject を返す．
-  ///
-  /// 返り値は新しい参照が返される．
-  static
-  PyObject*
-  ToPyList(
-    const vector<BnNode>& val_list ///< [in] 値のリスト
-  );
-
-  /// @brief PyObject が BnNode タイプか調べる．
+  /// @brief PyObject が BnFunc タイプか調べる．
   static
   bool
   Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
-  /// @brief BnNode を表す PyObject から BnNode を取り出す．
-  /// @return BnNode を返す．
+  /// @brief BnFunc を表す PyObject から BnFunc を取り出す．
+  /// @return BnFunc を返す．
   ///
   /// Check(obj) == true であると仮定している．
   static
-  BnNode
+  const BnFunc&
   Get(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 
-  /// @brief BnNode を表すオブジェクトの型定義を返す．
+  /// @brief BnFunc を表すオブジェクトの型定義を返す．
   static
   PyTypeObject*
   _typeobject();
@@ -83,4 +73,4 @@ public:
 
 END_NAMESPACE_YM
 
-#endif // PYBNNODE_H
+#endif // PYBNFUNC_H

@@ -1,8 +1,8 @@
-#ifndef BNCOVER_H
-#define BNCOVER_H
+#ifndef COVERIMPL_H
+#define COVERIMPL_H
 
-/// @file BnCover.h
-/// @brief BnCover のヘッダファイル
+/// @file CoverImpl.h
+/// @brief CoverImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -16,17 +16,17 @@
 BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnCover BnCover.h "BnCover.h"
-/// @brief blif 形式の .names 本体のカバーを表すクラス
+/// @class CoverImpl CoverImpl.h "CoverImpl.h"
+/// @brief BnCover の本体
 ///
 /// 内容は SopCover と出力の極性からなる．
 //////////////////////////////////////////////////////////////////////
-class BnCover
+class CoverImpl
 {
 public:
 
   /// @brief コンストラクタ
-  BnCover(
+  CoverImpl(
     SizeType input_num,                    ///< [in] 入力数
     const vector<vector<Literal>>& icover, ///< [in] 入力カバー
     char opat = '1'                        ///< [in] 出力のパタン ( '0', '1' のみ )
@@ -36,7 +36,7 @@ public:
   }
 
   /// @brief デストラクタ
-  ~BnCover() = default;
+  ~CoverImpl() = default;
 
 
 public:
@@ -54,6 +54,8 @@ public:
 
   /// @brief 入力パタンを返す．
   /// @return パタンを返す．
+  ///
+  /// - cpos, もしくは ipos が範囲外の時は std::out_of_range 例外を送出する．
   SopPat
   input_pat(
     SizeType cpos, ///< [in] キューブ番号 ( 0 <= cpos < cube_num() )
@@ -102,4 +104,4 @@ private:
 
 END_NAMESPACE_YM_BN
 
-#endif // BNCOVER_H
+#endif // COVERIMPL_H

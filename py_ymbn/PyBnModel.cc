@@ -9,6 +9,7 @@
 #include "pym/PyBnModel.h"
 #include "pym/PyBnNode.h"
 #include "pym/PyBnSeq.h"
+#include "pym/PyBnFunc.h"
 #include "pym/PyClibCellLibrary.h"
 #include "pym/PyClibCell.h"
 #include "pym/PyExpr.h"
@@ -565,17 +566,17 @@ BnModel_new_primitive(
 )
 {
   const char* kwlist[] = {
-    "input_list",
     "type",
+    "input_list",
     nullptr
   };
 
   PyObject* input_list_obj = nullptr;
   PyObject* type_obj = nullptr;
-  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "OO!",
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O",
 				    const_cast<char**>(kwlist),
-				    &input_list_obj,
-				    PyPrimType::_typeobject(), &type_obj) ) {
+				    PyPrimType::_typeobject(), &type_obj,
+				    &input_list_obj) ) {
     return nullptr;
   }
 
@@ -586,7 +587,7 @@ BnModel_new_primitive(
 
   auto model = PyBnModel::Get(self);
   auto type = PyPrimType::Get(type_obj);
-  auto node = model.new_primitive(input_list, type);
+  auto node = model.new_primitive(type, input_list);
 
   return PyBnNode::ToPyObject(node);
 }
@@ -629,70 +630,6 @@ BnModel_new_aig(
 }
 
 PyObject*
-BnModel_new_cover(
-  PyObject* self,
-  PyObject* args,
-  PyObject* kwds
-)
-{
-  const char* kwlist[] = {
-    "input_list",
-    "cover_id",
-    nullptr
-  };
-
-  PyObject* input_list_obj = nullptr;
-  SizeType cover_id = 0;
-  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "Ok",
-				    const_cast<char**>(kwlist),
-				    &input_list_obj,
-				    &cover_id) ) {
-    return nullptr;
-  }
-  vector<BnNode> input_list;
-  if ( !parse_input_list(input_list_obj, input_list) ) {
-    return nullptr;
-  }
-
-  auto model = PyBnModel::Get(self);
-  auto node = model.new_cover(input_list, cover_id);
-
-  return PyBnNode::ToPyObject(node);
-}
-
-PyObject*
-BnModel_new_expr(
-  PyObject* self,
-  PyObject* args,
-  PyObject* kwds
-)
-{
-  const char* kwlist[] = {
-    "input_list",
-    "expr_id",
-    nullptr
-  };
-
-  PyObject* input_list_obj = nullptr;
-  SizeType expr_id = 0;
-  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "Ok",
-				    const_cast<char**>(kwlist),
-				    &input_list_obj,
-				    &expr_id) ) {
-    return nullptr;
-  }
-  vector<BnNode> input_list;
-  if ( !parse_input_list(input_list_obj, input_list) ) {
-    return nullptr;
-  }
-
-  auto model = PyBnModel::Get(self);
-  auto node = model.new_expr(input_list, expr_id);
-
-  return PyBnNode::ToPyObject(node);
-}
-
-PyObject*
 BnModel_new_func(
   PyObject* self,
   PyObject* args,
@@ -700,17 +637,17 @@ BnModel_new_func(
 )
 {
   const char* kwlist[] = {
+    "func",
     "input_list",
-    "func_id",
     nullptr
   };
 
+  PyObject* func_obj = nullptr;
   PyObject* input_list_obj = nullptr;
-  SizeType func_id = 0;
-  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "Ok",
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O",
 				    const_cast<char**>(kwlist),
-				    &input_list_obj,
-				    &func_id) ) {
+				    PyBnFunc::_typeobject(), &func_obj,
+				    &input_list_obj) ) {
     return nullptr;
   }
   vector<BnNode> input_list;
@@ -719,39 +656,8 @@ BnModel_new_func(
   }
 
   auto model = PyBnModel::Get(self);
-  auto node = model.new_func(input_list, func_id);
-
-  return PyBnNode::ToPyObject(node);
-}
-
-PyObject*
-BnModel_new_bdd(
-  PyObject* self,
-  PyObject* args,
-  PyObject* kwds
-)
-{
-  const char* kwlist[] = {
-    "input_list",
-    "bdd_id",
-    nullptr
-  };
-
-  PyObject* input_list_obj = nullptr;
-  SizeType bdd_id = 0;
-  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "Ok",
-				    const_cast<char**>(kwlist),
-				    &input_list_obj,
-				    &bdd_id) ) {
-    return nullptr;
-  }
-  vector<BnNode> input_list;
-  if ( !parse_input_list(input_list_obj, input_list) ) {
-    return nullptr;
-  }
-
-  auto model = PyBnModel::Get(self);
-  auto node = model.new_bdd(input_list, bdd_id);
+  auto& func = PyBnFunc::Get(func_obj);
+  auto node = model.new_func(func, input_list);
 
   return PyBnNode::ToPyObject(node);
 }
@@ -764,17 +670,17 @@ BnModel_new_cell(
 )
 {
   const char* kwlist[] = {
-    "input_list",
     "cell",
+    "input_list",
     nullptr
   };
 
-  PyObject* input_list_obj = nullptr;
   PyObject* cell_obj = nullptr;
-  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "OO!",
+  PyObject* input_list_obj = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "O!O",
 				    const_cast<char**>(kwlist),
-				    &input_list_obj,
-				    PyClibCell::_typeobject(), &cell_obj) ) {
+				    PyClibCell::_typeobject(), &cell_obj,
+				    &input_list_obj) ) {
     return nullptr;
   }
   vector<BnNode> input_list;
@@ -784,13 +690,13 @@ BnModel_new_cell(
 
   auto model = PyBnModel::Get(self);
   auto cell = PyClibCell::Get(cell_obj);
-  auto node = model.new_cell(input_list, cell);
+  auto node = model.new_cell(cell, input_list);
 
   return PyBnNode::ToPyObject(node);
 }
 
 PyObject*
-BnModel_add_cover(
+BnModel_reg_cover(
   PyObject* self,
   PyObject* args,
   PyObject* kwds
@@ -850,13 +756,13 @@ BnModel_add_cover(
   }
 
   auto model = PyBnModel::Get(self);
-  auto val = model.add_cover(input_num, cube_list, opat);
+  auto val = model.reg_cover(input_num, cube_list, opat);
 
-  return Py_BuildValue("k", val);
+  return PyBnFunc::ToPyObject(val);
 }
 
 PyObject*
-BnModel_add_expr(
+BnModel_reg_expr(
   PyObject* self,
   PyObject* args,
   PyObject* kwds
@@ -876,13 +782,13 @@ BnModel_add_expr(
 
   auto model = PyBnModel::Get(self);
   auto expr = PyExpr::Get(expr_obj);
-  auto val = model.add_expr(expr);
+  auto val = model.reg_expr(expr);
 
-  return Py_BuildValue("k", val);
+  return PyBnFunc::ToPyObject(val);
 }
 
 PyObject*
-BnModel_add_func(
+BnModel_reg_tvfunc(
   PyObject* self,
   PyObject* args,
   PyObject* kwds
@@ -902,13 +808,13 @@ BnModel_add_func(
 
   auto model = PyBnModel::Get(self);
   auto func = PyTvFunc::Get(func_obj);
-  auto val = model.add_func(func);
+  auto val = model.reg_tvfunc(func);
 
-  return Py_BuildValue("k", val);
+  return PyBnFunc::ToPyObject(val);
 }
 
 PyObject*
-BnModel_add_bdd(
+BnModel_reg_bdd(
   PyObject* self,
   PyObject* args,
   PyObject* kwds
@@ -928,9 +834,10 @@ BnModel_add_bdd(
 
   auto model = PyBnModel::Get(self);
   auto bdd = PyBdd::Get(bdd_obj);
-  auto val = model.add_bdd(bdd);
+  auto val = model.reg_bdd(bdd);
 
-  return Py_BuildValue("k", val);
+  return PyBnFunc::ToPyObject(val);
+
 }
 
 PyObject*
@@ -1298,36 +1205,24 @@ PyMethodDef BnModel_methods[] = {
    reinterpret_cast<PyCFunction>(BnModel_new_aig),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("new AIG node")},
-  {"new_cover",
-   reinterpret_cast<PyCFunction>(BnModel_new_cover),
-   METH_VARARGS | METH_KEYWORDS,
-   PyDoc_STR("new COVER node")},
-  {"new_expr",
-   reinterpret_cast<PyCFunction>(BnModel_new_expr),
-   METH_VARARGS | METH_KEYWORDS,
-   PyDoc_STR("new EXPR node")},
   {"new_func",
    reinterpret_cast<PyCFunction>(BnModel_new_func),
    METH_VARARGS | METH_KEYWORDS,
-   PyDoc_STR("new TVFUNC node")},
-  {"new_bdd",
-   reinterpret_cast<PyCFunction>(BnModel_new_bdd),
-   METH_VARARGS | METH_KEYWORDS,
-   PyDoc_STR("new BDD node")},
-  {"add_cover",
-   reinterpret_cast<PyCFunction>(BnModel_add_cover),
+   PyDoc_STR("new function node")},
+  {"reg_cover",
+   reinterpret_cast<PyCFunction>(BnModel_reg_cover),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("register a COVER")},
-  {"add_expr",
-   reinterpret_cast<PyCFunction>(BnModel_add_expr),
+  {"reg_expr",
+   reinterpret_cast<PyCFunction>(BnModel_reg_expr),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("register an expression")},
-  {"add_func",
-   reinterpret_cast<PyCFunction>(BnModel_add_func),
+  {"reg_tvfunc",
+   reinterpret_cast<PyCFunction>(BnModel_reg_tvfunc),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("register a TVFUNC")},
-  {"add_bdd",
-   reinterpret_cast<PyCFunction>(BnModel_add_bdd),
+  {"reg_bdd",
+   reinterpret_cast<PyCFunction>(BnModel_reg_bdd),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("register a BDD")},
   {"new_dff",
@@ -1525,24 +1420,13 @@ BnModel_logic_list(
 }
 
 PyObject*
-BnModel_cover_num(
+BnModel_func_num(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
   auto model = PyBnModel::Get(self);
-  auto val = model.cover_num();
-  return Py_BuildValue("i", val);
-}
-
-PyObject*
-BnModel_expr_num(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  auto model = PyBnModel::Get(self);
-  auto val = model.expr_num();
+  auto val = model.func_num();
   return Py_BuildValue("i", val);
 }
 
@@ -1574,8 +1458,7 @@ PyGetSetDef BnModel_getsetters[] = {
   {"output_name_list", BnModel_output_name_list, nullptr, PyDoc_STR("output name list"), nullptr},
   {"logic_num", BnModel_logic_num, nullptr, PyDoc_STR("logic gate num"), nullptr},
   {"logic_list", BnModel_logic_list, nullptr, PyDoc_STR("logic gate list"), nullptr},
-  {"cover_num", BnModel_cover_num, nullptr, PyDoc_STR("cover num"), nullptr},
-  {"expr_num", BnModel_expr_num, nullptr, PyDoc_STR("expr num"), nullptr},
+  {"func_num", BnModel_func_num, nullptr, PyDoc_STR("function num"), nullptr},
   //{"option", BnModel_option, nullptr, PyDoc_STR("option JSON object"), nullptr},
   {nullptr, nullptr, nullptr, nullptr}
 };

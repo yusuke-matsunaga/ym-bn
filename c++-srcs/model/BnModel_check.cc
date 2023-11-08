@@ -9,156 +9,131 @@
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
 #include "ym/BnSeq.h"
+#include "ym/BnFunc.h"
 #include "ModelImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BN
 
+BEGIN_NONAMESPACE
+
+// @brief 範囲チェックを行う
+inline
+void
+_check_range(
+  SizeType index,
+  SizeType range,
+  const char* index_name
+)
+{
+  if ( index < 0 || range <= index ) {
+    ostringstream buf;
+    buf << "'" << index_name << "'(" << index << ") is out-of-range";
+    throw std::out_of_range{buf.str()};
+  }
+}
+
+END_NONAMESPACE
+
+
 //////////////////////////////////////////////////////////////////////
 // クラス BnModel
 //////////////////////////////////////////////////////////////////////
 
-// @brief 正しいカバー番号かチェックする．
+// @brief BnNode のチェックを行う．
 void
-BnModel::_check_cover(
-  SizeType id,
-  const string& funcname
+BnModel::_check_node(
+  const BnNode& node
 ) const
 {
-  if ( id < 0 || mImpl->cover_num() <= id ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< id << " is not a valid cover-id.";
-    throw std::invalid_argument{buf.str()};
+  if ( !node.is_valid() ) {
+    throw std::invalid_argument{"'node' is invalid."};
+  }
+  if ( node.parent_model() != *this ) {
+    throw std::invalid_argument{"'node' does not belong to this model."};
   }
 }
 
-// @brief カバーと入力のサイズが合っているか調べる．
+// @brief BnSeq のチェックを行う．
 void
-BnModel::_check_cover_input(
-  SizeType id,
-  SizeType size,
-  const string& funcname
+BnModel::_check_seq(
+  const BnSeq& seq
 ) const
 {
-  auto& cover = mImpl->cover(id);
-  if ( cover.input_num() != size ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< "Input size mismatch.";
-      throw std::invalid_argument{buf.str()};
+  if ( !seq.is_valid() ) {
+    throw std::invalid_argument{"'seq' is invalid."};
+  }
+  if ( seq.parent_model() != *this ) {
+    throw std::invalid_argument{"'seq' does not belong to this model."};
   }
 }
 
-// @brief 正しい論理式番号かチェックする．
-void
-BnModel::_check_expr(
-  SizeType id,
-  const string& funcname
-) const
-{
-  if ( id < 0 || mImpl->expr_num() <= id ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< id << " is not a valid expr-id.";
-    throw std::invalid_argument{buf.str()};
-  }
-}
-
-// @brief 論理式と入力のサイズが合っているか調べる．
-void
-BnModel::_check_expr_input(
-  SizeType id,
-  SizeType size,
-  const string& funcname
-) const
-{
-  auto& expr = mImpl->expr(id);
-  if ( expr.input_size() != size ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< "Input size mismatch.";
-      throw std::invalid_argument{buf.str()};
-  }
-}
-
-// @brief 正しい関数番号かチェックする．
+// @brief BnFunc のチェックを行う．
 void
 BnModel::_check_func(
-  SizeType id,
-  const string& funcname
+  const BnFunc& func
 ) const
 {
-  if ( id < 0 || mImpl->func_num() <= id ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< id << " is not a valid func-id.";
-    throw std::invalid_argument{buf.str()};
+  if ( !func.is_valid() ) {
+    throw std::invalid_argument{"'func' is invalid."};
+  }
+  if ( func.parent_model() != *this ) {
+    throw std::invalid_argument{"'func' does not belong to this model."};
   }
 }
 
-// @brief 関数と入力のサイズが合っているか調べる．
+// @brief 入力番号のチェックを行う．
 void
-BnModel::_check_func_input(
-  SizeType id,
-  SizeType size,
-  const string& funcname
+BnModel::_check_input_id(
+  SizeType input_id
 ) const
 {
-  auto& func = mImpl->func(id);
-  if ( func.input_num() != size ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< "Input size mismatch.";
-      throw std::invalid_argument{buf.str()};
-  }
+  _check_range(input_id, input_num(), "input_id");
 }
 
-// @brief 正しいBDD番号かチェックする．
+// @brief 出力番号のチェックを行う．
 void
-BnModel::_check_bdd(
-  SizeType id,
-  const string& funcname
+BnModel::_check_output_id(
+  SizeType output_id
 ) const
 {
-  if ( id < 0 || mImpl->bdd_num() <= id ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< id << " is not a valid bdd-id.";
-    throw std::invalid_argument{buf.str()};
-  }
+  _check_range(output_id, output_num(), "output_id");
 }
 
-// @brief BDDと入力のサイズが合っているか調べる．
+// @brief 論理ノード番号のチェックを行う．
 void
-BnModel::_check_bdd_input(
-  SizeType id,
-  SizeType size,
-  const string& funcname
+BnModel::_check_logic_id(
+  SizeType logic_id
 ) const
 {
-  auto& bdd = mImpl->bdd(id);
-  if ( bdd.support_size() != size ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< "Input size mismatch.";
-      throw std::invalid_argument{buf.str()};
-  }
+  _check_range(logic_id, logic_num(), "logic_id");
 }
 
-// @brief 本体に登録されているライブラリとセルが属するライブラリが等しいか調べる．
+// @brief SEQ番号のチェックを行う．
 void
-BnModel::_check_library(
-  ClibCell cell,
-  const string& funcname
+BnModel::_check_seq_id(
+  SizeType seq_id
 ) const
 {
-  if ( library() != cell.library() ) {
-    ostringstream buf;
-    buf << "Error in BnModel::" << funcname << ". "
-	<< "cell library mismatch";
-    throw std::invalid_argument{buf.str()};
+  _check_range(seq_id, seq_num(), "seq_id");
+}
+
+// @brief DFF/latch 用の rs_val が正しいかチェックする．
+void
+BnModel::_check_rsval(
+  char rsval
+) const
+{
+  switch ( rsval ) {
+  case ' ':
+  case '0':
+  case '1':
+  case 'X':
+  case 'T':
+  case 'U':
+    return;
   }
+  throw std::invalid_argument{"'rsval' is invalid."};
 }
 
 END_NAMESPACE_YM_BN

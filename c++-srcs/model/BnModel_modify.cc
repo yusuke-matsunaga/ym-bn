@@ -9,6 +9,7 @@
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
 #include "ym/BnSeq.h"
+#include "ym/BnFunc.h"
 #include "ModelImpl.h"
 
 
@@ -31,6 +32,9 @@ BnModel::set_celllibrary(
   ClibCellLibrary lib
 )
 {
+  if ( library().is_valid() && library() != lib ) {
+    throw std::invalid_argument{"library has already been set."};
+  }
   mImpl->set_library(lib);
 }
 
@@ -65,6 +69,7 @@ BnModel::new_output(
   const string& name
 )
 {
+  _check_node(src);
   auto oid = mImpl->new_output(src.id());
   if ( name != string{} ) {
     mImpl->set_output_name(oid, name);
@@ -75,11 +80,11 @@ BnModel::new_output(
 // @brief 新しいプリミティブ型の論理ノードを作る．
 BnNode
 BnModel::new_primitive(
-  const vector<BnNode>& input_list,
-  PrimType type
+  PrimType type,
+  const vector<BnNode>& input_list
 )
 {
-  auto input_id_list = to_id_list(input_list, "new_primitive");
+  auto input_id_list = to_id_list(input_list);
   return BnNode{mImpl, mImpl->new_primitive(input_id_list, type)};
 }
 
@@ -92,72 +97,40 @@ BnModel::new_aig(
   bool inv1
 )
 {
-  auto src0_id = to_id(src0, "new_aig");
-  auto src1_id = to_id(src1, "new_aig");
-  return BnNode{mImpl, mImpl->new_aig(src0_id, src1_id, inv0, inv1)};
+  _check_node(src0);
+  _check_node(src1);
+  return BnNode{mImpl, mImpl->new_aig(src0.id(), src1.id(), inv0, inv1)};
 }
 
-// @brief 新しいカバー型の論理ノードを作る．
+// @brief 関数型の論理ノードを作る．
 BnNode
-BnModel::new_cover(
-  const vector<BnNode>& input_list,
-  SizeType cover_id
+BnModel::new_func(
+  BnFunc func,
+  const vector<BnNode>& input_list
 )
 {
-  auto input_id_list = to_id_list(input_list, "new_cover");
-  _check_cover(cover_id, "new_cover");
-  _check_cover_input(cover_id, input_list.size(), "new_cover");
-  return BnNode{mImpl, mImpl->new_cover(input_id_list, cover_id)};
-}
-
-// @brief 論理式型の論理ノードを作る．
-BnNode
-BnModel::new_expr(
-  const vector<BnNode>& input_list,
-  SizeType expr_id
-)
-{
-  auto input_id_list = to_id_list(input_list, "new_expr");
-  _check_expr(expr_id, "new_expr");
-  _check_expr_input(expr_id, input_list.size(), "new_expr");
-  return BnNode{mImpl, mImpl->new_expr(input_id_list, expr_id)};
+  _check_func(func);
+  if ( func.input_num() > input_list.size() ) {
+    throw std::invalid_argument{"'input_list' is not compatible with 'func'."};
+  }
+  auto input_id_list = to_id_list(input_list);
+  return BnNode{mImpl, mImpl->new_func(input_id_list, func.id())};
 }
 
 // @brief セル型の論理ノードを作る．
 BnNode
 BnModel::new_cell(
-  const vector<BnNode>& input_list,
-  ClibCell cell
+  ClibCell cell,
+  const vector<BnNode>& input_list
 )
 {
-  auto input_id_list = to_id_list(input_list, "new_cell");
+  set_celllibrary(cell.library());
+  auto ni = cell.input_num();
+  if ( input_list.size() != ni ) {
+    throw std::invalid_argument{"the size of input_list differs from the cell's input size."};
+  }
+  auto input_id_list = to_id_list(input_list);
   return BnNode{mImpl, mImpl->new_cell(input_id_list, cell)};
-}
-
-// @brief 真理値表型の論理ノードを作る．
-BnNode
-BnModel::new_func(
-  const vector<BnNode>& input_list,
-  SizeType func_id
-)
-{
-  auto input_id_list = to_id_list(input_list, "new_func");
-  _check_func(func_id, "new_func");
-  _check_func_input(func_id, input_list.size(), "new_func");
-  return BnNode{mImpl, mImpl->new_func(input_id_list, func_id)};
-}
-
-// @brief BDD型の論理ノードを作る．
-BnNode
-BnModel::new_bdd(
-  const vector<BnNode>& input_list,
-  SizeType bdd_id
-)
-{
-  auto input_id_list = to_id_list(input_list, "new_bdd");
-  _check_bdd(bdd_id, "new_bdd");
-  _check_bdd_input(bdd_id, input_list.size(), "new_bdd");
-  return BnNode{mImpl, mImpl->new_bdd(input_id_list, bdd_id)};
 }
 
 // @brief DFFを作る．
@@ -167,6 +140,7 @@ BnModel::new_dff(
   const string& name
 )
 {
+  _check_rsval(rs_val);
   auto id = mImpl->new_dff(rs_val, BAD_ID);
   if ( name != string{} ) {
     mImpl->set_seq_name(id, name);
@@ -181,6 +155,7 @@ BnModel::new_latch(
   const string& name
 )
 {
+  _check_rsval(rs_val);
   auto id = mImpl->new_latch(rs_val, BAD_ID);
   if ( name != string{} ) {
     mImpl->set_seq_name(id, name);
@@ -195,6 +170,7 @@ BnModel::new_seq_cell(
   const string& name
 )
 {
+  set_celllibrary(cell.library());
   auto id = mImpl->new_seq_cell(cell);
   if ( name != string{} ) {
     mImpl->set_seq_name(id, name);
@@ -209,6 +185,8 @@ BnModel::set_data_src(
   BnNode src
 )
 {
+  _check_seq(dff);
+  _check_node(src);
   mImpl->set_data_src(dff.id(), src.id());
 }
 
@@ -219,6 +197,8 @@ BnModel::set_clock(
   BnNode clock
 )
 {
+  _check_seq(dff);
+  _check_node(clock);
   mImpl->set_clock(dff.id(), clock.id());
 }
 
@@ -229,6 +209,8 @@ BnModel::set_enable(
   BnNode enable
 )
 {
+  _check_seq(latch);
+  _check_node(enable);
   mImpl->set_enable(latch.id(), enable.id());
 }
 
@@ -239,6 +221,8 @@ BnModel::set_clear(
   BnNode clear
 )
 {
+  _check_seq(dff);
+  _check_node(clear);
   mImpl->set_clear(dff.id(), clear.id());
 }
 
@@ -249,6 +233,8 @@ BnModel::set_preset(
   BnNode preset
 )
 {
+  _check_seq(dff);
+  _check_node(preset);
   mImpl->set_preset(dff.id(), preset.id());
 }
 
@@ -260,45 +246,51 @@ BnModel::set_seq_pin(
   BnNode node
 )
 {
+  _check_seq(dff);
+  _check_node(node);
   mImpl->set_seq_pin(dff.id(), pos, node.id());
 }
 
 // @brief カバーを追加する．
-SizeType
-BnModel::add_cover(
+BnFunc
+BnModel::reg_cover(
   SizeType input_num,
   const vector<vector<Literal>>& cube_list,
   char opat
 )
 {
-  return mImpl->add_cover(input_num, cube_list, opat);
+  auto id = mImpl->reg_cover(input_num, cube_list, opat);
+  return BnFunc{mImpl, id};
 }
 
 // @brief 論理式を追加する．
-SizeType
-BnModel::add_expr(
+BnFunc
+BnModel::reg_expr(
   const Expr& expr
 )
 {
-  return mImpl->add_expr(expr);
+  auto id = mImpl->reg_expr(expr);
+  return BnFunc{mImpl, id};
 }
 
 // @brief 真理値表を追加する．
-SizeType
-BnModel::add_func(
+BnFunc
+BnModel::reg_tvfunc(
   const TvFunc& func
 )
 {
-  return mImpl->add_func(func);
+  auto id = mImpl->reg_tvfunc(func);
+  return BnFunc{mImpl, id};
 }
 
 // @brief BDDを追加する．
-SizeType
-BnModel::add_bdd(
+BnFunc
+BnModel::reg_bdd(
   const Bdd& bdd
 )
 {
-  return mImpl->add_bdd(bdd);
+  auto id = mImpl->reg_bdd(bdd);
+  return BnFunc{mImpl, id};
 }
 
 END_NAMESPACE_YM_BN

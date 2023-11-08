@@ -667,7 +667,7 @@ BlifParser::read_names()
   auto cover_id = mCoverMgr.pat2cover(ni, cube_num, ipat_str, opat_char);
 
   set_defined(oid, names_loc);
-  mModel->set_cover(oid, names_id_list, cover_id);
+  mModel->set_func(oid, names_id_list, cover_id);
 
   return true;
 }

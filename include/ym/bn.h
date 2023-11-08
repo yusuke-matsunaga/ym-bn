@@ -40,7 +40,7 @@ const SizeType BAD_ID = -1;
 class BnModel;
 class BnNode;
 class BnSeq;
-class BnCover;
+class BnFunc;
 
 END_NAMESPACE_YM_BN
 
@@ -55,22 +55,8 @@ enum class BnNodeType : std::uint8_t {
   SEQ_OUTPUT, ///< BnSeq の出力(疑似入力)
   PRIMITIVE,  ///< プリミティブ型の論理ノード
   AIG,        ///< AIG型の論理ノード
-  COVER,      ///< カバー型の論理ノード
-  EXPR,       ///< 論理式型の論理ノード
-  CELL,       ///< セル型の論理ノード
-  TVFUNC,     ///< 真理値表型の論理ノード
-  BDD         ///< BDD型の論理ノード
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @brief BnSeq の種類を表す列挙型
-//////////////////////////////////////////////////////////////////////
-enum class BnSeqType : std::uint8_t {
-  NONE,   ///< 不正値
-  DFF,    ///< D-FF
-  LATCH,  ///< ラッチ
-  CELL    ///< セル
+  FUNC,       ///< 関数型の論理ノード
+  CELL        ///< セル型の論理ノード
 };
 
 /// @brief BnNodeType のストリーム出力
@@ -87,14 +73,52 @@ operator<<(
   case BnNodeType::SEQ_OUTPUT: s << "Seq Output"; break;
   case BnNodeType::PRIMITIVE:  s << "Primitive"; break;
   case BnNodeType::AIG:        s << "AIG"; break;
-  case BnNodeType::COVER:      s << "Cover"; break;
-  case BnNodeType::EXPR:       s << "Expr"; break;
+  case BnNodeType::FUNC:       s << "Function"; break;
   case BnNodeType::CELL:       s << "Cell"; break;
-  case BnNodeType::TVFUNC:     s << "TvFunc"; break;
-  case BnNodeType::BDD:        s << "BDD"; break;
   }
   return s;
 }
+
+
+//////////////////////////////////////////////////////////////////////
+/// @brief BnFunc の種類を表す列挙型
+//////////////////////////////////////////////////////////////////////
+enum class BnFuncType : std::uint8_t {
+  NONE,       ///< 不正値
+  COVER,      ///< カバー型
+  EXPR,       ///< 論理式型
+  TVFUNC,     ///< 真理値表型
+  BDD         ///< BDD型
+};
+
+/// @brief BnFuncType のストリーム出力
+inline
+ostream&
+operator<<(
+  ostream& s,
+  BnFuncType type
+)
+{
+  switch ( type ) {
+  case BnFuncType::NONE:       s << "None"; break;
+  case BnFuncType::COVER:      s << "Cover"; break;
+  case BnFuncType::EXPR:       s << "Expr"; break;
+  case BnFuncType::TVFUNC:     s << "TvFunc"; break;
+  case BnFuncType::BDD:        s << "BDD"; break;
+  }
+  return s;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+/// @brief BnSeq の種類を表す列挙型
+//////////////////////////////////////////////////////////////////////
+enum class BnSeqType : std::uint8_t {
+  NONE,   ///< 不正値
+  DFF,    ///< D-FF
+  LATCH,  ///< ラッチ
+  CELL    ///< セル
+};
 
 /// @brief BnSeqType のストリーム出力
 inline
@@ -113,10 +137,11 @@ operator<<(
   return s;
 }
 
+
 using BN_NAMESPACE::BnModel;
 using BN_NAMESPACE::BnNode;
 using BN_NAMESPACE::BnSeq;
-using BN_NAMESPACE::BnCover;
+using BN_NAMESPACE::BnFunc;
 
 END_NAMESPACE_YM
 

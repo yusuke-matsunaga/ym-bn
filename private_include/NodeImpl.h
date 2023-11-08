@@ -14,6 +14,8 @@
 
 BEGIN_NAMESPACE_YM_BN
 
+class FuncImpl;
+
 //////////////////////////////////////////////////////////////////////
 /// @class NodeImpl NodeImpl.h "NodeImpl.h"
 /// @brief BnModel のノードを表すクラス
@@ -65,19 +67,10 @@ public:
     if ( is_aig() ) {
       return true;
     }
-    if ( is_cover() ) {
-      return true;
-    }
-    if ( is_expr() ) {
-      return true;
-    }
-    if ( is_cell() ) {
-      return true;
-    }
     if ( is_func() ) {
       return true;
     }
-    if ( is_bdd() ) {
+    if ( is_cell() ) {
       return true;
     }
     return false;
@@ -97,18 +90,11 @@ public:
     return mType == BnNodeType::AIG;
   }
 
-  /// @brief カバー型の論理ノードの時 true を返す．
+  /// @brief 関数型の論理ノードの時 true を返す．
   bool
-  is_cover() const
+  is_func() const
   {
-    return mType == BnNodeType::COVER;
-  }
-
-  /// @brief 論理式型の論理ノードの時 true を返す．
-  bool
-  is_expr() const
-  {
-    return mType == BnNodeType::EXPR;
+    return mType == BnNodeType::FUNC;
   }
 
   /// @brief セル型の論理ノードの時 true を返す．
@@ -118,43 +104,27 @@ public:
     return mType == BnNodeType::CELL;
   }
 
-  /// @brief 真理値表型の論理ノードの時 true を返す．
-  bool
-  is_func() const
-  {
-    return mType == BnNodeType::TVFUNC;
-  }
-
-  /// @brief BDD型の論理ノードの時 true を返す．
-  bool
-  is_bdd() const
-  {
-    return mType == BnNodeType::BDD;
-  }
-
   /// @brief 入力番号を返す．
-  ///
-  /// is_input() が true の時のみ意味を持つ．
   SizeType
   input_id() const
   {
-    check_input();
+    if ( !is_input() ) {
+      throw std::invalid_argument{"not an input."};
+    }
     return mExtId;
   }
 
   /// @brief SEQ 番号を返す．
-  ///
-  /// is_seq_output() が true の時のみ意味を持つ．
   SizeType
   seq_id() const
   {
-    check_seq_output();
+    if ( !is_seq_output() ) {
+      throw std::invalid_argument{"not a SEQ output."};
+    }
     return mExtId;
   }
 
   /// @brief ファンイン数を返す．
-  ///
-  /// is_logic() が false の時は 0 を返す．
   SizeType
   fanin_num() const
   {
@@ -162,22 +132,18 @@ public:
   }
 
   /// @brief ファンインのノード番号を返す．
-  ///
-  /// is_logic() が true の時のみ意味を持つ．
   SizeType
   fanin(
     SizeType pos ///< [in] 位置 ( 0 <= pos < fanin_num() )
   ) const
   {
     if ( pos < 0 || fanin_num() <= pos ) {
-      throw std::invalid_argument{"index out of range"};
+      throw std::out_of_range{"index out of range"};
     }
     return mFaninList[pos];
   }
 
   /// @brief ファンイン番号のリストを返す．
-  ///
-  /// is_logic() が false の時は空リストを返す．
   const vector<SizeType>&
   fanin_list() const
   {
@@ -185,74 +151,44 @@ public:
   }
 
   /// @brief プリミティブタイプを得る．
-  ///
-  /// is_primitive() == true の時のみ有効
   PrimType
   primitive_type() const
   {
-    check_primitive();
+    if ( !is_primitive() ) {
+      throw std::invalid_argument{"not a primitve-type node."};
+    }
     return static_cast<PrimType>(mExtId);
   }
 
   /// @brief ファンインの反転属性を返す．
-  ///
-  /// is_aig() が true の時のみ意味を持つ．
   bool
   fanin_inv(
     SizeType pos ///< [in] 位置番号 ( 0 or 1 )
   ) const
   {
-    check_aig();
+    if ( !is_aig() ) {
+      throw std::invalid_argument{"not an AIG node."};
+    }
     return static_cast<bool>((mExtId >> pos) & 1);
   }
 
-  /// @brief カバー番号を得る．
-  ///
-  /// is_cover() == true の時のみ有効
+  /// @brief 関数番号を返す．
   SizeType
-  cover_id() const
+  local_func_id() const
   {
-    check_cover();
-    return mExtId;
-  }
-
-  /// @brief 論理式番号を得る．
-  ///
-  /// is_expr() == true の時のみ有効
-  SizeType
-  expr_id() const
-  {
-    check_expr();
-    return mExtId;
-  }
-
-  /// @brief 関数番号を得る．
-  ///
-  /// is_func() == true の時のみ有効
-  SizeType
-  func_id() const
-  {
-    check_func();
-    return mExtId;
-  }
-
-  /// @brief BDD番号を得る．
-  ///
-  /// is_bdd() == true の時のみ有効
-  SizeType
-  bdd_id() const
-  {
-    check_bdd();
+    if ( !is_func() ) {
+      throw std::invalid_argument{"not a func-type node."};
+    }
     return mExtId;
   }
 
   /// @brief セル番号を得る．
-  ///
-  /// is_cell() == true の時のみ有効
   SizeType
   cell_id() const
   {
-    check_cell();
+    if ( !is_cell() ) {
+      throw std::invalid_argument{"not a cell-type node."};
+    }
     return mExtId;
   }
 
@@ -308,28 +244,16 @@ public:
     mExtId = static_cast<SizeType>(inv0) | (static_cast<SizeType>(inv1) << 1);
   }
 
-  /// @brief カバータイプをセットする．
+  /// @brief 真理値表タイプをセットする．
   void
-  set_cover(
+  set_func(
     const vector<SizeType>& fanin_list,
-    SizeType cover_id
+    SizeType func_id
   )
   {
-    mType = BnNodeType::COVER;
+    mType = BnNodeType::FUNC;
     mFaninList = fanin_list;
-    mExtId = cover_id;
-  }
-
-  /// @brief カバータイプをセットする．
-  void
-  set_expr(
-    const vector<SizeType>& fanin_list,
-    SizeType expr_id
-  )
-  {
-    mType = BnNodeType::EXPR;
-    mFaninList = fanin_list;
-    mExtId = expr_id;
+    mExtId = func_id;
   }
 
   /// @brief セルタイプをセットする．
@@ -342,30 +266,6 @@ public:
     mType = BnNodeType::CELL;
     mFaninList = fanin_list;
     mExtId = cell_id;
-  }
-
-  /// @brief 真理値表タイプをセットする．
-  void
-  set_func(
-    const vector<SizeType>& fanin_list,
-    SizeType func_id
-  )
-  {
-    mType = BnNodeType::TVFUNC;
-    mFaninList = fanin_list;
-    mExtId = func_id;
-  }
-
-  /// @brief BDDタイプをセットする．
-  void
-  set_bdd(
-    const vector<SizeType>& fanin_list,
-    SizeType bdd_id
-  )
-  {
-    mType = BnNodeType::BDD;
-    mFaninList = fanin_list;
-    mExtId = bdd_id;
   }
 
 
@@ -401,51 +301,6 @@ private:
     }
   }
 
-  /// @brief primitive タイプかどうかチェックする．
-  void
-  check_primitive() const
-  {
-    if ( !is_primitive() ) {
-      throw std::invalid_argument{"not a primitive type"};
-    }
-  }
-
-  /// @brief aig タイプかどうかチェックする．
-  void
-  check_aig() const
-  {
-    if ( !is_aig() ) {
-      throw std::invalid_argument{"not an aig type"};
-    }
-  }
-
-  /// @brief cover タイプかどうかチェックする．
-  void
-  check_cover() const
-  {
-    if ( !is_cover() ) {
-      throw std::invalid_argument{"not a cover type"};
-    }
-  }
-
-  /// @brief expr タイプかどうかチェックする．
-  void
-  check_expr() const
-  {
-    if ( !is_expr() ) {
-      throw std::invalid_argument{"not an expr type"};
-    }
-  }
-
-  /// @brief cell タイプかどうかチェックする．
-  void
-  check_cell() const
-  {
-    if ( !is_cell() ) {
-      throw std::invalid_argument{"not a cell type"};
-    }
-  }
-
   /// @brief func タイプかどうかチェックする．
   void
   check_func() const
@@ -455,12 +310,12 @@ private:
     }
   }
 
-  /// @brief bdd タイプかどうかチェックする．
+  /// @brief cell タイプかどうかチェックする．
   void
-  check_bdd() const
+  check_cell() const
   {
-    if ( !is_bdd() ) {
-      throw std::invalid_argument{"not a bdd type"};
+    if ( !is_cell() ) {
+      throw std::invalid_argument{"not a cell type"};
     }
   }
 

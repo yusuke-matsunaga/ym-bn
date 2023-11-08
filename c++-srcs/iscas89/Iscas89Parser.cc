@@ -301,7 +301,7 @@ Iscas89Parser::reg_expr(
     return mExprDict.at(key);
   }
   // 新規に登録する．
-  SizeType id = mModel->add_expr(expr);
+  SizeType id = mModel->reg_expr(expr);
   mExprDict.emplace(key, id);
   return id;
 }

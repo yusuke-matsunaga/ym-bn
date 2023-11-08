@@ -72,6 +72,7 @@ class BnModel
 {
   friend BnNode; // for parent_model()
   friend BnSeq;  // for parent_model()
+  friend BnFunc; // for parent_model()
 
 private:
 
@@ -189,6 +190,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief セルライブラリを返す．
+  ///
+  /// - 場合によっては空のライブラリを返す．
   ClibCellLibrary
   library() const;
 
@@ -260,52 +263,16 @@ public:
   vector<BnSeq>
   seq_node_list() const;
 
-  /// @brief カバーの種類の数を返す．
-  SizeType
-  cover_num() const;
-
-  /// @brief カバーを取り出す．
-  ///
-  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
-  const BnCover&
-  cover(
-    SizeType cover_id ///< [in] カバー番号
-  ) const;
-
-  /// @brief 論理式の数を返す．
-  SizeType
-  expr_num() const;
-
-  /// @brief 論理式を返す．
-  ///
-  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
-  const Expr&
-  expr(
-    SizeType expr_id ///< [in] 論理式番号 ( 0 <= expr_id < expr_num() )
-  ) const;
-
-  /// @brief 真理値表型の関数の数を返す．
+  /// @brief 関数情報の数を返す．
   SizeType
   func_num() const;
 
-  /// @brief 真理値表型の関数を返す．
+  /// @brief 関数情報を取り出す．
   ///
   /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
-  const TvFunc&
+  BnFunc
   func(
-    SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
-  ) const;
-
-  /// @brief BDDの数を返す．
-  SizeType
-  bdd_num() const;
-
-  /// @brief BDDを返す．
-  ///
-  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
-  Bdd
-  bdd(
-    SizeType bdd_id ///< [in] BDD番号 ( 0 <= bdd_id < bdd_num() )
+    SizeType func_id ///< [in] カバー番号 ( 0 <= func_id < func_num() )
   ) const;
 
   /// @brief 内容を出力する．
@@ -441,12 +408,12 @@ public:
   /// @brief 新しいプリミティブ型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
-  /// - input の要素は同じ BnModel に属するノードでなければならない．
+  /// - input_list の要素は同じ BnModel に属するノードでなければならない．
   /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_primitive(
-    const vector<BnNode>& input_list, ///< [in] 入力の識別子番号のリスト
-    PrimType type                     ///< [in] プリミティブタイプ
+    PrimType prim_type,              ///< [in] プリミティブ型
+    const vector<BnNode>& input_list ///< [in] 入力の識別子番号のリスト
   );
 
   /// @brief 新しいAIG型の論理ノードを作る．
@@ -462,69 +429,31 @@ public:
     bool inv1               ///< [in] ソース1の反転属性
   );
 
-  /// @brief 新しいカバー型の論理ノードを作る．
+  /// @brief 新しい関数型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
-  /// - cover_id は add_cover() で登録したものを用いる．
-  /// - input の要素は同じ BnModel に属するノードでなければならない．
-  /// - カバーの入力数と input_list のサイズは一致しなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  BnNode
-  new_cover(
-    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType cover_id                 ///< [in] カバー番号
-  );
-
-  /// @brief 論理式型の論理ノードを作る．
-  /// @return 生成したノードを返す．
-  ///
-  /// - expr_id は add_expr() で登録したものを用いる．
-  /// - input の要素は同じ BnModel に属するノードでなければならない．
-  /// - 論理式の入力数と input_list のサイズは一致しなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  BnNode
-  new_expr(
-    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType expr_id                  ///< [in] 論理式番号
-  );
-
-  /// @brief 真理値表型の論理ノードを作る．
-  /// @return 生成したノードを返す．
-  ///
-  /// - func_id は add_func() で登録したものを用いる．
-  /// - input の要素は同じ BnModel に属するノードでなければならない．
-  /// - 関数の入力数と input_list のサイズは一致しなければならない．
+  /// - local_func は事前に reg_cover(), reg_expr(), reg_tvfunc(), reg_bdd()
+  ///   で登録したものを使う．
+  /// - input_list の要素は同じ BnModel に属するノードでなければならない．
+  /// - input_list の要素数は local_func の条件に合致しなければならない．
   /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_func(
-    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType func_id                  ///< [in] 関数番号
+    BnFunc local_func,               ///< [in] 関数
+    const vector<BnNode>& input_list ///< [in] 入力の識別子番号のリスト
   );
 
-  /// @brief BDD型の論理ノードを作る．
+  /// @brief 新しいセル型の論理ノードを作る．
   /// @return 生成したノードを返す．
   ///
-  /// - bdd_id は add_bdd() で登録したものを用いる．
-  /// - input の要素は同じ BnModel に属するノードでなければならない．
-  /// - BDDの入力数と input_list のサイズは一致しなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  BnNode
-  new_bdd(
-    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    SizeType bdd_id                   ///< [in] BDD番号
-  );
-
-  /// @brief セル型の論理ノードを作る．
-  /// @return 生成したノードを返す．
-  ///
-  /// - input の要素は同じ BnModel に属するノードでなければならない．
+  /// - input_list の要素は同じ BnModel に属するノードでなければならない．
   /// - cell はこのモデルに設定されているセルライブラリのセルでなければならない．
-  /// - セルDの入力数と input_list のサイズは一致しなければならない．
+  /// - セルの入力数と input_list のサイズは一致しなければならない．
   /// - 条件に合わない時は std::invalid_argument 例外を送出する．
   BnNode
   new_cell(
-    const vector<BnNode>& input_list, ///< [in] 入力のノードのリスト
-    ClibCell cell                     ///< [in] セル
+    ClibCell cell,                   ///< [in] セル
+    const vector<BnNode>& input_list ///< [in] 入力のノードのリスト
   );
 
   /// @}
@@ -537,38 +466,37 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief カバーを追加する．
-  /// @return カバー番号を返す．
+  /// @brief カバーを登録する．
+  /// @return 登録結果(BnFunc)を返す．
   ///
-  /// - cube_list の要素は全て同じサイズのリストでなければならない．
-  /// - かつ，そのサイズは input_num と等しくなければならない．
+  /// - cube_list 中に現れるリテラル番号は input_num 未満でなければならない．
   /// - opat は '0' か '1' でなければならない．
   /// - 上記の条件に合わない場合は std::invalid_argument 例外を送出する．
-  SizeType
-  add_cover(
+  BnFunc
+  reg_cover(
     SizeType input_num,                       ///< [in] 入力数
     const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
     char opat                                 ///< [in] 出力パタン ( '1' or '0' )
   );
 
-  /// @brief 論理式を追加する．
-  /// @return 論理式番号を返す．
-  SizeType
-  add_expr(
+  /// @brief 論理式を登録する．
+  /// @return 登録結果(BnFunc)を返す．
+  BnFunc
+  reg_expr(
     const Expr& expr ///< [in] 論理式
   );
 
-  /// @brief 真理値表を追加する．
-  /// @return 関数番号を返す．
-  SizeType
-  add_func(
+  /// @brief 真理値表を登録する．
+  /// @return 登録結果(BnFunc)を返す．
+  BnFunc
+  reg_tvfunc(
     const TvFunc& func ///< [in] 真理値表型の関数
   );
 
-  /// @brief BDDを追加する．
-  /// @return BDD番号を返す．
-  SizeType
-  add_bdd(
+  /// @brief BDDを登録する．
+  /// @return 登録結果(BnFunc)を返す．
+  BnFunc
+  reg_bdd(
     const Bdd& bdd ///< [in] BDD
   );
 
@@ -705,106 +633,73 @@ private:
     const vector<SizeType>& id_list
   ) const;
 
-  /// @brief BnNode から ID 番号を取り出す．
-  ///
-  /// 同じ Model に属していないとエラーとなる．
-  SizeType
-  to_id(
-    const BnNode& node,
-    const string& funcname
-  ) const;
-
   /// @brief vector<BnNode> から ID番号のリストを取り出す．
   ///
   /// 同じ Model に属していないとエラーとなる．
   vector<SizeType>
   to_id_list(
-    const vector<BnNode>& node_list,
-    const string& funcname
+    const vector<BnNode>& node_list
   ) const;
 
-  /// @brief 正しいカバー番号かチェックする．
+  /// @brief BnNode のチェックを行う．
   ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
+  /// 同じ Model に属していないとエラーとなる．
   void
-  _check_cover(
-    SizeType id,           ///< [in] カバー番号
-    const string& funcname ///< [in] 関数名
+  _check_node(
+    const BnNode& node
   ) const;
 
-  /// @brief カバーと入力のサイズが合っているか調べる．
+  /// @brief BnSeq のチェックを行う．
   ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
+  /// 同じ Model に属していないとエラーとなる．
   void
-  _check_cover_input(
-    SizeType id,           ///< [in] カバー番号
-    SizeType size,         ///< [in] 入力のサイズ
-    const string& funcname ///< [in] 関数名
+  _check_seq(
+    const BnSeq& seq
   ) const;
 
-  /// @brief 正しい論理式番号かチェックする．
+  /// @brief BnFunc のチェックを行う．
   ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
-  void
-  _check_expr(
-    SizeType id,           ///< [in] 論理式番号
-    const string& funcname ///< [in] 関数名
-  ) const;
-
-  /// @brief 論理式と入力のサイズが合っているか調べる．
-  ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
-  void
-  _check_expr_input(
-    SizeType id,           ///< [in] 論理式番号
-    SizeType size,         ///< [in] 入力のサイズ
-    const string& funcname ///< [in] 関数名
-  ) const;
-
-  /// @brief 正しい関数番号かチェックする．
-  ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
+  /// 同じ Model に属していないとエラーとなる．
   void
   _check_func(
-    SizeType id,           ///< [in] 関数番号
-    const string& funcname ///< [in] 関数名
+    const BnFunc& func
   ) const;
 
-  /// @brief 関数と入力のサイズが合っているか調べる．
-  ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
+  /// @brief 入力番号のチェックを行う．
   void
-  _check_func_input(
-    SizeType id,           ///< [in] 関数番号
-    SizeType size,         ///< [in] 入力のサイズ
-    const string& funcname ///< [in] 関数名
+  _check_input_id(
+    SizeType input_id
   ) const;
 
-  /// @brief 正しいBDD番号かチェックする．
-  ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
+  /// @brief 出力番号のチェックを行う．
   void
-  _check_bdd(
-    SizeType id,           ///< [in] BDD番号
-    const string& funcname ///< [in] 関数名
+  _check_output_id(
+    SizeType output_id
   ) const;
 
-  /// @brief BDDと入力のサイズが合っているか調べる．
-  ///
-  /// 正しくない場合には std::invalid_argument 例外を送出する．
+  /// @brief 論理ノード番号のチェックを行う．
   void
-  _check_bdd_input(
-    SizeType id,           ///< [in] BDD番号
-    SizeType size,         ///< [in] 入力のサイズ
-    const string& funcname ///< [in] 関数名
+  _check_logic_id(
+    SizeType logic_id
+  ) const;
+
+  /// @brief SEQ番号のチェックを行う．
+  void
+  _check_seq_id(
+    SizeType seq_id
   ) const;
 
   /// @brief 本体に登録されているライブラリとセルが属するライブラリが等しいか調べる．
   void
-  _check_library(
-    ClibCell cell,         ///< [in] セル
-    const string& funcname ///< [in] 関数名
-    ) const;
+  _check_library_cell(
+    ClibCell cell         ///< [in] セル
+  ) const;
+
+  /// @brief DFF/latch 用の rs_val が正しいかチェックする．
+  void
+  _check_rsval(
+    char rsval
+  ) const;
 
 
 private:

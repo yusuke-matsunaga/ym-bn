@@ -10,6 +10,7 @@
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
 #include "ym/BnSeq.h"
+#include "ym/BnFunc.h"
 #include "ModelImpl.h"
 
 
@@ -31,80 +32,152 @@ TEST( BnModelTest, constructor1 )
   EXPECT_EQ( vector<BnNode>{}, model.logic_list() );
   EXPECT_EQ( 0, model.seq_num() );
   EXPECT_EQ( vector<BnSeq>{}, model.seq_node_list() );
-  EXPECT_EQ( 0, model.cover_num() );
-  EXPECT_EQ( 0, model.expr_num() );
   EXPECT_EQ( 0, model.func_num() );
-  EXPECT_EQ( 0, model.bdd_num() );
 }
 
 TEST( BnModelTest, input_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.input(0);}, std::invalid_argument );
+  EXPECT_THROW( {model.input(0);}, std::out_of_range );
 }
 
 TEST( BnModelTest, input_name_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.input_name(0);}, std::invalid_argument );
+  EXPECT_THROW( {model.input_name(0);}, std::out_of_range );
 }
 
 TEST( BnModelTest, output_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.output(0);}, std::invalid_argument );
+  EXPECT_THROW( {model.output(0);}, std::out_of_range );
 }
 
 TEST( BnModelTest, output_name_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.output_name(0);}, std::invalid_argument );
+  EXPECT_THROW( {model.output_name(0);}, std::out_of_range );
 }
 
 TEST( BnModelTest, logic_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.logic(0);}, std::invalid_argument );
+  EXPECT_THROW( {model.logic(0);}, std::out_of_range );
 }
 
 TEST( BnModelTest, seq_node_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.seq_node(0);}, std::invalid_argument );
-}
-
-TEST( BnModelTest, cover_bad )
-{
-  BnModel model;
-
-  EXPECT_THROW( {model.cover(0);}, std::invalid_argument );
-}
-
-TEST( BnModelTest, expr_bad )
-{
-  BnModel model;
-
-  EXPECT_THROW( {model.expr(0);}, std::invalid_argument );
+  EXPECT_THROW( {model.seq_node(0);}, std::out_of_range );
 }
 
 TEST( BnModelTest, func_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.func(0);}, std::invalid_argument );
+  EXPECT_THROW( {model.func(0);}, std::out_of_range );
 }
 
-TEST( BnModelTest, bdd_bad )
+TEST( BnModelTest, reg_cover )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.bdd(0);}, std::invalid_argument );
+  Literal lit0{0, false};
+  Literal lit1{1, false};
+  auto func = model.reg_cover(2, {{lit0, lit1}}, '0');
+
+  EXPECT_EQ( BnFuncType::COVER, func.type() );
+  EXPECT_TRUE( func.is_cover() );
+  EXPECT_FALSE( func.is_expr() );
+  EXPECT_FALSE( func.is_tvfunc() );
+  EXPECT_FALSE( func.is_bdd() );
+  EXPECT_EQ( 2, func.input_num() );
+
+  auto& sop = func.input_cover();
+  ASSERT_EQ( 2, sop.variable_num() );
+  ASSERT_EQ( 1, sop.cube_num() );
+  EXPECT_EQ( SopPat::_1, sop.get_pat(0, 0) );
+  EXPECT_EQ( SopPat::_1, sop.get_pat(0, 1) );
+
+  EXPECT_EQ( '0', func.output_pat() );
+
+  auto expr = func.expr();
+  auto rep_str = expr.rep_string();
+  EXPECT_EQ( "O2N0N1", rep_str );
+}
+
+TEST( BnModelTest, reg_expr )
+{
+  BnModel model;
+
+  auto v0 = Expr::make_literal(0);
+  auto v1 = Expr::make_literal(1);
+  auto expr = v0 | ~v1;
+  auto func = model.reg_expr(expr);
+
+  EXPECT_EQ( BnFuncType::EXPR, func.type() );
+  EXPECT_FALSE( func.is_cover() );
+  EXPECT_TRUE( func.is_expr() );
+  EXPECT_FALSE( func.is_tvfunc() );
+  EXPECT_FALSE( func.is_bdd() );
+  EXPECT_EQ( 2, func.input_num() );
+  EXPECT_THROW( {func.input_cover();}, std::invalid_argument );
+  EXPECT_THROW( {func.output_pat();}, std::invalid_argument );
+  EXPECT_EQ( "O2P0N1", func.expr().rep_string() );
+  EXPECT_THROW( {func.tvfunc();}, std::invalid_argument );
+  EXPECT_THROW( {func.bdd();}, std::invalid_argument );
+}
+
+TEST( BnModelTest, reg_tvfunc )
+{
+  BnModel model;
+
+  auto v0 = TvFunc::make_posi_literal(3, 0);
+  auto v1 = TvFunc::make_posi_literal(3, 1);
+  auto v2 = TvFunc::make_posi_literal(3, 2);
+  auto tvfunc = v0 | v1 | v2;
+  auto func = model.reg_tvfunc(tvfunc);
+
+  EXPECT_EQ( BnFuncType::TVFUNC, func.type() );
+  EXPECT_FALSE( func.is_cover() );
+  EXPECT_FALSE( func.is_expr() );
+  EXPECT_TRUE( func.is_tvfunc() );
+  EXPECT_FALSE( func.is_bdd() );
+  EXPECT_EQ( 3, func.input_num() );
+  EXPECT_THROW( {func.input_cover();}, std::invalid_argument );
+  EXPECT_THROW( {func.output_pat();}, std::invalid_argument );
+  EXPECT_THROW( {func.expr();}, std::invalid_argument );
+  EXPECT_EQ( "11111110", func.tvfunc().str() );
+  EXPECT_THROW( {func.bdd();}, std::invalid_argument );
+}
+
+TEST( BnModelTest, reg_bdd )
+{
+  BnModel model;
+
+  BddMgr mgr;
+  auto v0 = mgr.posi_literal(0);
+  auto v1 = mgr.posi_literal(1);
+  auto bdd = v0 & ~v1;
+  auto func = model.reg_bdd(bdd);
+
+  EXPECT_EQ( BnFuncType::BDD, func.type() );
+  EXPECT_FALSE( func.is_cover() );
+  EXPECT_FALSE( func.is_expr() );
+  EXPECT_FALSE( func.is_tvfunc() );
+  EXPECT_TRUE( func.is_bdd() );
+  EXPECT_EQ( 2, func.input_num() );
+  EXPECT_THROW( {func.input_cover();}, std::invalid_argument );
+  EXPECT_THROW( {func.output_pat();}, std::invalid_argument );
+  EXPECT_THROW( {func.expr();}, std::invalid_argument );
+  EXPECT_THROW( {func.tvfunc();}, std::invalid_argument );
+  EXPECT_EQ( bdd, mgr.copy(func.bdd()) );
 }
 
 TEST( BnModelTest, new_input )
@@ -126,18 +199,15 @@ TEST( BnModelTest, new_primitive)
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
   PrimType type = PrimType::And;
-  auto node = model.new_primitive(fanin_list, type);
+  auto node = model.new_primitive(type, fanin_list);
 
   EXPECT_EQ( BnNodeType::PRIMITIVE, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_TRUE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
-  EXPECT_FALSE( node.is_cover() );
-  EXPECT_FALSE( node.is_expr() );
-  EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_func() );
-  EXPECT_FALSE( node.is_bdd() );
+  EXPECT_FALSE( node.is_cell() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
     auto node1 = fanin_list[i];
@@ -148,13 +218,8 @@ TEST( BnModelTest, new_primitive)
   EXPECT_EQ( type, node.primitive_type() );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
-  EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.func(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
+  EXPECT_THROW( {node.local_func(); }, std::invalid_argument );
+  EXPECT_THROW( {node.cell();}, std::invalid_argument );
 }
 
 TEST( BnModelTest, new_aig )
@@ -172,11 +237,8 @@ TEST( BnModelTest, new_aig )
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_TRUE( node.is_aig() );
-  EXPECT_FALSE( node.is_cover() );
-  EXPECT_FALSE( node.is_expr() );
-  EXPECT_FALSE( node.is_cell() );
   EXPECT_FALSE( node.is_func() );
-  EXPECT_FALSE( node.is_bdd() );
+  EXPECT_FALSE( node.is_cell() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( 2, node.fanin_num() );
   EXPECT_EQ( input1, node.fanin(0) );
@@ -186,19 +248,11 @@ TEST( BnModelTest, new_aig )
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_EQ( inv0, node.fanin_inv(0) );
   EXPECT_EQ( inv1, node.fanin_inv(1) );
-  EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.cover();}, std::invalid_argument );
-  EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.expr();}, std::invalid_argument );
-  EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_THROW( {node.local_func(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell();}, std::invalid_argument );
-  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.func(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
 }
 
-TEST( BnModelTest, new_cover )
+TEST( BnModelTest, new_func_cover )
 {
   BnModel model;
 
@@ -208,19 +262,16 @@ TEST( BnModelTest, new_cover )
   Literal lit1{0, false};
   Literal lit2{1, false};
   vector<vector<Literal>> cube_list{{lit1}, {lit2}};
-  SizeType cover_id = model.add_cover(2, cube_list, '0');
-  auto node = model.new_cover(fanin_list, cover_id);
+  auto func = model.reg_cover(2, cube_list, '0');
+  auto node = model.new_func(func, fanin_list);
 
-  EXPECT_EQ( BnNodeType::COVER, node.type() );
+  EXPECT_EQ( BnNodeType::FUNC, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
-  EXPECT_TRUE( node.is_cover() );
-  EXPECT_FALSE( node.is_expr() );
+  EXPECT_TRUE( node.is_func() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_func() );
-  EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < node.fanin_num(); ++ i ) {
@@ -230,18 +281,11 @@ TEST( BnModelTest, new_cover )
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
-  EXPECT_EQ( cover_id, node.cover_id() );
-  EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.expr();}, std::invalid_argument );
-  EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_EQ( func, node.local_func() );
   EXPECT_THROW( {node.cell();}, std::invalid_argument );
-  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.func(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
 }
 
-TEST( BnModelTest, new_expr )
+TEST( BnModelTest, new_func_expr )
 {
   BnModel model;
 
@@ -251,19 +295,16 @@ TEST( BnModelTest, new_expr )
   auto lit1 = Expr::make_posi_literal(0);
   auto lit2 = Expr::make_posi_literal(1);
   auto expr = lit1 | lit2;
-  SizeType expr_id = model.add_expr(expr);
-  auto node = model.new_expr(fanin_list, expr_id);
+  auto func = model.reg_expr(expr);
+  auto node = model.new_func(func, fanin_list);
 
-  EXPECT_EQ( BnNodeType::EXPR, node.type() );
+  EXPECT_EQ( BnNodeType::FUNC, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
-  EXPECT_FALSE( node.is_cover() );
-  EXPECT_TRUE( node.is_expr() );
+  EXPECT_TRUE( node.is_func() );
   EXPECT_FALSE( node.is_cell() );
-  EXPECT_FALSE( node.is_func() );
-  EXPECT_FALSE( node.is_bdd() );
   EXPECT_THROW( {node.input_id();}, std::invalid_argument );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < node.fanin_num(); ++ i ) {
@@ -273,15 +314,77 @@ TEST( BnModelTest, new_expr )
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
-  EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
-  EXPECT_EQ( expr_id, node.expr_id() );
-  EXPECT_EQ( expr, node.expr() );
-  EXPECT_THROW( {node.cell_id();}, std::invalid_argument );
+  EXPECT_EQ( func, node.local_func() );
   EXPECT_THROW( {node.cell();}, std::invalid_argument );
-  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.func(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
+}
+
+TEST( BnModelTest, new_func_tvfunc )
+{
+  BnModel model;
+
+  auto input1 = model.new_input();
+  auto input2 = model.new_input();
+  vector<BnNode> fanin_list{input1, input2};
+
+  auto v0 = TvFunc::make_posi_literal(2, 0);
+  auto v1 = TvFunc::make_posi_literal(2, 1);
+  auto tvfunc = v0 | v1;
+  auto func = model.reg_tvfunc(tvfunc);
+  auto node = model.new_func(func, fanin_list);
+
+  EXPECT_EQ( BnNodeType::FUNC, node.type() );
+  EXPECT_FALSE( node.is_input() );
+  EXPECT_TRUE( node.is_logic() );
+  EXPECT_FALSE( node.is_primitive() );
+  EXPECT_FALSE( node.is_aig() );
+  EXPECT_TRUE( node.is_func() );
+  EXPECT_FALSE( node.is_cell() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_EQ( fanin_list.size(), node.fanin_num() );
+  for ( SizeType i = 0; i < node.fanin_num(); ++ i ) {
+    EXPECT_EQ( fanin_list[i], node.fanin(i) );
+  }
+  EXPECT_EQ( fanin_list, node.fanin_list() );
+  EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
+  EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
+  EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
+  EXPECT_EQ( func, node.local_func() );
+  EXPECT_THROW( {node.cell();}, std::invalid_argument );
+}
+
+TEST( BnModelTest, new_func_bdd )
+{
+  BnModel model;
+
+  auto input1 = model.new_input();
+  auto input2 = model.new_input();
+  vector<BnNode> fanin_list{input1, input2};
+
+  BddMgr mgr;
+  auto v0 = mgr.posi_literal(0);
+  auto v1 = mgr.posi_literal(1);
+  auto bdd = v0 | v1;
+  auto func = model.reg_bdd(bdd);
+  auto node = model.new_func(func, fanin_list);
+
+  EXPECT_EQ( BnNodeType::FUNC, node.type() );
+  EXPECT_FALSE( node.is_input() );
+  EXPECT_TRUE( node.is_logic() );
+  EXPECT_FALSE( node.is_primitive() );
+  EXPECT_FALSE( node.is_aig() );
+  EXPECT_TRUE( node.is_func() );
+  EXPECT_FALSE( node.is_cell() );
+  EXPECT_THROW( {node.input_id();}, std::invalid_argument );
+  EXPECT_EQ( fanin_list.size(), node.fanin_num() );
+  for ( SizeType i = 0; i < node.fanin_num(); ++ i ) {
+    EXPECT_EQ( fanin_list[i], node.fanin(i) );
+  }
+  EXPECT_EQ( fanin_list, node.fanin_list() );
+  EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
+  EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
+  EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
+  EXPECT_EQ( func, node.local_func() );
+  EXPECT_THROW( {node.cell();}, std::invalid_argument );
 }
 
 TEST( BnModelTest, new_cell )
@@ -296,17 +399,14 @@ TEST( BnModelTest, new_cell )
   auto input1 = model.new_input();
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
-  auto node = model.new_cell(fanin_list, cell);
+  auto node = model.new_cell(cell, fanin_list);
 
   EXPECT_EQ( BnNodeType::CELL, node.type() );
   EXPECT_FALSE( node.is_input() );
   EXPECT_TRUE( node.is_logic() );
   EXPECT_FALSE( node.is_primitive() );
   EXPECT_FALSE( node.is_aig() );
-  EXPECT_FALSE( node.is_cover() );
-  EXPECT_FALSE( node.is_expr() );
   EXPECT_FALSE( node.is_func() );
-  EXPECT_FALSE( node.is_bdd() );
   EXPECT_TRUE( node.is_cell() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < node.fanin_num(); ++ i ) {
@@ -316,14 +416,8 @@ TEST( BnModelTest, new_cell )
   EXPECT_THROW( {node.primitive_type();}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(0);}, std::invalid_argument );
   EXPECT_THROW( {node.fanin_inv(1);}, std::invalid_argument );
-  EXPECT_THROW( {node.cover_id();}, std::invalid_argument );
-  EXPECT_THROW( {node.expr_id();}, std::invalid_argument );
-  EXPECT_EQ( cell.id(), node.cell_id() );
+  EXPECT_THROW( {node.local_func(); }, std::invalid_argument );
   EXPECT_EQ( cell, node.cell() );
-  EXPECT_THROW( {node.func_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.func(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd_id(); }, std::invalid_argument );
-  EXPECT_THROW( {node.bdd(); }, std::invalid_argument );
 }
 
 TEST( BnModelTest, new_dff)
@@ -419,7 +513,7 @@ TEST( BnModelTest, clear )
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
   PrimType type = PrimType::And;
-  auto node = model.new_primitive(fanin_list, type);
+  auto node = model.new_primitive(type, fanin_list);
 
   EXPECT_EQ( 2, model.input_num() );
   EXPECT_EQ( 1, model.logic_num() );
@@ -438,7 +532,7 @@ TEST( BnModelTest, copy_constructor )
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
   PrimType type = PrimType::And;
-  auto node = model.new_primitive(fanin_list, type);
+  auto node = model.new_primitive(type, fanin_list);
 
   EXPECT_EQ( 2, model.input_num() );
   EXPECT_EQ( 1, model.logic_num() );
@@ -462,7 +556,7 @@ TEST( BnModelTest, copy_assignment )
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
   PrimType type = PrimType::And;
-  auto node = model.new_primitive(fanin_list, type);
+  auto node = model.new_primitive(type, fanin_list);
 
   EXPECT_EQ( 2, model.input_num() );
   EXPECT_EQ( 1, model.logic_num() );
@@ -486,7 +580,7 @@ TEST( BnModelTest, move_constructor )
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
   PrimType type = PrimType::And;
-  auto node = model.new_primitive(fanin_list, type);
+  auto node = model.new_primitive(type, fanin_list);
 
   EXPECT_EQ( 2, model.input_num() );
   EXPECT_EQ( 1, model.logic_num() );
@@ -505,7 +599,7 @@ TEST( BnModelTest, move_assignment )
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
   PrimType type = PrimType::And;
-  auto node = model.new_primitive(fanin_list, type);
+  auto node = model.new_primitive(type, fanin_list);
 
   EXPECT_EQ( 2, model.input_num() );
   EXPECT_EQ( 1, model.logic_num() );

@@ -56,6 +56,11 @@ set ( bn_SOURCES
   c++-srcs/blif/BlifParser.cc
   c++-srcs/blif/BlifScanner.cc
   c++-srcs/blif/CoverMgr.cc
+  c++-srcs/func/FuncImpl.cc
+  c++-srcs/func/FuncImpl_Bdd.cc
+  c++-srcs/func/FuncImpl_Cover.cc
+  c++-srcs/func/FuncImpl_Expr.cc
+  c++-srcs/func/FuncImpl_TvFunc.cc
   #c++-srcs/iscas89/C0Handler.cc
   #c++-srcs/iscas89/C1Handler.cc
   #c++-srcs/iscas89/Iscas89Handler.cc
@@ -63,11 +68,11 @@ set ( bn_SOURCES
   c++-srcs/iscas89/Iscas89Scanner.cc
   #c++-srcs/iscas89/MuxHandler.cc
   c++-srcs/truth/TruthReader.cc
+  c++-srcs/model/BnFunc.cc
   c++-srcs/model/BnModel.cc
   c++-srcs/model/BnModel_modify.cc
   c++-srcs/model/BnModel_check.cc
   c++-srcs/model/BnNode.cc
-  c++-srcs/model/BnCover.cc
   c++-srcs/model/BnSeq.cc
   c++-srcs/model/ModelImpl.cc
   )
