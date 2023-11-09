@@ -3,11 +3,12 @@
 /// @brief Python BnModel の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022, 2023 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "pym/PyBnModel.h"
 #include "pym/PyBnNode.h"
+#include "pym/PyBnNodeList.h"
 #include "pym/PyBnSeq.h"
 #include "pym/PyBnFunc.h"
 #include "pym/PyClibCellLibrary.h"
@@ -19,6 +20,7 @@
 #include "pym/PyLiteral.h"
 #include "pym/PyModule.h"
 #include "pym/PyBase.h"
+#include "ym/BnNode.h"
 #include "ym/JsonValue.h"
 
 
@@ -42,12 +44,25 @@ PyTypeObject BnModelType = {
 PyObject*
 BnModel_new(
   PyTypeObject* type,
-  PyObject* Py_UNUSED(args),
-  PyObject* Py_UNUSED(kwds)
+  PyObject* args,
+  PyObject* kwds
 )
 {
-  PyErr_SetString(PyExc_TypeError, "instantiation of 'BnModel' is disabled");
-  return nullptr;
+  static char* kwlist[] = {
+    nullptr
+  };
+
+  // 引数を取らないことをチェックする．
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "",
+				    const_cast<char**>(kwlist)) ) {
+    return nullptr;
+  }
+
+  auto obj = BnModelType.tp_alloc(&BnModelType, 0);
+  auto model_obj = reinterpret_cast<BnModelObject*>(obj);
+  model_obj->mPtr = new BnModel;
+
+  return obj;
 }
 
 // 終了関数
@@ -89,10 +104,8 @@ BnModel_read_blif(
     auto model = BnModel::read_blif(filename, cell_library);
     return PyBnModel::ToPyObject(model);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "read_blif(\"" << filename << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what() );
     return nullptr;
   }
 }
@@ -119,10 +132,8 @@ BnModel_read_iscas89(
     auto model = BnModel::read_iscas89(filename);
     return PyBnModel::ToPyObject(model);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "read_iscas89(\"" << filename << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -149,10 +160,8 @@ BnModel_read_aag(
     auto model = BnModel::read_aag(filename);
     return PyBnModel::ToPyObject(model);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "read_aag(\"" << filename << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -179,10 +188,8 @@ BnModel_read_aig(
     auto model = BnModel::read_aig(filename);
     return PyBnModel::ToPyObject(model);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "read_aig(\"" << filename << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -209,10 +216,8 @@ BnModel_read_truth(
     auto model = BnModel::read_truth(filename);
     return PyBnModel::ToPyObject(model);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "read_truth(\"" << filename << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -228,14 +233,12 @@ BnModel_input(
     return nullptr;
   }
   try {
-    auto model = PyBnModel::Get(self);
+    auto& model = PyBnModel::Get(self);
     auto val = model.input(pos);
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "input(\"" << pos << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -251,14 +254,12 @@ BnModel_input_name(
     return nullptr;
   }
   try {
-    auto model = PyBnModel::Get(self);
+    auto& model = PyBnModel::Get(self);
     auto val = model.input_name(pos);
     return Py_BuildValue("s", val.c_str());
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "input_name(\"" << pos << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -274,14 +275,12 @@ BnModel_output(
     return nullptr;
   }
   try {
-    auto model = PyBnModel::Get(self);
+    auto& model = PyBnModel::Get(self);
     auto val = model.output(pos);
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "output(\"" << pos << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -297,14 +296,12 @@ BnModel_output_name(
     return nullptr;
   }
   try {
-    auto model = PyBnModel::Get(self);
+    auto& model = PyBnModel::Get(self);
     auto val = model.output_name(pos);
     return Py_BuildValue("s", val.c_str());
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "output_name(\"" << pos << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -320,20 +317,18 @@ BnModel_logic(
     return nullptr;
   }
   try {
-    auto model = PyBnModel::Get(self);
+    auto& model = PyBnModel::Get(self);
     auto val = model.logic(pos);
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "logic(\"" << pos << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
 
 PyObject*
-BnModel_seq_node(
+BnModel_seq(
   PyObject* self,
   PyObject* args
 )
@@ -343,14 +338,12 @@ BnModel_seq_node(
     return nullptr;
   }
   try {
-    auto model = PyBnModel::Get(self);
-    auto val = model.seq_node(pos);
+    auto& model = PyBnModel::Get(self);
+    auto val = model.seq(pos);
     return PyBnSeq::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "seq_node(\"" << pos << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -366,14 +359,12 @@ BnModel_seq_name(
     return nullptr;
   }
   try {
-    auto model = PyBnModel::Get(self);
+    auto& model = PyBnModel::Get(self);
     auto val = model.seq_name(pos);
     return Py_BuildValue("s", val.c_str());
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buff;
-    buff << "seq_name(\"" << pos << "\") failed";
-    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -395,7 +386,7 @@ BnModel_print(
 				    &filename) ) {
     return nullptr;
   }
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   if ( filename == nullptr ) {
     model.print(cout);
   }
@@ -420,7 +411,7 @@ BnModel_clear(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   model.clear();
   Py_RETURN_NONE;
 }
@@ -443,7 +434,7 @@ BnModel_set_celllibrary(
 				    PyClibCellLibrary::_typeobject(), &obj) ) {
     return nullptr;
   }
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto library = PyClibCellLibrary::Get(obj);
   model.set_celllibrary(library);
   Py_RETURN_NONE;
@@ -467,7 +458,7 @@ BnModel_set_option(
 				    &option_str) ) {
     return nullptr;
   }
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto option = JsonValue::parse(option_str);
   model.set_option(option);
   Py_RETURN_NONE;
@@ -492,7 +483,7 @@ BnModel_new_input(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   string name;
   if ( name_str ) {
     name = name_str;
@@ -524,15 +515,20 @@ BnModel_new_output(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto src = PyBnNode::Get(src_obj);
+  auto& model = PyBnModel::Get(self);
+  auto& src = PyBnNode::Get(src_obj);
   string name;
   if ( name_str ) {
     name = name_str;
   }
-  auto val = model.new_output(src, name);
-
-  return Py_BuildValue("k", val);
+  try {
+    auto val = model.new_output(src, name);
+    return Py_BuildValue("k", val);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 bool
@@ -585,11 +581,17 @@ BnModel_new_primitive(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto type = PyPrimType::Get(type_obj);
-  auto node = model.new_primitive(type, input_list);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto type = PyPrimType::Get(type_obj);
+    auto node = model.new_primitive(type, input_list);
 
-  return PyBnNode::ToPyObject(node);
+    return PyBnNode::ToPyObject(node);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -619,14 +621,20 @@ BnModel_new_aig(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto src0 = PyBnNode::Get(src0_obj);
-  auto src1 = PyBnNode::Get(src1_obj);
-  auto node = model.new_aig(src0, src1,
-			    static_cast<bool>(inv0),
-			    static_cast<bool>(inv1));
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto src0 = PyBnNode::Get(src0_obj);
+    auto src1 = PyBnNode::Get(src1_obj);
+    auto node = model.new_aig(src0, src1,
+			      static_cast<bool>(inv0),
+			      static_cast<bool>(inv1));
 
-  return PyBnNode::ToPyObject(node);
+    return PyBnNode::ToPyObject(node);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -655,11 +663,17 @@ BnModel_new_func(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto& func = PyBnFunc::Get(func_obj);
-  auto node = model.new_func(func, input_list);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto& func = PyBnFunc::Get(func_obj);
+    auto node = model.new_func(func, input_list);
 
-  return PyBnNode::ToPyObject(node);
+    return PyBnNode::ToPyObject(node);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what() );
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -688,11 +702,17 @@ BnModel_new_cell(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto cell = PyClibCell::Get(cell_obj);
-  auto node = model.new_cell(cell, input_list);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto cell = PyClibCell::Get(cell_obj);
+    auto node = model.new_cell(cell, input_list);
 
-  return PyBnNode::ToPyObject(node);
+    return PyBnNode::ToPyObject(node);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -755,10 +775,15 @@ BnModel_reg_cover(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto val = model.reg_cover(input_num, cube_list, opat);
-
-  return PyBnFunc::ToPyObject(val);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto val = model.reg_cover(input_num, cube_list, opat);
+    return PyBnFunc::ToPyObject(val);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -780,11 +805,16 @@ BnModel_reg_expr(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto expr = PyExpr::Get(expr_obj);
-  auto val = model.reg_expr(expr);
-
-  return PyBnFunc::ToPyObject(val);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto expr = PyExpr::Get(expr_obj);
+    auto val = model.reg_expr(expr);
+    return PyBnFunc::ToPyObject(val);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -806,11 +836,16 @@ BnModel_reg_tvfunc(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto func = PyTvFunc::Get(func_obj);
-  auto val = model.reg_tvfunc(func);
-
-  return PyBnFunc::ToPyObject(val);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto func = PyTvFunc::Get(func_obj);
+    auto val = model.reg_tvfunc(func);
+    return PyBnFunc::ToPyObject(val);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -832,11 +867,16 @@ BnModel_reg_bdd(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto bdd = PyBdd::Get(bdd_obj);
-  auto val = model.reg_bdd(bdd);
-
-  return PyBnFunc::ToPyObject(val);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto bdd = PyBdd::Get(bdd_obj);
+    auto val = model.reg_bdd(bdd);
+    return PyBnFunc::ToPyObject(val);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 
 }
 
@@ -870,10 +910,16 @@ BnModel_new_dff(
     rs_val = rs_val_str[0];
   }
 
-  auto model = PyBnModel::Get(self);
-  auto seq = model.new_dff(rs_val, name);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto seq = model.new_dff(rs_val, name);
 
-  return PyBnSeq::ToPyObject(seq);
+    return PyBnSeq::ToPyObject(seq);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -909,10 +955,16 @@ BnModel_new_latch(
     name = string{name_str};
   }
 
-  auto model = PyBnModel::Get(self);
-  auto seq = model.new_latch(rs_val, name);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto seq = model.new_latch(rs_val, name);
 
-  return PyBnSeq::ToPyObject(seq);
+    return PyBnSeq::ToPyObject(seq);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -937,15 +989,21 @@ BnModel_new_seq_cell(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto cell = PyClibCell::Get(cell_obj);
-  string name;
-  if ( name_str != nullptr ) {
-    name = string{name_str};
-  }
-  auto seq = model.new_seq_cell(cell, name);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto cell = PyClibCell::Get(cell_obj);
+    string name;
+    if ( name_str != nullptr ) {
+      name = string{name_str};
+    }
+    auto seq = model.new_seq_cell(cell, name);
 
-  return PyBnSeq::ToPyObject(seq);
+    return PyBnSeq::ToPyObject(seq);
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -970,12 +1028,18 @@ BnModel_set_data_src(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto seq = PyBnSeq::Get(seq_obj);
-  auto src = PyBnNode::Get(src_obj);
-  model.set_data_src(seq, src);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto seq = PyBnSeq::Get(seq_obj);
+    auto src = PyBnNode::Get(src_obj);
+    model.set_data_src(seq, src);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -1000,12 +1064,18 @@ BnModel_set_clock(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto seq = PyBnSeq::Get(seq_obj);
-  auto clock = PyBnNode::Get(clock_obj);
-  model.set_clock(seq, clock);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto seq = PyBnSeq::Get(seq_obj);
+    auto clock = PyBnNode::Get(clock_obj);
+    model.set_clock(seq, clock);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -1030,12 +1100,18 @@ BnModel_set_enable(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto seq = PyBnSeq::Get(seq_obj);
-  auto src = PyBnNode::Get(src_obj);
-  model.set_enable(seq, src);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto seq = PyBnSeq::Get(seq_obj);
+    auto src = PyBnNode::Get(src_obj);
+    model.set_enable(seq, src);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -1060,12 +1136,18 @@ BnModel_set_clear(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto seq = PyBnSeq::Get(seq_obj);
-  auto src = PyBnNode::Get(src_obj);
-  model.set_clear(seq, src);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto seq = PyBnSeq::Get(seq_obj);
+    auto src = PyBnNode::Get(src_obj);
+    model.set_clear(seq, src);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -1090,12 +1172,18 @@ BnModel_set_preset(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto seq = PyBnSeq::Get(seq_obj);
-  auto src = PyBnNode::Get(src_obj);
-  model.set_preset(seq, src);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto seq = PyBnSeq::Get(seq_obj);
+    auto src = PyBnNode::Get(src_obj);
+    model.set_preset(seq, src);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 PyObject*
@@ -1123,12 +1211,18 @@ BnModel_set_seq_pin(
     return nullptr;
   }
 
-  auto model = PyBnModel::Get(self);
-  auto seq = PyBnSeq::Get(seq_obj);
-  auto src = PyBnNode::Get(src_obj);
-  model.set_seq_pin(seq, pos, src);
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto seq = PyBnSeq::Get(seq_obj);
+    auto src = PyBnNode::Get(src_obj);
+    model.set_seq_pin(seq, pos, src);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
 }
 
 // メソッド定義
@@ -1165,9 +1259,9 @@ PyMethodDef BnModel_methods[] = {
   {"output_name", BnModel_output_name,
    METH_VARARGS,
    PyDoc_STR("returns output name")},
-  {"seq_node", BnModel_seq_node,
+  {"seq", BnModel_seq,
    METH_VARARGS,
-   PyDoc_STR("returns SEQ node")},
+   PyDoc_STR("returns SEQ object")},
   {"seq_name", BnModel_seq_name,
    METH_VARARGS,
    PyDoc_STR("returns SEQ name")},
@@ -1270,7 +1364,7 @@ BnModel_name(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto val = model.name();
   return Py_BuildValue("s", val.c_str());
 }
@@ -1281,9 +1375,31 @@ BnModel_comment(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto val = model.comment();
   return Py_BuildValue("s", val.c_str());
+}
+
+PyObject*
+BnModel_library(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto& model = PyBnModel::Get(self);
+  auto val = model.library();
+  return PyClibCellLibrary::ToPyObject(val);
+}
+
+PyObject*
+BnModel_node_num(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto& model = PyBnModel::Get(self);
+  auto val = model.node_num();
+  return Py_BuildValue("k", val);
 }
 
 PyObject*
@@ -1292,9 +1408,9 @@ BnModel_input_num(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto val = model.input_num();
-  return Py_BuildValue("i", val);
+  return Py_BuildValue("k", val);
 }
 
 PyObject*
@@ -1303,9 +1419,9 @@ BnModel_input_list(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
-  auto val_list = model.input_list();
-  return PyBnNode::ToPyList(val_list);
+  auto& model = PyBnModel::Get(self);
+  auto val = model.input_list();
+  return PyBnNodeList::ToPyObject(val);
 }
 
 PyObject*
@@ -1314,7 +1430,7 @@ BnModel_input_name_list(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   SizeType n = model.input_num();
   vector<string> val_list(n);
   for ( SizeType i = 0; i < n; ++ i ) {
@@ -1329,20 +1445,9 @@ BnModel_seq_num(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto val = model.seq_num();
-  return Py_BuildValue("i", val);
-}
-
-PyObject*
-BnModel_seq_list(
-  PyObject* self,
-  void* Py_UNUSED(closure)
-)
-{
-  auto model = PyBnModel::Get(self);
-  auto val_list = model.seq_node_list();
-  return PyBnSeq::ToPyList(val_list);
+  return Py_BuildValue("k", val);
 }
 
 PyObject*
@@ -1351,7 +1456,7 @@ BnModel_seq_name_list(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   SizeType n = model.seq_num();
   vector<string> val_list(n);
   for ( SizeType i = 0; i < n; ++ i ) {
@@ -1366,9 +1471,9 @@ BnModel_output_num(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto val = model.output_num();
-  return Py_BuildValue("i", val);
+  return Py_BuildValue("k", val);
 }
 
 PyObject*
@@ -1377,9 +1482,9 @@ BnModel_output_list(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
-  auto val_list = model.output_list();
-  return PyBnNode::ToPyList(val_list);
+  auto& model = PyBnModel::Get(self);
+  auto val = model.output_list();
+  return PyBnNodeList::ToPyObject(val);
 }
 
 PyObject*
@@ -1388,7 +1493,7 @@ BnModel_output_name_list(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   SizeType n = model.output_num();
   vector<string> val_list(n);
   for ( SizeType i = 0; i < n; ++ i ) {
@@ -1403,9 +1508,9 @@ BnModel_logic_num(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto val = model.logic_num();
-  return Py_BuildValue("i", val);
+  return Py_BuildValue("k", val);
 }
 
 PyObject*
@@ -1414,9 +1519,9 @@ BnModel_logic_list(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
-  auto val_list = model.logic_list();
-  return PyBnNode::ToPyList(val_list);
+  auto& model = PyBnModel::Get(self);
+  auto val = model.logic_list();
+  return PyBnNodeList::ToPyObject(val);
 }
 
 PyObject*
@@ -1425,9 +1530,9 @@ BnModel_func_num(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto val = model.func_num();
-  return Py_BuildValue("i", val);
+  return Py_BuildValue("k", val);
 }
 
 #if 0
@@ -1437,7 +1542,7 @@ BnModel_option(
   void* Py_UNUSED(closure)
 )
 {
-  auto model = PyBnModel::Get(self);
+  auto& model = PyBnModel::Get(self);
   auto val = model.option();
   return Py_BuildValue("i", val);
 }
@@ -1447,11 +1552,12 @@ BnModel_option(
 PyGetSetDef BnModel_getsetters[] = {
   {"name", BnModel_name, nullptr, PyDoc_STR("name"), nullptr},
   {"comment", BnModel_comment, nullptr, PyDoc_STR("comment"), nullptr},
+  {"library", BnModel_library, nullptr, PyDoc_STR("Cell Library"), nullptr},
+  {"node_num", BnModel_node_num, nullptr, PyDoc_STR("node num"), nullptr},
   {"input_num", BnModel_input_num, nullptr, PyDoc_STR("input num"), nullptr},
   {"input_list", BnModel_input_list, nullptr, PyDoc_STR("input list"), nullptr},
   {"input_name_list", BnModel_input_name_list, nullptr, PyDoc_STR("input name list"), nullptr},
   {"seq_num", BnModel_seq_num, nullptr, PyDoc_STR("SEQ node num"), nullptr},
-  {"seq_node_list", BnModel_seq_list, nullptr, PyDoc_STR("SEQ node list"), nullptr},
   {"seq_name_list", BnModel_seq_name_list, nullptr, PyDoc_STR("SEQ name list"), nullptr},
   {"output_num", BnModel_output_num, nullptr, PyDoc_STR("output num"), nullptr},
   {"output_list", BnModel_output_list, nullptr, PyDoc_STR("output list"), nullptr},
@@ -1462,6 +1568,27 @@ PyGetSetDef BnModel_getsetters[] = {
   //{"option", BnModel_option, nullptr, PyDoc_STR("option JSON object"), nullptr},
   {nullptr, nullptr, nullptr, nullptr}
 };
+
+PyObject*
+BnModel_richcompfunc(
+  PyObject* self,
+  PyObject* other,
+  int op
+)
+{
+  if ( PyBnModel::Check(self) &&
+       PyBnModel::Check(other) ) {
+    auto& val1 = PyBnModel::Get(self);
+    auto& val2 = PyBnModel::Get(other);
+    if ( op == Py_EQ ) {
+      return PyBool_FromLong(val1 == val2);
+    }
+    if ( op == Py_NE ) {
+      return PyBool_FromLong(val1 != val2);
+    }
+  }
+  Py_RETURN_NOTIMPLEMENTED;
+}
 
 END_NONAMESPACE
 
@@ -1478,6 +1605,7 @@ PyBnModel::init(
   BnModelType.tp_dealloc = BnModel_dealloc;
   BnModelType.tp_flags = Py_TPFLAGS_DEFAULT;
   BnModelType.tp_doc = PyDoc_STR("BnModel object");
+  BnModelType.tp_richcompare = BnModel_richcompfunc;
   BnModelType.tp_methods = BnModel_methods;
   BnModelType.tp_getset = BnModel_getsetters;
   BnModelType.tp_new = BnModel_new;
@@ -1516,7 +1644,7 @@ PyBnModel::Check(
 }
 
 // @brief BnModel を表す PyObject から BnModel を取り出す．
-BnModel
+BnModel&
 PyBnModel::Get(
   PyObject* obj
 )

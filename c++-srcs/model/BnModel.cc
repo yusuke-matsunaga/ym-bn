@@ -19,17 +19,10 @@ BEGIN_NAMESPACE_YM_BN
 // クラス BnModel
 //////////////////////////////////////////////////////////////////////
 
-// @brief shared_ptr<ModelImpl> からのキャストコンストラクタ
-BnModel::BnModel(
-  const shared_ptr<ModelImpl>& impl
-) : mImpl{impl}
-{
-}
-
 // @brief コピーコンストラクタ
 BnModel::BnModel(
   const BnModel& src
-) : mImpl{new ModelImpl{*src.mImpl}}
+) : mImpl{src.mImpl->copy()}
 {
 }
 
@@ -43,7 +36,7 @@ BnModel::BnModel(
 
 // @brief コンストラクタ
 BnModel::BnModel(
-) : mImpl{shared_ptr<ModelImpl>{new ModelImpl}}
+) : mImpl{new ModelImpl}
 {
 }
 
@@ -80,14 +73,16 @@ BnModel::input(
 ) const
 {
   _check_input_id(pos);
-  return from_id(mImpl->input(pos));
+  auto id = mImpl->input_id(pos);
+  return ModelImpl::new_node(mImpl, id);
 }
 
 // @brief 入力のノードのリストを返す．
-vector<BnNode>
+BnNodeList
 BnModel::input_list() const
 {
-  return from_id_list(mImpl->input_list());
+  auto& id_list = mImpl->input_list();
+  return ModelImpl::new_node_list(mImpl, id_list);
 }
 
 // @brief 入力数を返す．
@@ -104,14 +99,16 @@ BnModel::output(
 ) const
 {
   _check_output_id(pos);
-  return from_id(mImpl->output(pos));
+  auto id = mImpl->output_id(pos);
+  return ModelImpl::new_node(mImpl, id);
 }
 
 // @brief 出力のノードのリストを返す．
-vector<BnNode>
+BnNodeList
 BnModel::output_list() const
 {
-  return from_id_list(mImpl->output_list());
+  auto& id_list = mImpl->output_list();
+  return ModelImpl::new_node_list(mImpl, id_list);
 }
 
 // @brief 論理ノード数を返す．
@@ -128,14 +125,16 @@ BnModel::logic(
 ) const
 {
   _check_logic_id(pos);
-  return from_id(mImpl->logic(pos));
+  auto id = mImpl->logic_id(pos);
+  return ModelImpl::new_node(mImpl, id);
 }
 
 // @brief 論理ノードのリストを返す．
-vector<BnNode>
+BnNodeList
 BnModel::logic_list() const
 {
-  return from_id_list(mImpl->logic_list());
+  auto& id_list = mImpl->logic_list();
+  return ModelImpl::new_node_list(mImpl, id_list);
 }
 
 // @brief SEQノード数を返す．
@@ -147,23 +146,12 @@ BnModel::seq_num() const
 
 // @brief SEQノードを返す．
 BnSeq
-BnModel::seq_node(
+BnModel::seq(
   SizeType pos
 ) const
 {
   _check_seq_id(pos);
-  return BnSeq{mImpl, pos};
-}
-
-// @brief SEQノードのリストを返す．
-vector<BnSeq>
-BnModel::seq_node_list() const
-{
-  vector<BnSeq> ans_list(seq_num());
-  for ( SizeType i = 0; i < seq_num(); ++ i ) {
-    ans_list[i] = BnSeq{mImpl, i};
-  }
-  return ans_list;
+  return ModelImpl::new_seq(mImpl, pos);
 }
 
 // @brief 関数情報の数を返す．
@@ -184,7 +172,7 @@ BnModel::func(
     buf << "'func_id'(" << func_id << ") is out of range";
     throw std::out_of_range{buf.str()};
   }
-  return BnFunc{mImpl, func_id};
+  return ModelImpl::new_func(mImpl, func_id);
 }
 
 // @brief オプション情報を表す JSON オブジェクトを返す．
@@ -275,7 +263,7 @@ BnModel::print(
       << " = " << node_name(output(i)) << endl;
   }
   for ( SizeType i = 0; i < seq_num(); ++ i ) {
-    auto seq = seq_node(i);
+    auto seq = this->seq(i);
     s << "SEQ#" << i << "[" << seq_name(i) << "]:"
       << " type = " << seq.type()
       << " output = " << node_name(seq.data_output())
@@ -323,28 +311,6 @@ BnModel::print(
       func(id).print(s);
     }
   }
-}
-
-// @brief ID 番号から BnNode を作る．
-BnNode
-BnModel::from_id(
-  SizeType id
-) const
-{
-  return BnNode{mImpl, id};
-}
-
-// @brief ID 番号のリストから vector<BnNode> を作る．
-vector<BnNode>
-BnModel::from_id_list(
-  const vector<SizeType>& id_list
-) const
-{
-  vector<BnNode> node_list;
-  for ( auto id: id_list ) {
-    node_list.push_back(from_id(id));
-  }
-  return node_list;
 }
 
 // @brief vector<BnNode> から ID番号のリストを取り出す．

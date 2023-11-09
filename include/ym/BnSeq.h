@@ -52,18 +52,25 @@ class SeqImpl;
 //////////////////////////////////////////////////////////////////////
 class BnSeq
 {
+  friend class ModelImpl;
+
+private:
+
+  /// @brief コンストラクタ
+  ///
+  /// これは ModelImpl のみが使用する．
+  BnSeq(
+    const shared_ptr<const ModelImpl>& model, ///< [in] 親のモデル．
+    SizeType id                               ///< [in] DFF番号
+  );
+
+
 public:
 
   /// @brief 空のコンストラクタ
   ///
   /// 不正な値となる．
   BnSeq() = default;
-
-  /// @brief コンストラクタ
-  BnSeq(
-    const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
-    SizeType id                        ///< [in] DFF番号
-  );
 
   /// @brief デストラクタ
   ~BnSeq();
@@ -78,12 +85,8 @@ public:
   bool
   is_valid() const
   {
-    return mImpl != nullptr;
+    return mModel != nullptr;
   }
-
-  /// @brief 親の BnModel を返す．
-  BnModel
-  parent_model() const;
 
   /// @brief ID番号を返す．
   SizeType
@@ -91,6 +94,10 @@ public:
   {
     return mId;
   }
+
+  /// @brief 名前を返す．
+  string
+  name() const;
 
   /// @brief 種類を返す．
   BnSeqType
@@ -187,7 +194,7 @@ public:
     const BnSeq& right ///< [in] 比較対象のオブジェクト
   ) const
   {
-    return mImpl == right.mImpl && mId == right.mId;
+    return mModel == right.mModel && mId == right.mId;
   }
 
   /// @brief 非等価比較演算子
@@ -207,13 +214,7 @@ private:
 
   /// @brief 実体を返す．
   const SeqImpl&
-  seq_impl() const;
-
-  /// @brief ID 番号から BnNode を作る．
-  BnNode
-  from_id(
-    SizeType id
-  ) const;
+  _impl() const;
 
 
 private:
@@ -222,7 +223,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 実装本体
-  shared_ptr<ModelImpl> mImpl{nullptr};
+  shared_ptr<const ModelImpl> mModel{nullptr};
 
   // ID番号
   SizeType mId{BAD_ID};

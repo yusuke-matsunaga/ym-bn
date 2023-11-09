@@ -20,13 +20,13 @@ BEGIN_NAMESPACE_YM_BN
 
 // @brief コンストラクタ
 BnSeq::BnSeq(
-  const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
-  SizeType id                        ///< [in] ID番号
-) : mImpl{impl},
+  const shared_ptr<const ModelImpl>& model,
+  SizeType id
+) : mModel{model},
     mId{id}
 {
   if ( id == BAD_ID ) {
-    mImpl = nullptr;
+    mModel = nullptr;
   }
 }
 
@@ -35,98 +35,95 @@ BnSeq::~BnSeq()
 {
 }
 
-// @brief 親の BnModel を返す．
-BnModel
-BnSeq::parent_model() const
+// @brief 名前を返す．
+string
+BnSeq::name() const
 {
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnSeq:: invalid data"};
-  }
-  return BnModel{mImpl};
+  return mModel->seq_name(mId);
 }
 
 // @brief 種類を返す．
 BnSeqType
 BnSeq::type() const
 {
-  return seq_impl().type();
+  return _impl().type();
 }
 
 // @brief DFFタイプの時に true を返す．
 bool
 BnSeq::is_dff() const
 {
-  return seq_impl().is_dff();
+  return _impl().is_dff();
 }
 
 // @brief ラッチタイプの時に true を返す．
 bool
 BnSeq::is_latch() const
 {
-  return seq_impl().is_latch();
+  return _impl().is_latch();
 }
 
 // @brief セルタイプの時に true を返す．
 bool
 BnSeq::is_cell() const
 {
-  return seq_impl().is_cell();
+  return _impl().is_cell();
 }
 
 // @brief データ入力ノードを返す．
 BnNode
 BnSeq::data_src() const
 {
-  return from_id(seq_impl().data_src());
+  return ModelImpl::new_node(mModel, _impl().data_src());
 }
 
 // @brief クロック入力ノードを返す．
 BnNode
 BnSeq::clock() const
 {
-  return from_id(seq_impl().clock());
+  return ModelImpl::new_node(mModel, _impl().clock());
 }
 
 // @brief イネーブル入力ノードを返す．
 BnNode
 BnSeq::enable() const
 {
-  return from_id(seq_impl().enable());
+  return ModelImpl::new_node(mModel, _impl().enable());
 }
 
 // @brief クリア入力ノードを返す．
 BnNode
 BnSeq::clear() const
 {
-  return from_id(seq_impl().clear());
+  return ModelImpl::new_node(mModel, _impl().clear());
 }
 
 // @brief プリセット入力ノードを返す．
 BnNode
 BnSeq::preset() const
 {
-  return from_id(seq_impl().preset());
+  return ModelImpl::new_node(mModel, _impl().preset());
 }
 
 // @brief クリアとプリセットが衝突したときの挙動を返す．
 char
 BnSeq::rsval() const
 {
-  return seq_impl().rsval();
+  return _impl().rsval();
 }
 
 // @brief データ出力ノードを返す．
 BnNode
 BnSeq::data_output() const
 {
-  return from_id(seq_impl().data_output());
+  return ModelImpl::new_node(mModel, _impl().data_output());
 }
 
 // @brief セル番号を返す．
 SizeType
 BnSeq::cell_id() const
 {
-  return seq_impl().cell_id();
+  return _impl().cell_id();
 }
 
 // @brief セルを返す．
@@ -134,7 +131,7 @@ ClibCell
 BnSeq::cell() const
 {
   auto id = cell_id();
-  auto library = mImpl->library();
+  auto library = mModel->library();
   return library.cell(id);
 }
 
@@ -144,27 +141,17 @@ BnSeq::cell_pin(
   SizeType pos
 ) const
 {
-  return from_id(seq_impl().cell_pin(pos));
+  return ModelImpl::new_node(mModel, _impl().cell_pin(pos));
 }
 
 // @brief 実体を返す．
 const SeqImpl&
-BnSeq::seq_impl() const
+BnSeq::_impl() const
 {
   if ( !is_valid() ) {
     throw std::invalid_argument{"BnSeq: invalid data"};
   }
-  return mImpl->seq_node(mId);
+  return mModel->seq_impl(mId);
 }
-
-// @brief ID 番号から BnNode を作る．
-BnNode
-BnSeq::from_id(
-  SizeType id
-) const
-{
-  return BnNode{mImpl, id};
-}
-
 
 END_NAMESPACE_YM_BN

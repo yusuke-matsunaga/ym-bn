@@ -8,6 +8,8 @@
 
 #include <gtest/gtest.h>
 #include "ModelImpl.h"
+#include "ym/SopCover.h"
+#include "ym/TvFunc.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -80,7 +82,7 @@ TEST( ModelImplTest, new_node )
   auto id = model.new_node();
   EXPECT_EQ( 0, id );
 
-  auto& node = model.node(id);
+  auto& node = model.node_impl(id);
   EXPECT_EQ( BnNodeType::NONE, node.type() );
 }
 
@@ -89,7 +91,7 @@ TEST( ModelImplTest, new_input )
   ModelImpl model;
 
   auto id = model.new_input();
-  auto& node = model.node(id);
+  auto& node = model.node_impl(id);
   EXPECT_EQ( BnNodeType::INPUT, node.type() );
 }
 
@@ -99,7 +101,7 @@ TEST( ModelImplTest, new_seq_output )
 
   auto seq_id = model.new_dff();
   auto id = model.new_seq_output(seq_id);
-  auto& node = model.node(id);
+  auto& node = model.node_impl(id);
   EXPECT_EQ( BnNodeType::SEQ_OUTPUT, node.type() );
 }
 
@@ -112,7 +114,7 @@ TEST( ModelImplTest, new_output )
   auto oid = model.new_output(id);
 
   EXPECT_EQ( 1, model.output_num() );
-  EXPECT_EQ( id, model.output(oid) );
+  EXPECT_EQ( id, model.output_id(oid) );
 }
 
 TEST( ModelImplTest, new_primitive )
@@ -125,7 +127,7 @@ TEST( ModelImplTest, new_primitive )
   PrimType type = PrimType::Xor;
   auto id3 = model.new_primitive(fanin_list, type);
 
-  auto& node = model.node(id3);
+  auto& node = model.node_impl(id3);
   EXPECT_EQ( BnNodeType::PRIMITIVE, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
@@ -146,7 +148,7 @@ TEST( ModelImplTest, new_aig )
   bool inv2 = false;
   auto id3 = model.new_aig(id1, id2, inv1, inv2);
 
-  auto& node = model.node(id3);
+  auto& node = model.node_impl(id3);
   EXPECT_EQ( BnNodeType::AIG, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
@@ -167,7 +169,7 @@ TEST( ModelImplTest, new_func )
   SizeType func_id = 3;
   auto id3 = model.new_func(fanin_list, func_id);
 
-  auto& node = model.node(id3);
+  auto& node = model.node_impl(id3);
   EXPECT_EQ( BnNodeType::FUNC, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
@@ -191,7 +193,7 @@ TEST( ModelImplTest, new_cell )
   vector<SizeType> fanin_list{id1, id2};
   auto id3 = model.new_cell(fanin_list, cell);
 
-  auto& node = model.node(id3);
+  auto& node = model.node_impl(id3);
   EXPECT_EQ( BnNodeType::CELL, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
@@ -217,7 +219,7 @@ TEST( ModelImplTest, new_dff )
   model.set_clear(id0, clear_id);
   model.set_preset(id0, preset_id);
 
-  auto& seq = model.seq_node(id0);
+  auto& seq = model.seq_impl(id0);
   EXPECT_EQ( BnSeqType::DFF, seq.type() );
   EXPECT_EQ( src_id, seq.data_src() );
   EXPECT_EQ( clock_id, seq.clock() );
@@ -241,7 +243,7 @@ TEST( ModelImplTest, new_latch )
   model.set_enable(id0, enable_id);
   model.set_clear(id0, clear_id);
 
-  auto& seq = model.seq_node(id0);
+  auto& seq = model.seq_impl(id0);
   EXPECT_EQ( BnSeqType::LATCH, seq.type() );
   EXPECT_EQ( src_id, seq.data_src() );
   EXPECT_THROW( {seq.clock();}, std::invalid_argument );
@@ -269,7 +271,7 @@ TEST( ModelImplTest, new_seq_cell )
   model.set_seq_pin(id0, 1, src_id);
   model.set_seq_pin(id0, 2, output_id);
 
-  auto& seq = model.seq_node(id0);
+  auto& seq = model.seq_impl(id0);
   EXPECT_EQ( BnSeqType::CELL, seq.type() );
   EXPECT_THROW( {seq.data_src();}, std::invalid_argument );
   EXPECT_THROW( {seq.clock();}, std::invalid_argument );
@@ -288,7 +290,7 @@ TEST( ModelImplTest, set_input )
 
   auto id = model.new_node();
   model.set_input(id);
-  auto& node = model.node(id);
+  auto& node = model.node_impl(id);
   EXPECT_EQ( BnNodeType::INPUT, node.type() );
 }
 
@@ -303,7 +305,7 @@ TEST( ModelImplTest, set_primitive )
   PrimType type = PrimType::Xor;
   model.set_primitive(id3, fanin_list, type);
 
-  auto& node = model.node(id3);
+  auto& node = model.node_impl(id3);
   EXPECT_EQ( BnNodeType::PRIMITIVE, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
@@ -325,7 +327,7 @@ TEST( ModelImplTest, set_aig )
   bool inv2 = false;
   model.set_aig(id3, id1, id2, inv1, inv2);
 
-  auto& node = model.node(id3);
+  auto& node = model.node_impl(id3);
   EXPECT_EQ( BnNodeType::AIG, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
@@ -347,7 +349,7 @@ TEST( ModelImplTest, set_func )
   SizeType func_id = 3;
   model.set_func(id3, fanin_list, func_id);
 
-  auto& node = model.node(id3);
+  auto& node = model.node_impl(id3);
   EXPECT_EQ( BnNodeType::FUNC, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
@@ -372,7 +374,7 @@ TEST( ModelImplTest, set_cell )
   vector<SizeType> fanin_list{id1, id2};
   model.set_cell(id3, fanin_list, cell);
 
-  auto& node = model.node(id3);
+  auto& node = model.node_impl(id3);
   EXPECT_EQ( BnNodeType::CELL, node.type() );
   EXPECT_EQ( fanin_list.size(), node.fanin_num() );
   for ( SizeType i = 0; i < fanin_list.size(); ++ i ) {
@@ -401,7 +403,7 @@ TEST( ModelImplTest, set_data_src_dff )
   auto id = model.new_dff();
   auto src_id = model.new_node();
   model.set_data_src(id, src_id);
-  auto& seq = model.seq_node(id);
+  auto& seq = model.seq_impl(id);
   EXPECT_EQ( src_id, seq.data_src() );
 }
 
@@ -412,7 +414,7 @@ TEST( ModelImplTest, set_clock )
   auto id = model.new_dff();
   auto clock_id = model.new_node();
   model.set_clock(id, clock_id);
-  auto& seq = model.seq_node(id);
+  auto& seq = model.seq_impl(id);
   EXPECT_EQ( clock_id, seq.clock() );
 }
 
@@ -423,7 +425,7 @@ TEST( ModelImplTest, set_enable )
   auto id = model.new_latch();
   auto enable_id = model.new_node();
   model.set_enable(id, enable_id);
-  auto& seq = model.seq_node(id);
+  auto& seq = model.seq_impl(id);
   EXPECT_EQ( enable_id, seq.enable() );
 }
 
@@ -434,7 +436,7 @@ TEST( ModelImplTest, set_clear_dff )
   auto id = model.new_dff();
   auto clear_id = model.new_node();
   model.set_clear(id, clear_id);
-  auto& seq = model.seq_node(id);
+  auto& seq = model.seq_impl(id);
   EXPECT_EQ( clear_id, seq.clear() );
 }
 
@@ -445,7 +447,7 @@ TEST( ModelImplTest, set_clear_latch )
   auto id = model.new_latch();
   auto clear_id = model.new_node();
   model.set_clear(id, clear_id);
-  auto& seq = model.seq_node(id);
+  auto& seq = model.seq_impl(id);
   EXPECT_EQ( clear_id, seq.clear() );
 }
 
@@ -456,7 +458,7 @@ TEST( ModelImplTest, set_preset_dff )
   auto id = model.new_dff();
   auto preset_id = model.new_node();
   model.set_preset(id, preset_id);
-  auto& seq = model.seq_node(id);
+  auto& seq = model.seq_impl(id);
   EXPECT_EQ( preset_id, seq.preset() );
 }
 
@@ -467,7 +469,7 @@ TEST( ModelImplTest, set_preset_latch )
   auto id = model.new_latch();
   auto preset_id = model.new_node();
   model.set_preset(id, preset_id);
-  auto& seq = model.seq_node(id);
+  auto& seq = model.seq_impl(id);
   EXPECT_EQ( preset_id, seq.preset() );
 }
 
@@ -488,7 +490,7 @@ TEST( ModelImplTest, set_seq_pin )
   model.set_seq_pin(id, 1, src);
   model.set_seq_pin(id, 2, output);
 
-  auto& seq = model.seq_node(id);
+  auto& seq = model.seq_impl(id);
   EXPECT_EQ( clock, seq.cell_pin(0) );
   EXPECT_EQ( src, seq.cell_pin(1) );
   EXPECT_EQ( output, seq.cell_pin(2) );
@@ -506,7 +508,7 @@ TEST( ModelImplTest, reg_cover )
   char opat = '1';
   auto id1 = model.reg_cover(ni, cube_list, opat);
 
-  auto& func = model.func(id1);
+  auto& func = model.func_impl(id1);
   EXPECT_EQ( ni, func.input_num() );
   auto& cover = func.input_cover();
   EXPECT_EQ( cube_list.size(), cover.cube_num() );
@@ -522,7 +524,7 @@ TEST( ModelImplTest, reg_cover )
 
   EXPECT_NE( id1, id2 );
 
-  auto& func2 = model.func(id2);
+  auto& func2 = model.func_impl(id2);
   EXPECT_EQ( ni, func2.input_num() );
   auto& cover2 = func2.input_cover();
   EXPECT_EQ( cube_list2.size(), cover2.cube_num() );
@@ -538,7 +540,7 @@ TEST( ModelImplTest, reg_expr )
   auto expr = Expr::from_rep_string("A2P0N1");
   auto id = model.reg_expr(expr);
 
-  EXPECT_EQ( expr, model.func(id).expr() );
+  EXPECT_EQ( expr, model.func_impl(id).expr() );
 }
 
 TEST( ModelImplTest, reg_tvfunc )
@@ -550,8 +552,8 @@ TEST( ModelImplTest, reg_tvfunc )
   auto func2 = TvFunc{2, vector<int>{0, 1, 1, 0}};
   auto id2 = model.reg_tvfunc(func2);
 
-  EXPECT_EQ( func1, model.func(id1).tvfunc() );
-  EXPECT_EQ( func2, model.func(id2).tvfunc() );
+  EXPECT_EQ( func1, model.func_impl(id1).tvfunc() );
+  EXPECT_EQ( func2, model.func_impl(id2).tvfunc() );
 }
 
 END_NAMESPACE_YM_BN

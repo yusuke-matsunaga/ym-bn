@@ -11,6 +11,7 @@
 #include "ym/BnModel.h"
 //#include "ym/Iscas89Handler.h"
 #include "ModelImpl.h"
+#include "ym/Expr.h"
 #include "ym/MsgMgr.h"
 
 

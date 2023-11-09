@@ -49,7 +49,7 @@ BnModel::_check_node(
   if ( !node.is_valid() ) {
     throw std::invalid_argument{"'node' is invalid."};
   }
-  if ( node.parent_model() != *this ) {
+  if ( !mImpl->check(node) ) {
     throw std::invalid_argument{"'node' does not belong to this model."};
   }
 }
@@ -63,7 +63,7 @@ BnModel::_check_seq(
   if ( !seq.is_valid() ) {
     throw std::invalid_argument{"'seq' is invalid."};
   }
-  if ( seq.parent_model() != *this ) {
+  if ( !mImpl->check(seq) ) {
     throw std::invalid_argument{"'seq' does not belong to this model."};
   }
 }
@@ -77,7 +77,7 @@ BnModel::_check_func(
   if ( !func.is_valid() ) {
     throw std::invalid_argument{"'func' is invalid."};
   }
-  if ( func.parent_model() != *this ) {
+  if ( !mImpl->check(func) ) {
     throw std::invalid_argument{"'func' does not belong to this model."};
   }
 }

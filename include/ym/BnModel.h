@@ -64,24 +64,12 @@ class ModelImpl;
 /// - 複数の入出力をまとめてポートを定義することもできる．
 ///   ポート情報もオプションで保持される．
 ///
-/// - 実装は本体の ModelImpl の shared_ptr<> を持つ．
+/// - 実装は本体の ModelImpl を指す ModelPtr のみを持つ．
 ///   ただし，同一の BnModel に属する BnNode, BnSeq 内でしか
 ///   共有しない．
 //////////////////////////////////////////////////////////////////////
 class BnModel
 {
-  friend BnNode; // for parent_model()
-  friend BnSeq;  // for parent_model()
-  friend BnFunc; // for parent_model()
-
-private:
-
-  /// @brief shared_ptr<ModelImpl> からのキャストコンストラクタ
-  BnModel(
-    const shared_ptr<ModelImpl>& impl ///< [in] 実装オブジェクト
-  );
-
-
 public:
 
   /// @brief 空のコンストラクタ
@@ -212,7 +200,7 @@ public:
   ) const;
 
   /// @brief 入力のノードのリストを返す．
-  vector<BnNode>
+  BnNodeList
   input_list() const;
 
   /// @brief 出力数を返す．
@@ -228,7 +216,7 @@ public:
   ) const;
 
   /// @brief 出力のノードのリストを返す．
-  vector<BnNode>
+  BnNodeList
   output_list() const;
 
   /// @brief 論理ノード数を返す．
@@ -244,7 +232,7 @@ public:
   ) const;
 
   /// @brief 論理ノードのリストを返す．
-  vector<BnNode>
+  BnNodeList
   logic_list() const;
 
   /// @brief SEQノード数を返す．
@@ -255,13 +243,9 @@ public:
   ///
   /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnSeq
-  seq_node(
+  seq(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < seq_num() )
   ) const;
-
-  /// @brief SEQノードのリストを返す．
-  vector<BnSeq>
-  seq_node_list() const;
 
   /// @brief 関数情報の数を返す．
   SizeType
@@ -620,18 +604,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief ID 番号から BnNode を作る．
-  BnNode
-  from_id(
-    SizeType id
-  ) const;
-
-  /// @brief ID 番号のリストから vector<BnNode> を作る．
-  vector<BnNode>
-  from_id_list(
-    const vector<SizeType>& id_list
-  ) const;
 
   /// @brief vector<BnNode> から ID番号のリストを取り出す．
   ///

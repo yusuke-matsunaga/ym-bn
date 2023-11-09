@@ -44,17 +44,7 @@ public:
   static
   PyObject*
   ToPyObject(
-    BnNode val ///< [in] 値
-  );
-
-  /// @brief BnNode のリストを表す PyObject を作る．
-  /// @return 生成した PyObject を返す．
-  ///
-  /// 返り値は新しい参照が返される．
-  static
-  PyObject*
-  ToPyList(
-    const vector<BnNode>& val_list ///< [in] 値のリスト
+    const BnNode& val ///< [in] 値
   );
 
   /// @brief PyObject が BnNode タイプか調べる．
@@ -69,7 +59,7 @@ public:
   ///
   /// Check(obj) == true であると仮定している．
   static
-  BnNode
+  const BnNode&
   Get(
     PyObject* obj ///< [in] 変換元の PyObject
   );

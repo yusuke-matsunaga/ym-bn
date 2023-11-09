@@ -9,9 +9,11 @@
 /// All rights reserved.
 
 #include "ym/bn.h"
-#include "ym/Expr.h"
-#include "ym/TvFunc.h"
-#include "ym/Bdd.h"
+#include "ym/logic.h"
+#include "ym/BnNode.h"
+#include "ym/BnNodeList.h"
+#include "ym/BnSeq.h"
+#include "ym/BnFunc.h"
 #include "ym/BddMgr.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
@@ -40,7 +42,14 @@ public:
   );
 
   /// @brief デストラクタ
-  ~ModelImpl() = default;
+  ~ModelImpl();
+
+  /// @brief 複製を返す．
+  ModelImpl*
+  copy() const
+  {
+    return new ModelImpl{*this};
+  }
 
 
 public:
@@ -128,8 +137,8 @@ public:
 
   /// @brief 入力のノード番号を返す．
   SizeType
-  input(
-    SizeType pos ///< [in] 位置 ( 0 <= pos < input_num() )
+  input_id(
+    SizeType pos
   ) const
   {
     return mInputList[pos];
@@ -151,8 +160,8 @@ public:
 
   /// @brief 出力のノード番号を返す．
   SizeType
-  output(
-    SizeType pos ///< [in] 位置 ( 0 <= pos < output_num() )
+  output_id(
+    SizeType pos
   ) const
   {
     return mOutputList[pos];
@@ -174,8 +183,8 @@ public:
 
   /// @brief 論理ノードのノード番号を返す．
   SizeType
-  logic(
-    SizeType pos ///< [in] 位置 ( 0 <= pos < logic_num() )
+  logic_id(
+    SizeType pos ///< [in] 位置
   ) const
   {
     return mLogicList[pos];
@@ -190,7 +199,7 @@ public:
 
   /// @brief ノードを取り出す．
   const NodeImpl&
-  node(
+  node_impl(
     SizeType id ///< [in] ID番号
   ) const
   {
@@ -206,7 +215,7 @@ public:
 
   /// @brief SEQノードを取り出す．
   const SeqImpl&
-  seq_node(
+  seq_impl(
     SizeType id ///< [in] ID番号
   ) const
   {
@@ -222,11 +231,88 @@ public:
 
   /// @brief 関数情報を返す．
   const FuncImpl&
-  func(
+  func_impl(
     SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
   ) const
   {
     return *mFuncArray[func_id];
+  }
+
+  /// @brief BnNode が自分のものか調べる．
+  bool
+  check(
+    BnNode node
+  ) const
+  {
+    return node.mModel.get() == this;
+  }
+
+  /// @brief BnSeq が自分のものか調べる．
+  bool
+  check(
+    BnSeq seq
+  ) const
+  {
+    return seq.mModel.get() == this;
+  }
+
+  /// @brief BnFunc が自分のものか調べる．
+  bool
+  check(
+    BnFunc func
+  ) const
+  {
+    return func.mModel.get() == this;
+  }
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // プロキシオブジェクトの生成
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ノードを生成する．
+  static
+  BnNode
+  new_node(
+    const shared_ptr<const ModelImpl>& model,
+    SizeType id
+  )
+  {
+    return BnNode{model, id};
+  }
+
+  /// @brief ノードリストを生成する．
+  static
+  BnNodeList
+  new_node_list(
+    const shared_ptr<const ModelImpl>& model,
+    const vector<SizeType>& id_list
+  )
+  {
+    return BnNodeList{model, id_list};
+  }
+
+  /// @brief SEQを生成する．
+  static
+  BnSeq
+  new_seq(
+    const shared_ptr<const ModelImpl>& model,
+    SizeType id
+  )
+  {
+    return BnSeq{model, id};
+  }
+
+  /// @brief 論理関数を生成する．
+  static
+  BnFunc
+  new_func(
+    const shared_ptr<const ModelImpl>& model,
+    SizeType id
+  )
+  {
+    return BnFunc{model, id};
   }
 
 

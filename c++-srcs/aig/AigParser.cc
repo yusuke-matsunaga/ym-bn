@@ -159,7 +159,7 @@ AigParser::read_aag(
 
   // ラッチのソースが定義されているかチェック
   for ( SizeType i = 0; i < mModel->seq_num(); ++ i ) {
-    auto& seq = mModel->seq_node(i);
+    auto& seq = mModel->seq_impl(i);
     auto src = seq.data_src();
     ostringstream buf;
     buf << "Latch#" << i << "(Node#" << seq.data_output() << ")";
@@ -169,7 +169,7 @@ AigParser::read_aag(
   }
   // 出力のソースが定義されているかのチェック
   for ( SizeType i = 0; i < mModel->output_num(); ++ i ) {
-    auto id = mModel->output(i);
+    auto id = mModel->output_id(i);
     ostringstream buf;
     buf << "Output#" << i;
     if ( !check_defined(id, buf.str()) ) {
@@ -178,7 +178,7 @@ AigParser::read_aag(
   }
   // 論理ノードのソースが定義されているかのチェック
   for ( auto id: mModel->logic_list() ) {
-    auto& node = mModel->node(id);
+    auto& node = mModel->node_impl(id);
     ostringstream buf;
     buf << "Node#" << id;
     for ( auto iid: node.fanin_list() ) {

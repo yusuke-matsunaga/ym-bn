@@ -8,6 +8,8 @@
 
 #include "ym/BnFunc.h"
 #include "ym/BnModel.h"
+#include "ym/Expr.h"
+#include "ym/SopCover.h"
 #include "ym/Bdd.h"
 #include "FuncImpl.h"
 #include "ModelImpl.h"
@@ -17,29 +19,19 @@ BEGIN_NAMESPACE_YM_BN
 
 // @brief 内容を指定したコンストラクタ
 BnFunc::BnFunc(
-  const shared_ptr<ModelImpl>& impl,
+  const shared_ptr<const ModelImpl>& model,
   SizeType id
-) : mImpl{impl},
+) : mModel{model},
     mId{id}
 {
   if ( mId == BAD_ID ) {
-    mImpl = nullptr;
+    mModel = nullptr;
   }
 }
 
 // @brief デストラクタ
 BnFunc::~BnFunc()
 {
-}
-
-// @brief 親の BnModel を返す．
-BnModel
-BnFunc::parent_model() const
-{
-  if ( !is_valid() ) {
-    throw std::invalid_argument{"BnFunc: invalid data"};
-  }
-  return BnModel{mImpl};
 }
 
 // @brief 種類を返す．
@@ -135,7 +127,7 @@ BnFunc::_impl() const
   if ( !is_valid() ) {
     throw std::invalid_argument{"BnFunc: invalid data"};
   }
-  return mImpl->func(mId);
+  return mModel->func_impl(mId);
 }
 
 END_NAMESPACE_YM_BN

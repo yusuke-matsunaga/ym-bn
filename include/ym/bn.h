@@ -39,7 +39,9 @@ const SizeType BAD_ID = -1;
 
 class BnModel;
 class BnNode;
+class BnNodeList;
 class BnSeq;
+class BnSeqList;
 class BnFunc;
 
 END_NAMESPACE_YM_BN
@@ -140,7 +142,9 @@ operator<<(
 
 using BN_NAMESPACE::BnModel;
 using BN_NAMESPACE::BnNode;
+using BN_NAMESPACE::BnNodeList;
 using BN_NAMESPACE::BnSeq;
+using BN_NAMESPACE::BnSeqList;
 using BN_NAMESPACE::BnFunc;
 
 END_NAMESPACE_YM

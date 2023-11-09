@@ -8,6 +8,7 @@
 
 #include "pym/PyBnFunc.h"
 #include "pym/PyBnModel.h"
+#include "pym/PySopCover.h"
 #include "pym/PyExpr.h"
 #include "pym/PyTvFunc.h"
 #include "pym/PyBdd.h"
@@ -67,17 +68,6 @@ BnFunc_is_valid(
 }
 
 PyObject*
-BnFunc_parent_model(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
-)
-{
-  auto& func = PyBnFunc::Get(self);
-  auto val = func.parent_model();
-  return PyBnModel::ToPyObject(val);
-}
-
-PyObject*
 BnFunc_is_cover(
   PyObject* self,
   PyObject* Py_UNUSED(args)
@@ -125,8 +115,6 @@ BnFunc_is_bdd(
 PyMethodDef BnFunc_methods[] = {
   {"is_valid", BnFunc_is_valid, METH_NOARGS,
    PyDoc_STR("return True if valid")},
-  {"parent_model", BnFunc_parent_model, METH_NOARGS,
-   PyDoc_STR("return parent model")},
   {"is_cover", BnFunc_is_cover, METH_NOARGS,
    PyDoc_STR("return True if cover-type")},
   {"is_expr", BnFunc_is_expr, METH_NOARGS,
@@ -144,7 +132,7 @@ BnFunc_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::Get(self);
   auto id = func.id();
   return PyLong_FromLong(id);
 }
@@ -155,7 +143,7 @@ BnFunc_type(
   void* Py_UNUSED(closure)
 )
 {
-  auto func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::Get(self);
   auto type = func.type();
   ostringstream buf;
   buf << type;
@@ -169,16 +157,12 @@ BnFunc_input_cover(
 )
 {
   try {
-    auto func = PyBnFunc::Get(self);
-#if 0
-    auto val& = func.input_cover();
-    return Py_BuildValue("k", val);
-#else
-    Py_RETURN_NONE;
-#endif
+    auto& func = PyBnFunc::Get(self);
+    auto& val = func.input_cover();
+    return PySopCover::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnFunc.input_cover");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -190,13 +174,13 @@ BnFunc_output_pat(
 )
 {
   try {
-    auto func = PyBnFunc::Get(self);
+    auto& func = PyBnFunc::Get(self);
     auto val = func.output_pat();
     char buf[] = {val, '\0'};
     return Py_BuildValue("s", buf);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnFunc.output_pat");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -208,12 +192,12 @@ BnFunc_expr(
 )
 {
   try {
-    auto func = PyBnFunc::Get(self);
+    auto& func = PyBnFunc::Get(self);
     auto val = func.expr();
     return PyExpr::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnFunc.expr");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -225,15 +209,14 @@ BnFunc_tvfunc(
 )
 {
   try {
-    auto func = PyBnFunc::Get(self);
-    auto& val = func.tvfunc();
+    auto& func = PyBnFunc::Get(self);
+    auto val = func.tvfunc();
     return PyTvFunc::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnFunc.tvfunc");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
-
 }
 
 PyObject*
@@ -243,12 +226,12 @@ BnFunc_bdd(
 )
 {
   try {
-    auto func = PyBnFunc::Get(self);
+    auto& func = PyBnFunc::Get(self);
     auto val = func.bdd();
     return PyBdd::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnFunc.bdd");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -271,6 +254,28 @@ PyGetSetDef BnFunc_getsetters[] = {
    nullptr, nullptr}
 };
 
+// 比較関数
+PyObject*
+BnFunc_richcompfunc(
+  PyObject* self,
+  PyObject* other,
+  int op
+)
+{
+  if ( PyBnFunc::Check(self) &&
+       PyBnFunc::Check(other) ) {
+    auto& val1 = PyBnFunc::Get(self);
+    auto& val2 = PyBnFunc::Get(other);
+    if ( op == Py_EQ ) {
+      return PyBool_FromLong(val1 == val2);
+    }
+    if ( op == Py_NE ) {
+      return PyBool_FromLong(val1 != val2);
+    }
+  }
+  Py_RETURN_NOTIMPLEMENTED;
+}
+
 END_NONAMESPACE
 
 
@@ -286,6 +291,7 @@ PyBnFunc::init(
   BnFunc_Type.tp_dealloc = BnFunc_dealloc;
   BnFunc_Type.tp_flags = Py_TPFLAGS_DEFAULT;
   BnFunc_Type.tp_doc = PyDoc_STR("BnFunc object");
+  BnFunc_Type.tp_richcompare = BnFunc_richcompfunc;
   BnFunc_Type.tp_methods = BnFunc_methods;
   BnFunc_Type.tp_getset = BnFunc_getsetters;
   BnFunc_Type.tp_new = BnFunc_new;
@@ -305,7 +311,7 @@ PyBnFunc::init(
 // @brief BnFunc を PyObject に変換する．
 PyObject*
 PyBnFunc::ToPyObject(
-  BnFunc func
+  const BnFunc& func
 )
 {
   auto obj = BnFunc_Type.tp_alloc(&BnFunc_Type, 0);

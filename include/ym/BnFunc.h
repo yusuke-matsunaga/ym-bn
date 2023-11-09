@@ -23,15 +23,16 @@ class FuncImpl;
 //////////////////////////////////////////////////////////////////////
 class BnFunc
 {
-  friend class BnModel;
-  friend class BnNode;
+  friend class ModelImpl;
 
 private:
 
   /// @brief 内容を指定したコンストラクタ
+  ///
+  /// この関数は ModelImpl のみが使用する．
   BnFunc(
-    const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
-    SizeType id                        ///< [in] 関数番号
+    const shared_ptr<const ModelImpl>& model, ///< [in] 親のモデル
+    SizeType id                               ///< [in] 関数番号
   );
 
 
@@ -55,12 +56,8 @@ public:
   bool
   is_valid() const
   {
-    return mImpl != nullptr;
+    return mModel != nullptr;
   }
-
-  /// @brief 親の BnModel を返す．
-  BnModel
-  parent_model() const;
 
   /// @brief 関数番号を返す．
   SizeType
@@ -141,7 +138,7 @@ public:
     const BnFunc& right ///< [in] 比較対象のオブジェクト
   ) const
   {
-    return mImpl == right.mImpl && mId == right.mId;
+    return mModel == right.mModel && mId == right.mId;
   }
 
   /// @brief 非等価比較演算子
@@ -170,7 +167,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // モデルの実装本体
-  shared_ptr<ModelImpl> mImpl{nullptr};
+  shared_ptr<const ModelImpl> mModel{nullptr};
 
   // 関数番号
   SizeType mId{BAD_ID};

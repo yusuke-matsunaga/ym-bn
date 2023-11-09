@@ -31,7 +31,7 @@ public:
   );
 
   /// @brief デストラクタ
-  ~FuncImpl_Cover() = default;
+  ~FuncImpl_Cover();
 
 
 public:

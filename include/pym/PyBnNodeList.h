@@ -1,8 +1,8 @@
-#ifndef PYBNSEQ_H
-#define PYBNSEQ_H
+#ifndef PYBNNODELIST_H
+#define PYBNNODELIST_H
 
-/// @file PyBnSeq.h
-/// @brief PyBnSeq のヘッダファイル
+/// @file PyBnNodeList.h
+/// @brief PyBnNodeList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -11,18 +11,18 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include "ym/BnSeq.h"
+#include "ym/BnNodeList.h"
 
 
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PyBnSeq PyBnSeq.h "PyBnSeq.h"
-/// @brief Python 用の BnSeq 拡張
+/// @class PyBnNodeList PyBnNodeList.h "PyBnNodeList.h"
+/// @brief Python 用の BnNodeList 拡張
 ///
 /// 複数の関数をひとまとめにしているだけなので実は名前空間として用いている．
 //////////////////////////////////////////////////////////////////////
-class PyBnSeq
+class PyBnNodeList
 {
 public:
   //////////////////////////////////////////////////////////////////////
@@ -37,34 +37,34 @@ public:
     PyObject* m ///< [in] 親のモジュールを表す PyObject
   );
 
-  /// @brief BnSeq を表す PyObject を作る．
+  /// @brief BnNodeList を表す PyObject を作る．
   /// @return 生成した PyObject を返す．
   ///
   /// 返り値は新しい参照が返される．
   static
   PyObject*
   ToPyObject(
-    const BnSeq& val ///< [in] 値
+    const BnNodeList& val ///< [in] 値
   );
 
-  /// @brief PyObject が BnSeq タイプか調べる．
+  /// @brief PyObject が BnNodeList タイプか調べる．
   static
   bool
   Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
-  /// @brief BnSeq を表す PyObject から BnSeq を取り出す．
-  /// @return BnSeq を返す．
+  /// @brief BnNodeList を表す PyObject から BnNodeList を取り出す．
+  /// @return BnNodeList を返す．
   ///
   /// Check(obj) == true であると仮定している．
   static
-  const BnSeq&
+  const BnNodeList&
   Get(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 
-  /// @brief BnSeq を表すオブジェクトの型定義を返す．
+  /// @brief BnNodeList を表すオブジェクトの型定義を返す．
   static
   PyTypeObject*
   _typeobject();
@@ -73,4 +73,4 @@ public:
 
 END_NAMESPACE_YM
 
-#endif // PYBNSEQ_H
+#endif // PYBNNODELIST_H

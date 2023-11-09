@@ -44,7 +44,7 @@ public:
   static
   PyObject*
   ToPyObject(
-    BnFunc val ///< [in] 値
+    const BnFunc& val ///< [in] 値
   );
 
   /// @brief PyObject が BnFunc タイプか調べる．

@@ -54,7 +54,7 @@ BnModel::new_input(
 )
 {
   auto id = mImpl->new_input();
-  BnNode node{mImpl, id};
+  auto node = ModelImpl::new_node(mImpl, id);
   if ( name != string{} ) {
     auto iid = node.input_id();
     mImpl->set_input_name(iid, name);
@@ -85,7 +85,8 @@ BnModel::new_primitive(
 )
 {
   auto input_id_list = to_id_list(input_list);
-  return BnNode{mImpl, mImpl->new_primitive(input_id_list, type)};
+  auto id = mImpl->new_primitive(input_id_list, type);
+  return ModelImpl::new_node(mImpl, id);
 }
 
 // @brief 新しいAIG型の論理ノードを作る．
@@ -99,7 +100,8 @@ BnModel::new_aig(
 {
   _check_node(src0);
   _check_node(src1);
-  return BnNode{mImpl, mImpl->new_aig(src0.id(), src1.id(), inv0, inv1)};
+  auto id = mImpl->new_aig(src0.id(), src1.id(), inv0, inv1);
+  return ModelImpl::new_node(mImpl, id);
 }
 
 // @brief 関数型の論理ノードを作る．
@@ -114,7 +116,8 @@ BnModel::new_func(
     throw std::invalid_argument{"'input_list' is not compatible with 'func'."};
   }
   auto input_id_list = to_id_list(input_list);
-  return BnNode{mImpl, mImpl->new_func(input_id_list, func.id())};
+  auto id = mImpl->new_func(input_id_list, func.id());
+  return ModelImpl::new_node(mImpl, id);
 }
 
 // @brief セル型の論理ノードを作る．
@@ -130,7 +133,8 @@ BnModel::new_cell(
     throw std::invalid_argument{"the size of input_list differs from the cell's input size."};
   }
   auto input_id_list = to_id_list(input_list);
-  return BnNode{mImpl, mImpl->new_cell(input_id_list, cell)};
+  auto id = mImpl->new_cell(input_id_list, cell);
+  return ModelImpl::new_node(mImpl, id);
 }
 
 // @brief DFFを作る．
@@ -145,7 +149,7 @@ BnModel::new_dff(
   if ( name != string{} ) {
     mImpl->set_seq_name(id, name);
   }
-  return BnSeq{mImpl, id};
+  return ModelImpl::new_seq(mImpl, id);
 }
 
 // @brief ラッチを作る．
@@ -160,7 +164,7 @@ BnModel::new_latch(
   if ( name != string{} ) {
     mImpl->set_seq_name(id, name);
   }
-  return BnSeq{mImpl, id};
+  return ModelImpl::new_seq(mImpl, id);
 }
 
 // @brief セルタイプのSEQノードを作る．
@@ -175,7 +179,7 @@ BnModel::new_seq_cell(
   if ( name != string{} ) {
     mImpl->set_seq_name(id, name);
   }
-  return BnSeq{mImpl, id};
+  return ModelImpl::new_seq(mImpl, id);
 }
 
 // @brief DFFのソースノードをセットする．
@@ -260,7 +264,7 @@ BnModel::reg_cover(
 )
 {
   auto id = mImpl->reg_cover(input_num, cube_list, opat);
-  return BnFunc{mImpl, id};
+  return ModelImpl::new_func(mImpl, id);
 }
 
 // @brief 論理式を追加する．
@@ -270,17 +274,17 @@ BnModel::reg_expr(
 )
 {
   auto id = mImpl->reg_expr(expr);
-  return BnFunc{mImpl, id};
+  return ModelImpl::new_func(mImpl, id);
 }
 
 // @brief 真理値表を追加する．
 BnFunc
 BnModel::reg_tvfunc(
-  const TvFunc& func
+  const TvFunc& tvfunc
 )
 {
-  auto id = mImpl->reg_tvfunc(func);
-  return BnFunc{mImpl, id};
+  auto id = mImpl->reg_tvfunc(tvfunc);
+  return ModelImpl::new_func(mImpl, id);
 }
 
 // @brief BDDを追加する．
@@ -290,7 +294,7 @@ BnModel::reg_bdd(
 )
 {
   auto id = mImpl->reg_bdd(bdd);
-  return BnFunc{mImpl, id};
+  return ModelImpl::new_func(mImpl, id);
 }
 
 END_NAMESPACE_YM_BN

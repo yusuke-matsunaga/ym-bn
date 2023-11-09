@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-"""
+""" BnModel.read_blif() のテストプログラム
 
 :file: read_blif_test.py
 :author: Yusuke Matsunaga (松永 裕介)

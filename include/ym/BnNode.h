@@ -45,17 +45,16 @@ class NodeImpl;
 //////////////////////////////////////////////////////////////////////
 class BnNode
 {
-  friend class BnModel;
-  friend class BnSeq;
+  friend class ModelImpl;
 
 private:
 
   /// @brief 内容を指定したコンストラクタ
   ///
-  /// これは BnModel しか使えない．
+  /// これは ModelImpl のみが使用する．
   BnNode(
-    const shared_ptr<ModelImpl>& impl, ///< [in] 実装本体
-    SizeType id                        ///< [in] ノード番号
+    const shared_ptr<const ModelImpl>& model, ///< [in] 親のモデル．
+    SizeType id                               ///< [in] ノード番号
   );
 
 
@@ -79,12 +78,8 @@ public:
   bool
   is_valid() const
   {
-    return mImpl != nullptr;
+    return mModel != nullptr;
   }
-
-  /// @brief 親の BnModel を返す．
-  BnModel
-  parent_model() const;
 
   /// @brief ノード番号を返す．
   SizeType
@@ -160,7 +155,7 @@ public:
   ///
   /// - is_logic() が true の時のみ意味を持つ．
   /// - is_logic() が false の時は空リストを返す．
-  vector<BnNode>
+  BnNodeList
   fanin_list() const;
 
   /// @brief ノードのプリミティブタイプを返す．
@@ -199,7 +194,7 @@ public:
     const BnNode& right ///< [in] 比較対象のオブジェクト
   ) const
   {
-    return mImpl == right.mImpl && mId == right.mId;
+    return mModel == right.mModel && mId == right.mId;
   }
 
   /// @brief 非等価比較演算子
@@ -221,18 +216,6 @@ private:
   const NodeImpl&
   _impl() const;
 
-  /// @brief ID 番号から BnNode を作る．
-  BnNode
-  from_id(
-    SizeType id
-  ) const;
-
-  /// @brief ID 番号のリストから vector<BnNode> を作る．
-  vector<BnNode>
-  from_id_list(
-    const vector<SizeType>& id_list
-  ) const;
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -240,7 +223,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // モデルの実装本体
-  shared_ptr<ModelImpl> mImpl{nullptr};
+  shared_ptr<const ModelImpl> mModel{nullptr};
 
   // ノード番号
   SizeType mId{BAD_ID};

@@ -9,9 +9,15 @@
 #include <gtest/gtest.h>
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
+#include "ym/BnNodeList.h"
 #include "ym/BnSeq.h"
 #include "ym/BnFunc.h"
-#include "ModelImpl.h"
+#include "ym/SopCover.h"
+#include "ym/TvFunc.h"
+#include "ym/Bdd.h"
+#include "ym/BddMgr.h"
+#include "ym/ClibCellLibrary.h"
+#include "ym/ClibCell.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -25,13 +31,12 @@ TEST( BnModelTest, constructor1 )
   EXPECT_EQ( string{}, model.comment() );
   EXPECT_EQ( 0, model.node_num() );
   EXPECT_EQ( 0, model.input_num() );
-  EXPECT_EQ( vector<BnNode>{}, model.input_list() );
+  EXPECT_EQ( 0, model.input_list().size() );
   EXPECT_EQ( 0, model.output_num() );
-  EXPECT_EQ( vector<BnNode>{}, model.output_list() );
+  EXPECT_EQ( 0, model.output_list().size() );
   EXPECT_EQ( 0, model.logic_num() );
-  EXPECT_EQ( vector<BnNode>{}, model.logic_list() );
+  EXPECT_EQ( 0, model.logic_list().size() );
   EXPECT_EQ( 0, model.seq_num() );
-  EXPECT_EQ( vector<BnSeq>{}, model.seq_node_list() );
   EXPECT_EQ( 0, model.func_num() );
 }
 
@@ -70,11 +75,11 @@ TEST( BnModelTest, logic_bad )
   EXPECT_THROW( {model.logic(0);}, std::out_of_range );
 }
 
-TEST( BnModelTest, seq_node_bad )
+TEST( BnModelTest, seq_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.seq_node(0);}, std::out_of_range );
+  EXPECT_THROW( {model.seq(0);}, std::out_of_range );
 }
 
 TEST( BnModelTest, func_bad )
@@ -136,12 +141,19 @@ TEST( BnModelTest, reg_expr )
 
 TEST( BnModelTest, reg_tvfunc )
 {
-  BnModel model;
-
   auto v0 = TvFunc::make_posi_literal(3, 0);
   auto v1 = TvFunc::make_posi_literal(3, 1);
   auto v2 = TvFunc::make_posi_literal(3, 2);
   auto tvfunc = v0 | v1 | v2;
+
+  BnModel model;
+
+  {
+    Literal lit0{0, false};
+    Literal lit1{1, false};
+    auto func0 = model.reg_cover(2, {{lit0, lit1}}, '0');
+  }
+
   auto func = model.reg_tvfunc(tvfunc);
 
   EXPECT_EQ( BnFuncType::TVFUNC, func.type() );
@@ -188,7 +200,6 @@ TEST( BnModelTest, new_input )
 
   EXPECT_TRUE( node.is_valid() );
   EXPECT_TRUE( node.is_input() );
-  EXPECT_EQ( model, node.parent_model() );
 }
 
 TEST( BnModelTest, new_primitive)
@@ -428,7 +439,6 @@ TEST( BnModelTest, new_dff)
   auto node = model.new_dff(rsval);
 
   EXPECT_TRUE( node.is_valid() );
-  EXPECT_EQ( model, node.parent_model() );
   EXPECT_EQ( BnSeqType::DFF, node.type() );
   EXPECT_TRUE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );
@@ -445,7 +455,6 @@ TEST( BnModelTest, new_dff)
   auto onode = node.data_output();
   EXPECT_TRUE( onode.is_valid() );
   EXPECT_TRUE( onode.is_seq_output() );
-  EXPECT_EQ( model, onode.parent_model() );
 }
 
 TEST( BnModelTest, new_latch)
@@ -455,7 +464,6 @@ TEST( BnModelTest, new_latch)
   auto node = model.new_latch();
 
   EXPECT_TRUE( node.is_valid() );
-  EXPECT_EQ( model, node.parent_model() );
   EXPECT_EQ( BnSeqType::LATCH, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_TRUE( node.is_latch() );
@@ -472,7 +480,6 @@ TEST( BnModelTest, new_latch)
   auto onode = node.data_output();
   EXPECT_TRUE( onode.is_valid() );
   EXPECT_TRUE( onode.is_seq_output() );
-  EXPECT_EQ( model, onode.parent_model() );
 }
 
 TEST( BnModelTest, new_seq_cell )
@@ -486,7 +493,6 @@ TEST( BnModelTest, new_seq_cell )
   auto node = model.new_seq_cell(cell);
 
   EXPECT_TRUE( node.is_valid() );
-  EXPECT_EQ( model, node.parent_model() );
   EXPECT_EQ( BnSeqType::CELL, node.type() );
   EXPECT_FALSE( node.is_dff() );
   EXPECT_FALSE( node.is_latch() );

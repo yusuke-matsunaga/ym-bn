@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ModelImpl.h"
+#include "ym/Bdd.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -35,6 +36,11 @@ ModelImpl::ModelImpl(
     auto new_func = func_ptr->copy(mBddMgr);
     mFuncArray.push_back(unique_ptr<FuncImpl>(new_func));
   }
+}
+
+// @brief デストラクタ
+ModelImpl::~ModelImpl()
+{
 }
 
 // @brief オプション情報を返す．

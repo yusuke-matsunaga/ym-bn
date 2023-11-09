@@ -9,8 +9,10 @@
 #include "pym/PyBnSeq.h"
 #include "pym/PyBnModel.h"
 #include "pym/PyBnNode.h"
+#include "pym/PyClibCell.h"
 #include "pym/PyModule.h"
 #include "ym/BnSeq.h"
+#include "ym/ClibCell.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -58,20 +60,9 @@ BnSeq_is_valid(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto dff = PyBnSeq::Get(self);
-  auto r = dff.is_valid();
+  auto& seq = PyBnSeq::Get(self);
+  auto r = seq.is_valid();
   return PyBool_FromLong(r);
-}
-
-PyObject*
-BnSeq_parent_model(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
-)
-{
-  auto dff = PyBnSeq::Get(self);
-  auto val = dff.parent_model();
-  return PyBnModel::ToPyObject(val);
 }
 
 PyObject*
@@ -80,8 +71,8 @@ BnSeq_is_dff(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto dff = PyBnSeq::Get(self);
-  auto r = dff.is_dff();
+  auto& seq = PyBnSeq::Get(self);
+  auto r = seq.is_dff();
   return PyBool_FromLong(r);
 }
 
@@ -91,8 +82,8 @@ BnSeq_is_latch(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto dff = PyBnSeq::Get(self);
-  auto r = dff.is_latch();
+  auto& seq = PyBnSeq::Get(self);
+  auto r = seq.is_latch();
   return PyBool_FromLong(r);
 }
 
@@ -102,8 +93,8 @@ BnSeq_is_cell(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto dff = PyBnSeq::Get(self);
-  auto r = dff.is_latch();
+  auto& seq = PyBnSeq::Get(self);
+  auto r = seq.is_cell();
   return PyBool_FromLong(r);
 }
 
@@ -118,15 +109,12 @@ BnSeq_cell_pin(
     return nullptr;
   }
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto ans = dff.cell_pin(pos);
+    auto& seq = PyBnSeq::Get(self);
+    auto ans = seq.cell_pin(pos);
     return PyBnNode::ToPyObject(ans);
   }
-  catch ( std::invalid_argument ) {
-    ostringstream buf;
-    buf << "Error occured in BnSeq::cell_pin("
-	<< pos << ").";
-    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -135,8 +123,6 @@ BnSeq_cell_pin(
 PyMethodDef BnSeq_methods[] = {
   {"is_valid", BnSeq_is_valid, METH_NOARGS,
    PyDoc_STR("return True if valid")},
-  {"parent_model", BnSeq_parent_model, METH_NOARGS,
-   PyDoc_STR("return parent model")},
   {"is_dff", BnSeq_is_dff, METH_NOARGS,
    PyDoc_STR("return True if D-FF type")},
   {"is_latch", BnSeq_is_latch, METH_NOARGS,
@@ -154,8 +140,8 @@ BnSeq_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto dff = PyBnSeq::Get(self);
-  auto id = dff.id();
+  auto& seq = PyBnSeq::Get(self);
+  auto id = seq.id();
   return PyLong_FromLong(id);
 }
 
@@ -165,9 +151,8 @@ BnSeq_name(
   void* Py_UNUSED(closure)
 )
 {
-  auto dff = PyBnSeq::Get(self);
-  auto model = dff.parent_model();
-  auto name = model.seq_name(dff.id());
+  auto& seq = PyBnSeq::Get(self);
+  auto name = seq.name();
   return Py_BuildValue("s", name.c_str());
 }
 
@@ -177,8 +162,8 @@ BnSeq_type(
   void* Py_UNUSED(closure)
 )
 {
-  auto dff = PyBnSeq::Get(self);
-  auto type = dff.type();
+  auto& seq = PyBnSeq::Get(self);
+  auto type = seq.type();
   ostringstream buf;
   buf << type;
   return Py_BuildValue("s", buf.str().c_str());
@@ -191,12 +176,12 @@ BnSeq_data_src(
 )
 {
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto val = dff.data_src();
+    auto& seq = PyBnSeq::Get(self);
+    auto val = seq.data_src();
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnSeq.data_src");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -208,12 +193,12 @@ BnSeq_clock(
 )
 {
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto val = dff.clock();
+    auto& seq = PyBnSeq::Get(self);
+    auto val = seq.clock();
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnSeq.clock");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -225,12 +210,12 @@ BnSeq_enable(
 )
 {
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto val = dff.enable();
+    auto& seq = PyBnSeq::Get(self);
+    auto val = seq.enable();
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnSeq.enable");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -242,12 +227,12 @@ BnSeq_clear(
 )
 {
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto val = dff.clear();
+    auto& seq = PyBnSeq::Get(self);
+    auto val = seq.clear();
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnSeq.clear");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -259,12 +244,12 @@ BnSeq_preset(
 )
 {
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto val = dff.preset();
+    auto& seq = PyBnSeq::Get(self);
+    auto val = seq.preset();
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnSeq.preset");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -276,29 +261,29 @@ BnSeq_data_output(
 )
 {
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto val = dff.data_output();
+    auto& seq = PyBnSeq::Get(self);
+    auto val = seq.data_output();
     return PyBnNode::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnSeq.data_output");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
 
 PyObject*
-BnSeq_cell_id(
+BnSeq_cell(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto val = dff.cell_id();
-    return Py_BuildValue("k", val);
+    auto& seq = PyBnSeq::Get(self);
+    auto val = seq.cell();
+    return PyClibCell::ToPyObject(val);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnSeq.cell_id");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -310,15 +295,15 @@ BnSeq_rsval(
 )
 {
   try {
-    auto dff = PyBnSeq::Get(self);
-    auto val = dff.rsval();
+    auto& seq = PyBnSeq::Get(self);
+    auto val = seq.rsval();
     char tmp[2];
     tmp[0] = val;
     tmp[1] = '\0';
     return Py_BuildValue("s", tmp);
   }
-  catch ( std::invalid_argument ) {
-    PyErr_SetString(PyExc_ValueError, "Error in BnSeq.rsval");
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
     return nullptr;
   }
 }
@@ -339,13 +324,34 @@ PyGetSetDef BnSeq_getsetters[] = {
    PyDoc_STR("preset node"), nullptr},
   {"data_output", BnSeq_data_output, nullptr,
    PyDoc_STR("data output node"), nullptr},
-  {"cell_id", BnSeq_cell_id, nullptr,
+  {"cell", BnSeq_cell, nullptr,
    PyDoc_STR("Cell ID"), nullptr},
   {"rsval", BnSeq_rsval, nullptr,
    PyDoc_STR("reset/set value"), nullptr},
   {nullptr, nullptr, nullptr,
    nullptr, nullptr}
 };
+
+PyObject*
+BnSeq_richcompfunc(
+  PyObject* self,
+  PyObject* other,
+  int op
+)
+{
+  if ( PyBnSeq::Check(self) &&
+       PyBnSeq::Check(other) ) {
+    auto& val1 = PyBnSeq::Get(self);
+    auto& val2 = PyBnSeq::Get(other);
+    if ( op == Py_EQ ) {
+      return PyBool_FromLong(val1 == val2);
+    }
+    if ( op == Py_NE ) {
+      return PyBool_FromLong(val1 != val2);
+    }
+  }
+  Py_RETURN_NOTIMPLEMENTED;
+}
 
 END_NONAMESPACE
 
@@ -362,6 +368,7 @@ PyBnSeq::init(
   BnSeq_Type.tp_dealloc = BnSeq_dealloc;
   BnSeq_Type.tp_flags = Py_TPFLAGS_DEFAULT;
   BnSeq_Type.tp_doc = PyDoc_STR("BnSeq object");
+  BnSeq_Type.tp_richcompare = BnSeq_richcompfunc;
   BnSeq_Type.tp_methods = BnSeq_methods;
   BnSeq_Type.tp_getset = BnSeq_getsetters;
   BnSeq_Type.tp_new = BnSeq_new;
@@ -381,28 +388,12 @@ PyBnSeq::init(
 // @brief BnSeq を PyObject に変換する．
 PyObject*
 PyBnSeq::ToPyObject(
-  BnSeq node
+  const BnSeq& node
 )
 {
   auto obj = BnSeq_Type.tp_alloc(&BnSeq_Type, 0);
   auto node_obj = reinterpret_cast<BnSeqObject*>(obj);
   node_obj->mPtr = new BnSeq{node};
-  return obj;
-}
-
-// @brief BnSeq のリストを表す PyObject を作る．
-PyObject*
-PyBnSeq::ToPyList(
-  const vector<BnSeq>& val_list
-)
-{
-  SizeType n = val_list.size();
-  auto obj = PyList_New(n);
-  for ( SizeType i = 0; i < n; ++ i ) {
-    auto& node = val_list[i];
-    auto node_obj = ToPyObject(node);
-    PyList_SetItem(obj, i, node_obj);
-  }
   return obj;
 }
 
@@ -416,7 +407,7 @@ PyBnSeq::Check(
 }
 
 // @brief BnSeq を表す PyObject から BnSeq を取り出す．
-BnSeq
+const BnSeq&
 PyBnSeq::Get(
   PyObject* obj
 )

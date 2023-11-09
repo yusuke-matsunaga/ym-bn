@@ -25,6 +25,11 @@ FuncImpl_Cover::FuncImpl_Cover(
 {
 }
 
+// @brief デストラクタ
+FuncImpl_Cover::~FuncImpl_Cover()
+{
+}
+
 // @brief コピーを作る．
 FuncImpl*
 FuncImpl_Cover::copy(

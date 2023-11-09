@@ -21,7 +21,6 @@ TEST(BnNodeTest, constructor1)
   BnNode node;
 
   EXPECT_FALSE( node.is_valid() );
-  EXPECT_THROW( {node.parent_model(); }, std::invalid_argument );
   EXPECT_THROW( {node.type(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_input(); }, std::invalid_argument );
   EXPECT_THROW( {node.is_seq_output(); }, std::invalid_argument );
