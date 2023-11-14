@@ -31,12 +31,12 @@ FuncImpl_Cover::~FuncImpl_Cover()
 }
 
 // @brief コピーを作る．
-FuncImpl*
+unique_ptr<FuncImpl>
 FuncImpl_Cover::copy(
   BddMgr& bdd_mgr
 ) const
 {
-  return new FuncImpl_Cover{*this};
+  return unique_ptr<FuncImpl>{new FuncImpl_Cover{*this}};
 }
 
 // @brief 関数の種類を返す．

@@ -31,10 +31,8 @@ ModelImpl::ModelImpl(
     mSeqArray{src.mSeqArray},
     mFuncArray(src.mFuncArray.size())
 {
-  mFuncArray.reserve(src.mFuncArray.size());
-  for ( auto& func_ptr: src.mFuncArray ) {
-    auto new_func = func_ptr->copy(mBddMgr);
-    mFuncArray.push_back(unique_ptr<FuncImpl>(new_func));
+  for ( SizeType i = 0; i < src.mFuncArray.size(); ++ i ) {
+    mFuncArray[i] = src.mFuncArray[i]->copy(mBddMgr);
   }
 }
 

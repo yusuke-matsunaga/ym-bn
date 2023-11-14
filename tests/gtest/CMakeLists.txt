@@ -57,17 +57,6 @@ ym_add_gtest( bn_ModelImpl_test
   "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
-if ( 0 )
-ym_add_gtest( bn_BnCover_test
-  BnCover_test.cc
-  $<TARGET_OBJECTS:ym_bn_obj_d>
-  $<TARGET_OBJECTS:ym_base_obj_d>
-  $<TARGET_OBJECTS:ym_json_obj_d>
-  $<TARGET_OBJECTS:ym_logic_obj_d>
-  $<TARGET_OBJECTS:ym_cell_obj_d>
-  )
-endif ()
-
 ym_add_gtest( bn_BnNode_test
   BnNode_test.cc
   $<TARGET_OBJECTS:ym_bn_obj_d>
@@ -91,6 +80,17 @@ ym_add_gtest( bn_BnSeq_test
   )
 
 ym_add_gtest( bn_BnModel_test
+  BnModel_test.cc
+  $<TARGET_OBJECTS:ym_bn_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_json_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  DEFINITIONS
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
+  )
+
+ym_add_gtest( bn_BnModel_copymove_test
   BnModel_test.cc
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>

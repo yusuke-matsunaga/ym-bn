@@ -40,6 +40,19 @@ PyTypeObject BnModelType = {
   PyVarObject_HEAD_INIT(nullptr, 0)
 };
 
+// ムーブコンストラクタを用いた BnModeObject の生成関数
+inline
+PyObject*
+new_obj(
+  BnModel&& src_model
+)
+{
+  auto obj = BnModelType.tp_alloc(&BnModelType, 0);
+  auto model_obj = reinterpret_cast<BnModelObject*>(obj);
+  model_obj->mPtr = new BnModel{std::move(src_model)};
+  return obj;
+}
+
 // 生成関数
 PyObject*
 BnModel_new(
@@ -102,7 +115,7 @@ BnModel_read_blif(
   }
   try {
     auto model = BnModel::read_blif(filename, cell_library);
-    return PyBnModel::ToPyObject(model);
+    return new_obj(std::move(model));
   }
   catch ( std::invalid_argument err ) {
     PyErr_SetString(PyExc_ValueError, err.what() );
@@ -130,7 +143,7 @@ BnModel_read_iscas89(
   }
   try {
     auto model = BnModel::read_iscas89(filename);
-    return PyBnModel::ToPyObject(model);
+    return new_obj(std::move(model));
   }
   catch ( std::invalid_argument err ) {
     PyErr_SetString(PyExc_ValueError, err.what());
@@ -158,7 +171,7 @@ BnModel_read_aag(
   }
   try {
     auto model = BnModel::read_aag(filename);
-    return PyBnModel::ToPyObject(model);
+    return new_obj(std::move(model));
   }
   catch ( std::invalid_argument err ) {
     PyErr_SetString(PyExc_ValueError, err.what());
@@ -186,7 +199,7 @@ BnModel_read_aig(
   }
   try {
     auto model = BnModel::read_aig(filename);
-    return PyBnModel::ToPyObject(model);
+    return new_obj(std::move(model));
   }
   catch ( std::invalid_argument err ) {
     PyErr_SetString(PyExc_ValueError, err.what());
@@ -214,7 +227,7 @@ BnModel_read_truth(
   }
   try {
     auto model = BnModel::read_truth(filename);
-    return PyBnModel::ToPyObject(model);
+    return new_obj(std::move(model));
   }
   catch ( std::invalid_argument err ) {
     PyErr_SetString(PyExc_ValueError, err.what());

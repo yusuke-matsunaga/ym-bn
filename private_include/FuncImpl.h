@@ -82,7 +82,7 @@ public:
 
   /// @brief コピーを作る．
   virtual
-  FuncImpl*
+  unique_ptr<FuncImpl>
   copy(
     BddMgr& bdd_mgr ///< [in] BddMgr
   ) const = 0;

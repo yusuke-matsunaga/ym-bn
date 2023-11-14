@@ -23,12 +23,12 @@ FuncImpl_Expr::FuncImpl_Expr(
 }
 
 // @brief コピーを作る．
-FuncImpl*
+unique_ptr<FuncImpl>
 FuncImpl_Expr::copy(
   BddMgr& bdd_mgr
 ) const
 {
-  return new FuncImpl_Expr{*this};
+  return unique_ptr<FuncImpl>{new FuncImpl_Expr{*this}};
 }
 
 // @brief 関数の種類を返す．
@@ -65,6 +65,8 @@ FuncImpl_Expr::print(
   ostream& s
 ) const
 {
+  s << "Expr" << endl
+    << mExpr.rep_string() << endl;
 }
 
 END_NAMESPACE_YM_BN

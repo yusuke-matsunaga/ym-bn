@@ -38,7 +38,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コピーを作る．
-  FuncImpl*
+  unique_ptr<FuncImpl>
   copy(
     BddMgr& bdd_mgr ///< [in] BddMgr
   ) const override;

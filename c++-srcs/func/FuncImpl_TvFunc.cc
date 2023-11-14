@@ -23,12 +23,12 @@ FuncImpl_TvFunc::FuncImpl_TvFunc(
 }
 
 // @brief コピーを作る．
-FuncImpl*
+unique_ptr<FuncImpl>
 FuncImpl_TvFunc::copy(
   BddMgr& bdd_mgr
 ) const
 {
-  return new FuncImpl_TvFunc{*this};
+  return unique_ptr<FuncImpl>{new FuncImpl_TvFunc{*this}};
 }
 
 // @brief 関数の種類を返す．

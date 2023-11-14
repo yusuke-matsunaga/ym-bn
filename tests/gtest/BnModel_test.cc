@@ -148,12 +148,6 @@ TEST( BnModelTest, reg_tvfunc )
 
   BnModel model;
 
-  {
-    Literal lit0{0, false};
-    Literal lit1{1, false};
-    auto func0 = model.reg_cover(2, {{lit0, lit1}}, '0');
-  }
-
   auto func = model.reg_tvfunc(tvfunc);
 
   EXPECT_EQ( BnFuncType::TVFUNC, func.type() );
@@ -528,92 +522,6 @@ TEST( BnModelTest, clear )
 
   EXPECT_EQ( 0, model.input_num() );
   EXPECT_EQ( 0, model.logic_num() );
-}
-
-TEST( BnModelTest, copy_constructor )
-{
-  BnModel model;
-
-  auto input1 = model.new_input();
-  auto input2 = model.new_input();
-  vector<BnNode> fanin_list{input1, input2};
-  PrimType type = PrimType::And;
-  auto node = model.new_primitive(type, fanin_list);
-
-  EXPECT_EQ( 2, model.input_num() );
-  EXPECT_EQ( 1, model.logic_num() );
-
-  BnModel copied_model{model};
-
-  model.clear();
-
-  EXPECT_EQ( 0, model.input_num() );
-  EXPECT_EQ( 0, model.logic_num() );
-
-  EXPECT_EQ( 2, copied_model.input_num() );
-  EXPECT_EQ( 1, copied_model.logic_num() );
-}
-
-TEST( BnModelTest, copy_assignment )
-{
-  BnModel model;
-
-  auto input1 = model.new_input();
-  auto input2 = model.new_input();
-  vector<BnNode> fanin_list{input1, input2};
-  PrimType type = PrimType::And;
-  auto node = model.new_primitive(type, fanin_list);
-
-  EXPECT_EQ( 2, model.input_num() );
-  EXPECT_EQ( 1, model.logic_num() );
-
-  auto copied_model = model;
-
-  model.clear();
-
-  EXPECT_EQ( 0, model.input_num() );
-  EXPECT_EQ( 0, model.logic_num() );
-
-  EXPECT_EQ( 2, copied_model.input_num() );
-  EXPECT_EQ( 1, copied_model.logic_num() );
-}
-
-TEST( BnModelTest, move_constructor )
-{
-  BnModel model;
-
-  auto input1 = model.new_input();
-  auto input2 = model.new_input();
-  vector<BnNode> fanin_list{input1, input2};
-  PrimType type = PrimType::And;
-  auto node = model.new_primitive(type, fanin_list);
-
-  EXPECT_EQ( 2, model.input_num() );
-  EXPECT_EQ( 1, model.logic_num() );
-
-  BnModel moved_model{std::move(model)};
-
-  EXPECT_EQ( 2, moved_model.input_num() );
-  EXPECT_EQ( 1, moved_model.logic_num() );
-}
-
-TEST( BnModelTest, move_assignment )
-{
-  BnModel model;
-
-  auto input1 = model.new_input();
-  auto input2 = model.new_input();
-  vector<BnNode> fanin_list{input1, input2};
-  PrimType type = PrimType::And;
-  auto node = model.new_primitive(type, fanin_list);
-
-  EXPECT_EQ( 2, model.input_num() );
-  EXPECT_EQ( 1, model.logic_num() );
-
-  auto moved_model = std::move(model);
-
-  EXPECT_EQ( 2, moved_model.input_num() );
-  EXPECT_EQ( 1, moved_model.logic_num() );
 }
 
 END_NAMESPACE_YM_BN

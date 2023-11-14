@@ -24,13 +24,13 @@ FuncImpl_Bdd::FuncImpl_Bdd(
 }
 
 // @brief コピーを作る．
-FuncImpl*
+unique_ptr<FuncImpl>
 FuncImpl_Bdd::copy(
   BddMgr& bdd_mgr
 ) const
 {
   auto my_bdd = bdd_mgr.copy(mBdd);
-  return new FuncImpl_Bdd{my_bdd};
+  return unique_ptr<FuncImpl>{new FuncImpl_Bdd{my_bdd}};
 }
 
 // @brief 関数の種類を返す．

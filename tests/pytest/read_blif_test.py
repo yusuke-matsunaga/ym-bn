@@ -20,3 +20,4 @@ def test_read_blif():
 
     model = BnModel.read_blif(path)
     
+    model.print()
