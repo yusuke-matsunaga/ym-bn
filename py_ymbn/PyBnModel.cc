@@ -383,6 +383,27 @@ BnModel_seq_name(
 }
 
 PyObject*
+BnModel_func(
+  PyObject* self,
+  PyObject* args
+)
+{
+  SizeType pos{0};
+  if ( !PyArg_ParseTuple(args, "k", &pos) ) {
+    return nullptr;
+  }
+  try {
+    auto& model = PyBnModel::Get(self);
+    auto val = model.func(pos);
+    return PyBnFunc::ToPyObject(val);
+  }
+  catch ( std::out_of_range err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return nullptr;
+  }
+}
+
+PyObject*
 BnModel_print(
   PyObject* self,
   PyObject* args,
@@ -1281,6 +1302,9 @@ PyMethodDef BnModel_methods[] = {
   {"logic", BnModel_logic,
    METH_VARARGS,
    PyDoc_STR("returns logic node")},
+  {"func", BnModel_func,
+   METH_VARARGS,
+   PyDoc_STR("returns local function")},
   {"print",
    reinterpret_cast<PyCFunction>(BnModel_print),
    METH_VARARGS | METH_KEYWORDS,

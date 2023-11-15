@@ -37,4 +37,28 @@ def test_input_bad():
 
     with pytest.raises(ValueError) as e:
         _ = model.input(0)
+
+def test_output_bad():
+    model = BnModel()
+
+    with pytest.raises(ValueError) as e:
+        _ = model.output(0)
     
+def test_logic_bad():
+    model = BnModel()
+
+    with pytest.raises(ValueError) as e:
+        _ = model.logic(0)
+
+def test_seq_bad():
+    model = BnModel()
+
+    with pytest.raises(ValueError) as e:
+        _ = model.input(0)
+
+def test_func_bad():
+    model = BnModel()
+
+    with pytest.raises(ValueError) as e:
+        _ = model.func(0)
+
