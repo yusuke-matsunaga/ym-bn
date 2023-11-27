@@ -75,6 +75,7 @@ FuncImpl_Bdd::print(
   ostream& s
 ) const
 {
+#warning "TODO: 未完"
 }
 
 END_NAMESPACE_YM_BN
