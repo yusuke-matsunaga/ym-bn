@@ -817,6 +817,9 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // BDDマネージャ
+  BddMgr mBddMgr;
+
   // セルライブラリ
   ClibCellLibrary mLibrary;
 
@@ -846,9 +849,6 @@ private:
 
   // 関数番号をキーにして FuncImpl を格納する配列
   vector<unique_ptr<FuncImpl>> mFuncArray;
-
-  // BDDマネージャ
-  BddMgr mBddMgr;
 
 };
 
