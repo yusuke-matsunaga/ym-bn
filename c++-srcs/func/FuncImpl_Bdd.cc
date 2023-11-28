@@ -75,7 +75,8 @@ FuncImpl_Bdd::print(
   ostream& s
 ) const
 {
-#warning "TODO: 未完"
+  s << "BDD" << endl;
+  bdd().display(s);
 }
 
 END_NAMESPACE_YM_BN
