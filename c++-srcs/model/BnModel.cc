@@ -293,7 +293,7 @@ BnModel::print(
       s << "Func#" << node.local_func().id();
     }
     else if ( node.is_cell() ) {
-      s << "Cell#" << node.cell().id();
+      s << "Cell: " << node.cell().name();
     }
     else {
       ASSERT_NOT_REACHED;

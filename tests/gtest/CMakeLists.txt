@@ -28,6 +28,10 @@ ym_add_gtest( bn_NodeImpl_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   )
 
+target_include_directories( bn_NodeImpl_test
+  PRIVATE ../../c++-srcs/model
+  )
+
 ym_add_gtest( bn_SeqImpl_test
   SeqImpl_test.cc
   $<TARGET_OBJECTS:ym_bn_obj_d>
@@ -35,6 +39,10 @@ ym_add_gtest( bn_SeqImpl_test
   $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
+  )
+
+target_include_directories( bn_SeqImpl_test
+  PRIVATE ../../c++-srcs/model
   )
 
 ym_add_gtest( bn_FuncImpl_test

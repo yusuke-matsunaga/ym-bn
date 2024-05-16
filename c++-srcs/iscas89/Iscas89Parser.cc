@@ -9,7 +9,6 @@
 #include "Iscas89Parser.h"
 #include "Iscas89Scanner.h"
 #include "ym/BnModel.h"
-//#include "ym/Iscas89Handler.h"
 #include "ModelImpl.h"
 #include "ym/Expr.h"
 #include "ym/MsgMgr.h"
@@ -274,10 +273,8 @@ Iscas89Parser::read_gate(
       mModel->set_input_name(iid, mClockName);
     }
     auto oname = id2str(name_id);
-    auto dff_id = mModel->new_dff(' ', name_id);
+    auto dff_id = mModel->new_dff(oname, name_id, mClockId, BAD_ID, BAD_ID, ' ');
     mModel->set_data_src(dff_id, iname_id);
-    mModel->set_clock(dff_id, mClockId);
-    mModel->set_seq_name(dff_id, oname);
     return true;
   }
 #if 0

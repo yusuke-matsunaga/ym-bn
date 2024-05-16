@@ -498,7 +498,6 @@ TEST( BnModelTest, new_seq_cell )
   EXPECT_THROW( {node.preset();}, std::invalid_argument );
   EXPECT_THROW( {node.rsval();}, std::invalid_argument );
   EXPECT_THROW( {node.data_output();}, std::invalid_argument );
-  EXPECT_EQ( cell.id(), node.cell_id() );
   EXPECT_EQ( cell, node.cell() );
   EXPECT_FALSE( node.cell_pin(0).is_valid() );
   EXPECT_FALSE( node.cell_pin(1).is_valid() );

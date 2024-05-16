@@ -10,6 +10,7 @@
 
 #include "ym/bn.h"
 #include "ym/logic.h"
+#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -28,7 +29,8 @@ public:
   NodeImpl() = default;
 
   /// @brief デストラクタ
-  ~NodeImpl() = default;
+  virtual
+  ~NodeImpl() {}
 
 
 public:
@@ -37,162 +39,112 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノードの種類を返す．
+  virtual
   BnNodeType
-  type() const
-  {
-    return mType;
-  }
+  type() const = 0;
 
   /// @brief 入力として定義されている時 true を返す．
   bool
   is_input() const
   {
-    return mType == BnNodeType::INPUT;
+    return type() == BnNodeType::INPUT;
   }
 
   /// @brief BnSeq の出力の時 true を返す．
   bool
   is_seq_output() const
   {
-    return mType == BnNodeType::SEQ_OUTPUT;
+    return type() == BnNodeType::SEQ_OUTPUT;
   }
 
   /// @brief 論理ノードの時 true を返す．
+  virtual
   bool
-  is_logic() const
-  {
-    if ( is_primitive() ) {
-      return true;
-    }
-    if ( is_aig() ) {
-      return true;
-    }
-    if ( is_func() ) {
-      return true;
-    }
-    if ( is_cell() ) {
-      return true;
-    }
-    return false;
-  }
+  is_logic() const;
 
   /// @brief プリミティブ型の論理ノードの時 true を返す．
   bool
   is_primitive() const
   {
-    return mType == BnNodeType::PRIMITIVE;
+    return type() == BnNodeType::PRIMITIVE;
   }
 
   /// @brief AIG型の論理ノードの時 true を返す．
   bool
   is_aig() const
   {
-    return mType == BnNodeType::AIG;
+    return type() == BnNodeType::AIG;
   }
 
   /// @brief 関数型の論理ノードの時 true を返す．
   bool
   is_func() const
   {
-    return mType == BnNodeType::FUNC;
+    return type() == BnNodeType::FUNC;
   }
 
   /// @brief セル型の論理ノードの時 true を返す．
   bool
   is_cell() const
   {
-    return mType == BnNodeType::CELL;
+    return type() == BnNodeType::CELL;
   }
 
   /// @brief 入力番号を返す．
+  virtual
   SizeType
-  input_id() const
-  {
-    if ( !is_input() ) {
-      throw std::invalid_argument{"not an input."};
-    }
-    return mExtId;
-  }
+  input_id() const;
 
   /// @brief SEQ 番号を返す．
+  virtual
   SizeType
-  seq_id() const
-  {
-    if ( !is_seq_output() ) {
-      throw std::invalid_argument{"not a SEQ output."};
-    }
-    return mExtId;
-  }
+  seq_id() const;
 
   /// @brief ファンイン数を返す．
+  virtual
   SizeType
-  fanin_num() const
-  {
-    return mFaninList.size();
-  }
+  fanin_num() const;
 
   /// @brief ファンインのノード番号を返す．
+  virtual
   SizeType
   fanin(
     SizeType pos ///< [in] 位置 ( 0 <= pos < fanin_num() )
-  ) const
-  {
-    if ( pos < 0 || fanin_num() <= pos ) {
-      throw std::out_of_range{"index out of range"};
-    }
-    return mFaninList[pos];
-  }
+  ) const;
 
   /// @brief ファンイン番号のリストを返す．
+  virtual
   const vector<SizeType>&
-  fanin_list() const
-  {
-    return mFaninList;
-  }
+  fanin_list() const;
 
   /// @brief プリミティブタイプを得る．
+  virtual
   PrimType
-  primitive_type() const
-  {
-    if ( !is_primitive() ) {
-      throw std::invalid_argument{"not a primitve-type node."};
-    }
-    return static_cast<PrimType>(mExtId);
-  }
+  primitive_type() const;
 
   /// @brief ファンインの反転属性を返す．
+  virtual
   bool
   fanin_inv(
     SizeType pos ///< [in] 位置番号 ( 0 or 1 )
-  ) const
-  {
-    if ( !is_aig() ) {
-      throw std::invalid_argument{"not an AIG node."};
-    }
-    return static_cast<bool>((mExtId >> pos) & 1);
-  }
+  ) const;
 
   /// @brief 関数番号を返す．
+  virtual
   SizeType
-  local_func_id() const
-  {
-    if ( !is_func() ) {
-      throw std::invalid_argument{"not a func-type node."};
-    }
-    return mExtId;
-  }
+  local_func_id() const;
 
-  /// @brief セル番号を得る．
-  SizeType
-  cell_id() const
-  {
-    if ( !is_cell() ) {
-      throw std::invalid_argument{"not a cell-type node."};
-    }
-    return mExtId;
-  }
+  /// @brief セルを得る．
+  virtual
+  ClibCell
+  cell() const;
 
+  /// @brief 複製を作る．
+  virtual
+  unique_ptr<NodeImpl>
+  copy() const = 0;
 
+#if 0
 public:
   //////////////////////////////////////////////////////////////////////
   // 設定用の関数
@@ -260,7 +212,7 @@ public:
   void
   set_cell(
     const vector<SizeType>& fanin_list,
-    SizeType cell_id
+    ClibCell cell
   )
   {
     mType = BnNodeType::CELL;
@@ -333,6 +285,7 @@ private:
 
   // プリミティブタイプ/カバー番号/論理式番号/関数番号/BDD番号
   SizeType mExtId;
+#endif
 
 };
 

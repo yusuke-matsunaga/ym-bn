@@ -160,8 +160,7 @@ BnNode::local_func() const
 ClibCell
 BnNode::cell() const
 {
-  auto cell_id = _impl().cell_id();
-  return mModel->library().cell(cell_id);
+  return _impl().cell();
 }
 
 // @brief ノードの実体を返す．

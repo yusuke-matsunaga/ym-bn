@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ModelImpl.h"
+#include "NodeImpl_sub.h"
 #include "ym/Bdd.h"
 
 
@@ -27,10 +28,16 @@ ModelImpl::ModelImpl(
     mInputList{src.mInputList},
     mOutputList{src.mOutputList},
     mLogicList{src.mLogicList},
-    mNodeArray{src.mNodeArray},
-    mSeqArray{src.mSeqArray},
+    mNodeArray(src.mNodeArray.size()),
+    mSeqArray(src.mSeqArray.size()),
     mFuncArray(src.mFuncArray.size())
 {
+  for ( SizeType i = 0; i < src.mNodeArray.size(); ++ i ) {
+    mNodeArray[i] = src.mNodeArray[i]->copy();
+  }
+  for ( SizeType i = 0; i < src.mSeqArray.size(); ++ i ) {
+    mSeqArray[i] = src.mSeqArray[i]->copy();
+  }
   for ( SizeType i = 0; i < src.mFuncArray.size(); ++ i ) {
     mFuncArray[i] = src.mFuncArray[i]->copy(mBddMgr);
   }
@@ -111,6 +118,217 @@ ModelImpl::set_option(
   }
 }
 
+// @brief 対応するID番号に入力用の印を付ける．
+void
+ModelImpl::set_input(
+  SizeType id
+)
+{
+  auto iid = mInputList.size();
+  auto node = new NodeImpl_Input{iid};
+  mNodeArray[id] = unique_ptr<NodeImpl>{node};
+  mInputList.push_back(id);
+}
+
+// @brief プリミティブ型のノードの情報をセットする．
+void
+ModelImpl::set_primitive(
+  SizeType id,
+  const vector<SizeType>& input_list,
+  PrimType type
+)
+{
+  auto node = new NodeImpl_Primitive{type, input_list};
+  mNodeArray[id] = unique_ptr<NodeImpl>{node};
+  mLogicList.push_back(id);
+}
+
+// @brief AIG型のノードの情報をセットする．
+void
+ModelImpl::set_aig(
+  SizeType id,
+  SizeType src0,
+  SizeType src1,
+  bool inv0,
+  bool inv1
+)
+{
+  auto node = new NodeImpl_Aig{src0, inv0, src1, inv1};
+  mNodeArray[id] = unique_ptr<NodeImpl>{node};
+  mLogicList.push_back(id);
+}
+
+// @brief 関数型のノードの情報をセットする．
+void
+ModelImpl::set_func(
+  SizeType id,
+  const vector<SizeType>& input_list,
+  SizeType func_id
+)
+{
+  auto node = new NodeImpl_Func{func_id, input_list};
+  mNodeArray[id] = unique_ptr<NodeImpl>{node};
+  mLogicList.push_back(id);
+}
+
+// @brief セル型のノードの情報をセットする．
+void
+ModelImpl::set_cell(
+  SizeType id,
+  const vector<SizeType>& input_list,
+  ClibCell cell
+)
+{
+  auto node = new NodeImpl_Cell{cell, input_list};
+  mNodeArray[id] = unique_ptr<NodeImpl>{node};
+  mLogicList.push_back(id);
+}
+
+#if 0
+// @brief 新しい入力ノードを作る．
+SizeType
+ModelImpl::new_input()
+{
+  auto id = mNodeArray.size();
+  mNodeArray.push_back({});
+  set_input(id);
+  return id;
+}
+
+// @brief 新しい BnSeq の出力ノードを作る．
+SizeType
+ModelImpl::new_seq_output(
+  SizeType seq_id
+)
+{
+  auto node = new NodeImpl_SeqOutput{seq_id};
+  auto id = reg_node(node);
+  return id;
+}
+
+// @brief 新しい出力ノードを作る．
+SizeType
+ModelImpl::new_output(
+  SizeType src_id
+)
+{
+  auto oid = mOutputList.size();
+  mOutputList.push_back(src_id);
+  return oid;
+}
+
+// @brief 新しいプリミティブ型の論理ノードを作る．
+SizeType
+ModelImpl::new_primitive(
+  const vector<SizeType>& input_list,
+  PrimType type
+)
+{
+  auto node = new NodeImpl_Primitive{type, input_list};
+  auto id = reg_node(node);
+  mLogicList.push_back(id);
+  return id;
+}
+
+// @brief 新しいAIG型の論理ノードを作る．
+SizeType
+ModelImpl::new_aig(
+  SizeType src0,
+  SizeType src1,
+  bool inv0,
+  bool inv1
+)
+{
+  auto node = new NodeImpl_Aig{src0, inv0, src1, inv1};
+  auto id = reg_node();
+  mLogicList.push_back(id);
+  return id;
+}
+
+// @brief 関数型のノードの情報をセットする．
+SizeType
+ModelImpl::new_func(
+  const vector<SizeType>& input_list,
+  SizeType func_id
+)
+{
+  auto node = new NodeImpl_Func{func_id, input_list};
+  auto id = reg_node(node);
+  mLogicList.push_back(id);
+  return id;
+}
+
+// @brief セル型のノードの情報をセットする．
+SizeType
+ModelImpl::new_cell(
+  const vector<SizeType>& input_list,
+  ClibCell cell
+)
+{
+  auto node = new NodeImpl_Cell{cell, input_list};
+  auto id = reg_node(node);
+  mLogicList.push_back(id);
+  return id;
+}
+#endif
+
+// @brief DFFを作る．
+SizeType
+ModelImpl::new_dff(
+  const string& name,
+  SizeType output_id,
+  SizeType clock_id,
+  SizeType clear_id,
+  SizeType preset_id,
+  char rs_val
+)
+{
+  auto id = seq_num();
+  if ( output_id == BAD_ID ) {
+    output_id = new_seq_output(id);
+  }
+  auto& seq = _new_dff_seq(rs_val, output_id);
+  if ( name != string{} ) {
+    set_seq_name(id, name);
+  }
+  return id;
+}
+
+// @brief ラッチを作る．
+SizeType
+ModelImpl::new_latch(
+  const string& name,
+  SizeType output_id,
+  SizeType enable_id,
+  SizeType clear_id,
+  SizeType preset_id,
+  char rs_val
+)
+{
+  auto id = seq_num();
+  if ( output_id == BAD_ID ) {
+    output_id = new_seq_output(id);
+  }
+  auto& seq = _new_latch_seq(rs_val, output_id);
+  if ( name != string{} ) {
+    set_seq_name(id, name);
+  }
+  return id;
+}
+
+// @brief cell タイプの DFF を作る．
+SizeType
+ModelImpl::new_seq_cell(
+  ClibCell cell
+)
+{
+  auto id = seq_num();
+  set_library(cell.library());
+  auto& seq = _new_cell_seq(cell);
+  //seq.set_cell(cell, cell.pin_num());
+  return id;
+}
+
 // @brief 論理ノードのリストを作る．
 void
 ModelImpl::make_logic_list()
@@ -124,7 +342,7 @@ ModelImpl::make_logic_list()
 
   // DFFの出力に印を作る．
   for ( auto& seq: mSeqArray ) {
-    auto id = seq.data_output();
+    auto id = seq->data_output();
     mark.emplace(id);
   }
 
@@ -138,7 +356,7 @@ ModelImpl::make_logic_list()
 
   // DFFのファンインに番号をつける．
   for ( auto& seq: mSeqArray ) {
-    order_node(seq.data_src(), mark);
+    order_node(seq->data_src(), mark);
   }
 }
 
@@ -152,9 +370,10 @@ ModelImpl::order_node(
   if ( mark.count(id) > 0 ) {
     return;
   }
-  auto& node = _node(id, "", "");
-  ASSERT_COND( node.is_logic() );
-  for ( auto iid: node.fanin_list() ) {
+  //auto& node = _node(id, "", "");
+  auto node = mNodeArray[id].get();
+  ASSERT_COND( node->is_logic() );
+  for ( auto iid: node->fanin_list() ) {
     order_node(iid, mark);
   }
   mLogicList.push_back(id);

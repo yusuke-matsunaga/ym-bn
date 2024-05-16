@@ -203,7 +203,7 @@ public:
     SizeType id ///< [in] ID番号
   ) const
   {
-    return mNodeArray[id];
+    return *mNodeArray[id];
   }
 
   /// @brief SEQノード数を返す．
@@ -219,7 +219,7 @@ public:
     SizeType id ///< [in] ID番号
   ) const
   {
-    return mSeqArray[id];
+    return *mSeqArray[id];
   }
 
   /// @brief 関数の数を返す．
@@ -394,13 +394,7 @@ public:
   void
   set_input(
     SizeType id            ///< [in] ID番号
-  )
-  {
-    auto& node = _node(id, "set_input(id)", "id");
-    auto iid = mInputList.size();
-    mInputList.push_back(id);
-    node.set_input(iid);
-  }
+  );
 
   /// @brief 出力ノードをセットする．
   void
@@ -412,14 +406,48 @@ public:
     mOutputList[pos] = src_id;
   }
 
-  /// @brief 新しいノードを作る．
+  /// @brief プリミティブ型のノードの情報をセットする．
+  void
+  set_primitive(
+    SizeType id,                        ///< [in] ID番号
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    PrimType type                       ///< [in] プリミティブタイプ
+  );
+
+  /// @brief AIG型のノードの情報をセットする．
+  void
+  set_aig(
+    SizeType id,   ///< [in] ID番号
+    SizeType src0, ///< [in] ソース0のID番号
+    SizeType src1, ///< [in] ソース1のID番号
+    bool inv0,     ///< [in] ソース0の反転属性
+    bool inv1      ///< [in] ソース1の反転属性
+  );
+
+  /// @brief 関数型のノードの情報をセットする．
+  void
+  set_func(
+    SizeType id,                        ///< [in] ID番号
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType func_id                    ///< [in] 関数番号
+  );
+
+  /// @brief セル型のノードの情報をセットする．
+  void
+  set_cell(
+    SizeType id,                        ///< [in] ID番号
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    ClibCell cell                       ///< [in] セル
+  );
+
+  /// @brief 新しいノードを登録する．
   ///
   /// @return ID番号を返す．
   SizeType
   new_node()
   {
     auto id = mNodeArray.size();
-    mNodeArray.push_back(NodeImpl{});
+    mNodeArray.push_back(unique_ptr<NodeImpl>{nullptr});
     return id;
   }
 
@@ -440,13 +468,14 @@ public:
   SizeType
   new_seq_output(
     SizeType seq_id        ///< [in] BnSeq の ID 番号
-  )
+  );
+#if 0
   {
     auto id = new_node();
-    auto& node = mNodeArray[id];
-    node.set_seq_output(seq_id);
+    set_seq_output(id, seq_id);
     return id;
   }
+#endif
 
   /// @brief 新しい出力ノードを作る．
   ///
@@ -454,12 +483,7 @@ public:
   SizeType
   new_output(
     SizeType src_id ///< [in] ソースのID番号
-  )
-  {
-    auto oid = mOutputList.size();
-    mOutputList.push_back(src_id);
-    return oid;
-  }
+  );
 
   /// @brief 新しいプリミティブ型の論理ノードを作る．
   ///
@@ -472,7 +496,6 @@ public:
   {
     auto id = new_node();
     set_primitive(id, input_list, type);
-    mLogicList.push_back(id);
     return id;
   }
 
@@ -489,7 +512,6 @@ public:
   {
     auto id = new_node();
     set_aig(id, src0, src1, inv0, inv1);
-    mLogicList.push_back(id);
     return id;
   }
 
@@ -504,7 +526,6 @@ public:
   {
     auto id = new_node();
     set_func(id, input_list, func_id);
-    mLogicList.push_back(id);
     return id;
   }
 
@@ -519,7 +540,6 @@ public:
   {
     auto id = new_node();
     set_cell(id, input_list, cell);
-    mLogicList.push_back(id);
     return id;
   }
 
@@ -528,102 +548,34 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_dff(
-    char rs_val = ' ',          ///< [in] リセットとプリセットが共にオンの時の値
-    SizeType output_id = BAD_ID ///< [in] 出力のノード番号
-  )
-  {
-    auto id = seq_num();
-    auto& seq = _new_seq();
-    if ( output_id == BAD_ID ) {
-      output_id = new_seq_output(id);
-    }
-    seq.set_dff(rs_val, output_id);
-    return id;
-  }
+    const string& name = string{}, ///< [in] 名前
+    SizeType output_id = BAD_ID,   ///< [in] 出力のノード番号
+    SizeType clock_id = BAD_ID,    ///< [in] クロックのノード番号
+    SizeType clear_id = BAD_ID,    ///< [in] クリアノード番号
+    SizeType preset_id = BAD_ID,   ///< [in] プリセットノード番号
+    char rs_val = ' '              ///< [in] リセットとプリセットが共にオンの時の値
+  );
 
   /// @brief ラッチを作る．
   ///
   /// @return ID番号を返す．
   SizeType
   new_latch(
-    char rs_val = ' ',          ///< [in] リセットとプリセットが共にオンの時の値
-    SizeType output_id = BAD_ID ///< [in] 出力のノード番号
-  )
-  {
-    auto id = seq_num();
-    auto& seq = _new_seq();
-    if ( output_id == BAD_ID ) {
-      output_id = new_seq_output(id);
-    }
-    seq.set_latch(rs_val, output_id);
-    return id;
-  }
+    const string& name = string{}, ///< [in] 名前
+    SizeType output_id = BAD_ID,   ///< [in] 出力のノード番号
+    SizeType enable_id = BAD_ID,   ///< [in] イネーブルのノード番号
+    SizeType clear_id = BAD_ID,    ///< [in] クリアノード番号
+    SizeType preset_id = BAD_ID,   ///< [in] プリセットノード番号
+    char rs_val = ' '              ///< [in] リセットとプリセットが共にオンの時の値
+  );
 
   /// @brief cell タイプの DFF を作る．
   ///
   /// @return ID番号を返す．
   SizeType
   new_seq_cell(
-    ClibCell cell             ///< [in] セル番号
-  )
-  {
-  auto id = seq_num();
-    set_library(cell.library());
-    auto& seq = _new_seq();
-    seq.set_cell(cell.id(), cell.pin_num());
-    return id;
-  }
-
-  /// @brief プリミティブ型のノードの情報をセットする．
-  void
-  set_primitive(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    PrimType type                       ///< [in] プリミティブタイプ
-  )
-  {
-    auto& node = _node(id, "set_primitive(id, input_list, type)", "id");
-    node.set_primitive(input_list, type);
-  }
-
-  /// @brief AIG型のノードの情報をセットする．
-  void
-  set_aig(
-    SizeType id,   ///< [in] ID番号
-    SizeType src0, ///< [in] ソース0のID番号
-    SizeType src1, ///< [in] ソース1のID番号
-    bool inv0,     ///< [in] ソース0の反転属性
-    bool inv1      ///< [in] ソース1の反転属性
-  )
-  {
-    auto& node = _node(id, "set_aig(id, src0, src1, inv0, inv1)", "id");
-    node.set_aig(src0, src1, inv0, inv1);
-  }
-
-  /// @brief 関数型のノードの情報をセットする．
-  void
-  set_func(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    SizeType func_id                    ///< [in] 関数番号
-  )
-  {
-    auto& node = _node(id, "set_func(id, input_list, func_id)", "id");
-    node.set_func(input_list, func_id);
-  }
-
-  /// @brief セル型のノードの情報をセットする．
-  void
-  set_cell(
-    SizeType id,                        ///< [in] ID番号
-    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
-    ClibCell cell                       ///< [in] セル
-  )
-  {
-    set_library(cell.library());
-    auto& node = _node(id, "set_cell(id, input_list, cell)", "id");
-    node.set_cell(input_list, cell.id());
-  }
+    ClibCell cell                  ///< [in] セル
+  );
 
   /// @brief DFF/ラッチのソースをセットする．
   void
@@ -636,6 +588,20 @@ public:
     seq.set_data_src(src_id);
   }
 
+  /// @brief セル型のSEQノードのピンのノードをセットする．
+  void
+  set_seq_pin(
+    SizeType id,         ///< [in] ID番号
+    SizeType pos,        ///< [in] ピン番号
+    SizeType node_id     ///< [in] ノード番号
+  )
+  {
+    auto& seq = _seq(id, "set_dff_pin(id, pos, node_id)", "id");
+    seq.set_cell_pin(pos, node_id);
+  }
+
+#if 0
+
   /// @brief DFFのクロック入力をセットする．
   void
   set_clock(
@@ -643,7 +609,7 @@ public:
     SizeType clock_id    ///< [in] クロックのID番号
   )
   {
-    auto& seq= _seq(id, "set_clock(id, check_id)", "id");
+    auto& seq = _seq(id, "set_clock(id, check_id)", "id");
     seq.set_clock(clock_id);
   }
 
@@ -679,18 +645,7 @@ public:
     auto& seq = _seq(id, "set_preset(id, preset_id)", "id");
     seq.set_preset(preset_id);
   }
-
-  /// @brief セル型のSEQノードのピンのノードをセットする．
-  void
-  set_seq_pin(
-    SizeType id,         ///< [in] ID番号
-    SizeType pos,        ///< [in] ピン番号
-    SizeType node_id     ///< [in] ノード番号
-  )
-  {
-    auto& seq = _seq(id, "set_dff_pin(id, pos, node_id)", "id");
-    seq.set_cell_pin(pos, node_id);
-  }
+#endif
 
   /// @brief 論理ノードのリストを作る．
   void
@@ -739,6 +694,7 @@ private:
     unordered_set<SizeType>& mark ///< [in] マーク
   );
 
+#if 0
   /// @brief ノードを取り出す．
   NodeImpl&
   _node(
@@ -757,6 +713,27 @@ private:
     mSeqArray.push_back(SeqImpl{});
     return mSeqArray.back();
   }
+#endif
+
+  /// @brief DFFタイプの SeqImpl を割り当てる．
+  SeqImpl&
+  _new_dff_seq(
+    SizeType output_id,
+    char rs_val
+  );
+
+  /// @brief Latchタイプの SeqImpl を割り当てる．
+  SeqImpl&
+  _new_latch_seq(
+    SizeType output_id,
+    char rs_val
+  );
+
+  /// @brief セルタイプの SeqImpl を割り当てる．
+  SeqImpl&
+  _new_cell_seq(
+    ClibCell cell
+  );
 
   /// @brief SeqImpl を取り出す．
   SeqImpl&
@@ -766,7 +743,7 @@ private:
     const string& index_name  ///< [in] ID番号の変数名
   )
   {
-    return mSeqArray[id];
+    return *mSeqArray[id];
   }
 
   /// @brief FuncImpl を取り出す．
@@ -842,10 +819,10 @@ private:
   vector<SizeType> mLogicList;
 
   // ノードの配列
-  vector<NodeImpl> mNodeArray;
+  vector<unique_ptr<NodeImpl>> mNodeArray;
 
   // SEQノードの配列
-  vector<SeqImpl> mSeqArray;
+  vector<unique_ptr<SeqImpl>> mSeqArray;
 
   // 関数番号をキーにして FuncImpl を格納する配列
   vector<unique_ptr<FuncImpl>> mFuncArray;

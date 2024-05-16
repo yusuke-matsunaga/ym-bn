@@ -119,20 +119,11 @@ BnSeq::data_output() const
   return ModelImpl::new_node(mModel, _impl().data_output());
 }
 
-// @brief セル番号を返す．
-SizeType
-BnSeq::cell_id() const
-{
-  return _impl().cell_id();
-}
-
 // @brief セルを返す．
 ClibCell
 BnSeq::cell() const
 {
-  auto id = cell_id();
-  auto library = mModel->library();
-  return library.cell(id);
+  return _impl().cell();
 }
 
 // @brief セルのピンに対応するノードを返す．

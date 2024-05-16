@@ -200,7 +200,7 @@ TEST( ModelImplTest, new_cell )
     EXPECT_EQ( fanin_list[i], node.fanin(i) );
   }
   EXPECT_EQ( fanin_list, node.fanin_list() );
-  EXPECT_EQ( cell.id(), node.cell_id() );
+  EXPECT_EQ( cell, node.cell() );
 }
 
 TEST( ModelImplTest, new_dff )
@@ -213,11 +213,8 @@ TEST( ModelImplTest, new_dff )
   auto preset_id = model.new_node();
 
   char rsval = '1';
-  auto id0 = model.new_dff(rsval);
+  auto id0 = model.new_dff({}, BAD_ID, clock_id, clear_id, preset_id, rsval);
   model.set_data_src(id0, src_id);
-  model.set_clock(id0, clock_id);
-  model.set_clear(id0, clear_id);
-  model.set_preset(id0, preset_id);
 
   auto& seq = model.seq_impl(id0);
   EXPECT_EQ( BnSeqType::DFF, seq.type() );

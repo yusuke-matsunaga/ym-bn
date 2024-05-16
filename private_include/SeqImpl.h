@@ -5,10 +5,11 @@
 /// @brief SeqImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2024 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bn.h"
+#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -16,6 +17,13 @@ BEGIN_NAMESPACE_YM_BN
 //////////////////////////////////////////////////////////////////////
 /// @class SeqImpl SeqImpl.h "SeqImpl.h"
 /// @brief BnModel の DFF を表すクラス
+///
+/// 大きく分けて
+/// - DFF
+/// - LATCH
+/// - CELL
+/// の３種類がある．
+/// 個々のタイプごとに異なるデータを持つ．
 //////////////////////////////////////////////////////////////////////
 class SeqImpl
 {
@@ -25,7 +33,8 @@ public:
   SeqImpl() = default;
 
   /// @brief デストラクタ
-  ~SeqImpl() = default;
+  virtual
+  ~SeqImpl() {}
 
 
 public:
@@ -34,11 +43,9 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 種類を返す．
+  virtual
   BnSeqType
-  type() const
-  {
-    return mType;
-  }
+  type() const = 0;
 
   /// @brief DFFタイプの時に true を返す．
   bool
@@ -64,97 +71,87 @@ public:
   /// @brief データ入力ノードを返す．
   ///
   /// is_dff() == true or is_latch() == true
+  virtual
   SizeType
-  data_src() const
-  {
-    check_dff_or_latch();
-    return mPinList[0];
-  }
+  data_src() const;
 
   /// @brief クロック入力ノードを返す．
   ///
   /// is_dff() == true
+  virtual
   SizeType
-  clock() const
-  {
-    check_dff();
-    return mPinList[1];
-  }
+  clock() const;
 
   /// @brief イネーブル入力ノードを返す．
   ///
   /// is_latch() == true
+  virtual
   SizeType
-  enable() const
-  {
-    check_latch();
-    return mPinList[1];
-  }
+  enable() const;
 
   /// @brief クリア入力ノードを返す．
   ///
   /// is_dff() == true or is_latch() == true
+  virtual
   SizeType
-  clear() const
-  {
-    check_dff_or_latch();
-    return mPinList[2];
-  }
+  clear() const;
 
   /// @brief プリセット入力ノードを返す．
   ///
   /// is_dff() == true or is_latch() == true
+  virtual
   SizeType
-  preset() const
-  {
-    check_dff_or_latch();
-    return mPinList[3];
-  }
+  preset() const;
 
   /// @brief クリアとプリセットが衝突したときの挙動を返す．
   ///
   /// is_dff() == true or is_latch() == true
+  virtual
   char
-  rsval() const
-  {
-    check_dff_or_latch();
-    return static_cast<char>(mExtId);
-  }
+  rsval() const;
 
   /// @brief データ出力ノードを返す．
+  virtual
   SizeType
-  data_output() const
-  {
-    check_dff_or_latch();
-    return mPinList[4];
-  }
+  data_output() const;
 
-  /// @brief セル番号を返す．
+  /// @brief セルを返す．
   ///
   /// is_cell() == true
-  SizeType
-  cell_id() const
-  {
-    check_cell();
-    return mExtId;
-  }
+  virtual
+  ClibCell
+  cell() const;
 
   /// @brief セルのピンに対応するノードを返す．
   ///
   /// is_cell() == true
+  virtual
   SizeType
   cell_pin(
     SizeType pos ///< [in] ピン番号
-  ) const
-  {
-    check_cell();
-    if ( pos < 0 || pos >= mPinList.size() ) {
-      throw std::invalid_argument{"Error in SeqImpl::cell_pin(pos). pos is out of range."};
-    }
-    return mPinList[pos];
-  }
+  ) const;
 
+  /// @brief データ入力をセットする．
+  virtual
+  void
+  set_data_src(
+    SizeType src_id
+  );
 
+  /// @brief ピンに対応するノードをセットする．
+  virtual
+  void
+  set_cell_pin(
+    SizeType pos,
+    SizeType node_id
+  );
+
+  /// @brief 複製を作る．
+  virtual
+  unique_ptr<SeqImpl>
+  copy() const = 0;
+
+#if 0
 public:
   //////////////////////////////////////////////////////////////////////
   // 設定用の関数
@@ -187,13 +184,13 @@ public:
   /// @brief セルタイプをセットする．
   void
   set_cell(
-    SizeType cell_id,
+    ClibCell cell,
     SizeType pin_num
   )
   {
     mType = BnSeqType::CELL;
     mPinList = vector<SizeType>(pin_num, BAD_ID);
-    mExtId = cell_id;
+    mExtId = cell;
   }
 
   /// @brief データ入力をセットする．
@@ -311,21 +308,7 @@ private:
       throw std::invalid_argument{"not a cell type"};
     }
   }
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // DFF の種類
-  BnSeqType mType{BnSeqType::NONE};
-
-  // 入出力ピンのノード番号のリスト
-  vector<SizeType> mPinList;
-
-  // rsval/セル番号
-  SizeType mExtId;
+#endif
 
 };
 
