@@ -25,7 +25,6 @@ public:
 
   /// @brief コンストラクタ
   SeqImpl_FL(
-    SizeType output_id, ///< [in] 出力のノード番号
     char rs_val         ///< [in] リセットとプリセットが共にオンの時の値
   );
 
@@ -57,6 +56,30 @@ public:
   /// @brief クリアとプリセットが衝突したときの挙動を返す．
   char
   rsval() const override;
+
+  /// @brief データ入力をセットする．
+  void
+  set_data_src(
+    SizeType src_id
+  ) override;
+
+  /// @brief クリアをセットする．
+  void
+  set_clear(
+    SizeType clear_id
+  ) override;
+
+  /// @brief プリセットをセットする．
+  void
+  set_preset(
+    SizeType preset_id
+  ) override;
+
+  /// @brief データ出力をセットする．
+  void
+  set_data_output(
+    SizeType node_id
+  ) override;
 
 
 private:
@@ -93,7 +116,6 @@ public:
 
   /// @brief コンストラクタ
   SeqImpl_DFF(
-    SizeType output_id, ///< [in] 出力のノード番号
     char rs_val         ///< [in] リセットとプリセットが共にオンの時の値
   );
 
@@ -114,6 +136,12 @@ public:
   SizeType
   clock() const override;
 
+  /// @brief クロックをセットする．
+  void
+  set_clock(
+    SizeType clock_id
+  ) override;
+
   /// @brief 複製を作る．
   unique_ptr<SeqImpl>
   copy() const override;
@@ -125,7 +153,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // クロックノード
-  SizeType mClock;
+  SizeType mClock{BAD_ID};
 
 };
 
@@ -141,7 +169,6 @@ public:
 
   /// @brief コンストラクタ
   SeqImpl_Latch(
-    SizeType output_id, ///< [in] 出力のノード番号
     char rs_val         ///< [in] リセットとプリセットが共にオンの時の値
   );
 
@@ -162,6 +189,12 @@ public:
   SizeType
   enable() const override;
 
+  /// @brief イネーブルをセットする．
+  void
+  set_enable(
+    SizeType enable_id
+  ) override;
+
   /// @brief 複製を作る．
   unique_ptr<SeqImpl>
   copy() const override;
@@ -173,7 +206,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // イネーブルノード
-  SizeType mEnable;
+  SizeType mEnable{BAD_ID};
 
 };
 
@@ -214,6 +247,13 @@ public:
   cell_pin(
     SizeType pos ///< [in] ピン番号
   ) const override;
+
+  /// @brief ピンに対応するノードをセットする．
+  void
+  set_cell_pin(
+    SizeType pos,
+    SizeType node_id
+  ) override;
 
   /// @brief 複製を作る．
   unique_ptr<SeqImpl>

@@ -95,7 +95,7 @@ ClibCell
 NodeImpl::cell() const
 {
   throw std::invalid_argument{"not a cell-type node."};
-  return BAD_ID;
+  return {};
 }
 
 
@@ -276,7 +276,7 @@ NodeImpl_Aig::NodeImpl_Aig(
   SizeType fanin1,
   bool inv1
 ) : NodeImpl_Logic{{fanin0, fanin1}},
-    mInvFlags{inv0 | inv1 << 1}
+    mInvFlags{static_cast<SizeType>(inv0 | inv1 << 1)}
 {
 }
 
@@ -346,7 +346,7 @@ NodeImpl_Func::local_func_id() const
 unique_ptr<NodeImpl>
 NodeImpl_Func::copy() const
 {
-  return unique_tr<NodeImpl>{new NodeImpl_Func{mFuncId, fanin_list()}};
+  return unique_ptr<NodeImpl>{new NodeImpl_Func{mFuncId, fanin_list()}};
 }
 
 

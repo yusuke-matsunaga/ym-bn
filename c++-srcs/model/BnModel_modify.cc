@@ -145,7 +145,7 @@ BnModel::new_dff(
 )
 {
   _check_rsval(rs_val);
-  auto id = mImpl->new_dff(name, BAD_ID, BAD_ID, BAD_ID, BAD_ID, rs_val);
+  auto id = mImpl->new_dff(rs_val, name);
   return ModelImpl::new_seq(mImpl, id);
 }
 
@@ -157,7 +157,7 @@ BnModel::new_latch(
 )
 {
   _check_rsval(rs_val);
-  auto id = mImpl->new_latch(name, BAD_ID, BAD_ID, BAD_ID, BAD_ID, rs_val);
+  auto id = mImpl->new_latch(rs_val, name);
   return ModelImpl::new_seq(mImpl, id);
 }
 
@@ -169,10 +169,7 @@ BnModel::new_seq_cell(
 )
 {
   set_celllibrary(cell.library());
-  auto id = mImpl->new_seq_cell(cell);
-  if ( name != string{} ) {
-    mImpl->set_seq_name(id, name);
-  }
+  auto id = mImpl->new_seq_cell(cell, name);
   return ModelImpl::new_seq(mImpl, id);
 }
 
@@ -188,7 +185,6 @@ BnModel::set_data_src(
   mImpl->set_data_src(dff.id(), src.id());
 }
 
-#if 0
 // @brief DFFのクロック入力をセットする．
 void
 BnModel::set_clock(
@@ -236,7 +232,6 @@ BnModel::set_preset(
   _check_node(preset);
   mImpl->set_preset(dff.id(), preset.id());
 }
-#endif
 
 // @brief ピンに対応するノードをセットする．
 void

@@ -15,9 +15,8 @@ BEGIN_NAMESPACE_YM_BN
 
 TEST( SeqImplTest, dff )
 {
-  SizeType oid = 10;
   char rsval = '0';
-  SeqImpl_DFF seq{oid, rsval};
+  SeqImpl_DFF seq{rsval};
   SeqImpl* node = &seq;
 
   EXPECT_EQ( BnSeqType::DFF, node->type() );
@@ -30,15 +29,14 @@ TEST( SeqImplTest, dff )
   EXPECT_EQ( BAD_ID, node->clear() );
   EXPECT_EQ( BAD_ID, node->preset() );
   EXPECT_EQ( rsval, node->rsval() );
-  EXPECT_EQ( oid, node->data_output() );
+  EXPECT_EQ( BAD_ID, node->data_output() );
   EXPECT_THROW( {node->cell();}, std::invalid_argument );
 }
 
 TEST( SeqImplTest, latch )
 {
-  SizeType oid = 10;
   char rsval = '1';
-  SeqImpl_Latch seq{oid, rsval};
+  SeqImpl_Latch seq{rsval};
   SeqImpl* node = &seq;
 
   EXPECT_EQ( BnSeqType::LATCH, node->type() );
@@ -51,7 +49,7 @@ TEST( SeqImplTest, latch )
   EXPECT_EQ( BAD_ID, node->clear() );
   EXPECT_EQ( BAD_ID, node->preset() );
   EXPECT_EQ( rsval, node->rsval() );
-  EXPECT_EQ( oid, node->data_output() );
+  EXPECT_EQ( BAD_ID, node->data_output() );
   EXPECT_THROW( {node->cell();}, std::invalid_argument );
 }
 
@@ -78,8 +76,7 @@ TEST( SeqImplTest, cell )
 TEST( SeqImplTest, set_data_src )
 {
   char rsval = '0';
-  SizeType oid = 10;
-  SeqImpl_DFF seq{oid, rsval};
+  SeqImpl_DFF seq{rsval};
 
   SeqImpl* node = &seq;
   SizeType src_id = 20;
@@ -95,7 +92,7 @@ TEST( SeqImplTest, set_data_src )
   EXPECT_EQ( BAD_ID, node->clear() );
   EXPECT_EQ( BAD_ID, node->preset() );
   EXPECT_EQ( rsval, node->rsval() );
-  EXPECT_EQ( oid, node->data_output() );
+  EXPECT_EQ( BAD_ID, node->data_output() );
   EXPECT_THROW( {node->cell();}, std::invalid_argument );
 }
 

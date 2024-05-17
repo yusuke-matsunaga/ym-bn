@@ -120,7 +120,10 @@ AigParser::read_aag(
     if ( debug ) {
       cout << "L#" << i << ": " << oid << " " << src_lit << endl;
     }
-    SizeType dff_id = mModel->new_dff({}, oid, clock_id, reset_id, BAD_ID, ' ');
+    SizeType dff_id = mModel->new_dff();
+    model->set_data_output(dff_id, oid);
+    model->set_clock(dff_id, clock_id);
+    model->set_clear(dff_id, reset_id);
     auto src_id = lit2node(src_lit);
     model->set_data_src(dff_id, src_id);
   }
@@ -243,7 +246,10 @@ AigParser::read_aig(
       cout << "L#" << i << ": " << src_lit << endl;
     }
     auto oid = i + I;
-    auto dff_id = mModel->new_dff({}, oid, clock_id, reset_id, BAD_ID, ' ');
+    //auto dff_id = mModel->new_dff({}, oid, clock_id, reset_id, BAD_ID, ' ');
+    auto dff_id = mModel->new_dff(' ');
+    mModel->set_clock(dff_id, clock_id);
+    mModel->set_clear(dff_id, reset_id);
     bool src_inv;
     auto src_id = lit2node(src_lit, src_inv);
     mModel->set_data_src(dff_id, src_id);

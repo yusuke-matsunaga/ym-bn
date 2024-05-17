@@ -396,6 +396,13 @@ public:
     SizeType id            ///< [in] ID番号
   );
 
+  /// @brief 対応するID番号にDFFの出力用の印を付ける．
+  void
+  set_seq_output(
+    SizeType id,            ///< [in] ID番号
+    SizeType seq_id         ///< [in] DFF/Latch番号
+  );
+
   /// @brief 出力ノードをセットする．
   void
   set_output(
@@ -468,14 +475,12 @@ public:
   SizeType
   new_seq_output(
     SizeType seq_id        ///< [in] BnSeq の ID 番号
-  );
-#if 0
+  )
   {
     auto id = new_node();
     set_seq_output(id, seq_id);
     return id;
   }
-#endif
 
   /// @brief 新しい出力ノードを作る．
   ///
@@ -548,12 +553,8 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_dff(
-    const string& name = string{}, ///< [in] 名前
-    SizeType output_id = BAD_ID,   ///< [in] 出力のノード番号
-    SizeType clock_id = BAD_ID,    ///< [in] クロックのノード番号
-    SizeType clear_id = BAD_ID,    ///< [in] クリアノード番号
-    SizeType preset_id = BAD_ID,   ///< [in] プリセットノード番号
-    char rs_val = ' '              ///< [in] リセットとプリセットが共にオンの時の値
+    char rs_val = ' ',            ///< [in] リセットとプリセットが共にオンの時の値
+    const string& name = string{} ///< [in] 名前
   );
 
   /// @brief ラッチを作る．
@@ -561,12 +562,8 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_latch(
-    const string& name = string{}, ///< [in] 名前
-    SizeType output_id = BAD_ID,   ///< [in] 出力のノード番号
-    SizeType enable_id = BAD_ID,   ///< [in] イネーブルのノード番号
-    SizeType clear_id = BAD_ID,    ///< [in] クリアノード番号
-    SizeType preset_id = BAD_ID,   ///< [in] プリセットノード番号
-    char rs_val = ' '              ///< [in] リセットとプリセットが共にオンの時の値
+    char rs_val = ' ',            ///< [in] リセットとプリセットが共にオンの時の値
+    const string& name = string{} ///< [in] 名前
   );
 
   /// @brief cell タイプの DFF を作る．
@@ -574,8 +571,20 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_seq_cell(
-    ClibCell cell                  ///< [in] セル
+    ClibCell cell,                ///< [in] セル
+    const string& name = string{} ///< [in] 名前
   );
+
+  /// @brief DFF/ラッチの出力をセットする．
+  void
+  set_data_output(
+    SizeType id,         ///< [in] ID番号
+    SizeType node_id     ///< [in] ノードのID番号
+  )
+  {
+    auto& seq = _seq(id, "set_data_output(id, src_id)", "id");
+    seq.set_data_output(node_id);
+  }
 
   /// @brief DFF/ラッチのソースをセットする．
   void
@@ -599,8 +608,6 @@ public:
     auto& seq = _seq(id, "set_dff_pin(id, pos, node_id)", "id");
     seq.set_cell_pin(pos, node_id);
   }
-
-#if 0
 
   /// @brief DFFのクロック入力をセットする．
   void
@@ -645,7 +652,6 @@ public:
     auto& seq = _seq(id, "set_preset(id, preset_id)", "id");
     seq.set_preset(preset_id);
   }
-#endif
 
   /// @brief 論理ノードのリストを作る．
   void
@@ -713,7 +719,6 @@ private:
     mSeqArray.push_back(SeqImpl{});
     return mSeqArray.back();
   }
-#endif
 
   /// @brief DFFタイプの SeqImpl を割り当てる．
   SeqImpl&
@@ -734,6 +739,22 @@ private:
   _new_cell_seq(
     ClibCell cell
   );
+#endif
+
+  /// @brief SeqImpl を登録する．
+  SizeType
+  _reg_seq(
+    SeqImpl* seq,
+    const string& name
+  )
+  {
+    auto id = mSeqArray.size();
+    mSeqArray.push_back(unique_ptr<SeqImpl>{seq});
+    if ( name != string{} ) {
+      set_seq_name(id, name);
+    }
+    return id;
+  }
 
   /// @brief SeqImpl を取り出す．
   SeqImpl&

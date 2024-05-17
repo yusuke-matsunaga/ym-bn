@@ -131,32 +131,18 @@ public:
     SizeType pos ///< [in] ピン番号
   ) const;
 
-  /// @brief データ入力をセットする．
-  virtual
-  void
-  set_data_src(
-    SizeType src_id
-  );
-
-  /// @brief ピンに対応するノードをセットする．
-  virtual
-  void
-  set_cell_pin(
-    SizeType pos,
-    SizeType node_id
-  );
-
   /// @brief 複製を作る．
   virtual
   unique_ptr<SeqImpl>
   copy() const = 0;
 
-#if 0
+
 public:
   //////////////////////////////////////////////////////////////////////
   // 設定用の関数
   //////////////////////////////////////////////////////////////////////
 
+#if 0
   /// @brief DFFタイプをセットする．
   void
   set_dff(
@@ -192,80 +178,57 @@ public:
     mPinList = vector<SizeType>(pin_num, BAD_ID);
     mExtId = cell;
   }
+#endif
 
   /// @brief データ入力をセットする．
+  virtual
   void
   set_data_src(
     SizeType src_id
-  )
-  {
-    check_dff_or_latch();
-    mPinList[0] = src_id;
-  }
+  );
 
   /// @brief クロックをセットする．
+  virtual
   void
   set_clock(
     SizeType clock_id
-  )
-  {
-    check_dff();
-    mPinList[1] = clock_id;
-  }
+  );
 
   /// @brief イネーブルをセットする．
+  virtual
   void
   set_enable(
     SizeType enable_id
-  )
-  {
-    check_latch();
-    mPinList[1] = enable_id;
-  }
+  );
 
   /// @brief クリアをセットする．
+  virtual
   void
   set_clear(
     SizeType clear_id
-  )
-  {
-    check_dff_or_latch();
-    mPinList[2] = clear_id;
-  }
+  );
 
   /// @brief プリセットをセットする．
+  virtual
   void
   set_preset(
     SizeType preset_id
-  )
-  {
-    check_dff_or_latch();
-    mPinList[3] = preset_id;
-  }
+  );
 
   /// @brief データ出力をセットする．
+  virtual
   void
   set_data_output(
     SizeType node_id
-  )
-  {
-    check_dff_or_latch();
-    mPinList[4] = node_id;
-  }
+  );
 
   /// @brief ピンに対応するノードをセットする．
+  virtual
   void
   set_cell_pin(
     SizeType pos,
     SizeType node_id
-  )
-  {
-    check_cell();
-    if ( pos < 0 || pos >= mPinList.size() ) {
-      throw std::invalid_argument{"Error in SeqImpl::set_pin(pos, node_id). pos is out of range."};
-    }
-    mPinList[pos] = node_id;
-  }
+  );
 
 
 private:
@@ -273,6 +236,7 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+#if 0
   /// @brief dff タイプかどうかチェックする．
   void
   check_dff() const

@@ -443,7 +443,6 @@ TEST( BnModelTest, new_dff)
   EXPECT_FALSE( node.clear().is_valid() );
   EXPECT_FALSE( node.preset().is_valid() );
   EXPECT_EQ( rsval, node.rsval() );
-  EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
 
   auto onode = node.data_output();
@@ -468,7 +467,6 @@ TEST( BnModelTest, new_latch)
   EXPECT_FALSE( node.clear().is_valid() );
   EXPECT_FALSE( node.preset().is_valid() );
   EXPECT_EQ( ' ', node.rsval() );
-  EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
 
   auto onode = node.data_output();

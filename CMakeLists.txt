@@ -75,6 +75,8 @@ set ( bn_SOURCES
   c++-srcs/model/BnNode.cc
   c++-srcs/model/BnSeq.cc
   c++-srcs/model/ModelImpl.cc
+  c++-srcs/model/SeqImpl.cc
+  c++-srcs/model/NodeImpl.cc
   )
 
 

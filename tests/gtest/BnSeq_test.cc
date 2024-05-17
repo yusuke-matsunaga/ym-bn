@@ -32,7 +32,6 @@ TEST(BnSeqTest, constructor1)
   EXPECT_THROW( {node.preset(); }, std::invalid_argument );
   EXPECT_THROW( {node.rsval(); }, std::invalid_argument );
   EXPECT_THROW( {node.data_output(); }, std::invalid_argument );
-  EXPECT_THROW( {node.cell_id(); }, std::invalid_argument );
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
 }
 

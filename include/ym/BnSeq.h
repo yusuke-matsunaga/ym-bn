@@ -164,13 +164,6 @@ public:
   BnNode
   data_output() const;
 
-  /// @brief セル番号を返す．
-  ///
-  /// - is_cell() == true の時のみ意味を持つ．
-  /// - それ以外は std::invalid_argument 例外を送出する．
-  SizeType
-  cell_id() const;
-
   /// @brief セルを返す．
   ///
   /// - is_cell() == true の時のみ意味を持つ．

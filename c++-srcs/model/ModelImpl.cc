@@ -8,6 +8,7 @@
 
 #include "ModelImpl.h"
 #include "NodeImpl_sub.h"
+#include "SeqImpl_sub.h"
 #include "ym/Bdd.h"
 
 
@@ -130,6 +131,17 @@ ModelImpl::set_input(
   mInputList.push_back(id);
 }
 
+// @brief 対応するID番号にDFFの出力用の印を付ける．
+void
+ModelImpl::set_seq_output(
+  SizeType id,            ///< [in] ID番号
+  SizeType seq_id         ///< [in] DFF/Latch番号
+)
+{
+  auto node = new NodeImpl_SeqOutput{seq_id};
+  mNodeArray[id] = unique_ptr<NodeImpl>{node};
+}
+
 // @brief プリミティブ型のノードの情報をセットする．
 void
 ModelImpl::set_primitive(
@@ -194,17 +206,7 @@ ModelImpl::new_input()
   set_input(id);
   return id;
 }
-
-// @brief 新しい BnSeq の出力ノードを作る．
-SizeType
-ModelImpl::new_seq_output(
-  SizeType seq_id
-)
-{
-  auto node = new NodeImpl_SeqOutput{seq_id};
-  auto id = reg_node(node);
-  return id;
-}
+#endif
 
 // @brief 新しい出力ノードを作る．
 SizeType
@@ -217,6 +219,7 @@ ModelImpl::new_output(
   return oid;
 }
 
+#if 0
 // @brief 新しいプリミティブ型の論理ノードを作る．
 SizeType
 ModelImpl::new_primitive(
@@ -275,58 +278,35 @@ ModelImpl::new_cell(
 // @brief DFFを作る．
 SizeType
 ModelImpl::new_dff(
-  const string& name,
-  SizeType output_id,
-  SizeType clock_id,
-  SizeType clear_id,
-  SizeType preset_id,
-  char rs_val
+  char rs_val,
+  const string& name
 )
 {
-  auto id = seq_num();
-  if ( output_id == BAD_ID ) {
-    output_id = new_seq_output(id);
-  }
-  auto& seq = _new_dff_seq(rs_val, output_id);
-  if ( name != string{} ) {
-    set_seq_name(id, name);
-  }
-  return id;
+  auto seq = new SeqImpl_DFF{rs_val};
+  return _reg_seq(seq, name);
 }
 
 // @brief ラッチを作る．
 SizeType
 ModelImpl::new_latch(
-  const string& name,
-  SizeType output_id,
-  SizeType enable_id,
-  SizeType clear_id,
-  SizeType preset_id,
-  char rs_val
+  char rs_val,
+  const string& name
 )
 {
-  auto id = seq_num();
-  if ( output_id == BAD_ID ) {
-    output_id = new_seq_output(id);
-  }
-  auto& seq = _new_latch_seq(rs_val, output_id);
-  if ( name != string{} ) {
-    set_seq_name(id, name);
-  }
-  return id;
+  auto seq = new SeqImpl_Latch{rs_val};
+  return _reg_seq(seq, name);
 }
 
 // @brief cell タイプの DFF を作る．
 SizeType
 ModelImpl::new_seq_cell(
-  ClibCell cell
+  ClibCell cell,
+  const string& name
 )
 {
-  auto id = seq_num();
   set_library(cell.library());
-  auto& seq = _new_cell_seq(cell);
-  //seq.set_cell(cell, cell.pin_num());
-  return id;
+  auto seq = new SeqImpl_Cell(cell);
+  return _reg_seq(seq, name);
 }
 
 // @brief 論理ノードのリストを作る．
