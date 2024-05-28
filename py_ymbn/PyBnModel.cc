@@ -111,7 +111,7 @@ BnModel_read_blif(
   }
   ClibCellLibrary cell_library;
   if ( lib_obj != nullptr ) {
-    cell_library = PyClibCellLibrary::Get(lib_obj);
+    cell_library = ClibCellLibrary{PyClibCellLibrary::Get(lib_obj)};
   }
   try {
     auto model = BnModel::read_blif(filename, cell_library);
@@ -469,7 +469,7 @@ BnModel_set_celllibrary(
     return nullptr;
   }
   auto& model = PyBnModel::Get(self);
-  auto library = PyClibCellLibrary::Get(obj);
+  auto library = ClibCellLibrary{PyClibCellLibrary::Get(obj)};
   model.set_celllibrary(library);
   Py_RETURN_NONE;
 }
