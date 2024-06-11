@@ -92,6 +92,7 @@ TruthReader::read(
     auto id = model->new_func(fanin_list, func);
     model->new_output(id);
   }
+  model->make_logic_list();
 }
 
 END_NAMESPACE_YM_BN

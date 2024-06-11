@@ -26,6 +26,8 @@ ym_add_gtest( bn_NodeImpl_test
   $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
+  DEFINITIONS
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
 target_include_directories( bn_NodeImpl_test
@@ -39,6 +41,8 @@ ym_add_gtest( bn_SeqImpl_test
   $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
+  DEFINITIONS
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
 target_include_directories( bn_SeqImpl_test

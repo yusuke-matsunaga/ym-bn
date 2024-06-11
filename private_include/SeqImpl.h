@@ -48,25 +48,19 @@ public:
   type() const = 0;
 
   /// @brief DFFタイプの時に true を返す．
+  virtual
   bool
-  is_dff() const
-  {
-    return type() == BnSeqType::DFF;
-  }
+  is_dff() const;
 
   /// @brief ラッチタイプの時に true を返す．
+  virtual
   bool
-  is_latch() const
-  {
-    return type() == BnSeqType::LATCH;
-  }
+  is_latch() const;
 
   /// @brief セルタイプの時に true を返す．
+  virtual
   bool
-  is_cell() const
-  {
-    return type() == BnSeqType::CELL;
-  }
+  is_cell() const;
 
   /// @brief データ入力ノードを返す．
   ///

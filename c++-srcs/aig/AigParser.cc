@@ -122,6 +122,7 @@ AigParser::read_aag(
     }
     SizeType dff_id = mModel->new_dff();
     model->set_data_output(dff_id, oid);
+    model->set_seq_output(oid, dff_id);
     model->set_clock(dff_id, clock_id);
     model->set_clear(dff_id, reset_id);
     auto src_id = lit2node(src_lit);
@@ -179,10 +180,10 @@ AigParser::read_aag(
   }
   // 論理ノードのソースが定義されているかのチェック
   for ( auto id: mModel->logic_list() ) {
-    auto& node = mModel->node_impl(id);
+    auto node = mModel->node_impl(id);
     ostringstream buf;
     buf << "Node#" << id;
-    for ( auto iid: node.fanin_list() ) {
+    for ( auto iid: node->fanin_list() ) {
       if ( !check_defined(iid, buf.str()) ) {
 	return false;
       }
@@ -265,7 +266,7 @@ AigParser::read_aig(
       cout << "O#" << i << ": " << src_lit << endl;
     }
     auto src_id = lit2node(src_lit);
-    mModel->set_output(i, src_id);
+    mModel->new_output(src_id);
   }
 
   // AND行の読み込み
@@ -287,6 +288,7 @@ AigParser::read_aig(
     bool src1_inv;
     auto src1_id = lit2node(rhs1, src1_inv);
     mModel->set_aig(id, src0_id, src1_id, src0_inv, src1_inv);
+    set_defined(id);
   }
 
   model->make_logic_list();
@@ -314,7 +316,8 @@ AigParser::read_aag_header(
   if ( linebuf.substr(0, 3) != string{"aag"} ) {
     ostringstream buf;
     buf << linebuf << ": Illegal header signature, 'aag' expected.";
-    MsgMgr::put_msg(__FILE__, __LINE__, FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
 		    MsgType::Error, "AIG_PARSER", buf.str());
     return false;
   }
@@ -342,7 +345,8 @@ AigParser::open(
   if ( !*mS ) {
     ostringstream buf;
     buf << filename << ": No such file";
-    MsgMgr::put_msg(__FILE__, __LINE__, MsgType::Failure, "AIG_PARSER", buf.str());
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    MsgType::Failure, "AIG_PARSER", buf.str());
     delete mS;
     mS = nullptr;
     return false;
@@ -370,7 +374,8 @@ AigParser::read_aig_header(
   if ( linebuf.substr(0, 3) != string{"aig"} ) {
     ostringstream buf;
     buf << linebuf << ": Illegal header signature, 'aig' expected.";
-    MsgMgr::put_msg(__FILE__, __LINE__, FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
 		    MsgType::Error, "AIG_PARSER", buf.str());
     return false;
   }
@@ -380,7 +385,8 @@ AigParser::read_aig_header(
   if ( M != (I + L + A) ) {
     ostringstream buf;
     buf << linebuf << ": wrong parameters";
-    MsgMgr::put_msg(__FILE__, __LINE__, FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
 		    MsgType::Error, "AIG_PARSER", buf.str());
     return false;
   }
@@ -406,7 +412,8 @@ AigParser::initialize(
 )
 {
   for ( SizeType i = 0; i < M; ++ i ) {
-    model->new_node();
+    // これで id 番号が一致するはず．
+    model->alloc_node();
   }
   mModel = model;
   mDefined = vector<bool>(M, false);
@@ -569,7 +576,8 @@ AigParser::read_line(
 {
   ++ mLineNo;
   if ( !getline(*mS, buf) ) {
-    MsgMgr::put_msg(__FILE__, __LINE__, FileRegion{mFileInfo, mLineNo, 1, mLineNo, 1},
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    FileRegion{mFileInfo, mLineNo, 1, mLineNo, 1},
 		    MsgType::Error, "AIG_PARSER", "Unexpected EOF");
     return false;
   }
@@ -584,13 +592,15 @@ AigParser:: set_defined(
 )
 {
   if ( (lit % 2) == 1 ) {
-    MsgMgr::put_msg(__FILE__, __LINE__, FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
 		    MsgType::Error, "AIG_PARSER",
 		    "Positive Literal(even number) expected");
     return false;
   }
   if ( lit <= 1 ) {
-    MsgMgr::put_msg(__FILE__, __LINE__, FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
 		    MsgType::Error, "AIG_PARSER",
 		    "Unexpected constant literal");
     return false;
@@ -600,7 +610,8 @@ AigParser:: set_defined(
   if ( mDefined[id] ) {
     ostringstream buf;
     buf << id << " is already defined.";
-    MsgMgr::put_msg(__FILE__, __LINE__, FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
 		    MsgType::Error, "AIG_PARSER", buf.str());
     return false;
   }
@@ -623,7 +634,8 @@ AigParser::check_defined(
   if ( !mDefined[id] ) {
     ostringstream buf;
     buf << lit << " is not defined required by " << ref << ".";
-    MsgMgr::put_msg(__FILE__, __LINE__, FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    FileRegion{mFileInfo, mLineNo, 1, mLineNo, mLastCol},
 		    MsgType::Error, "AIG_PARSER", buf.str());
   }
   return true;
@@ -642,8 +654,7 @@ AigParser::lit2node(
     // 定数0
     return const0();
   }
-  -- id;
-  return id;
+  return id - 1;
 }
 
 // @brief リテラルからノードの情報を得る．
@@ -664,16 +675,16 @@ AigParser::lit2node(
       return const0();
     }
   }
-  -- id;
+  auto node_id = id - 1;
   if ( inv ) {
-    if ( mInvDict.count(id) > 0 ) {
-      return mInvDict.at(id);
+    if ( mInvDict.count(node_id) > 0 ) {
+      return mInvDict.at(node_id);
     }
-    auto inv_id = mModel->new_node();
-    mModel->set_primitive(inv_id, {id}, PrimType::Not);
+    auto inv_id = mModel->new_primitive({node_id}, PrimType::Not);
+    mInvDict.emplace(node_id, inv_id);
     return inv_id;
   }
-  return id;
+  return node_id;
 }
 
 // @brief 定数0ノードを返す．
@@ -681,8 +692,7 @@ SizeType
 AigParser::const0()
 {
   if ( mConst0 == -1 ) {
-    mConst0 = mModel->new_node();
-    mModel->set_primitive(mConst0, {}, PrimType::C0);
+    mConst0 = mModel->new_primitive({}, PrimType::C0);
   }
   return mConst0;
 }
@@ -692,8 +702,7 @@ SizeType
 AigParser::const1()
 {
   if ( mConst1 == -1 ) {
-    mConst1 = mModel->new_node();
-    mModel->set_primitive(mConst0, {}, PrimType::C1);
+    mConst1 = mModel->new_primitive({}, PrimType::C1);
   }
   return mConst1;
 }

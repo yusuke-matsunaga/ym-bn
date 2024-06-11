@@ -41,35 +41,35 @@ BnNode::~BnNode()
 BnNodeType
 BnNode::type() const
 {
-  return _impl().type();
+  return _impl()->type();
 }
 
 // @brief 入力ノードの時 true を返す．
 bool
 BnNode::is_input() const
 {
-  return _impl().is_input();
+  return _impl()->is_input();
 }
 
 // @brief BnSeq の出力ノードの時 true を返す．
 bool
 BnNode::is_seq_output() const
 {
-  return _impl().is_seq_output();
+  return _impl()->is_seq_output();
 }
 
 // @brief 論理ノードの時 true を返す．
 bool
 BnNode::is_logic() const
 {
-  return _impl().is_logic();
+  return _impl()->is_logic();
 }
 
 // @brief PRIM タイプの論理ノードの時 true を返す．
 bool
 BnNode::is_primitive() const
 {
-  return _impl().is_primitive();
+  return _impl()->is_primitive();
 }
 
 // @brief AIG タイプの論理ノードの時 true を返す．
@@ -97,14 +97,14 @@ BnNode::is_cell() const
 SizeType
 BnNode::input_id() const
 {
-  return _impl().input_id();
+  return _impl()->input_id();
 }
 
 // @brief 関連する BnSeq を返す．
 BnSeq
 BnNode::seq_node() const
 {
-  auto id = _impl().seq_id();
+  auto id = _impl()->seq_id();
   return ModelImpl::new_seq(mModel, id);
 }
 
@@ -112,7 +112,7 @@ BnNode::seq_node() const
 SizeType
 BnNode::fanin_num() const
 {
-  return _impl().fanin_num();
+  return _impl()->fanin_num();
 }
 
 // @brief ノードのファンインのノードを返す．
@@ -121,7 +121,7 @@ BnNode::fanin(
   SizeType pos
 ) const
 {
-  auto id = _impl().fanin(pos);
+  auto id = _impl()->fanin(pos);
   return ModelImpl::new_node(mModel, id);
 }
 
@@ -129,14 +129,14 @@ BnNode::fanin(
 BnNodeList
 BnNode::fanin_list() const
 {
-  return ModelImpl::new_node_list(mModel, _impl().fanin_list());
+  return ModelImpl::new_node_list(mModel, _impl()->fanin_list());
 }
 
 // @brief ノードのプリミティブタイプを返す．
 PrimType
 BnNode::primitive_type() const
 {
-  return _impl().primitive_type();
+  return _impl()->primitive_type();
 }
 
 // @brief ファンインの反転属性を返す．
@@ -145,14 +145,14 @@ BnNode::fanin_inv(
   SizeType pos
 ) const
 {
-  return _impl().fanin_inv(pos);
+  return _impl()->fanin_inv(pos);
 }
 
 // @brief ノードの関数情報を返す．
 BnFunc
 BnNode::local_func() const
 {
-  auto id = _impl().local_func_id();
+  auto id = _impl()->local_func_id();
   return ModelImpl::new_func(mModel, id);
 }
 
@@ -160,11 +160,11 @@ BnNode::local_func() const
 ClibCell
 BnNode::cell() const
 {
-  return _impl().cell();
+  return _impl()->cell();
 }
 
 // @brief ノードの実体を返す．
-const NodeImpl&
+const NodeImpl*
 BnNode::_impl() const
 {
   if ( !is_valid() ) {

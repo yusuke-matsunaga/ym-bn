@@ -910,7 +910,8 @@ BlifParser::read_latch()
 
     set_defined(id2, name2_loc);
     auto dff_id = mModel->new_dff(' ', name2);
-    // data_out = id2
+    mModel->set_data_output(dff_id, id2);
+    mModel->set_seq_output(id2, dff_id);
     mModel->set_clock(dff_id, mClockId);
     mModel->set_clear(dff_id, reset_id);
     mModel->set_preset(dff_id, preset_id);

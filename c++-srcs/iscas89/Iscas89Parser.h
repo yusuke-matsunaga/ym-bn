@@ -223,7 +223,7 @@ private:
     const FileRegion& loc ///< [in] ファイル上の位置
   )
   {
-    auto id = mModel->new_node();
+    auto id = mModel->alloc_node();
     mRefLocDict.emplace(id, loc);
     return id;
   }

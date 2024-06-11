@@ -157,8 +157,11 @@ TEST( NodeImplTest, func )
 
 TEST( NodeImplTest, cell )
 {
+  string filename = string(DATAPATH) + string("/lib2.genlib");
+  auto library = ClibCellLibrary::read_mislib(filename);
+  auto cell = library.cell("nand4");
+
   vector<SizeType> fanin_list{2, 6, 8, 10};
-  ClibCell cell;
   NodeImpl_Cell node_cell{cell, fanin_list};
   NodeImpl* node = &node_cell;
 

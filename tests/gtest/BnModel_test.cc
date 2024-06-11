@@ -446,8 +446,7 @@ TEST( BnModelTest, new_dff)
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
 
   auto onode = node.data_output();
-  EXPECT_TRUE( onode.is_valid() );
-  EXPECT_TRUE( onode.is_seq_output() );
+  EXPECT_FALSE( onode.is_valid() );
 }
 
 TEST( BnModelTest, new_latch)
@@ -470,8 +469,7 @@ TEST( BnModelTest, new_latch)
   EXPECT_THROW( {node.cell(); }, std::invalid_argument );
 
   auto onode = node.data_output();
-  EXPECT_TRUE( onode.is_valid() );
-  EXPECT_TRUE( onode.is_seq_output() );
+  EXPECT_FALSE( onode.is_valid() );
 }
 
 TEST( BnModelTest, new_seq_cell )
@@ -511,13 +509,18 @@ TEST( BnModelTest, clear )
   vector<BnNode> fanin_list{input1, input2};
   PrimType type = PrimType::And;
   auto node = model.new_primitive(type, fanin_list);
+  auto output = model.new_output(node);
+
+  model.wrap_up();
 
   EXPECT_EQ( 2, model.input_num() );
+  EXPECT_EQ( 1, model.output_num() );
   EXPECT_EQ( 1, model.logic_num() );
 
   model.clear();
 
   EXPECT_EQ( 0, model.input_num() );
+  EXPECT_EQ( 0, model.output_num() );
   EXPECT_EQ( 0, model.logic_num() );
 }
 

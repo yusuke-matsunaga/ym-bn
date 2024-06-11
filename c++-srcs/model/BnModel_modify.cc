@@ -26,6 +26,13 @@ BnModel::clear()
   mImpl->clear();
 }
 
+// @brief 設定情報を確定する．
+void
+BnModel::wrap_up()
+{
+  mImpl->make_logic_list();
+}
+
 // @brief セルライブラリを設定する．
 void
 BnModel::set_celllibrary(

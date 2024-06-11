@@ -132,6 +132,10 @@ public:
   BnSeqType
   type() const override;
 
+  /// @brief DFFタイプの時に true を返す．
+  bool
+  is_dff() const override;
+
   /// @brief クロック入力ノードを返す．
   SizeType
   clock() const override;
@@ -185,6 +189,10 @@ public:
   BnSeqType
   type() const override;
 
+  /// @brief ラッチタイプの時に true を返す．
+  bool
+  is_latch() const override;
+
   /// @brief イネーブル入力ノードを返す．
   SizeType
   enable() const override;
@@ -237,6 +245,10 @@ public:
   /// @brief 種類を返す．
   BnSeqType
   type() const override;
+
+  /// @brief セルタイプの時に true を返す．
+  bool
+  is_cell() const override;
 
   /// @brief セルを返す．
   ClibCell

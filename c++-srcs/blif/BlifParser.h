@@ -71,7 +71,7 @@ private:
       return mIdDict.at(name);
     }
     mRefLocArray.push_back(loc);
-    auto id = mModel->new_node();
+    auto id = mModel->alloc_node();
     mIdDict.emplace(name, id);
     mNameDict.emplace(id, name);
     return id;

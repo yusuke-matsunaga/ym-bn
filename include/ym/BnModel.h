@@ -347,6 +347,10 @@ public:
   void
   clear();
 
+  /// @brief 設定情報を確定する．
+  void
+  wrap_up();
+
   /// @brief セルライブラリを設定する．
   ///
   /// 既に別のライブラリが設定されていたら std::invalid_argument 例外を送出する．

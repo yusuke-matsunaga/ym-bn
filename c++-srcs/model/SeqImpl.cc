@@ -16,6 +16,27 @@ BEGIN_NAMESPACE_YM_BN
 // クラス SeqImpl
 //////////////////////////////////////////////////////////////////////
 
+// @brief DFFタイプの時に true を返す．
+bool
+SeqImpl::is_dff() const
+{
+  return false;
+}
+
+// @brief ラッチタイプの時に true を返す．
+bool
+SeqImpl::is_latch() const
+{
+  return false;
+}
+
+// @brief セルタイプの時に true を返す．
+bool
+SeqImpl::is_cell() const
+{
+  return false;
+}
+
 // @brief データ入力ノードを返す．
 SizeType
 SeqImpl::data_src() const
@@ -266,6 +287,13 @@ SeqImpl_DFF::type() const
   return BnSeqType::DFF;
 }
 
+// @brief DFFタイプの時に true を返す．
+bool
+SeqImpl_DFF::is_dff() const
+{
+  return true;
+}
+
 // @brief クロック入力ノードを返す．
 SizeType
 SeqImpl_DFF::clock() const
@@ -313,6 +341,13 @@ SeqImpl_Latch::type() const
   return BnSeqType::LATCH;
 }
 
+// @brief ラッチタイプの時に true を返す．
+bool
+SeqImpl_Latch::is_latch() const
+{
+  return true;
+}
+
 // @brief イネーブル入力ノードを返す．
 SizeType
 SeqImpl_Latch::enable() const
@@ -345,10 +380,9 @@ SeqImpl_Latch::copy() const
 SeqImpl_Cell::SeqImpl_Cell(
   ClibCell cell
 ) : mCell{cell},
-  mPinList(cell.pin_num())
+    mPinList(cell.pin_num(), BAD_ID)
 {
 }
-
 
 // @brief デストラクタ
 SeqImpl_Cell::~SeqImpl_Cell()
@@ -360,6 +394,13 @@ BnSeqType
 SeqImpl_Cell::type() const
 {
   return BnSeqType::CELL;
+}
+
+// @brief セルタイプの時に true を返す．
+bool
+SeqImpl_Cell::is_cell() const
+{
+  return true;
 }
 
 // @brief セルを返す．

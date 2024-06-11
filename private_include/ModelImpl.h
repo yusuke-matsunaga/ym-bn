@@ -198,12 +198,12 @@ public:
   }
 
   /// @brief ノードを取り出す．
-  const NodeImpl&
+  const NodeImpl*
   node_impl(
     SizeType id ///< [in] ID番号
   ) const
   {
-    return *mNodeArray[id];
+    return mNodeArray[id].get();
   }
 
   /// @brief SEQノード数を返す．
@@ -390,6 +390,17 @@ public:
     mSymbolDict.emplace(key, name);
   }
 
+  /// @brief 新しいノード用の番号を確保する．
+  ///
+  /// @return ID番号を返す．
+  SizeType
+  alloc_node()
+  {
+    auto id = mNodeArray.size();
+    mNodeArray.push_back(unique_ptr<NodeImpl>{nullptr});
+    return id;
+  }
+
   /// @brief 対応するID番号に入力用の印を付ける．
   void
   set_input(
@@ -447,24 +458,13 @@ public:
     ClibCell cell                       ///< [in] セル
   );
 
-  /// @brief 新しいノードを登録する．
-  ///
-  /// @return ID番号を返す．
-  SizeType
-  new_node()
-  {
-    auto id = mNodeArray.size();
-    mNodeArray.push_back(unique_ptr<NodeImpl>{nullptr});
-    return id;
-  }
-
   /// @brief 新しい入力ノードを作る．
   ///
   /// @return ID番号を返す．
   SizeType
   new_input()
   {
-    auto id = new_node();
+    auto id = alloc_node();
     set_input(id);
     return id;
   }
@@ -477,7 +477,7 @@ public:
     SizeType seq_id        ///< [in] BnSeq の ID 番号
   )
   {
-    auto id = new_node();
+    auto id = alloc_node();
     set_seq_output(id, seq_id);
     return id;
   }
@@ -499,7 +499,7 @@ public:
     PrimType type                       ///< [in] プリミティブタイプ
   )
   {
-    auto id = new_node();
+    auto id = alloc_node();
     set_primitive(id, input_list, type);
     return id;
   }
@@ -515,7 +515,7 @@ public:
     bool inv1               ///< [in] ソース1の反転属性
   )
   {
-    auto id = new_node();
+    auto id = alloc_node();
     set_aig(id, src0, src1, inv0, inv1);
     return id;
   }
@@ -529,7 +529,7 @@ public:
     SizeType func_id                    ///< [in] 関数番号
   )
   {
-    auto id = new_node();
+    auto id = alloc_node();
     set_func(id, input_list, func_id);
     return id;
   }
@@ -543,7 +543,7 @@ public:
     ClibCell cell                       ///< [in] セル
   )
   {
-    auto id = new_node();
+    auto id = alloc_node();
     set_cell(id, input_list, cell);
     return id;
   }
@@ -699,47 +699,6 @@ private:
     SizeType id,                  ///< [in] ID番号
     unordered_set<SizeType>& mark ///< [in] マーク
   );
-
-#if 0
-  /// @brief ノードを取り出す．
-  NodeImpl&
-  _node(
-    SizeType id,              ///< [in] ID番号
-    const string& func_name,  ///< [in] 関数名
-    const string& index_name  ///< [in] ID番号の変数名
-  )
-  {
-    return mNodeArray[id];
-  }
-
-  /// @brief 新しい SeqImpl を割り当てる．
-  SeqImpl&
-  _new_seq()
-  {
-    mSeqArray.push_back(SeqImpl{});
-    return mSeqArray.back();
-  }
-
-  /// @brief DFFタイプの SeqImpl を割り当てる．
-  SeqImpl&
-  _new_dff_seq(
-    SizeType output_id,
-    char rs_val
-  );
-
-  /// @brief Latchタイプの SeqImpl を割り当てる．
-  SeqImpl&
-  _new_latch_seq(
-    SizeType output_id,
-    char rs_val
-  );
-
-  /// @brief セルタイプの SeqImpl を割り当てる．
-  SeqImpl&
-  _new_cell_seq(
-    ClibCell cell
-  );
-#endif
 
   /// @brief SeqImpl を登録する．
   SizeType

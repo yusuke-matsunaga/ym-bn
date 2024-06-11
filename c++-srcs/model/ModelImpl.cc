@@ -125,6 +125,7 @@ ModelImpl::set_input(
   SizeType id
 )
 {
+  ASSERT_COND( mNodeArray[id].get() == nullptr );
   auto iid = mInputList.size();
   auto node = new NodeImpl_Input{iid};
   mNodeArray[id] = unique_ptr<NodeImpl>{node};
@@ -138,6 +139,7 @@ ModelImpl::set_seq_output(
   SizeType seq_id         ///< [in] DFF/Latch番号
 )
 {
+  ASSERT_COND( mNodeArray[id].get() == nullptr );
   auto node = new NodeImpl_SeqOutput{seq_id};
   mNodeArray[id] = unique_ptr<NodeImpl>{node};
 }
@@ -150,9 +152,9 @@ ModelImpl::set_primitive(
   PrimType type
 )
 {
+  ASSERT_COND( mNodeArray[id].get() == nullptr );
   auto node = new NodeImpl_Primitive{type, input_list};
   mNodeArray[id] = unique_ptr<NodeImpl>{node};
-  mLogicList.push_back(id);
 }
 
 // @brief AIG型のノードの情報をセットする．
@@ -165,9 +167,9 @@ ModelImpl::set_aig(
   bool inv1
 )
 {
+  ASSERT_COND( mNodeArray[id].get() == nullptr );
   auto node = new NodeImpl_Aig{src0, inv0, src1, inv1};
   mNodeArray[id] = unique_ptr<NodeImpl>{node};
-  mLogicList.push_back(id);
 }
 
 // @brief 関数型のノードの情報をセットする．
@@ -178,9 +180,9 @@ ModelImpl::set_func(
   SizeType func_id
 )
 {
+  ASSERT_COND( mNodeArray[id].get() == nullptr );
   auto node = new NodeImpl_Func{func_id, input_list};
   mNodeArray[id] = unique_ptr<NodeImpl>{node};
-  mLogicList.push_back(id);
 }
 
 // @brief セル型のノードの情報をセットする．
@@ -191,22 +193,10 @@ ModelImpl::set_cell(
   ClibCell cell
 )
 {
+  ASSERT_COND( mNodeArray[id].get() == nullptr );
   auto node = new NodeImpl_Cell{cell, input_list};
   mNodeArray[id] = unique_ptr<NodeImpl>{node};
-  mLogicList.push_back(id);
 }
-
-#if 0
-// @brief 新しい入力ノードを作る．
-SizeType
-ModelImpl::new_input()
-{
-  auto id = mNodeArray.size();
-  mNodeArray.push_back({});
-  set_input(id);
-  return id;
-}
-#endif
 
 // @brief 新しい出力ノードを作る．
 SizeType
@@ -218,62 +208,6 @@ ModelImpl::new_output(
   mOutputList.push_back(src_id);
   return oid;
 }
-
-#if 0
-// @brief 新しいプリミティブ型の論理ノードを作る．
-SizeType
-ModelImpl::new_primitive(
-  const vector<SizeType>& input_list,
-  PrimType type
-)
-{
-  auto node = new NodeImpl_Primitive{type, input_list};
-  auto id = reg_node(node);
-  mLogicList.push_back(id);
-  return id;
-}
-
-// @brief 新しいAIG型の論理ノードを作る．
-SizeType
-ModelImpl::new_aig(
-  SizeType src0,
-  SizeType src1,
-  bool inv0,
-  bool inv1
-)
-{
-  auto node = new NodeImpl_Aig{src0, inv0, src1, inv1};
-  auto id = reg_node();
-  mLogicList.push_back(id);
-  return id;
-}
-
-// @brief 関数型のノードの情報をセットする．
-SizeType
-ModelImpl::new_func(
-  const vector<SizeType>& input_list,
-  SizeType func_id
-)
-{
-  auto node = new NodeImpl_Func{func_id, input_list};
-  auto id = reg_node(node);
-  mLogicList.push_back(id);
-  return id;
-}
-
-// @brief セル型のノードの情報をセットする．
-SizeType
-ModelImpl::new_cell(
-  const vector<SizeType>& input_list,
-  ClibCell cell
-)
-{
-  auto node = new NodeImpl_Cell{cell, input_list};
-  auto id = reg_node(node);
-  mLogicList.push_back(id);
-  return id;
-}
-#endif
 
 // @brief DFFを作る．
 SizeType
@@ -350,7 +284,6 @@ ModelImpl::order_node(
   if ( mark.count(id) > 0 ) {
     return;
   }
-  //auto& node = _node(id, "", "");
   auto node = mNodeArray[id].get();
   ASSERT_COND( node->is_logic() );
   for ( auto iid: node->fanin_list() ) {

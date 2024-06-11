@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include <gtest/gtest.h>
+#include "ym/ClibCellLibrary.h"
 #include "SeqImpl.h"
 #include "SeqImpl_sub.h"
 
@@ -55,7 +56,9 @@ TEST( SeqImplTest, latch )
 
 TEST( SeqImplTest, cell )
 {
-  ClibCell cell;
+  string filename = string(DATAPATH) + string("/HIT018.typ.snp");
+  auto library = ClibCellLibrary::read_liberty(filename);
+  ClibCell cell = library.cell("HIT18DFNRP010");
   SeqImpl_Cell seq{cell};
   SeqImpl* node = &seq;
 
