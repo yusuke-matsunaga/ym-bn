@@ -547,7 +547,7 @@ TEST( ModelImplTest, reg_tvfunc )
 {
   ModelImpl model;
 
-  auto func1 = TvFunc::make_zero(4);
+  auto func1 = TvFunc::zero(4);
   auto id1 = model.reg_tvfunc(func1);
   auto func2 = TvFunc{2, vector<int>{0, 1, 1, 0}};
   auto id2 = model.reg_tvfunc(func2);

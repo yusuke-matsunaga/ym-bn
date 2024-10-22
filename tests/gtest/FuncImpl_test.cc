@@ -123,7 +123,7 @@ TEST(FuncImpl_test, cover_bad2)
 
 TEST(FuncImpl_test, expr_zero)
 {
-  auto expr = Expr::make_zero();
+  auto expr = Expr::zero();
   auto func = FuncImpl::new_expr(expr);
 
   EXPECT_EQ( BnFuncType::EXPR, func->type() );
@@ -141,7 +141,7 @@ TEST(FuncImpl_test, expr_zero)
 
 TEST(FuncImpl_test, expr_one)
 {
-  auto expr = Expr::make_one();
+  auto expr = Expr::one();
   auto func = FuncImpl::new_expr(expr);
 
   EXPECT_EQ( BnFuncType::EXPR, func->type() );
@@ -159,8 +159,8 @@ TEST(FuncImpl_test, expr_one)
 
 TEST(FuncImpl_test, expr1)
 {
-  auto v0 = Expr::make_literal(0);
-  auto v1 = Expr::make_literal(1);
+  auto v0 = Expr::literal(0);
+  auto v1 = Expr::literal(1);
   auto expr = v0 | ~v1;
   auto func = FuncImpl::new_expr(expr);
 
@@ -180,7 +180,7 @@ TEST(FuncImpl_test, expr1)
 TEST(FuncImpl_test, expr2)
 {
   // 1変数だが2入力関数とみなす．
-  auto v1 = Expr::make_literal(1);
+  auto v1 = Expr::literal(1);
   auto expr = v1;
   auto func = FuncImpl::new_expr(expr);
 
@@ -199,7 +199,7 @@ TEST(FuncImpl_test, expr2)
 
 TEST(FuncImpl_test, tvfunc_zero)
 {
-  auto tvfunc = TvFunc::make_zero(4);
+  auto tvfunc = TvFunc::zero(4);
   auto func = FuncImpl::new_tvfunc(tvfunc);
 
   EXPECT_EQ( BnFuncType::TVFUNC, func->type() );
@@ -217,7 +217,7 @@ TEST(FuncImpl_test, tvfunc_zero)
 
 TEST(FuncImpl_test, tvfunc_one)
 {
-  auto tvfunc = TvFunc::make_one(4);
+  auto tvfunc = TvFunc::one(4);
   auto func = FuncImpl::new_tvfunc(tvfunc);
 
   EXPECT_EQ( BnFuncType::TVFUNC, func->type() );
@@ -235,9 +235,9 @@ TEST(FuncImpl_test, tvfunc_one)
 
 TEST(FuncImpl_test, tvfunc1)
 {
-  auto v0 = TvFunc::make_posi_literal(3, 0);
-  auto v1 = TvFunc::make_posi_literal(3, 1);
-  auto v2 = TvFunc::make_posi_literal(3, 2);
+  auto v0 = TvFunc::posi_literal(3, 0);
+  auto v1 = TvFunc::posi_literal(3, 1);
+  auto v2 = TvFunc::posi_literal(3, 2);
   auto tvfunc = v0 | v1 | v2;
   auto func = FuncImpl::new_tvfunc(tvfunc);
 

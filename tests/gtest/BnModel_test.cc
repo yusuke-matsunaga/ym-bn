@@ -121,8 +121,8 @@ TEST( BnModelTest, reg_expr )
 {
   BnModel model;
 
-  auto v0 = Expr::make_literal(0);
-  auto v1 = Expr::make_literal(1);
+  auto v0 = Expr::literal(0);
+  auto v1 = Expr::literal(1);
   auto expr = v0 | ~v1;
   auto func = model.reg_expr(expr);
 
@@ -141,9 +141,9 @@ TEST( BnModelTest, reg_expr )
 
 TEST( BnModelTest, reg_tvfunc )
 {
-  auto v0 = TvFunc::make_posi_literal(3, 0);
-  auto v1 = TvFunc::make_posi_literal(3, 1);
-  auto v2 = TvFunc::make_posi_literal(3, 2);
+  auto v0 = TvFunc::posi_literal(3, 0);
+  auto v1 = TvFunc::posi_literal(3, 1);
+  auto v2 = TvFunc::posi_literal(3, 2);
   auto tvfunc = v0 | v1 | v2;
 
   BnModel model;
@@ -297,8 +297,8 @@ TEST( BnModelTest, new_func_expr )
   auto input1 = model.new_input();
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
-  auto lit1 = Expr::make_posi_literal(0);
-  auto lit2 = Expr::make_posi_literal(1);
+  auto lit1 = Expr::posi_literal(0);
+  auto lit2 = Expr::posi_literal(1);
   auto expr = lit1 | lit2;
   auto func = model.reg_expr(expr);
   auto node = model.new_func(func, fanin_list);
@@ -331,8 +331,8 @@ TEST( BnModelTest, new_func_tvfunc )
   auto input2 = model.new_input();
   vector<BnNode> fanin_list{input1, input2};
 
-  auto v0 = TvFunc::make_posi_literal(2, 0);
-  auto v1 = TvFunc::make_posi_literal(2, 1);
+  auto v0 = TvFunc::posi_literal(2, 0);
+  auto v1 = TvFunc::posi_literal(2, 1);
   auto tvfunc = v0 | v1;
   auto func = model.reg_tvfunc(tvfunc);
   auto node = model.new_func(func, fanin_list);
