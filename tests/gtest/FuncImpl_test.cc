@@ -12,6 +12,7 @@
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Bdd.h"
+#include "ym/BddVar.h"
 #include "ym/BddMgr.h"
 
 
@@ -295,8 +296,10 @@ TEST(FuncImpl_test, bdd_one)
 TEST(FuncImpl_test, bdd1)
 {
   BddMgr mgr;
-  auto v0 = mgr.posi_literal(0);
-  auto v1 = mgr.posi_literal(1);
+  auto var0 = mgr.new_variable();
+  auto var1 = mgr.new_variable();
+  auto v0 = mgr.posi_literal(var0);
+  auto v1 = mgr.posi_literal(var1);
   auto bdd = v0 & ~v1;
   auto func = FuncImpl::new_bdd(bdd);
 
@@ -316,7 +319,8 @@ TEST(FuncImpl_test, bdd1)
 TEST(FuncImpl_test, bdd2)
 {
   BddMgr mgr;
-  auto v1 = mgr.posi_literal(1);
+  auto var0 = mgr.new_variable();
+  auto v1 = mgr.posi_literal(var0);
   auto bdd = ~v1;
   auto func = FuncImpl::new_bdd(bdd);
 
@@ -325,7 +329,7 @@ TEST(FuncImpl_test, bdd2)
   EXPECT_FALSE( func->is_expr() );
   EXPECT_FALSE( func->is_tvfunc() );
   EXPECT_TRUE( func->is_bdd() );
-  EXPECT_EQ( 2, func->input_num() );
+  EXPECT_EQ( 1, func->input_num() );
   EXPECT_THROW( {func->input_cover();}, std::invalid_argument );
   EXPECT_THROW( {func->output_pat();}, std::invalid_argument );
   EXPECT_THROW( {func->expr();}, std::invalid_argument );

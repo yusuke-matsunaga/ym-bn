@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "CoverMgr.h"
+#include "ym/Literal.h"
 
 
 BEGIN_NAMESPACE_YM_BN

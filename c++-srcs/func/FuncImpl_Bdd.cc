@@ -54,12 +54,7 @@ FuncImpl_Bdd::input_num() const
   if ( mBdd.is_zero() || mBdd.is_one() ) {
     return 0;
   }
-  auto support_list = mBdd.get_support_list();
-  SizeType max_var = 0;
-  for ( auto var: support_list ) {
-    max_var = std::max(max_var, var);
-  }
-  return max_var + 1;
+  return mBdd.support_size();
 }
 
 // @brief BDDを返す．

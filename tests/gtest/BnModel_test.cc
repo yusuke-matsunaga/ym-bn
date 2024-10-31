@@ -15,6 +15,7 @@
 #include "ym/SopCover.h"
 #include "ym/TvFunc.h"
 #include "ym/Bdd.h"
+#include "ym/BddVar.h"
 #include "ym/BddMgr.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
@@ -168,8 +169,10 @@ TEST( BnModelTest, reg_bdd )
   BnModel model;
 
   BddMgr mgr;
-  auto v0 = mgr.posi_literal(0);
-  auto v1 = mgr.posi_literal(1);
+  auto var0 = mgr.new_variable();
+  auto var1 = mgr.new_variable();
+  auto v0 = mgr.posi_literal(var0);
+  auto v1 = mgr.posi_literal(var1);
   auto bdd = v0 & ~v1;
   auto func = model.reg_bdd(bdd);
 
@@ -366,8 +369,10 @@ TEST( BnModelTest, new_func_bdd )
   vector<BnNode> fanin_list{input1, input2};
 
   BddMgr mgr;
-  auto v0 = mgr.posi_literal(0);
-  auto v1 = mgr.posi_literal(1);
+  auto var0 = mgr.new_variable();
+  auto var1 = mgr.new_variable();
+  auto v0 = mgr.posi_literal(var0);
+  auto v1 = mgr.posi_literal(var1);
   auto bdd = v0 | v1;
   auto func = model.reg_bdd(bdd);
   auto node = model.new_func(func, fanin_list);
