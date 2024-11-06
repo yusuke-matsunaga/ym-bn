@@ -296,11 +296,9 @@ TEST(FuncImpl_test, bdd_one)
 TEST(FuncImpl_test, bdd1)
 {
   BddMgr mgr;
-  auto var0 = mgr.new_variable();
-  auto var1 = mgr.new_variable();
-  auto v0 = mgr.posi_literal(var0);
-  auto v1 = mgr.posi_literal(var1);
-  auto bdd = v0 & ~v1;
+  auto var0 = mgr.variable(0);
+  auto var1 = mgr.variable(1);
+  auto bdd = var0 & ~var1;
   auto func = FuncImpl::new_bdd(bdd);
 
   EXPECT_EQ( BnFuncType::BDD, func->type() );
@@ -319,9 +317,8 @@ TEST(FuncImpl_test, bdd1)
 TEST(FuncImpl_test, bdd2)
 {
   BddMgr mgr;
-  auto var0 = mgr.new_variable();
-  auto v1 = mgr.posi_literal(var0);
-  auto bdd = ~v1;
+  auto var0 = mgr.variable(0);
+  auto bdd = ~var0;
   auto func = FuncImpl::new_bdd(bdd);
 
   EXPECT_EQ( BnFuncType::BDD, func->type() );
