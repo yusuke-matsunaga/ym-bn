@@ -26,34 +26,33 @@
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
-include_directories(
-  include
-  private_include
-  )
 
 
 # ===================================================================
 #  マクロの定義
 # ===================================================================
 
-set ( TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testdata/" )
-
 
 # ===================================================================
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( c++-srcs )
-add_subdirectory ( test-programs )
-if ( Python3_FOUND )
-  add_subdirectory ( py_capi )
-  add_subdirectory ( pytest )
-endif ( Python3_FOUND )
+add_subdirectory ( gtest )
 
 
 # ===================================================================
 #  ソースの設定
 # ===================================================================
+
+set ( iscas89_SOURCES
+  #iscas89/C0Handler.cc
+  #iscas89/C1Handler.cc
+  #iscas89/Iscas89Handler.cc
+  iscas89/Iscas89Parser.cc
+  iscas89/Iscas89Scanner.cc
+  #iscas89/MuxHandler.cc
+  PARENT_SCOPE
+  )
 
 
 # ===================================================================

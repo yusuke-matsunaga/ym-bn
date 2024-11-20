@@ -26,34 +26,36 @@
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
-include_directories(
-  include
-  private_include
-  )
 
 
 # ===================================================================
 #  マクロの定義
 # ===================================================================
 
-set ( TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testdata/" )
-
 
 # ===================================================================
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( c++-srcs )
-add_subdirectory ( test-programs )
-if ( Python3_FOUND )
-  add_subdirectory ( py_capi )
-  add_subdirectory ( pytest )
-endif ( Python3_FOUND )
+add_subdirectory ( gtest )
 
 
 # ===================================================================
 #  ソースの設定
 # ===================================================================
+
+set ( model_SOURCES
+  model/BnFunc.cc
+  model/BnModel.cc
+  model/BnModel_modify.cc
+  model/BnModel_check.cc
+  model/BnNode.cc
+  model/BnSeq.cc
+  model/ModelImpl.cc
+  model/SeqImpl.cc
+  model/NodeImpl.cc
+  PARENT_SCOPE
+  )
 
 
 # ===================================================================

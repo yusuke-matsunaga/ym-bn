@@ -26,34 +26,32 @@
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
-include_directories(
-  include
-  private_include
-  )
 
 
 # ===================================================================
 #  マクロの定義
 # ===================================================================
 
-set ( TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testdata/" )
-
 
 # ===================================================================
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( c++-srcs )
-add_subdirectory ( test-programs )
-if ( Python3_FOUND )
-  add_subdirectory ( py_capi )
-  add_subdirectory ( pytest )
-endif ( Python3_FOUND )
+add_subdirectory ( gtest )
 
 
 # ===================================================================
 #  ソースの設定
 # ===================================================================
+
+set ( func_SOURCES
+  func/FuncImpl.cc
+  func/FuncImpl_Bdd.cc
+  func/FuncImpl_Cover.cc
+  func/FuncImpl_Expr.cc
+  func/FuncImpl_TvFunc.cc
+  PARENT_SCOPE
+  )
 
 
 # ===================================================================

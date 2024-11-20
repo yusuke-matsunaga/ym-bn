@@ -35,6 +35,7 @@ add_executable( py_ymbn
   $<TARGET_OBJECTS:py_ymbn_obj>
   $<TARGET_OBJECTS:py_ymcell_obj>
   $<TARGET_OBJECTS:py_ymlogic_obj>
+  $<TARGET_OBJECTS:py_ymbase_obj>
   $<TARGET_OBJECTS:ym_bn_obj>
   $<TARGET_OBJECTS:ym_cell_obj>
   $<TARGET_OBJECTS:ym_logic_obj>
@@ -59,6 +60,7 @@ add_executable( py_ymbn_d
   $<TARGET_OBJECTS:py_ymbn_obj_d>
   $<TARGET_OBJECTS:py_ymcell_obj_d>
   $<TARGET_OBJECTS:py_ymlogic_obj_d>
+  $<TARGET_OBJECTS:py_ymbase_obj_d>
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>

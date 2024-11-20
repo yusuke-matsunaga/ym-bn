@@ -8,14 +8,6 @@
 # サブディレクトリの設定
 # ===================================================================
 
-set ( TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testdata/" )
-
-add_subdirectory ( gtest )
-add_subdirectory ( programs )
-if ( Python3_FOUND )
-  add_subdirectory ( pytest )
-endif (Python3_FOUND)
-
 
 # ===================================================================
 #  ソースファイルの設定
@@ -26,6 +18,16 @@ endif (Python3_FOUND)
 # ===================================================================
 #  テスト用のターゲットの設定
 # ===================================================================
+
+ym_add_gtest( bn_read_aig_test
+  read_aig_test.cc
+  $<TARGET_OBJECTS:ym_bn_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  DEFINITIONS
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
+  )
 
 
 # ===================================================================
