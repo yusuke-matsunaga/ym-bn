@@ -27,7 +27,7 @@ BEGIN_NONAMESPACE
 struct BnNodeObject
 {
   PyObject_HEAD
-  BnNode* mPtr;
+  BnNode mNode;
 };
 
 // Python 用のタイプ定義
@@ -54,7 +54,7 @@ BnNode_dealloc(
 )
 {
   auto node_obj = reinterpret_cast<BnNodeObject*>(self);
-  delete node_obj->mPtr;
+  node_obj->mNode.~BnNode();
   Py_TYPE(self)->tp_free(self);
 }
 
@@ -441,7 +441,7 @@ PyBnNode::ToPyObject(
 {
   auto obj = BnNode_Type.tp_alloc(&BnNode_Type, 0);
   auto node_obj = reinterpret_cast<BnNodeObject*>(obj);
-  node_obj->mPtr = new BnNode{node};
+  new (&node_obj->mNode) BnNode{node};
   return obj;
 }
 
@@ -461,7 +461,7 @@ PyBnNode::Get(
 )
 {
   auto node_obj = reinterpret_cast<BnNodeObject*>(obj);
-  return *node_obj->mPtr;
+  return node_obj->mNode;
 }
 
 // @brief BnNode を表すオブジェクトの型定義を返す．

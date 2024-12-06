@@ -25,7 +25,7 @@ BEGIN_NONAMESPACE
 struct BnFuncObject
 {
   PyObject_HEAD
-  BnFunc* mPtr;
+  BnFunc mFunc;
 };
 
 // Python 用のタイプ定義
@@ -52,7 +52,7 @@ BnFunc_dealloc(
 )
 {
   auto func_obj = reinterpret_cast<BnFuncObject*>(self);
-  delete func_obj->mPtr;
+  func_obj->mFunc.~BnFunc();
   Py_TYPE(self)->tp_free(self);
 }
 
@@ -316,7 +316,7 @@ PyBnFunc::ToPyObject(
 {
   auto obj = BnFunc_Type.tp_alloc(&BnFunc_Type, 0);
   auto func_obj = reinterpret_cast<BnFuncObject*>(obj);
-  func_obj->mPtr = new BnFunc{func};
+  new (&func_obj->mFunc) BnFunc{func};
   return obj;
 }
 
@@ -336,7 +336,7 @@ PyBnFunc::Get(
 )
 {
   auto func_obj = reinterpret_cast<BnFuncObject*>(obj);
-  return *func_obj->mPtr;
+  return func_obj->mFunc;
 }
 
 // @brief BnFunc を表すオブジェクトの型定義を返す．

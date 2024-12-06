@@ -32,7 +32,7 @@ BEGIN_NONAMESPACE
 struct BnModelObject
 {
   PyObject_HEAD
-  BnModel* mPtr;
+  BnModel mModel;
 };
 
 // Python 用のタイプ定義
@@ -49,7 +49,7 @@ new_obj(
 {
   auto obj = BnModelType.tp_alloc(&BnModelType, 0);
   auto model_obj = reinterpret_cast<BnModelObject*>(obj);
-  model_obj->mPtr = new BnModel{std::move(src_model)};
+  new (&model_obj->mModel) BnModel{std::move(src_model)};
   return obj;
 }
 
@@ -73,7 +73,7 @@ BnModel_new(
 
   auto obj = BnModelType.tp_alloc(&BnModelType, 0);
   auto model_obj = reinterpret_cast<BnModelObject*>(obj);
-  model_obj->mPtr = new BnModel;
+  new (&model_obj->mModel) BnModel;
 
   return obj;
 }
@@ -85,7 +85,7 @@ BnModel_dealloc(
 )
 {
   auto model_obj = reinterpret_cast<BnModelObject*>(self);
-  delete model_obj->mPtr;
+  model_obj->mModel.~BnModel();
   Py_TYPE(self)->tp_free(self);
 }
 
@@ -1667,7 +1667,7 @@ PyBnModel::ToPyObject(
 {
   auto obj = BnModelType.tp_alloc(&BnModelType, 0);
   auto model_obj = reinterpret_cast<BnModelObject*>(obj);
-  model_obj->mPtr = new BnModel{val};
+  new (&model_obj->mModel) BnModel{val};
   return obj;
 }
 
@@ -1687,7 +1687,7 @@ PyBnModel::Get(
 )
 {
   auto model_obj = reinterpret_cast<BnModelObject*>(obj);
-  return *model_obj->mPtr;
+  return model_obj->mModel;
 }
 
 // @brief BnModel を表すオブジェクトの型定義を返す．

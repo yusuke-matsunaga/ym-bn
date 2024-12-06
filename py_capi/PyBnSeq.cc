@@ -23,7 +23,7 @@ BEGIN_NONAMESPACE
 struct BnSeqObject
 {
   PyObject_HEAD
-  BnSeq* mPtr;
+  BnSeq mSeq;
 };
 
 // Python 用のタイプ定義
@@ -50,7 +50,7 @@ BnSeq_dealloc(
 )
 {
   auto node_obj = reinterpret_cast<BnSeqObject*>(self);
-  delete node_obj->mPtr;
+  node_obj->mSeq.~BnSeq();
   Py_TYPE(self)->tp_free(self);
 }
 
@@ -393,7 +393,7 @@ PyBnSeq::ToPyObject(
 {
   auto obj = BnSeq_Type.tp_alloc(&BnSeq_Type, 0);
   auto node_obj = reinterpret_cast<BnSeqObject*>(obj);
-  node_obj->mPtr = new BnSeq{node};
+  new (&node_obj->mSeq) BnSeq{node};
   return obj;
 }
 
@@ -413,7 +413,7 @@ PyBnSeq::Get(
 )
 {
   auto node_obj = reinterpret_cast<BnSeqObject*>(obj);
-  return *node_obj->mPtr;
+  return node_obj->mSeq;
 }
 
 // @brief BnSeq を表すオブジェクトの型定義を返す．

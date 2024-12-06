@@ -22,7 +22,7 @@ BEGIN_NONAMESPACE
 struct BnNodeListObject
 {
   PyObject_HEAD
-  BnNodeList* mPtr;
+  BnNodeList mNodeList;
 };
 
 // Python 用のタイプ定義
@@ -49,7 +49,7 @@ BnNodeList_dealloc(
 )
 {
   auto node_obj = reinterpret_cast<BnNodeListObject*>(self);
-  delete node_obj->mPtr;
+  node_obj->mNodeList.~BnNodeList();
   Py_TYPE(self)->tp_free(self);
 }
 
@@ -213,7 +213,7 @@ PyBnNodeList::ToPyObject(
 {
   auto obj = BnNodeList_Type.tp_alloc(&BnNodeList_Type, 0);
   auto node_obj = reinterpret_cast<BnNodeListObject*>(obj);
-  node_obj->mPtr = new BnNodeList{node_list};
+  new (&node_obj->mNodeList) BnNodeList{node_list};
   return obj;
 }
 
@@ -233,7 +233,7 @@ PyBnNodeList::Get(
 )
 {
   auto node_obj = reinterpret_cast<BnNodeListObject*>(obj);
-  return *node_obj->mPtr;
+  return node_obj->mNodeList;
 }
 
 // @brief BnNodeList を表すオブジェクトの型定義を返す．
