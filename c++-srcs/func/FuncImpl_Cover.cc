@@ -61,7 +61,7 @@ FuncImpl_Cover::input_num() const
 }
 
 // @brief 入力カバーを返す．
-const SopCover&
+const AlgCover&
 FuncImpl_Cover::input_cover() const
 {
   return mInputCover;

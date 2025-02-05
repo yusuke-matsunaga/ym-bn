@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "FuncImpl.h"
-#include "ym/SopCover.h"
+#include "ym/AlgCover.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -61,7 +61,7 @@ public:
   ///
   /// - is_cover() が true の時のみ意味を持つ．
   /// - それ以外の時は std::invalid_argument 例外を送出する．
-  const SopCover&
+  const AlgCover&
   input_cover() const override;
 
   /// @brief 出力パタンを返す．
@@ -89,7 +89,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 入力カバー
-  SopCover mInputCover;
+  AlgCover mInputCover;
 
   // 出力パタン
   char mOutputPat;

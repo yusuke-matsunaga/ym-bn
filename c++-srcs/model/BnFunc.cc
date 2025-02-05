@@ -9,7 +9,7 @@
 #include "ym/BnFunc.h"
 #include "ym/BnModel.h"
 #include "ym/Expr.h"
-#include "ym/SopCover.h"
+#include "ym/AlgCover.h"
 #include "ym/Bdd.h"
 #include "FuncImpl.h"
 #include "ModelImpl.h"
@@ -77,7 +77,7 @@ BnFunc::input_num() const
 }
 
 // @brief 入力カバーを返す．
-const SopCover&
+const AlgCover&
 BnFunc::input_cover() const
 {
   return _impl().input_cover();

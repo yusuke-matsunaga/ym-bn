@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 #include "ModelImpl.h"
-#include "ym/SopCover.h"
+#include "ym/AlgCover.h"
 #include "ym/TvFunc.h"
 
 
@@ -512,10 +512,10 @@ TEST( ModelImplTest, reg_cover )
   EXPECT_EQ( ni, func.input_num() );
   auto& cover = func.input_cover();
   EXPECT_EQ( cube_list.size(), cover.cube_num() );
-  EXPECT_EQ( SopPat::_1, cover.get_pat(0, 0) );
-  EXPECT_EQ( SopPat::_X, cover.get_pat(0, 1) );
-  EXPECT_EQ( SopPat::_X, cover.get_pat(1, 0) );
-  EXPECT_EQ( SopPat::_1, cover.get_pat(1, 1) );
+  EXPECT_EQ( AlgPat::_1, cover.get_pat(0, 0) );
+  EXPECT_EQ( AlgPat::_X, cover.get_pat(0, 1) );
+  EXPECT_EQ( AlgPat::_X, cover.get_pat(1, 0) );
+  EXPECT_EQ( AlgPat::_1, cover.get_pat(1, 1) );
   EXPECT_EQ( opat, func.output_pat() );
 
   vector<vector<Literal>> cube_list2{{lit0, lit1}};
@@ -528,8 +528,8 @@ TEST( ModelImplTest, reg_cover )
   EXPECT_EQ( ni, func2.input_num() );
   auto& cover2 = func2.input_cover();
   EXPECT_EQ( cube_list2.size(), cover2.cube_num() );
-  EXPECT_EQ( SopPat::_1, cover2.get_pat(0, 0) );
-  EXPECT_EQ( SopPat::_1, cover2.get_pat(0, 1) );
+  EXPECT_EQ( AlgPat::_1, cover2.get_pat(0, 0) );
+  EXPECT_EQ( AlgPat::_1, cover2.get_pat(0, 1) );
   EXPECT_EQ( opat2, func2.output_pat() );
 }
 
