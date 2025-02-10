@@ -8,7 +8,7 @@
 
 #include "pym/PyBnFunc.h"
 #include "pym/PyBnModel.h"
-#include "pym/PyAlgCover.h"
+#include "pym/PySopCover.h"
 #include "pym/PyExpr.h"
 #include "pym/PyTvFunc.h"
 #include "pym/PyBdd.h"
@@ -159,7 +159,7 @@ BnFunc_input_cover(
   try {
     auto& func = PyBnFunc::Get(self);
     auto& val = func.input_cover();
-    return PyAlgCover::ToPyObject(val);
+    return PySopCover::ToPyObject(val);
   }
   catch ( std::invalid_argument err ) {
     PyErr_SetString(PyExc_ValueError, err.what());

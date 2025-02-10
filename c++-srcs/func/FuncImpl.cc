@@ -101,7 +101,7 @@ FuncImpl::is_bdd() const
 }
 
 // @brief 入力カバーを返す．
-const AlgCover&
+const SopCover&
 FuncImpl::input_cover() const
 {
   throw std::invalid_argument{"not a Cover type."};

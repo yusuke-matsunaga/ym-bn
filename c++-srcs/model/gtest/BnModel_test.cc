@@ -12,7 +12,7 @@
 #include "ym/BnNodeList.h"
 #include "ym/BnSeq.h"
 #include "ym/BnFunc.h"
-#include "ym/AlgCover.h"
+#include "ym/SopCover.h"
 #include "ym/TvFunc.h"
 #include "ym/Bdd.h"
 #include "ym/BddVar.h"
@@ -108,8 +108,8 @@ TEST( BnModelTest, reg_cover )
   auto& sop = func.input_cover();
   ASSERT_EQ( 2, sop.variable_num() );
   ASSERT_EQ( 1, sop.cube_num() );
-  EXPECT_EQ( AlgPat::_1, sop.get_pat(0, 0) );
-  EXPECT_EQ( AlgPat::_1, sop.get_pat(0, 1) );
+  EXPECT_EQ( SopPat::_1, sop.get_pat(0, 0) );
+  EXPECT_EQ( SopPat::_1, sop.get_pat(0, 1) );
 
   EXPECT_EQ( '0', func.output_pat() );
 
