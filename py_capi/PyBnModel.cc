@@ -19,7 +19,7 @@
 #include "pym/PyPrimType.h"
 #include "pym/PyLiteral.h"
 #include "pym/PyModule.h"
-#include "pym/PyBase.h"
+#include "pym/PyString.h"
 #include "ym/BnNode.h"
 #include "ym/JsonValue.h"
 
@@ -1473,7 +1473,7 @@ BnModel_input_name_list(
   for ( SizeType i = 0; i < n; ++ i ) {
     val_list[i] = model.input_name(i);
   }
-  return PyBase::ToPyList(val_list);
+  return PyString::ToPyList(val_list);
 }
 
 PyObject*
@@ -1499,7 +1499,7 @@ BnModel_seq_name_list(
   for ( SizeType i = 0; i < n; ++ i ) {
     val_list[i] = model.seq_name(i);
   }
-  return PyBase::ToPyList(val_list);
+  return PyString::ToPyList(val_list);
 }
 
 PyObject*
@@ -1536,7 +1536,7 @@ BnModel_output_name_list(
   for ( SizeType i = 0; i < n; ++ i ) {
     val_list[i] = model.output_name(i);
   }
-  return PyBase::ToPyList(val_list);
+  return PyString::ToPyList(val_list);
 }
 
 PyObject*
