@@ -17,6 +17,28 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
+/// @class PyBnModelConv PyBnModel.h "PyBnModel.h"
+/// @brief BnModel を PyObject* に変換するファンクタクラス
+///
+/// 実はただの関数
+//////////////////////////////////////////////////////////////////////
+class PyBnModelConv
+{
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief BnModel を PyObject* に変換する．
+  PyObject*
+  operator()(
+    const BnModel& val
+  );
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
 /// @class PyBnModel PyBnModel.h "PyBnModel.h"
 /// @brief Python 用の BnModel 拡張
 ///
@@ -45,12 +67,16 @@ public:
   PyObject*
   ToPyObject(
     const BnModel& val ///< [in] 値
-  );
+  )
+  {
+    PyBnModelConv conv;
+    return conv(val);
+  }
 
   /// @brief PyObject が BnModel タイプか調べる．
   static
   bool
-  Check(
+  _check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -60,7 +86,7 @@ public:
   /// Check(obj) == true であると仮定している．
   static
   BnModel&
-  Get(
+  _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 

@@ -17,6 +17,51 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
+/// @class PyBnFuncConv PyBnFunc.h "PyBnFunc.h"
+/// @brief BnFunc を PyObject* に変換するファンクタクラス
+///
+/// 実はただの関数
+//////////////////////////////////////////////////////////////////////
+class PyBnFuncConv
+{
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief BnFunc を PyObject* に変換する．
+  PyObject*
+  operator()(
+    const BnFunc& val
+  );
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class PyBnFuncDeconv PyBnFunc.h "PyBnFunc.h"
+/// @brief BnFunc を取り出すファンクタクラス
+///
+/// 実はただの関数
+//////////////////////////////////////////////////////////////////////
+class PyBnFuncDeconv
+{
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief PyObject* から BnFunc を取り出す．
+  bool
+  operator()(
+    PyObject* obj,
+    BnFunc& val
+  );
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
 /// @class PyBnFunc PyBnFunc.h "PyBnFunc.h"
 /// @brief Python 用の BnFunc 拡張
 ///
@@ -45,12 +90,16 @@ public:
   PyObject*
   ToPyObject(
     const BnFunc& val ///< [in] 値
-  );
+  )
+  {
+    PyBnFuncConv conv;
+    return conv(val);
+  }
 
   /// @brief PyObject が BnFunc タイプか調べる．
   static
   bool
-  Check(
+  _check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -59,8 +108,8 @@ public:
   ///
   /// Check(obj) == true であると仮定している．
   static
-  const BnFunc&
-  Get(
+  BnFunc&
+  _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 

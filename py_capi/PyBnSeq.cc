@@ -60,7 +60,7 @@ BnSeq_is_valid(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& seq = PyBnSeq::Get(self);
+  auto& seq = PyBnSeq::_get_ref(self);
   auto r = seq.is_valid();
   return PyBool_FromLong(r);
 }
@@ -71,7 +71,7 @@ BnSeq_is_dff(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& seq = PyBnSeq::Get(self);
+  auto& seq = PyBnSeq::_get_ref(self);
   auto r = seq.is_dff();
   return PyBool_FromLong(r);
 }
@@ -82,7 +82,7 @@ BnSeq_is_latch(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& seq = PyBnSeq::Get(self);
+  auto& seq = PyBnSeq::_get_ref(self);
   auto r = seq.is_latch();
   return PyBool_FromLong(r);
 }
@@ -93,7 +93,7 @@ BnSeq_is_cell(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& seq = PyBnSeq::Get(self);
+  auto& seq = PyBnSeq::_get_ref(self);
   auto r = seq.is_cell();
   return PyBool_FromLong(r);
 }
@@ -109,7 +109,7 @@ BnSeq_cell_pin(
     return nullptr;
   }
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto ans = seq.cell_pin(pos);
     return PyBnNode::ToPyObject(ans);
   }
@@ -140,7 +140,7 @@ BnSeq_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto& seq = PyBnSeq::Get(self);
+  auto& seq = PyBnSeq::_get_ref(self);
   auto id = seq.id();
   return PyLong_FromLong(id);
 }
@@ -151,7 +151,7 @@ BnSeq_name(
   void* Py_UNUSED(closure)
 )
 {
-  auto& seq = PyBnSeq::Get(self);
+  auto& seq = PyBnSeq::_get_ref(self);
   auto name = seq.name();
   return Py_BuildValue("s", name.c_str());
 }
@@ -162,7 +162,7 @@ BnSeq_type(
   void* Py_UNUSED(closure)
 )
 {
-  auto& seq = PyBnSeq::Get(self);
+  auto& seq = PyBnSeq::_get_ref(self);
   auto type = seq.type();
   ostringstream buf;
   buf << type;
@@ -176,7 +176,7 @@ BnSeq_data_src(
 )
 {
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto val = seq.data_src();
     return PyBnNode::ToPyObject(val);
   }
@@ -193,7 +193,7 @@ BnSeq_clock(
 )
 {
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto val = seq.clock();
     return PyBnNode::ToPyObject(val);
   }
@@ -210,7 +210,7 @@ BnSeq_enable(
 )
 {
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto val = seq.enable();
     return PyBnNode::ToPyObject(val);
   }
@@ -227,7 +227,7 @@ BnSeq_clear(
 )
 {
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto val = seq.clear();
     return PyBnNode::ToPyObject(val);
   }
@@ -244,7 +244,7 @@ BnSeq_preset(
 )
 {
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto val = seq.preset();
     return PyBnNode::ToPyObject(val);
   }
@@ -261,7 +261,7 @@ BnSeq_data_output(
 )
 {
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto val = seq.data_output();
     return PyBnNode::ToPyObject(val);
   }
@@ -278,7 +278,7 @@ BnSeq_cell(
 )
 {
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto val = seq.cell();
     return PyClibCell::ToPyObject(val);
   }
@@ -295,7 +295,7 @@ BnSeq_rsval(
 )
 {
   try {
-    auto& seq = PyBnSeq::Get(self);
+    auto& seq = PyBnSeq::_get_ref(self);
     auto val = seq.rsval();
     char tmp[2];
     tmp[0] = val;
@@ -339,10 +339,10 @@ BnSeq_richcompfunc(
   int op
 )
 {
-  if ( PyBnSeq::Check(self) &&
-       PyBnSeq::Check(other) ) {
-    auto& val1 = PyBnSeq::Get(self);
-    auto& val2 = PyBnSeq::Get(other);
+  if ( PyBnSeq::_check(self) &&
+       PyBnSeq::_check(other) ) {
+    auto& val1 = PyBnSeq::_get_ref(self);
+    auto& val2 = PyBnSeq::_get_ref(other);
     if ( op == Py_EQ ) {
       return PyBool_FromLong(val1 == val2);
     }
@@ -387,7 +387,7 @@ PyBnSeq::init(
 
 // @brief BnSeq を PyObject に変換する．
 PyObject*
-PyBnSeq::ToPyObject(
+PyBnSeqConv::operator()(
   const BnSeq& node
 )
 {
@@ -397,9 +397,23 @@ PyBnSeq::ToPyObject(
   return obj;
 }
 
+// @brief PyObject* から BnSeq を取り出す．
+bool
+PyBnSeqDeconv::operator()(
+  PyObject* obj,
+  BnSeq& val
+)
+{
+  if ( PyBnSeq::_check(obj) ) {
+    val = PyBnSeq::_get_ref(obj);
+    return true;
+  }
+  return false;
+}
+
 // @brief PyObject が BnSeq タイプか調べる．
 bool
-PyBnSeq::Check(
+PyBnSeq::_check(
   PyObject* obj
 )
 {
@@ -407,8 +421,8 @@ PyBnSeq::Check(
 }
 
 // @brief BnSeq を表す PyObject から BnSeq を取り出す．
-const BnSeq&
-PyBnSeq::Get(
+BnSeq&
+PyBnSeq::_get_ref(
   PyObject* obj
 )
 {

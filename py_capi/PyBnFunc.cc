@@ -62,7 +62,7 @@ BnFunc_is_valid(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::_get_ref(self);
   auto r = func.is_valid();
   return PyBool_FromLong(r);
 }
@@ -73,7 +73,7 @@ BnFunc_is_cover(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::_get_ref(self);
   auto r = func.is_cover();
   return PyBool_FromLong(r);
 }
@@ -84,7 +84,7 @@ BnFunc_is_expr(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::_get_ref(self);
   auto r = func.is_expr();
   return PyBool_FromLong(r);
 }
@@ -95,7 +95,7 @@ BnFunc_is_tvfunc(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::_get_ref(self);
   auto r = func.is_tvfunc();
   return PyBool_FromLong(r);
 }
@@ -106,7 +106,7 @@ BnFunc_is_bdd(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::_get_ref(self);
   auto r = func.is_bdd();
   return PyBool_FromLong(r);
 }
@@ -132,7 +132,7 @@ BnFunc_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto& func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::_get_ref(self);
   auto id = func.id();
   return PyLong_FromLong(id);
 }
@@ -143,7 +143,7 @@ BnFunc_type(
   void* Py_UNUSED(closure)
 )
 {
-  auto& func = PyBnFunc::Get(self);
+  auto& func = PyBnFunc::_get_ref(self);
   auto type = func.type();
   ostringstream buf;
   buf << type;
@@ -157,7 +157,7 @@ BnFunc_input_cover(
 )
 {
   try {
-    auto& func = PyBnFunc::Get(self);
+    auto& func = PyBnFunc::_get_ref(self);
     auto& val = func.input_cover();
     return PySopCover::ToPyObject(val);
   }
@@ -174,7 +174,7 @@ BnFunc_output_pat(
 )
 {
   try {
-    auto& func = PyBnFunc::Get(self);
+    auto& func = PyBnFunc::_get_ref(self);
     auto val = func.output_pat();
     char buf[] = {val, '\0'};
     return Py_BuildValue("s", buf);
@@ -192,7 +192,7 @@ BnFunc_expr(
 )
 {
   try {
-    auto& func = PyBnFunc::Get(self);
+    auto& func = PyBnFunc::_get_ref(self);
     auto val = func.expr();
     return PyExpr::ToPyObject(val);
   }
@@ -209,7 +209,7 @@ BnFunc_tvfunc(
 )
 {
   try {
-    auto& func = PyBnFunc::Get(self);
+    auto& func = PyBnFunc::_get_ref(self);
     auto val = func.tvfunc();
     return PyTvFunc::ToPyObject(val);
   }
@@ -226,7 +226,7 @@ BnFunc_bdd(
 )
 {
   try {
-    auto& func = PyBnFunc::Get(self);
+    auto& func = PyBnFunc::_get_ref(self);
     auto val = func.bdd();
     return PyBdd::ToPyObject(val);
   }
@@ -262,10 +262,10 @@ BnFunc_richcompfunc(
   int op
 )
 {
-  if ( PyBnFunc::Check(self) &&
-       PyBnFunc::Check(other) ) {
-    auto& val1 = PyBnFunc::Get(self);
-    auto& val2 = PyBnFunc::Get(other);
+  if ( PyBnFunc::_check(self) &&
+       PyBnFunc::_check(other) ) {
+    auto& val1 = PyBnFunc::_get_ref(self);
+    auto& val2 = PyBnFunc::_get_ref(other);
     if ( op == Py_EQ ) {
       return PyBool_FromLong(val1 == val2);
     }
@@ -310,7 +310,7 @@ PyBnFunc::init(
 
 // @brief BnFunc を PyObject に変換する．
 PyObject*
-PyBnFunc::ToPyObject(
+PyBnFuncConv::operator()(
   const BnFunc& func
 )
 {
@@ -320,9 +320,23 @@ PyBnFunc::ToPyObject(
   return obj;
 }
 
+// @brief PyObject* から BnFunc を取り出す．
+bool
+PyBnFuncDeconv::operator()(
+  PyObject* obj,
+  BnFunc& val
+)
+{
+  if ( PyBnFunc::_check(obj) ) {
+    val = PyBnFunc::_get_ref(obj);
+    return true;
+  }
+  return false;
+}
+
 // @brief PyObject が BnFunc タイプか調べる．
 bool
-PyBnFunc::Check(
+PyBnFunc::_check(
   PyObject* obj
 )
 {
@@ -330,8 +344,8 @@ PyBnFunc::Check(
 }
 
 // @brief BnFunc を表す PyObject から BnFunc を取り出す．
-const BnFunc&
-PyBnFunc::Get(
+BnFunc&
+PyBnFunc::_get_ref(
   PyObject* obj
 )
 {

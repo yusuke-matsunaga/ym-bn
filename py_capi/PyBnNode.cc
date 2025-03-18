@@ -64,7 +64,7 @@ BnNode_is_valid(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto r = node.is_valid();
   return PyBool_FromLong(r);
 }
@@ -75,7 +75,7 @@ BnNode_is_input(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto r = node.is_input();
   return PyBool_FromLong(r);
 }
@@ -86,7 +86,7 @@ BnNode_is_seq_output(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto r = node.is_seq_output();
   return PyBool_FromLong(r);
 }
@@ -97,7 +97,7 @@ BnNode_is_logic(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto r = node.is_logic();
   return PyBool_FromLong(r);
 }
@@ -108,7 +108,7 @@ BnNode_is_primitive(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto r = node.is_primitive();
   return PyBool_FromLong(r);
 }
@@ -119,7 +119,7 @@ BnNode_is_aig(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto r = node.is_aig();
   return PyBool_FromLong(r);
 }
@@ -130,7 +130,7 @@ BnNode_is_func(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto r = node.is_func();
   return PyBool_FromLong(r);
 }
@@ -141,7 +141,7 @@ BnNode_is_cell(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto r = node.is_cell();
   return PyBool_FromLong(r);
 }
@@ -157,7 +157,7 @@ BnNode_fanin(
     return nullptr;
   }
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     auto ans = node.fanin(pos);
     return PyBnNode::ToPyObject(ans);
   }
@@ -178,7 +178,7 @@ BnNode_fanin_inv(
     return nullptr;
   }
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     auto ans = node.fanin_inv(pos);
     return PyBool_FromLong(ans);
   }
@@ -219,7 +219,7 @@ BnNode_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto id = node.id();
   return PyLong_FromLong(id);
 }
@@ -230,7 +230,7 @@ BnNode_type(
   void* Py_UNUSED(closure)
 )
 {
-  auto& node = PyBnNode::Get(self);
+  auto& node = PyBnNode::_get_ref(self);
   auto type = node.type();
   ostringstream buf;
   buf << type;
@@ -244,7 +244,7 @@ BnNode_input_id(
 )
 {
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     auto val = node.input_id();
     return Py_BuildValue("k", val);
   }
@@ -261,7 +261,7 @@ BnNode_seq_node(
 )
 {
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     auto val = node.seq_node();
     return PyBnSeq::ToPyObject(val);
   }
@@ -278,7 +278,7 @@ BnNode_fanin_num(
 )
 {
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     auto val = node.fanin_num();
     return Py_BuildValue("k", val);
   }
@@ -295,7 +295,7 @@ BnNode_fanin_list(
 )
 {
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     auto fanin_list = node.fanin_list();
     return PyBnNodeList::ToPyObject(fanin_list);
   }
@@ -313,7 +313,7 @@ BnNode_primitive_type(
 )
 {
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     auto val = node.primitive_type();
     return PyPrimType::ToPyObject(val);
   }
@@ -330,7 +330,7 @@ BnNode_func(
 )
 {
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     const auto& val = node.local_func();
     return PyBnFunc::ToPyObject(val);
   }
@@ -347,7 +347,7 @@ BnNode_cell(
 )
 {
   try {
-    auto& node = PyBnNode::Get(self);
+    auto& node = PyBnNode::_get_ref(self);
     auto val = node.cell();
     return PyClibCell::ToPyObject(val);
   }
@@ -387,10 +387,10 @@ BnNode_richcompfunc(
   int op
 )
 {
-  if ( PyBnNode::Check(self) &&
-       PyBnNode::Check(other) ) {
-    auto& val1 = PyBnNode::Get(self);
-    auto& val2 = PyBnNode::Get(other);
+  if ( PyBnNode::_check(self) &&
+       PyBnNode::_check(other) ) {
+    auto& val1 = PyBnNode::_get_ref(self);
+    auto& val2 = PyBnNode::_get_ref(other);
     if ( op == Py_EQ ) {
       return PyBool_FromLong(val1 == val2);
     }
@@ -435,7 +435,7 @@ PyBnNode::init(
 
 // @brief BnNode を PyObject に変換する．
 PyObject*
-PyBnNode::ToPyObject(
+PyBnNodeConv::operator()(
   const BnNode& node
 )
 {
@@ -445,9 +445,23 @@ PyBnNode::ToPyObject(
   return obj;
 }
 
+// @brief PyObject* から BnNode を取り出す．
+bool
+PyBnNodeDeconv::operator()(
+  PyObject* obj,
+  BnNode& val
+)
+{
+  if ( PyBnNode::_check(obj) ) {
+    val = PyBnNode::_get_ref(obj);
+    return true;
+  }
+  return false;
+}
+
 // @brief PyObject が BnNode タイプか調べる．
 bool
-PyBnNode::Check(
+PyBnNode::_check(
   PyObject* obj
 )
 {
@@ -455,8 +469,8 @@ PyBnNode::Check(
 }
 
 // @brief BnNode を表す PyObject から BnNode を取り出す．
-const BnNode&
-PyBnNode::Get(
+BnNode&
+PyBnNode::_get_ref(
   PyObject* obj
 )
 {
