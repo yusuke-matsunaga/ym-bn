@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_YM_BN
 // @brief コピーコンストラクタ
 BnModel::BnModel(
   const BnModel& src
-) : mImpl{src.mImpl->copy()}
+) : mImpl{src.mImpl}
 {
 }
 
@@ -40,9 +40,28 @@ BnModel::BnModel(
 {
 }
 
+// @brief 代入演算子
+BnModel&
+BnModel::operator=(
+  const BnModel& src
+)
+{
+  mImpl = src.mImpl;
+  return *this;
+}
+
 // @brief デストラクタ
 BnModel::~BnModel()
 {
+}
+
+// @brief '深い'コピーを作る．
+BnModel
+BnModel::copy() const
+{
+  BnModel model;
+  model.mImpl = std::shared_ptr<ModelImpl>{mImpl->copy()};
+  return model;
 }
 
 // @brief セルライブラリを返す．

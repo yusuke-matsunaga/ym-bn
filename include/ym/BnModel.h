@@ -77,7 +77,7 @@ public:
 
   /// @brief コピーコンストラクタ
   ///
-  /// '深い'コピーを行う．
+  /// '浅い'コピーを行う．
   BnModel(
     const BnModel& src ///< [in] コピー元のオブジェクト
   );
@@ -85,6 +85,14 @@ public:
   /// @brief ムーブコンストラクタ
   BnModel(
     BnModel&& src ///< [in] ムーブ元のオブジェクト
+  );
+
+  /// @brief 代入演算子
+  ///
+  /// '浅い'コピーを行う．
+  BnModel&
+  operator=(
+    const BnModel& src ///< [in] コピー元のオブジェクト
   );
 
   /// @brief デストラクタ
@@ -176,6 +184,10 @@ public:
   /// @name 内容を読み出す関数
   /// @{
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief '深い'コピーを作る．
+  BnModel
+  copy() const;
 
   /// @brief セルライブラリを返す．
   ///
@@ -684,7 +696,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 実装本体
-  shared_ptr<ModelImpl> mImpl;
+  std::shared_ptr<ModelImpl> mImpl;
 
 };
 
