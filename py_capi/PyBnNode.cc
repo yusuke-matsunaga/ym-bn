@@ -387,8 +387,8 @@ BnNode_richcompfunc(
   int op
 )
 {
-  if ( PyBnNode::_check(self) &&
-       PyBnNode::_check(other) ) {
+  if ( PyBnNode::Check(self) &&
+       PyBnNode::Check(other) ) {
     auto& val1 = PyBnNode::_get_ref(self);
     auto& val2 = PyBnNode::_get_ref(other);
     if ( op == Py_EQ ) {
@@ -435,7 +435,7 @@ PyBnNode::init(
 
 // @brief BnNode を PyObject に変換する．
 PyObject*
-PyBnNodeConv::operator()(
+PyBnNode::Conv::operator()(
   const BnNode& node
 )
 {
@@ -447,12 +447,12 @@ PyBnNodeConv::operator()(
 
 // @brief PyObject* から BnNode を取り出す．
 bool
-PyBnNodeDeconv::operator()(
+PyBnNode::Deconv::operator()(
   PyObject* obj,
   BnNode& val
 )
 {
-  if ( PyBnNode::_check(obj) ) {
+  if ( PyBnNode::Check(obj) ) {
     val = PyBnNode::_get_ref(obj);
     return true;
   }
@@ -461,7 +461,7 @@ PyBnNodeDeconv::operator()(
 
 // @brief PyObject が BnNode タイプか調べる．
 bool
-PyBnNode::_check(
+PyBnNode::Check(
   PyObject* obj
 )
 {

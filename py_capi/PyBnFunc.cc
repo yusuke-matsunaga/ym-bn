@@ -262,8 +262,8 @@ BnFunc_richcompfunc(
   int op
 )
 {
-  if ( PyBnFunc::_check(self) &&
-       PyBnFunc::_check(other) ) {
+  if ( PyBnFunc::Check(self) &&
+       PyBnFunc::Check(other) ) {
     auto& val1 = PyBnFunc::_get_ref(self);
     auto& val2 = PyBnFunc::_get_ref(other);
     if ( op == Py_EQ ) {
@@ -310,7 +310,7 @@ PyBnFunc::init(
 
 // @brief BnFunc を PyObject に変換する．
 PyObject*
-PyBnFuncConv::operator()(
+PyBnFunc::Conv::operator()(
   const BnFunc& func
 )
 {
@@ -322,12 +322,12 @@ PyBnFuncConv::operator()(
 
 // @brief PyObject* から BnFunc を取り出す．
 bool
-PyBnFuncDeconv::operator()(
+PyBnFunc::Deconv::operator()(
   PyObject* obj,
   BnFunc& val
 )
 {
-  if ( PyBnFunc::_check(obj) ) {
+  if ( PyBnFunc::Check(obj) ) {
     val = PyBnFunc::_get_ref(obj);
     return true;
   }
@@ -336,7 +336,7 @@ PyBnFuncDeconv::operator()(
 
 // @brief PyObject が BnFunc タイプか調べる．
 bool
-PyBnFunc::_check(
+PyBnFunc::Check(
   PyObject* obj
 )
 {

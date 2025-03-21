@@ -571,7 +571,7 @@ parse_input_list(
   vector<BnNode>& input_list
 )
 {
-  if ( !PyList::FromPyObject<BnNode, PyBnNodeDeconv>(obj, input_list) ) {
+  if ( !PyList<BnNode, PyBnNode>::FromPyObject(obj, input_list) ) {
     PyErr_SetString(PyExc_TypeError, "1st argument should be a sequence type");
     return false;
   }
@@ -780,7 +780,7 @@ BnModel_reg_cover(
     cube_list[i] = vector<Literal>(m);
     for ( SizeType j = 0; j < m; ++ j ) {
       auto obj2 = PySequence_GetItem(obj1, j);
-      if ( !PyLiteral::_check(obj2) ) {
+      if ( !PyLiteral::Check(obj2) ) {
 	PyErr_SetString(PyExc_TypeError, "2nd argument should be a list of list of Literals");
 	return nullptr;
       }
@@ -1603,8 +1603,8 @@ BnModel_richcompfunc(
   int op
 )
 {
-  if ( PyBnModel::_check(self) &&
-       PyBnModel::_check(other) ) {
+  if ( PyBnModel::Check(self) &&
+       PyBnModel::Check(other) ) {
     auto& val1 = PyBnModel::_get_ref(self);
     auto& val2 = PyBnModel::_get_ref(other);
     if ( op == Py_EQ ) {
@@ -1651,7 +1651,7 @@ PyBnModel::init(
 
 // @brief BnModel を PyObject に変換する．
 PyObject*
-PyBnModelConv::operator()(
+PyBnModel::Conv::operator()(
   const BnModel& val
 )
 {
@@ -1661,9 +1661,23 @@ PyBnModelConv::operator()(
   return obj;
 }
 
+// @brief PyObject* から BnModel を取り出すファンクタクラス
+bool
+PyBnModel::Deconv::operator()(
+  PyObject* obj,
+  ElemType& val
+)
+{
+  if ( PyBnModel::Check(obj) ) {
+    val = PyBnModel::_get_ref(obj);
+    return true;
+  }
+  return false;
+}
+
 // @brief PyObject が BnModel タイプか調べる．
 bool
-PyBnModel::_check(
+PyBnModel::Check(
   PyObject* obj
 )
 {

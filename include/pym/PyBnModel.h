@@ -17,28 +17,6 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PyBnModelConv PyBnModel.h "PyBnModel.h"
-/// @brief BnModel を PyObject* に変換するファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PyBnModelConv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief BnModel を PyObject* に変換する．
-  PyObject*
-  operator()(
-    const BnModel& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
 /// @class PyBnModel PyBnModel.h "PyBnModel.h"
 /// @brief Python 用の BnModel 拡張
 ///
@@ -46,6 +24,28 @@ public:
 //////////////////////////////////////////////////////////////////////
 class PyBnModel
 {
+  using ElemType = BnModel;
+
+public:
+
+  /// @brief BnModel を PyObject* に変換するファンクタクラス
+  struct Conv {
+    PyObject*
+    operator()(
+      const ElemType& val
+    );
+  };
+
+  /// @brief PyObject* から BnModel を取り出すファンクタクラス
+  struct Deconv {
+    bool
+    operator()(
+      PyObject* obj,
+      ElemType& val
+    );
+  };
+
+
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
@@ -66,17 +66,30 @@ public:
   static
   PyObject*
   ToPyObject(
-    const BnModel& val ///< [in] 値
+    const ElemType& val ///< [in] 値
   )
   {
-    PyBnModelConv conv;
+    Conv conv;
     return conv(val);
+  }
+
+  /// @brief PyObject から BnModel を取り出す．
+  /// @return 正しく変換できた時に true を返す．
+  static
+  bool
+  FromPyObject(
+    PyObject* obj, ///< [in] Python のオブジェクト
+    ElemType& val  ///< [out] 結果を格納する変数
+  )
+  {
+    Deconv deconv;
+    return deconv(obj, val);
   }
 
   /// @brief PyObject が BnModel タイプか調べる．
   static
   bool
-  _check(
+  Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -85,7 +98,7 @@ public:
   ///
   /// Check(obj) == true であると仮定している．
   static
-  BnModel&
+  ElemType&
   _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );

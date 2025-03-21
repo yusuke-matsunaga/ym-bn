@@ -17,51 +17,6 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PyBnNodeListConv PyBnNodeList.h "PyBnNodeList.h"
-/// @brief BnNodeList を PyObject* に変換するファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PyBnNodeListConv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief BnNodeList を PyObject* に変換する．
-  PyObject*
-  operator()(
-    const BnNodeList& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class PyBnNodeListDeconv PyBnNodeList.h "PyBnNodeList.h"
-/// @brief BnNodeList を取り出すファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PyBnNodeListDeconv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief PyObject* から BnNodeList を取り出す．
-  bool
-  operator()(
-    PyObject* obj,
-    BnNodeList& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
 /// @class PyBnNodeList PyBnNodeList.h "PyBnNodeList.h"
 /// @brief Python 用の BnNodeList 拡張
 ///
@@ -69,6 +24,28 @@ public:
 //////////////////////////////////////////////////////////////////////
 class PyBnNodeList
 {
+  using ElemType = BnNodeList;
+
+public:
+
+  /// @brief BnNodeList を PyObject* に変換するファンクタクラス
+  struct Conv {
+    PyObject*
+    operator()(
+      const ElemType& val
+    );
+  };
+
+  /// @brief PyObject* から BnNodeList を取り出すファンクタクラス
+  struct Deconv {
+    bool
+    operator()(
+      PyObject* obj,
+      ElemType& val
+    );
+  };
+
+
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
@@ -89,17 +66,30 @@ public:
   static
   PyObject*
   ToPyObject(
-    const BnNodeList& val ///< [in] 値
+    const ElemType& val ///< [in] 値
   )
   {
-    PyBnNodeListConv conv;
+    Conv conv;
     return conv(val);
+  }
+
+  /// @brief PyObject から BnNodeList を取り出す．
+  /// @return 正しく変換できた時に true を返す．
+  static
+  bool
+  FromPyObject(
+    PyObject* obj,  ///< [in] Python のオブジェクト
+    ElemType& val ///< [out] 結果を格納する変数
+  )
+  {
+    Deconv deconv;
+    return deconv(obj, val);
   }
 
   /// @brief PyObject が BnNodeList タイプか調べる．
   static
   bool
-  _check(
+  Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -108,7 +98,7 @@ public:
   ///
   /// Check(obj) == true であると仮定している．
   static
-  BnNodeList&
+  ElemType&
   _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );

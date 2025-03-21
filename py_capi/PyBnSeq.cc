@@ -339,8 +339,8 @@ BnSeq_richcompfunc(
   int op
 )
 {
-  if ( PyBnSeq::_check(self) &&
-       PyBnSeq::_check(other) ) {
+  if ( PyBnSeq::Check(self) &&
+       PyBnSeq::Check(other) ) {
     auto& val1 = PyBnSeq::_get_ref(self);
     auto& val2 = PyBnSeq::_get_ref(other);
     if ( op == Py_EQ ) {
@@ -387,7 +387,7 @@ PyBnSeq::init(
 
 // @brief BnSeq を PyObject に変換する．
 PyObject*
-PyBnSeqConv::operator()(
+PyBnSeq::Conv::operator()(
   const BnSeq& node
 )
 {
@@ -399,12 +399,12 @@ PyBnSeqConv::operator()(
 
 // @brief PyObject* から BnSeq を取り出す．
 bool
-PyBnSeqDeconv::operator()(
+PyBnSeq::Deconv::operator()(
   PyObject* obj,
   BnSeq& val
 )
 {
-  if ( PyBnSeq::_check(obj) ) {
+  if ( PyBnSeq::Check(obj) ) {
     val = PyBnSeq::_get_ref(obj);
     return true;
   }
@@ -413,7 +413,7 @@ PyBnSeqDeconv::operator()(
 
 // @brief PyObject が BnSeq タイプか調べる．
 bool
-PyBnSeq::_check(
+PyBnSeq::Check(
   PyObject* obj
 )
 {

@@ -104,7 +104,7 @@ check_node_list(
   SizeType n = PySequence_Size(obj);
   for ( SizeType i = 0; i < n; ++ i ) {
     auto obj1 = PySequence_GetItem(obj, i);
-    if ( !PyBnNode::_check(obj1) ) {
+    if ( !PyBnNode::Check(obj1) ) {
       return false;
     }
   }
@@ -136,9 +136,9 @@ BnNodeList_richcompfunc(
   int op
 )
 {
-  if ( PyBnNodeList::_check(self) ) {
+  if ( PyBnNodeList::Check(self) ) {
     auto& val1 = PyBnNodeList::_get_ref(self);
-    if ( PyBnNodeList::_check(other) ) {
+    if ( PyBnNodeList::Check(other) ) {
       auto& val2 = PyBnNodeList::_get_ref(other);
       if ( op == Py_EQ ) {
 	return PyBool_FromLong(val1 == val2);
@@ -159,7 +159,7 @@ BnNodeList_richcompfunc(
   }
   else if ( check_node_list(self) ) {
     auto val1 = get_node_list(self);
-    if ( PyBnNodeList::_check(other) ) {
+    if ( PyBnNodeList::Check(other) ) {
       auto& val2 = PyBnNodeList::_get_ref(other);
       if ( op == Py_EQ ) {
 	return PyBool_FromLong(val1 == val2);
@@ -207,7 +207,7 @@ PyBnNodeList::init(
 
 // @brief BnNodeList を PyObject に変換する．
 PyObject*
-PyBnNodeListConv::operator()(
+PyBnNodeList::Conv::operator()(
   const BnNodeList& node_list
 )
 {
@@ -219,12 +219,12 @@ PyBnNodeListConv::operator()(
 
 // @brief PyObject* から BnNodeList を取り出す．
 bool
-PyBnNodeListDeconv::operator()(
+PyBnNodeList::Deconv::operator()(
   PyObject* obj,
   BnNodeList& val
 )
 {
-  if ( PyBnNodeList::_check(obj) ) {
+  if ( PyBnNodeList::Check(obj) ) {
     val = PyBnNodeList::_get_ref(obj);
     return true;
   }
@@ -233,7 +233,7 @@ PyBnNodeListDeconv::operator()(
 
 // @brief PyObject が BnNodeList タイプか調べる．
 bool
-PyBnNodeList::_check(
+PyBnNodeList::Check(
   PyObject* obj
 )
 {
