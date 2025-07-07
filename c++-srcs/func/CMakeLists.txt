@@ -45,11 +45,11 @@ add_subdirectory ( gtest )
 # ===================================================================
 
 set ( func_SOURCES
-  func/FuncImpl.cc
-  func/FuncImpl_Bdd.cc
-  func/FuncImpl_Cover.cc
-  func/FuncImpl_Expr.cc
-  func/FuncImpl_TvFunc.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_Bdd.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_Cover.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_Expr.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_TvFunc.cc
   PARENT_SCOPE
   )
 

@@ -227,7 +227,7 @@ public:
   ///
   /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnNode
-  dff_input(
+  dff_src(
     SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
   ) const;
 
@@ -490,14 +490,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief vector<BnNode> から ID番号のリストを取り出す．
-  ///
-  /// 同じ Model に属していないとエラーとなる．
-  vector<SizeType>
-  to_id_list(
-    const vector<BnNode>& node_list
-  ) const;
 
   /// @brief BnNode のチェックを行う．
   ///

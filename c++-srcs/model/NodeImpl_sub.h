@@ -5,18 +5,17 @@
 /// @brief NodeImpl_sub のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2024 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "NodeImpl.h"
-#include "ym/ClibCell.h"
 
 
 BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
-/// @class NodeImpl_Input NodeImpl_Input.h "NodeImpl_Input.h"
-/// @brief Input 用の NodeImpl
+/// @class NodeImpl_Input NodeImpl_sub.h "NodeImpl_sub.h"
+/// @brief 入力ノード用の NodeImpl の基底クラス
 //////////////////////////////////////////////////////////////////////
 class NodeImpl_Input :
   public NodeImpl
@@ -24,9 +23,7 @@ class NodeImpl_Input :
 public:
 
   /// @brief コンストラクタ
-  NodeImpl_Input(
-    SizeType iid ///< [in] 入力番号
-  );
+  NodeImpl_Input();
 
   /// @brief デストラクタ
   ~NodeImpl_Input();
@@ -37,9 +34,46 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 入力ノードの時 true を返す．
+  ///
+  /// 外部入力ノードとDFFの出力ノードのどちらかの時 true となる．
+  virtual
+  bool
+  is_input() const;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class NodeImpl_Input NodeImpl_sub.h "NodeImpl_sub.h"
+/// @brief 外部入力用の NodeImpl
+//////////////////////////////////////////////////////////////////////
+class NodeImpl_PrimaryInput :
+  public NodeImpl_Input
+{
+public:
+
+  /// @brief コンストラクタ
+  NodeImpl_PrimaryInput(
+    SizeType iid ///< [in] 入力番号
+  );
+
+  /// @brief デストラクタ
+  ~NodeImpl_PrimaryInput();
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
   /// @brief ノードの種類を返す．
   BnNodeType
   type() const override;
+
+  /// @brief 外部入力ノードの時 true を返す．
+  bool
+  is_primary_input() const override;
 
   /// @brief 入力番号を返す．
   SizeType
@@ -62,21 +96,22 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class NodeImpl_SeqOutput NodeImpl_SeqOutput.h "NodeImpl_SeqOutput.h"
-/// @brief SeqOutput 用の NodeImpl
+/// @class NodeImpl_DffOutput NodeImpl_sub.h "NodeImpl_sub.h"
+/// @brief DFFの出力ノード用の NodeImpl
 //////////////////////////////////////////////////////////////////////
-class NodeImpl_SeqOutput :
-  public NodeImpl
+class NodeImpl_DffOutput :
+  public NodeImpl_Input
 {
 public:
 
   /// @brief コンストラクタ
-  NodeImpl_SeqOutput(
-    SizeType seq_id ///< [in] 対応する BnSeq の ID番号
+  NodeImpl_DffOutput(
+    SizeType dff_id, ///< [in] DFF番号
+    SizeType src_id  ///< [in] 入力のノード番号
   );
 
   /// @brief デストラクタ
-  ~NodeImpl_SeqOutput();
+  ~NodeImpl_DffOutput();
 
 
 public:
@@ -88,9 +123,17 @@ public:
   BnNodeType
   type() const override;
 
-  /// @brief SEQ 番号を返す．
+  /// @brief DFFの出力の時 true を返す．
+  bool
+  is_dff_output() const override;
+
+  /// @brief DFF番号を返す．
   SizeType
-  seq_id() const override;
+  dff_id() const override;
+
+  /// @brief DFFの入力ノードの番号を返す．
+  SizeType
+  dff_src() const override;
 
   /// @brief 複製を作る．
   unique_ptr<NodeImpl>
@@ -102,15 +145,18 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 対応する BnSeq の ID番号
-  SizeType mSeqId;
+  // DFF番号
+  SizeType mDffId;
+
+  // 入力のノード番号
+  SizeType mSrcId;
 
 };
 
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeImpl_Logic NodeImpl_Logic.h "NodeImpl_Logic.h"
-/// @brief Logic 用の NodeImpl
+/// @brief 論理ノード用の NodeImpl の基底クラス
 //////////////////////////////////////////////////////////////////////
 class NodeImpl_Logic :
   public NodeImpl
@@ -210,58 +256,6 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class NodeImpl_Aig NodeImpl_Aig.h "NodeImpl_Aig.h"
-/// @brief Aig 用の NodeImpl
-//////////////////////////////////////////////////////////////////////
-class NodeImpl_Aig :
-  public NodeImpl_Logic
-{
-public:
-
-  /// @brief コンストラクタ
-  NodeImpl_Aig(
-    SizeType fanin0,
-    bool inv0,
-    SizeType fanin1,
-    bool inv1
-  );
-
-  /// @brief デストラクタ
-  ~NodeImpl_Aig();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノードの種類を返す．
-  BnNodeType
-  type() const override;
-
-  /// @brief ファンインの反転属性を返す．
-  bool
-  fanin_inv(
-    SizeType pos ///< [in] 位置番号 ( 0 or 1 )
-  ) const override;
-
-  /// @brief 複製を作る．
-  unique_ptr<NodeImpl>
-  copy() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // ファンインの反転属性
-  bitset<2> mInvFlags;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
 /// @class NodeImpl_Func NodeImpl_Func.h "NodeImpl_Func.h"
 /// @brief Func 用の NodeImpl
 //////////////////////////////////////////////////////////////////////
@@ -289,6 +283,10 @@ public:
   BnNodeType
   type() const override;
 
+  /// @brief 関数型の論理ノードの時 true を返す．
+  bool
+  is_func() const override;
+
   /// @brief 関数番号を返す．
   SizeType
   local_func_id() const override;
@@ -305,54 +303,6 @@ private:
 
   // 関数番号
   SizeType mFuncId;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class NodeImpl_Cell NodeImpl_Cell.h "NodeImpl_Cell.h"
-/// @brief Cell 用の NodeImpl
-//////////////////////////////////////////////////////////////////////
-class NodeImpl_Cell :
-  public NodeImpl_Logic
-{
-public:
-
-  /// @brief コンストラクタ
-  NodeImpl_Cell(
-    ClibCell cell,                     ///< [in] セル
-    const vector<SizeType>& fanin_list ///< [in] ファンインのリスト
-  );
-
-  /// @brief デストラクタ
-  ~NodeImpl_Cell();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノードの種類を返す．
-  BnNodeType
-  type() const override;
-
-  /// @brief セルを得る．
-  ClibCell
-  cell() const override;
-
-  /// @brief 複製を作る．
-  unique_ptr<NodeImpl>
-  copy() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // セル
-  ClibCell mCell;
 
 };
 

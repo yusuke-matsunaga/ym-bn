@@ -3,13 +3,29 @@
 /// @brief FuncImpl_Cover の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
+#include "FuncImpl.h"
 #include "FuncImpl_Cover.h"
 
 
 BEGIN_NAMESPACE_YM_BN
+
+//////////////////////////////////////////////////////////////////////
+// クラス FuncImpl
+//////////////////////////////////////////////////////////////////////
+
+// @brief カバー型のインスタンスを作る．
+FuncImpl*
+FuncImpl::new_cover(
+  const SopCover& input_cover,
+  bool output_inv
+)
+{
+  return new FuncImpl_Cover(inputcover, output_inv);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス FuncImpl_Cover
@@ -17,11 +33,10 @@ BEGIN_NAMESPACE_YM_BN
 
 // @brief コンストラクタ
 FuncImpl_Cover::FuncImpl_Cover(
-  SizeType input_num,
-  const vector<vector<Literal>>& cube_list,
-  char opat
-) : mInputCover{input_num, cube_list},
-    mOutputPat{opat}
+  const SopCover& input_cover,
+  bool output_inv
+) : mInputCover{input_cover},
+    mOutputInv{output_inv}
 {
 }
 
@@ -31,12 +46,12 @@ FuncImpl_Cover::~FuncImpl_Cover()
 }
 
 // @brief コピーを作る．
-unique_ptr<FuncImpl>
+std::unique_ptr<FuncImpl>
 FuncImpl_Cover::copy(
   BddMgr& bdd_mgr
 ) const
 {
-  return unique_ptr<FuncImpl>{new FuncImpl_Cover{*this}};
+  return std::unique_ptr<FuncImpl>{new FuncImpl_Cover{*this}};
 }
 
 // @brief 関数の種類を返す．
@@ -67,11 +82,11 @@ FuncImpl_Cover::input_cover() const
   return mInputCover;
 }
 
-// @brief 出力パタンを返す．
-char
-FuncImpl_Cover::output_pat() const
+// @brief 出力の反転属性を返す．
+bool
+FuncImpl::output_inv() const
 {
-  return mOutputPat;
+  return mOutputInv;
 }
 
 // @brief 論理式を返す．
@@ -79,7 +94,7 @@ Expr
 FuncImpl_Cover::expr() const
 {
   auto expr = mInputCover.expr();
-  if ( output_pat() == '0' ) {
+  if ( output_inv() ) {
     expr = ~expr;
   }
   return expr;
@@ -101,7 +116,13 @@ FuncImpl_Cover::print(
     if ( ni > 0 ) {
       s << ' ';
     }
-    s << mOutputPat << endl;
+    if ( mOutputInv ) {
+      s << '0';
+    }
+    else {
+      s << '1';
+    }
+    s << endl;
   }
 }
 

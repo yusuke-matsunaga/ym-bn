@@ -45,7 +45,7 @@ public:
   FuncImpl*
   new_cover(
     const SopCover& input_cover, ///< [in] 入力カバー
-    bool outout_inv              ///< [in] 出力の反転属性
+    bool output_inv              ///< [in] 出力の反転属性
   );
 
   /// @brief 論理式型のインスタンスを作る．
@@ -125,6 +125,17 @@ public:
   virtual
   SizeType
   input_num() const = 0;
+
+  /// @brief プリミティブ型を返す．
+  ///
+  /// - プリミティブ型でない場合は PrimType::None を返す．
+  virtual
+  PrimType
+  primitive_type() const;
+
+  /// @brief カバー情報を持っている時 true を返す．
+  bool
+  has_cover() const;
 
   /// @brief 入力カバーを返す．
   ///

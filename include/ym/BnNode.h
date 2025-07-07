@@ -23,17 +23,25 @@ class NodeImpl;
 ///
 /// 以下の情報を持つ．
 /// - ID番号
-/// - 種類(Input, Prim, Aig, Cover, Expr, Cell, TvFunc, Bdd)
-/// - ファンインのノード番号のリスト
-/// - プリミティブタイプ(種類がPrimの時のみ)
-/// - ファンインの極性(種類がAigの時のみ)
-/// - カバー番号(種類がCoverの時のみ)
-/// - 論理式番号(種類がExprの時のみ)
-/// - セル番号(種類がCellの時のみ)
-/// - 真理値表番号(種類がTvFuncの時のみ)
-/// - BDD番号(種類がBddの時のみ)
+/// - 種類(None, Input, Logic)
 ///
-/// ただし，空のコンストラクタで作られたインスタンスは不正値となる．
+/// - None は通常用いられない．不正値を表す
+///
+/// - Input は外部入力もしくはDFFの出力を表す．
+///   * 外部入力の場合には入力番号を持つ．
+///   * DFFの出力の場合にはDFF番号とDFFの入力のノード番号を持つ．
+///
+/// - Logic は論理ノードを表す．
+///   論理ノードはファンイン番号のリストとローカル関数の情報を持つ．
+///
+/// - ローカル関数以下のいずれかのタイプで表される．
+///   * プリミティブタイプ
+///   * 入力カバーと出力の反転フラグ
+///   * 論理式
+///   * 真理値表
+///   * BDD
+///
+/// 空のコンストラクタで作られたインスタンスは不正値となる．
 /// その場合，is_valid() は false を返し，id() は BAD_ID を返すが，
 /// それ以外のメンバ関数の呼び出しは std::invalid_argument 例外を送出する．
 ///
@@ -56,6 +64,18 @@ private:
     SizeType id                               ///< [in] ノード番号
   );
 
+public:
+  //////////////////////////////////////////////////////////////////////
+  // BnNode に関係する型の定義
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ノードの種類を表す列挙型
+  enum Type {
+    None,  ///< 不正値
+    Input, ///< 入力ノード
+    Logic  ///< 論理ノード
+  };
+
 
 public:
 
@@ -70,14 +90,14 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
+  // 共通なインターフェイス
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 適切な値を持っている時 true を返す．
   bool
   is_valid() const
   {
-    return mModel != nullptr;
+    return mModel.get() != nullptr;
   }
 
   /// @brief ノード番号を返す．
@@ -88,12 +108,22 @@ public:
   }
 
   /// @brief ノードの種類を返す．
-  BnNodeType
+  Type
   type() const;
 
   /// @brief 入力ノードの時 true を返す．
   bool
   is_input() const;
+
+  /// @brief 論理ノードの時 true を返す．
+  bool
+  is_logic() const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 入力ノードに対してのみ有効なインターフェイス
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief 外部入力ノードの時 true を返す．
   ///
@@ -105,23 +135,7 @@ public:
   ///
   /// is_input() を包含している．
   bool
-  is_sdff_output() const;
-
-  /// @brief 論理ノードの時 true を返す．
-  bool
-  is_logic() const;
-
-  /// @brief プリミティブ型の論理ノードの時 true を返す．
-  ///
-  /// is_logic() を包含している．
-  bool
-  is_primitive() const;
-
-  /// @brief 関数タイプの論理ノードの時 true を返す．
-  ///
-  /// is_logic() を包含している．
-  bool
-  is_func() const;
+  is_dff_output() const;
 
   /// @brief 入力番号を返す．
   ///
@@ -142,7 +156,55 @@ public:
   /// - is_dff_output() が true の時のみ意味を持つ．
   /// - それ以外の時は std::invalid_argument 例外を送出する．
   BnNode
-  dff_input() const;
+  dff_src() const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 論理ノードに対してのみ有効なインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief プリミティブ型を返す．
+  ///
+  /// - プリミティブ型でない場合は PrimType::None を返す．
+  /// - 論理ノードでない場合には std::invalid_argument 例外を送出する．
+  PrimType
+  primitive_type() const;
+
+  /// @brief カバー情報を持っている時 true を返す．
+  bool
+  has_cover() const;
+
+  /// @brief カバーを返す．
+  ///
+  /// has_cover() == false の時は std::invalid_argument 例外を送出する．
+  const SopCover&
+  cover() const;
+
+  /// @brief 論理式情報を持っている時 true を返す．
+  bool
+  has_expr() const;
+
+  /// @brief 論理式を返す．
+  /// has_expr() == false の時は std::invalid_argument 例外を送出する．
+  Expr
+  expr() const;
+
+  /// @brief 倫理値表を持っている時 true を返す．
+  bool
+  has_tvfunc() const;
+
+  /// @brief 真理値表を返す．
+  const TvFunc&
+  tvfunc() const;
+
+  /// @brief BDDを持っている時 true を返す．
+  bool
+  has_bdd() const;
+
+  /// @brief BDDを返す．
+  Bdd
+  bdd() const;
 
   /// @brief ファンイン数を返す．
   ///
@@ -168,19 +230,11 @@ public:
   std::vector<BnNode>
   fanin_list() const;
 
-  /// @brief ノードのプリミティブタイプを返す．
-  ///
-  /// - is_primitive() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
-  PrimType
-  primitive_type() const;
 
-  /// @brief ノードの関数情報を返す．
-  ///
-  /// - is_logic() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
-  BnFunc
-  local_func() const;
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 演算
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief 等価比較演算子
   bool
@@ -217,7 +271,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // モデルの実装本体
-  shared_ptr<const ModelImpl> mModel{nullptr};
+  std::shared_ptr<const ModelImpl> mModel{nullptr};
 
   // ノード番号
   SizeType mId{BAD_ID};

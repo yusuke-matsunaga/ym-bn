@@ -45,11 +45,9 @@ add_subdirectory ( gtest )
 # ===================================================================
 
 set ( blif_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/BlifModel.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/BlifParser.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/BlifScanner.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/CoverMgr.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelImpl.cc
   PARENT_SCOPE
   )
 

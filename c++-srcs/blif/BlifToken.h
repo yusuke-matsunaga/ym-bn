@@ -8,10 +8,10 @@
 /// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/blif.h"
+#include "ym/bn.h"
 
 
-BEGIN_NAMESPACE_YM_BLIF
+BEGIN_NAMESPACE_YM_BN
 
 /// @brief blif 形式のトークン
 enum class BlifToken {
@@ -109,6 +109,6 @@ operator<<(
   return s;
 }
 
-END_NAMESPACE_YM_BLIF
+END_NAMESPACE_YM_BN
 
 #endif // BLIFTOKEN_H

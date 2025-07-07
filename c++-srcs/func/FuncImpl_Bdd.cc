@@ -3,14 +3,29 @@
 /// @brief FuncImpl_Bdd の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
+#include "FuncImpl.h"
 #include "FuncImpl_Bdd.h"
 #include "ym/BddMgr.h"
 
 
 BEGIN_NAMESPACE_YM_BN
+
+//////////////////////////////////////////////////////////////////////
+// クラス FuncImpl
+//////////////////////////////////////////////////////////////////////
+
+// @brief BDD型のインスタンスを作る．
+FuncImpl*
+FuncImpl::new_bdd(
+  const Bdd& bdd
+)
+{
+  return new FuncImpl_Bdd(bdd);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス FuncImpl_Bdd
@@ -24,13 +39,13 @@ FuncImpl_Bdd::FuncImpl_Bdd(
 }
 
 // @brief コピーを作る．
-unique_ptr<FuncImpl>
+std::unique_ptr<FuncImpl>
 FuncImpl_Bdd::copy(
   BddMgr& bdd_mgr
 ) const
 {
   auto my_bdd = bdd_mgr.copy(mBdd);
-  return unique_ptr<FuncImpl>{new FuncImpl_Bdd{my_bdd}};
+  return std::unique_ptr<FuncImpl>{new FuncImpl_Bdd{my_bdd}};
 }
 
 // @brief 関数の種類を返す．

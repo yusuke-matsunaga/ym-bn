@@ -3,13 +3,11 @@
 /// @brief BnModel の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/BnModel.h"
 #include "ym/BnNode.h"
-#include "ym/BnSeq.h"
-#include "ym/BnFunc.h"
 #include "ModelImpl.h"
 
 
@@ -64,13 +62,6 @@ BnModel::copy() const
   return model;
 }
 
-// @brief セルライブラリを返す．
-ClibCellLibrary
-BnModel::library() const
-{
-  return mImpl->library();
-}
-
 // @brief ノード数を返す．
 SizeType
 BnModel::node_num() const
@@ -88,23 +79,22 @@ BnModel::input_num() const
 // @brief 入力のノードを返す．
 BnNode
 BnModel::input(
-  SizeType pos
+  SizeType input_id
 ) const
 {
-  _check_input_id(pos);
-  auto id = mImpl->input_id(pos);
-  return ModelImpl::new_node(mImpl, id);
+  _check_input_id(input_id);
+  auto id = mImpl->input(input_id);
+  return BnNode(mImpl, id);
 }
 
 // @brief 入力のノードのリストを返す．
-BnNodeList
+std::vector<BnNode>
 BnModel::input_list() const
 {
-  auto& id_list = mImpl->input_list();
-  return ModelImpl::new_node_list(mImpl, id_list);
+  return _make_node_list(mImpl->input_list());
 }
 
-// @brief 入力数を返す．
+// @brief 出力数を返す．
 SizeType
 BnModel::output_num() const
 {
@@ -114,20 +104,19 @@ BnModel::output_num() const
 // @brief 入力のノードを返す．
 BnNode
 BnModel::output(
-  SizeType pos
+  SizeType output_id
 ) const
 {
   _check_output_id(pos);
-  auto id = mImpl->output_id(pos);
-  return ModelImpl::new_node(mImpl, id);
+  auto id = mImpl->output(pos);
+  return BnNode(mImpl, id);
 }
 
 // @brief 出力のノードのリストを返す．
-BnNodeList
+std::vector<BnNode>
 BnModel::output_list() const
 {
-  auto& id_list = mImpl->output_list();
-  return ModelImpl::new_node_list(mImpl, id_list);
+  return _make_node_list(mImpl->output_list());
 }
 
 // @brief 論理ノード数を返す．
@@ -144,33 +133,44 @@ BnModel::logic(
 ) const
 {
   _check_logic_id(pos);
-  auto id = mImpl->logic_id(pos);
-  return ModelImpl::new_node(mImpl, id);
+  auto id = mImpl->logic(pos);
+  return BnNode(mImpl, id);
 }
 
 // @brief 論理ノードのリストを返す．
-BnNodeList
+std::vector<BnNode>
 BnModel::logic_list() const
 {
-  auto& id_list = mImpl->logic_list();
-  return ModelImpl::new_node_list(mImpl, id_list);
+  return _make_node_list(mImpl->logic_list());
 }
 
-// @brief SEQノード数を返す．
+// @brief DFF数を返す．
 SizeType
-BnModel::seq_num() const
+BnModel::dff_num() const
 {
-  return mImpl->seq_num();
+  return mImpl->dff_num();
 }
 
-// @brief SEQノードを返す．
-BnSeq
-BnModel::seq(
-  SizeType pos
+// @brief DFFの出力ノードを返す．
+BnNode
+BnModel::dff_output(
+  SizeType dff_id
 ) const
 {
-  _check_seq_id(pos);
-  return ModelImpl::new_seq(mImpl, pos);
+  check_dff_id(dff_id);
+  auto id = mImpl->dff_output(dff_id);
+  return BnNode(mImmpl, id);
+}
+
+// @brief DFFの入力ノードを返す．
+BnNode
+BnModel::dff_src(
+  SizeType dff_id
+) const
+{
+  check_dff_id(dff_id);
+  auto id = mImpl->dff_src(dff_id);
+  return BnNode(mImmpl, id);
 }
 
 // @brief 関数情報の数を返す．
@@ -191,7 +191,7 @@ BnModel::func(
     buf << "'func_id'(" << func_id << ") is out of range";
     throw std::out_of_range{buf.str()};
   }
-  return ModelImpl::new_func(mImpl, func_id);
+  return BnFunc(mImpl, func_id);
 }
 
 // @brief オプション情報を表す JSON オブジェクトを返す．
@@ -235,14 +235,14 @@ BnModel::output_name(
   return mImpl->output_name(output_id);
 }
 
-// @brief ラッチ名を返す．
+// @brief DFF名を返す．
 string
-BnModel::seq_name(
-  SizeType seq_id
+BnModel::dff_name(
+  SizeType dff_id
 ) const
 {
-  _check_seq_id(seq_id);
-  return mImpl->seq_name(seq_id);
+  _check_dff_id(dff_id);
+  return mImpl->dff_name(dff_id);
 }
 
 BEGIN_NONAMESPACE
@@ -330,22 +330,6 @@ BnModel::print(
       func(id).print(s);
     }
   }
-}
-
-// @brief vector<BnNode> から ID番号のリストを取り出す．
-vector<SizeType>
-BnModel::to_id_list(
-  const vector<BnNode>& node_list
-) const
-{
-  vector<SizeType> id_list;
-  id_list.reserve(node_list.size());
-  for ( auto& node: node_list ) {
-    _check_node(node);
-    auto id = node.id();
-    id_list.push_back(id);
-  }
-  return id_list;
 }
 
 END_NAMESPACE_YM_BN

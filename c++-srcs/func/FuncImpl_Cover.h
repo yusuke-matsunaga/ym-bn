@@ -5,7 +5,7 @@
 /// @brief FuncImpl_Cover のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "FuncImpl.h"
@@ -25,9 +25,8 @@ public:
 
   /// @brief コンストラクタ
   FuncImpl_Cover(
-    SizeType input_num,                       ///< [in] 入力数
-    const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
-    char opat                                 ///< [in] 出力パタン ( '1' or '0' )
+    const SopCover& input_cover, ///< [in] 入力カバー
+    bool output_inv              ///< [in] 出力の反転属性
   );
 
   /// @brief デストラクタ
@@ -58,19 +57,12 @@ public:
   input_num() const override;
 
   /// @brief 入力カバーを返す．
-  ///
-  /// - is_cover() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
   const SopCover&
   input_cover() const override;
 
-  /// @brief 出力パタンを返す．
-  ///
-  /// - is_cover() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
-  /// - ドントケアはない．
-  char
-  output_pat() const override;
+  /// @brief 出力の反転属性を返す．
+  bool
+  output_inv() const override;
 
   /// @brief 論理式を返す．
   Expr
@@ -91,8 +83,8 @@ private:
   // 入力カバー
   SopCover mInputCover;
 
-  // 出力パタン
-  char mOutputPat;
+  // 出力の反転属性
+  bool mOutputInv;
 
 };
 

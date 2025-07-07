@@ -10,7 +10,7 @@
 #include "ym/Literal.h"
 
 
-BEGIN_NAMESPACE_YM_BLIF
+BEGIN_NAMESPACE_YM_BN
 
 BEGIN_NONAMESPACE
 
@@ -94,4 +94,4 @@ CoverMgr::new_cover(
   return id;
 }
 
-END_NAMESPACE_YM_BLIF
+END_NAMESPACE_YM_BN

@@ -7,10 +7,7 @@
 /// All rights reserved.
 
 #include "ym/BnNode.h"
-#include "ym/BnNodeList.h"
 #include "ym/BnModel.h"
-#include "ym/BnSeq.h"
-#include "ym/BnFunc.h"
 #include "ModelImpl.h"
 
 
@@ -22,12 +19,15 @@ BEGIN_NAMESPACE_YM_BN
 
 // @brief コンストラクタ
 BnNode::BnNode(
-  const shared_ptr<const ModelImpl>& model,
+  const std::shared_ptr<const ModelImpl>& model,
   SizeType id
 ) : mModel{model},
     mId{id}
 {
-  if ( mId == BAD_ID ) {
+  if ( mModel.get() == nullptr ) {
+    mId = BAD_ID;
+  }
+  else if ( mId == BAD_ID ) {
     mModel = nullptr;
   }
 }
@@ -38,7 +38,7 @@ BnNode::~BnNode()
 }
 
 // @brief ノードの種類を返す．
-BnNodeType
+BnNode::Type
 BnNode::type() const
 {
   return _impl()->type();
@@ -51,13 +51,6 @@ BnNode::is_input() const
   return _impl()->is_input();
 }
 
-// @brief BnSeq の出力ノードの時 true を返す．
-bool
-BnNode::is_seq_output() const
-{
-  return _impl()->is_seq_output();
-}
-
 // @brief 論理ノードの時 true を返す．
 bool
 BnNode::is_logic() const
@@ -65,32 +58,18 @@ BnNode::is_logic() const
   return _impl()->is_logic();
 }
 
-// @brief PRIM タイプの論理ノードの時 true を返す．
+// @brief 外部入力ノードの時 true を返す．
 bool
-BnNode::is_primitive() const
+BnNode::is_primary_input() const
 {
-  return _impl()->is_primitive();
+  return _impl()->is_primary_input();
 }
 
-// @brief AIG タイプの論理ノードの時 true を返す．
+// @brief DFFの出力ノードの時 true を返す．
 bool
-BnNode::is_aig() const
+BnNode::is_dff_output() const
 {
-  return type() == BnNodeType::AIG;
-}
-
-// @brief 関数タイプの論理ノードの時 true を返す．
-bool
-BnNode::is_func() const
-{
-  return type() == BnNodeType::FUNC;
-}
-
-// @brief CELL タイプの論理ノードの時 true を返す．
-bool
-BnNode::is_cell() const
-{
-  return type() == BnNodeType::CELL;
+  return _impl()->is_dff_output();
 }
 
 // @brief 入力番号を返す．
@@ -100,12 +79,81 @@ BnNode::input_id() const
   return _impl()->input_id();
 }
 
-// @brief 関連する BnSeq を返す．
-BnSeq
-BnNode::seq_node() const
+// @brief DFF番号を返す．
+SizeType
+BnNode::dff_id() const
 {
-  auto id = _impl()->seq_id();
-  return ModelImpl::new_seq(mModel, id);
+  return _impl()->dff_id();
+}
+
+// @brief DFFの入力ノードを返す．
+BnNode
+BnNode::dff_src() const
+{
+  return _impl()->dff_src();
+}
+
+// @brief プリミティブ型を返す．
+PrimType
+BnNode::primitive_type() const
+{
+  return _impl()->primitive_type();
+}
+
+// @brief カバー情報を持っている時 true を返す．
+bool
+BnNode::has_cover() const
+{
+  return _impl()->has_cover();
+}
+
+// @brief カバーを返す．
+const SopCover&
+BnNode::cover() const
+{
+  return _impl()->cover();
+}
+
+// @brief 論理式情報を持っている時 true を返す．
+bool
+BnNode::has_expr() const
+{
+  return _impl()->has_expr();
+}
+
+// @brief 論理式を返す．
+Expr
+BnNode::expr() const
+{
+  return _impl()->expr();
+}
+
+// @brief 倫理値表を持っている時 true を返す．
+bool
+BnNode::has_tvfunc() const
+{
+  return _impl()->has_tvfunc();
+}
+
+// @brief 真理値表を返す．
+const TvFunc&
+BnNode::tvfunc() const
+{
+  return _impl()->tvfunc();
+}
+
+// @brief BDDを持っている時 true を返す．
+bool
+BnNode::has_bdd() const
+{
+  return _impl()->has_bdd();
+}
+
+// @brief BDDを返す．
+Bdd
+BnNode::bdd() const
+{
+  return _impl()->bdd();
 }
 
 // @brief ノードのファンイン数を返す．
@@ -122,45 +170,20 @@ BnNode::fanin(
 ) const
 {
   auto id = _impl()->fanin(pos);
-  return ModelImpl::new_node(mModel, id);
+  return BnNode(mModel, id);
 }
 
 // @brief ノードのファンインのノードのリストを返す．
-BnNodeList
+std::vector<BnNode>
 BnNode::fanin_list() const
 {
-  return ModelImpl::new_node_list(mModel, _impl()->fanin_list());
-}
-
-// @brief ノードのプリミティブタイプを返す．
-PrimType
-BnNode::primitive_type() const
-{
-  return _impl()->primitive_type();
-}
-
-// @brief ファンインの反転属性を返す．
-bool
-BnNode::fanin_inv(
-  SizeType pos
-) const
-{
-  return _impl()->fanin_inv(pos);
-}
-
-// @brief ノードの関数情報を返す．
-BnFunc
-BnNode::local_func() const
-{
-  auto id = _impl()->local_func_id();
-  return ModelImpl::new_func(mModel, id);
-}
-
-// @brief ノードのセルを返す．
-ClibCell
-BnNode::cell() const
-{
-  return _impl()->cell();
+  auto& id_list = _impl()->fanin_list();
+  std::vector<BnNode> node_list;
+  node_list.reserve(id_list.size());
+  for ( auto id: id_list ) {
+    node_list.push_back(BnNode(mModel, id));
+  }
+  return node_list;
 }
 
 // @brief ノードの実体を返す．
@@ -168,58 +191,9 @@ const NodeImpl*
 BnNode::_impl() const
 {
   if ( !is_valid() ) {
-    throw std::invalid_argument{"BnNode: invalid data"};
+    throw std::logic_error{"BnNode: invalid data"};
   }
   return mModel->node_impl(mId);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnNodeListIter
-//////////////////////////////////////////////////////////////////////
-
-// @brief 内容を取り出す．
-BnNode
-BnNodeListIter::operator*() const
-{
-  return ModelImpl::new_node(mModel, *mIter);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnNodeList
-//////////////////////////////////////////////////////////////////////
-
-// @brief 要素を返す．
-BnNode
-BnNodeList::operator[](
-  SizeType pos ///< [in] 位置番号 ( 0 <= pos < size() )
-) const
-{
-  if ( pos < 0 || size() <= pos ) {
-    ostringstream buf;
-    buf << "'pos'(" << pos << ") is out of range.";
-    throw std::out_of_range{buf.str()};
-  }
-  return ModelImpl::new_node(mModel, mIdList[pos]);
-}
-
-// @brief vector<BnNode> との等価比較関数
-bool
-BnNodeList::operator==(
-  const vector<BnNode>& right
-) const
-{
-  if ( size() != right.size() ) {
-    return false;
-  }
-  SizeType n = size();
-  for ( SizeType i = 0; i < n; ++ i ) {
-    if ( (*this)[i] != right[i] ) {
-      return false;
-    }
-  }
-  return true;
 }
 
 END_NAMESPACE_YM_BN

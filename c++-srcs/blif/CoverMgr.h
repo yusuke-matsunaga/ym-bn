@@ -8,11 +8,11 @@
 /// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/blif.h"
+#include "ym/bn.h"
 #include "ym/SopCover.h"
 
 
-BEGIN_NAMESPACE_YM_BLIF
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 /// @class CoverMgr CoverMgr.h "CoverMgr.h"
@@ -110,6 +110,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BLIF
+END_NAMESPACE_YM_BN
 
 #endif // COVERMGR_H

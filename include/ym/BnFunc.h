@@ -5,7 +5,7 @@
 /// @brief BnFunc のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bn.h"
@@ -31,8 +31,8 @@ private:
   ///
   /// この関数は ModelImpl のみが使用する．
   BnFunc(
-    const shared_ptr<const ModelImpl>& model, ///< [in] 親のモデル
-    SizeType id                               ///< [in] 関数番号
+    const std::shared_ptr<const ModelImpl>& model, ///< [in] 親のモデル
+    SizeType id                                    ///< [in] 関数番号
   );
 
 
@@ -66,34 +66,24 @@ public:
     return mId;
   }
 
-  /// @brief 種類を返す．
-  BnFuncType
-  type() const;
-
-  /// @brief カバー型の時 true を返す．
-  bool
-  is_cover() const;
-
-  /// @brief 論理式型の時 true を返す．
-  bool
-  is_expr() const;
-
-  /// @brief 真理値表型の時 true を返す．
-  bool
-  is_tvfunc() const;
-
-  /// @brief BDD型の時 true を返す．
-  bool
-  is_bdd() const;
-
   /// @brief 入力数を返す．
   SizeType
   input_num() const;
 
-  /// @brief 入力カバーを返す．
+  /// @brief プリミティブ型を返す．
   ///
-  /// - is_cover() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
+  /// - プリミティブ型でない場合は PrimType::None を返す．
+  /// - 論理ノードでない場合には std::invalid_argument 例外を送出する．
+  PrimType
+  primitive_type() const;
+
+  /// @brief カバー情報を持っている時 true を返す．
+  bool
+  has_cover() const;
+
+  /// @brief カバーを返す．
+  ///
+  /// has_cover() == false の時は std::invalid_argument 例外を送出する．
   const SopCover&
   input_cover() const;
 
@@ -104,24 +94,28 @@ public:
   bool
   output_inv() const;
 
+  /// @brief 論理式情報を持っている時 true を返す．
+  bool
+  has_expr() const;
+
   /// @brief 論理式を返す．
-  ///
-  /// - is_expr() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
+  /// has_expr() == false の時は std::invalid_argument 例外を送出する．
   Expr
   expr() const;
 
+  /// @brief 倫理値表を持っている時 true を返す．
+  bool
+  has_tvfunc() const;
+
   /// @brief 真理値表を返す．
-  ///
-  /// - is_tvfunc() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
   const TvFunc&
   tvfunc() const;
 
+  /// @brief BDDを持っている時 true を返す．
+  bool
+  has_bdd() const;
+
   /// @brief BDDを返す．
-  ///
-  /// - is_bdd() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
   Bdd
   bdd() const;
 
@@ -130,6 +124,12 @@ public:
   print(
     ostream& s ///< [in] 出力先のストリーム
   ) const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 演算
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief 等価比較演算子
   bool

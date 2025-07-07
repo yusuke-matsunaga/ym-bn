@@ -8,13 +8,12 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/iscas89.h"
+#include "ym/bn.h"
 #include "ym/Scanner.h"
-#include "ym/StrBuff.h"
 #include "Iscas89Token.h"
 
 
-BEGIN_NAMESPACE_YM_ISCAS89
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 /// @class Iscas89Scanner Iscas89Scanner.h "Iscas89Scanner.h"
@@ -45,8 +44,8 @@ public:
   read_token();
 
   /// @brief 最後の read_token() で読み出した字句の文字列を返す．
-  string
-  cur_string() { return std::string{mCurString.c_str()}; }
+  std::string
+  cur_string() { return mCurString; }
 
 
 private:
@@ -80,7 +79,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 文字列バッファ
-  StrBuff mCurString;
+  std::string mCurString;
 
   // 文字列の先頭の位置
   FileLoc mFirstLoc;
@@ -90,6 +89,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_ISCAS89
+END_NAMESPACE_YM_BN
 
 #endif // ISCAS89SCANNER_H

@@ -3,13 +3,28 @@
 /// @brief FuncImpl_Expr の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
+#include "FuncImpl.h"
 #include "FuncImpl_Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BN
+
+//////////////////////////////////////////////////////////////////////
+// クラス FuncImpl
+//////////////////////////////////////////////////////////////////////
+
+// @brief 論理式型のインスタンスを作る．
+FuncImpl*
+FuncImpl::new_expr(
+  const Expr& expr
+)
+{
+  return new FuncImpl_Expr(expr);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス FuncImpl_Expr
@@ -23,12 +38,12 @@ FuncImpl_Expr::FuncImpl_Expr(
 }
 
 // @brief コピーを作る．
-unique_ptr<FuncImpl>
+std::unique_ptr<FuncImpl>
 FuncImpl_Expr::copy(
   BddMgr& bdd_mgr
 ) const
 {
-  return unique_ptr<FuncImpl>{new FuncImpl_Expr{*this}};
+  return std::unique_ptr<FuncImpl>{new FuncImpl_Expr{*this}};
 }
 
 // @brief 関数の種類を返す．

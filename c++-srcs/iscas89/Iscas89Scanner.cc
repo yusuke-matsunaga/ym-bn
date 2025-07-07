@@ -16,7 +16,7 @@ const bool debug_read_token = false;
 
 END_NONAMESPACE
 
-BEGIN_NAMESPACE_YM_ISCAS89
+BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
 // iscas89 用の字句解析器
@@ -165,7 +165,7 @@ Iscas89Scanner::scan()
     return Iscas89Token::COMMA;
 
   default:
-    mCurString.put_char(c);
+    mCurString += static_cast<char>(c);
     goto ST_STR;
   }
 
@@ -197,9 +197,9 @@ Iscas89Scanner::scan()
 
   default:
     accept();
-    mCurString.put_char(c);
+    mCurString += static_cast<char>(c);
     goto ST_STR;
   }
 }
 
-END_NAMESPACE_YM_ISCAS89
+END_NAMESPACE_YM_BN
