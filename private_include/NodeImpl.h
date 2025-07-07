@@ -5,12 +5,11 @@
 /// @brief NodeImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bn.h"
 #include "ym/logic.h"
-#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -19,7 +18,7 @@ class FuncImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeImpl NodeImpl.h "NodeImpl.h"
-/// @brief BnModel のノードを表すクラス
+/// @brief BnNode の実装クラス
 //////////////////////////////////////////////////////////////////////
 class NodeImpl
 {
@@ -43,19 +42,22 @@ public:
   BnNodeType
   type() const = 0;
 
-  /// @brief 入力として定義されている時 true を返す．
+  /// @brief 入力ノードの時 true を返す．
+  ///
+  /// 外部入力ノードとDFFの出力ノードのどちらかの時 true となる．
+  virtual
   bool
-  is_input() const
-  {
-    return type() == BnNodeType::INPUT;
-  }
+  is_input() const;
 
-  /// @brief BnSeq の出力の時 true を返す．
+  /// @brief 外部入力ノードの時 true を返す．
+  virtual
   bool
-  is_seq_output() const
-  {
-    return type() == BnNodeType::SEQ_OUTPUT;
-  }
+  is_primary_input() const;
+
+  /// @brief DFFの出力の時 true を返す．
+  virtual
+  bool
+  is_dff_output() const;
 
   /// @brief 論理ノードの時 true を返す．
   virtual
@@ -63,42 +65,24 @@ public:
   is_logic() const;
 
   /// @brief プリミティブ型の論理ノードの時 true を返す．
+  virtual
   bool
-  is_primitive() const
-  {
-    return type() == BnNodeType::PRIMITIVE;
-  }
-
-  /// @brief AIG型の論理ノードの時 true を返す．
-  bool
-  is_aig() const
-  {
-    return type() == BnNodeType::AIG;
-  }
+  is_primitive() const;
 
   /// @brief 関数型の論理ノードの時 true を返す．
+  virtual
   bool
-  is_func() const
-  {
-    return type() == BnNodeType::FUNC;
-  }
-
-  /// @brief セル型の論理ノードの時 true を返す．
-  bool
-  is_cell() const
-  {
-    return type() == BnNodeType::CELL;
-  }
+  is_func() const;
 
   /// @brief 入力番号を返す．
   virtual
   SizeType
   input_id() const;
 
-  /// @brief SEQ 番号を返す．
+  /// @brief DFF番号を返す．
   virtual
   SizeType
-  seq_id() const;
+  dff_id() const;
 
   /// @brief ファンイン数を返す．
   virtual
@@ -122,22 +106,10 @@ public:
   PrimType
   primitive_type() const;
 
-  /// @brief ファンインの反転属性を返す．
-  virtual
-  bool
-  fanin_inv(
-    SizeType pos ///< [in] 位置番号 ( 0 or 1 )
-  ) const;
-
   /// @brief 関数番号を返す．
   virtual
   SizeType
   local_func_id() const;
-
-  /// @brief セルを得る．
-  virtual
-  ClibCell
-  cell() const;
 
   /// @brief 複製を作る．
   virtual

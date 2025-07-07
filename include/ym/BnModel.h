@@ -5,11 +5,10 @@
 /// @brief BnModel のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bn.h"
-#include "ym/clib.h"
 #include "ym/logic.h"
 #include "ym/json.h"
 
@@ -26,34 +25,26 @@ class ModelImpl;
 /// - 入力ノードのリスト
 /// - 出力ノードのリスト
 /// - 論理ノードのリスト
-/// - SEQノードのリスト
-/// - カバー(BlifCover)のリスト
-/// - 論理式(Expr)のリスト
-/// - 関数(TvFunc)のリスト
-/// - BDD(Bdd)のリスト
 ///
-/// - 論理ノードは以下の情報を持つ．
-///   * タイプ(BnNodeType)
-///   * タイプごとの補助情報
-///   * ファンインノードのリスト
+/// 論理ノードは以下のいずれかの論理関数情報を持つ．
+/// - プリミティブ(PrimType)
+/// - カバー(SopCover)
+/// - 論理式(Expr)
+/// - 関数(TvFunc)
+/// - BDD(Bdd)
+/// 場合によっては複数の情報を持つ場合もある．
 ///
-/// - SEQノードは以下の情報を持つ．
-///   * タイプ(BnSeqType)
-///   * データ入力ノード
-///   * クロック入力ノード
-///   * クリア入力ノード
-///   * プリセット入力ノード
-///   * リセットとプリセットが共にオンの時の値('0', '1', 'X', or 'T')
+/// 出力ノードは実際にはノードではなく他のノードの参照である．
 ///
-/// - 実際には出力ノードという種類はなく，他のいずれかの
-///   ノードとなっている．
-/// - 論理ノードのリストは入力からのトポロジカル順
-///   となっている．
+/// 純粋な Boolean Network は抽象化した組み合わせ論理回路を表すものであるが、
+/// DFFの入力ノードと出力ノードをそれぞれ疑似外部出力、疑似外部入力とみなすことで
+/// 同期式順序回路を表すことができる．
+/// ただし、クロックや非同期リセットなどの情報は持てない．
 ///
 /// - 扱えるファイルタイプは以下の通り
 ///   * blif(.blif)
 ///   * iscas89(.bench)
-///   * aig(.aag, .aig)
+///   * aiger(.aag, .aig)
 ///   * truth(IWLS2022)
 ///
 /// - 回路名，コメント，入出力名をオプションとして持つ．
@@ -61,12 +52,9 @@ class ModelImpl;
 ///   の場合は出力名は出力として参照されているノード名と等しい．
 ///   そのため入力ノードがそのまま出力となっている場合には
 ///   入力と出力に同じ名前を持つことになる．
-/// - 複数の入出力をまとめてポートを定義することもできる．
-///   ポート情報もオプションで保持される．
 ///
-/// - 実装は本体の ModelImpl を指す ModelPtr のみを持つ．
-///   ただし，同一の BnModel に属する BnNode, BnSeq 内でしか
-///   共有しない．
+/// - 実装は本体の ModelImpl を指す共有ポインタのみを持つ．
+///   ただし，ModelImpl は同一の BnModel に属する BnNode 内でしか共有しない．
 //////////////////////////////////////////////////////////////////////
 class BnModel
 {
@@ -112,22 +100,7 @@ public:
   static
   BnModel
   read_blif(
-    const string& filename,             ///< [in] ファイル名
-    const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& reset_name = "reset"  ///< [in] リセット信号の名前
-  );
-
-  /// @brief blif ファイルの読み込みを行う(セルライブラリ付き)．
-  /// @return 結果の BnModel を返す．
-  ///
-  /// 読み込みが失敗したら std::invalid_argument 例外を送出する．
-  static
-  BnModel
-  read_blif(
-    const string& filename,              ///< [in] ファイル名
-    const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
-    const string& clock_name = "clock",  ///< [in] クロック信号の名前
-    const string& reset_name = "reset"   ///< [in] リセット信号の名前
+    const string& filename ///< [in] ファイル名
   );
 
   /// @brief iscas89(.bench) ファイルの読み込みを行う．
@@ -137,8 +110,7 @@ public:
   static
   BnModel
   read_iscas89(
-    const string& filename,            ///< [in] ファイル名
-    const string& clock_name = "clock" ///< [in] クロック信号の名前
+    const string& filename ///< [in] ファイル名
   );
 
   /// @brief aag ファイルの読み込みを行う．
@@ -148,9 +120,7 @@ public:
   static
   BnModel
   read_aag(
-    const string& filename,             ///< [in] ファイル名
-    const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& reset_name = "reset"  ///< [in] リセット信号の名前
+    const string& filename ///< [in] ファイル名
   );
 
   /// @brief aig ファイルの読み込みを行う．
@@ -160,9 +130,7 @@ public:
   static
   BnModel
   read_aig(
-    const string& filename,             ///< [in] ファイル名
-    const string& clock_name = "clock", ///< [in] クロック信号の名前
-    const string& reset_name = "reset"  ///< [in] リセット信号の名前
+    const string& filename ///< [in] ファイル名
   );
 
   /// @brief truth ファイルの読み込みを行う．
@@ -189,12 +157,6 @@ public:
   BnModel
   copy() const;
 
-  /// @brief セルライブラリを返す．
-  ///
-  /// - 場合によっては空のライブラリを返す．
-  ClibCellLibrary
-  library() const;
-
   /// @brief ノード数を返す．
   SizeType
   node_num() const;
@@ -203,32 +165,32 @@ public:
   SizeType
   input_num() const;
 
-  /// @brief 入力のノードを返す．
+  /// @brief 入力ノードを返す．
   ///
   /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnNode
   input(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < input_num() )
+    SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
   ) const;
 
-  /// @brief 入力のノードのリストを返す．
-  BnNodeList
+  /// @brief 入力ノードのリストを返す．
+  std::vector<BnNode>
   input_list() const;
 
   /// @brief 出力数を返す．
   SizeType
   output_num() const;
 
-  /// @brief 入力のノードを返す．
+  /// @brief 出力ノードを返す．
   ///
   /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnNode
   output(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < output_num() )
+    SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
   ) const;
 
   /// @brief 出力のノードのリストを返す．
-  BnNodeList
+  std::vector<BnNode>
   output_list() const;
 
   /// @brief 論理ノード数を返す．
@@ -244,19 +206,29 @@ public:
   ) const;
 
   /// @brief 論理ノードのリストを返す．
-  BnNodeList
+  ///
+  /// 入力からのトポロジカル順になっている．
+  std::vector<BnNode>
   logic_list() const;
 
-  /// @brief SEQノード数を返す．
+  /// @brief DFF数を返す．
   SizeType
-  seq_num() const;
+  dff_num() const;
 
-  /// @brief SEQノードを返す．
+  /// @brief DFFの出力ノードを返す．
   ///
   /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
-  BnSeq
-  seq(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < seq_num() )
+  BnNode
+  dff_output(
+    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
+  ) const;
+
+  /// @brief DFFの入力ノードを返す．
+  ///
+  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
+  BnNode
+  dff_input(
+    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
   ) const;
 
   /// @brief 関数情報の数を返す．
@@ -268,7 +240,7 @@ public:
   /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   BnFunc
   func(
-    SizeType func_id ///< [in] カバー番号 ( 0 <= func_id < func_num() )
+    SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
   ) const;
 
   /// @brief 内容を出力する．
@@ -337,12 +309,12 @@ public:
     SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
   ) const;
 
-  /// @brief ラッチ名を返す．
+  /// @brief DFF名を返す．
   ///
   /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
   string
-  seq_name(
-    SizeType seq_id ///< [in] ラッチ番号 ( 0 <= seq_id < seq_num() )
+  dff_name(
+    SizeType dff_id ///< [in] ラッチ番号 ( 0 <= dff_id < dff_num() )
   ) const;
 
   /// @}
@@ -363,14 +335,6 @@ public:
   void
   wrap_up();
 
-  /// @brief セルライブラリを設定する．
-  ///
-  /// 既に別のライブラリが設定されていたら std::invalid_argument 例外を送出する．
-  void
-  set_celllibrary(
-    ClibCellLibrary lib ///< [in] ライブラリ
-  );
-
   /// @brief オプション情報をセットする．
   void
   set_option(
@@ -383,7 +347,7 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  /// @name 論理ノードの生成
+  /// @name ノードの生成
   /// @{
   //////////////////////////////////////////////////////////////////////
 
@@ -443,19 +407,6 @@ public:
     const vector<BnNode>& input_list ///< [in] 入力の識別子番号のリスト
   );
 
-  /// @brief 新しいセル型の論理ノードを作る．
-  /// @return 生成したノードを返す．
-  ///
-  /// - input_list の要素は同じ BnModel に属するノードでなければならない．
-  /// - cell はこのモデルに設定されているセルライブラリのセルでなければならない．
-  /// - セルの入力数と input_list のサイズは一致しなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  BnNode
-  new_cell(
-    ClibCell cell,                   ///< [in] セル
-    const vector<BnNode>& input_list ///< [in] 入力のノードのリスト
-  );
-
   /// @}
   //////////////////////////////////////////////////////////////////////
 
@@ -470,13 +421,12 @@ public:
   /// @return 登録結果(BnFunc)を返す．
   ///
   /// - cube_list 中に現れるリテラル番号は input_num 未満でなければならない．
-  /// - opat は '0' か '1' でなければならない．
   /// - 上記の条件に合わない場合は std::invalid_argument 例外を送出する．
   BnFunc
   reg_cover(
     SizeType input_num,                       ///< [in] 入力数
     const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
-    char opat                                 ///< [in] 出力パタン ( '1' or '0' )
+    bool oinv                                 ///< [in] 反転属性
   );
 
   /// @brief 論理式を登録する．
@@ -521,29 +471,6 @@ public:
     const string& name = {} ///< [in] 名前
   );
 
-  /// @brief ラッチを作る．
-  /// @return 生成したSEQノードを返す．
-  ///
-  /// - rs_val は ' ', '0', '1', 'X', 'T' のいずれか
-  /// - そうでなければ std::invalid_argument 例外を送出する．
-  BnSeq
-  new_latch(
-    char rs_val = ' ',      ///< [in] リセットとプリセットが共にオンの時の値
-    const string& name = {} ///< [in] 名前
-  );
-
-  /// @brief セルタイプのSEQノードを作る．
-  /// @return 生成したSEQノードを返す．
-  ///
-  /// - cell はこのモデルに設定されているセルライブラリのセルでなければならない．
-  /// - cell が順序回路でなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  BnSeq
-  new_seq_cell(
-    ClibCell cell,          ///< [in] セル
-    const string& name = {} ///< [in] 名前
-  );
-
   /// @brief DFF/ラッチのソースノードをセットする．
   ///
   /// - seq は同じ BnModel に属していなければならない．
@@ -553,63 +480,6 @@ public:
   set_data_src(
     BnSeq seq,    ///< [in] SEQノード
     BnNode src    ///< [in] 入力ノード
-  );
-
-  /// @brief DFFのクロック入力をセットする．
-  ///
-  /// - seq は同じ BnModel に属していなければならない．
-  /// - clock は同じ BnModel に属していなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  void
-  set_clock(
-    BnSeq seq,    ///< [in] SEQノード
-    BnNode clock  ///< [in] クロック入力ノード
-  );
-
-  /// @brief ラッチのイネーブル入力をセットする．
-  ///
-  /// - seq は同じ BnModel に属していなければならない．
-  /// - enable は同じ BnModel に属していなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  void
-  set_enable(
-    BnSeq seq,     ///< [in] SEQノード
-    BnNode enable  ///< [in] イネーブル入力
-  );
-
-  /// @brief DFF/ラッチのクリア入力をセットする．
-  ///
-  /// - seq は同じ BnModel に属していなければならない．
-  /// - clear は同じ BnModel に属していなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  void
-  set_clear(
-    BnSeq seq,    ///< [in] SEQノード
-    BnNode clear  ///< [in] クリア入力ノード
-  );
-
-  /// @brief DFF/ラッチのプリセット入力をセットする．
-  ///
-  /// - seq は同じ BnModel に属していなければならない．
-  /// - preset は同じ BnModel に属していなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  void
-  set_preset(
-    BnSeq seq,    ///< [in] SEQノード
-    BnNode preset ///< [in] プリセット入力ノード
-  );
-
-  /// @brief セルのピンに対応するノードをセットする．
-  ///
-  /// - seq は同じ BnModel に属していなければならない．
-  /// - node は同じ BnModel に属していなければならない．
-  /// - 条件に合わない時は std::invalid_argument 例外を送出する．
-  /// - pos が範囲外の時は std::out_of_range 例外を送出する．
-  void
-  set_seq_pin(
-    BnSeq seq,    ///< [in] SEQノード
-    SizeType pos, ///< [in] ピン番号
-    BnNode node   ///< [in] ノード
   );
 
   /// @}
@@ -635,14 +505,6 @@ private:
   void
   _check_node(
     const BnNode& node
-  ) const;
-
-  /// @brief BnSeq のチェックを行う．
-  ///
-  /// 同じ Model に属していないとエラーとなる．
-  void
-  _check_seq(
-    const BnSeq& seq
   ) const;
 
   /// @brief BnFunc のチェックを行う．
@@ -671,22 +533,10 @@ private:
     SizeType logic_id
   ) const;
 
-  /// @brief SEQ番号のチェックを行う．
+  /// @brief SDFF番号のチェックを行う．
   void
-  _check_seq_id(
-    SizeType seq_id
-  ) const;
-
-  /// @brief 本体に登録されているライブラリとセルが属するライブラリが等しいか調べる．
-  void
-  _check_library_cell(
-    ClibCell cell         ///< [in] セル
-  ) const;
-
-  /// @brief DFF/latch 用の rs_val が正しいかチェックする．
-  void
-  _check_rsval(
-    char rsval
+  _check_dff_id(
+    SizeType dff_id
   ) const;
 
 

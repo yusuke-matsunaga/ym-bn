@@ -8,13 +8,13 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bn.h"
+#include "ym/iscas89.h"
 #include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "Iscas89Token.h"
 
 
-BEGIN_NAMESPACE_YM_BN
+BEGIN_NAMESPACE_YM_ISCAS89
 
 //////////////////////////////////////////////////////////////////////
 /// @class Iscas89Scanner Iscas89Scanner.h "Iscas89Scanner.h"
@@ -27,9 +27,8 @@ public:
 
   /// @brief コンストラクタ
   Iscas89Scanner(
-    istream& s,                ///< [in] 入力ストリーム
-    const FileInfo& file_info, ///< [in] ファイル情報
-    const unordered_map<string, SizeType>& handler_dict
+    std::istream& s,          ///< [in] 入力ストリーム
+    const FileInfo& file_info ///< [in] ファイル情報
   );
 
   /// @brief デストラクタ
@@ -41,20 +40,13 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 拡張型を登録する．
-  void
-  reg_extype(
-    const string& keyword, ///< [in] 予約語
-    SizeType ex_id         ///< [in] 拡張ID ( > 0 )
-  );
-
   /// @brief トークンを一つ読み出す．
   Iscas89Token
   read_token();
 
   /// @brief 最後の read_token() で読み出した字句の文字列を返す．
   string
-  cur_string() { return string{mCurString.c_str()}; }
+  cur_string() { return std::string{mCurString.c_str()}; }
 
 
 private:
@@ -94,10 +86,10 @@ private:
   FileLoc mFirstLoc;
 
   // 予約語の辞書
-  unordered_map<string, RsvInfo> mRsvDict;
+  std::unordered_map<std::string, RsvInfo> mRsvDict;
 
 };
 
-END_NAMESPACE_YM_BN
+END_NAMESPACE_YM_ISCAS89
 
 #endif // ISCAS89SCANNER_H

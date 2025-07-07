@@ -97,13 +97,12 @@ public:
   const SopCover&
   input_cover() const;
 
-  /// @brief 出力パタンを返す．
+  /// @brief 出力の反転属性を返す．
   ///
   /// - is_cover() が true の時のみ意味を持つ．
   /// - それ以外の時は std::invalid_argument 例外を送出する．
-  /// - ドントケアはない．
-  char
-  output_pat() const;
+  bool
+  output_inv() const;
 
   /// @brief 論理式を返す．
   ///
@@ -167,7 +166,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // モデルの実装本体
-  shared_ptr<const ModelImpl> mModel{nullptr};
+  std::shared_ptr<const ModelImpl> mModel{nullptr};
 
   // 関数番号
   SizeType mId{BAD_ID};

@@ -3,7 +3,7 @@
 /// @brief Iscas89Scanner の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014, 2019, 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Iscas89Scanner.h"
@@ -16,7 +16,7 @@ const bool debug_read_token = false;
 
 END_NONAMESPACE
 
-BEGIN_NAMESPACE_YM_BN
+BEGIN_NAMESPACE_YM_ISCAS89
 
 //////////////////////////////////////////////////////////////////////
 // iscas89 用の字句解析器
@@ -24,9 +24,8 @@ BEGIN_NAMESPACE_YM_BN
 
 // @brief コンストラクタ
 Iscas89Scanner::Iscas89Scanner(
-  istream& s,
-  const FileInfo& file_info,
-  const unordered_map<string, SizeType>& handler_dict
+  std::istream& s,
+  const FileInfo& file_info
 ) : Scanner{s, file_info}
 {
   // 予約語辞書を作る．
@@ -56,22 +55,19 @@ Iscas89Scanner::Iscas89Scanner(
   mRsvDict.emplace("xnor", RsvInfo{Iscas89Token::GATE, PrimType::Xnor});
   mRsvDict.emplace("DFF", RsvInfo{Iscas89Token::DFF, PrimType::None});
   mRsvDict.emplace("dff", RsvInfo{Iscas89Token::DFF, PrimType::None});
-  for ( auto& p: handler_dict ) {
-    auto keyword = p.first;
-    auto ex_id = p.second;
-    mRsvDict.emplace(keyword, RsvInfo{Iscas89Token::EXGATE, PrimType::None, ex_id});
-  }
 }
 
+#if 0
 // @brief 拡張型を登録する．
 void
 Iscas89Scanner::reg_extype(
-  const string& keyword,
+  const std::string& keyword,
   SizeType ex_id
 )
 {
   mRsvDict.emplace(keyword, RsvInfo{Iscas89Token::EXGATE, PrimType::None, ex_id});
 }
+#endif
 
 // @brief トークンを一つ読み出す．
 Iscas89Token
@@ -206,4 +202,4 @@ Iscas89Scanner::scan()
   }
 }
 
-END_NAMESPACE_YM_BN
+END_NAMESPACE_YM_ISCAS89

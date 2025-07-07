@@ -5,7 +5,7 @@
 /// @brief FuncImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bn.h"
@@ -41,16 +41,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief カバー型のインスタンスを作る．
-  ///
-  /// - cube_list 中に現れるリテラル番号は input_num 未満でなければならない．
-  /// - opat は '0' か '1' でなければならない．
-  /// - 上記の条件に合わない場合は std::invalid_argument 例外を送出する．
   static
   FuncImpl*
   new_cover(
-    SizeType input_num,                       ///< [in] 入力数
-    const vector<vector<Literal>>& cube_list, ///< [in] キューブのリスト
-    char opat                                 ///< [in] 出力パタン ( '1' or '0' )
+    const SopCover& input_cover, ///< [in] 入力カバー
+    bool outout_inv              ///< [in] 出力の反転属性
   );
 
   /// @brief 論理式型のインスタンスを作る．
@@ -82,9 +77,9 @@ public:
 
   /// @brief コピーを作る．
   virtual
-  unique_ptr<FuncImpl>
+  std::unique_ptr<FuncImpl>
   copy(
-    BddMgr& bdd_mgr ///< [in] BddMgr
+    BddMgr& bdd_mgr ///< [in] BddMgr 親のBDDマネージャ
   ) const = 0;
 
 
@@ -139,14 +134,13 @@ public:
   const SopCover&
   input_cover() const;
 
-  /// @brief 出力パタンを返す．
+  /// @brief 出力の反転属性を返す．
   ///
   /// - is_cover() が true の時のみ意味を持つ．
   /// - それ以外の時は std::invalid_argument 例外を送出する．
-  /// - ドントケアはない．
   virtual
-  char
-  output_pat() const;
+  bool
+  output_inv() const;
 
   /// @brief 論理式を返す．
   ///

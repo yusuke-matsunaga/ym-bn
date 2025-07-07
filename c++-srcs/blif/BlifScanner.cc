@@ -3,13 +3,13 @@
 /// @brief BlibScanner の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019, 2021, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BlifScanner.h"
 
 
-BEGIN_NAMESPACE_YM_BN
+BEGIN_NAMESPACE_YM_BLIF
 
 BEGIN_NONAMESPACE
 
@@ -25,7 +25,7 @@ END_NONAMESPACE
 
 // @brief コンストラクタ
 BlifScanner::BlifScanner(
-  istream& s,
+  std::istream& s,
   const FileInfo& file_info
 ) : Scanner(s, file_info),
     mDic{ {"model", BlifToken::MODEL},
@@ -217,7 +217,7 @@ BlifScanner::check_word(
 {
   if ( start_with_dot ) {
     // 予約後の検索
-    auto p = mDic.find(string{cur_string()});
+    auto p = mDic.find(std::string{cur_string()});
     if ( p != mDic.end() ) {
       return p->second;
     }
@@ -225,4 +225,4 @@ BlifScanner::check_word(
   return BlifToken::STRING;
 }
 
-END_NAMESPACE_YM_BN
+END_NAMESPACE_YM_BLIF

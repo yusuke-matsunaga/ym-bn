@@ -5,15 +5,15 @@
 /// @brief BlibScanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bn.h"
+#include "ym/blif.h"
 #include "ym/Scanner.h"
 #include "BlifToken.h"
 
 
-BEGIN_NAMESPACE_YM_BN
+BEGIN_NAMESPACE_YM_BLIF
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifScanner BlifScanner.h "BlifScanner.h"
@@ -74,13 +74,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 予約語テーブル
-  unordered_map<string, BlifToken> mDic;
+  std::unordered_map<std::string, BlifToken> mDic;
 
   // 文字列バッファ
-  string mCurString;
+  std::string mCurString;
 
 };
 
-END_NAMESPACE_YM_BN
+END_NAMESPACE_YM_BLIF
 
 #endif // BLIFSCANNER_H

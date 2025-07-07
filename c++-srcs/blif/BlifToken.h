@@ -5,13 +5,13 @@
 /// @brief BlibToken のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bn.h"
+#include "ym/blif.h"
 
 
-BEGIN_NAMESPACE_YM_BN
+BEGIN_NAMESPACE_YM_BLIF
 
 /// @brief blif 形式のトークン
 enum class BlifToken {
@@ -58,10 +58,10 @@ enum class BlifToken {
 /// @relates Token
 /// @brief トークンを出力する．
 inline
-ostream&
+std::ostream&
 operator<<(
-  ostream& s,     ///< [in] 出力先のストリーム
-  BlifToken token ///< [in] トークン
+  std::ostream& s, ///< [in] 出力先のストリーム
+  BlifToken token  ///< [in] トークン
 )
 {
   switch (token) {
@@ -109,6 +109,6 @@ operator<<(
   return s;
 }
 
-END_NAMESPACE_YM_BN
+END_NAMESPACE_YM_BLIF
 
 #endif // BLIFTOKEN_H

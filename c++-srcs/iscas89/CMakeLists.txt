@@ -45,12 +45,14 @@ add_subdirectory ( gtest )
 # ===================================================================
 
 set ( iscas89_SOURCES
-  #iscas89/C0Handler.cc
-  #iscas89/C1Handler.cc
-  #iscas89/Iscas89Handler.cc
-  iscas89/Iscas89Parser.cc
-  iscas89/Iscas89Scanner.cc
-  #iscas89/MuxHandler.cc
+  #${CMAKE_CURRENT_SOURCE_DIR}/C0Handler.cc
+  #${CMAKE_CURRENT_SOURCE_DIR}/C1Handler.cc
+  #${CMAKE_CURRENT_SOURCE_DIR}/Iscas89Handler.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/Iscas89Model.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/Iscas89Parser.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/Iscas89Scanner.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ModelImpl.cc
+  #${CMAKE_CURRENT_SOURCE_DIR}/MuxHandler.cc
   PARENT_SCOPE
   )
 

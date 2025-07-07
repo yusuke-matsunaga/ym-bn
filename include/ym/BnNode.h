@@ -5,11 +5,10 @@
 /// @brief BnNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bn.h"
-#include "ym/clib.h"
 #include "ym/logic.h"
 
 
@@ -96,43 +95,54 @@ public:
   bool
   is_input() const;
 
-  /// @brief BnSeq の出力ノードの時 true を返す．
+  /// @brief 外部入力ノードの時 true を返す．
+  ///
+  /// is_input() を包含している．
   bool
-  is_seq_output() const;
+  is_primary_input() const;
+
+  /// @brief DFFの出力ノードの時 true を返す．
+  ///
+  /// is_input() を包含している．
+  bool
+  is_sdff_output() const;
 
   /// @brief 論理ノードの時 true を返す．
   bool
   is_logic() const;
 
   /// @brief プリミティブ型の論理ノードの時 true を返す．
+  ///
+  /// is_logic() を包含している．
   bool
   is_primitive() const;
 
-  /// @brief AIG型の論理ノードの時 true を返す．
-  bool
-  is_aig() const;
-
   /// @brief 関数タイプの論理ノードの時 true を返す．
+  ///
+  /// is_logic() を包含している．
   bool
   is_func() const;
 
-  /// @brief セルタイプの論理ノードの時 true を返す．
-  bool
-  is_cell() const;
-
   /// @brief 入力番号を返す．
   ///
-  /// - is_input() が true の時のみ意味を持つ．
+  /// - is_primary_input() が true の時のみ意味を持つ．
   /// - それ以外の時は std::invalid_argument 例外を送出する．
   SizeType
   input_id() const;
 
-  /// @brief 関連する BnSeq を返す．
+  /// @brief DFF番号を返す．
   ///
-  /// - is_seq_output() が true の時のみ意味を持つ．
+  /// - is_dff_output() が true の時のみ意味を持つ．
   /// - それ以外の時は std::invalid_argument 例外を送出する．
-  BnSeq
-  seq_node() const;
+  SizeType
+  dff_id() const;
+
+  /// @brief DFFの入力ノードを返す．
+  ///
+  /// - is_dff_output() が true の時のみ意味を持つ．
+  /// - それ以外の時は std::invalid_argument 例外を送出する．
+  BnNode
+  dff_input() const;
 
   /// @brief ファンイン数を返す．
   ///
@@ -155,7 +165,7 @@ public:
   ///
   /// - is_logic() が true の時のみ意味を持つ．
   /// - is_logic() が false の時は空リストを返す．
-  BnNodeList
+  std::vector<BnNode>
   fanin_list() const;
 
   /// @brief ノードのプリミティブタイプを返す．
@@ -165,28 +175,12 @@ public:
   PrimType
   primitive_type() const;
 
-  // @brief ファンインの反転属性を返す．
-  ///
-  /// - is_aig() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
-  bool
-  fanin_inv(
-    SizeType pos
-  ) const;
-
   /// @brief ノードの関数情報を返す．
   ///
   /// - is_logic() が true の時のみ意味を持つ．
   /// - それ以外の時は std::invalid_argument 例外を送出する．
   BnFunc
   local_func() const;
-
-  /// @brief セルを返す．
-  ///
-  /// is_cell() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
-  ClibCell
-  cell() const;
 
   /// @brief 等価比較演算子
   bool
