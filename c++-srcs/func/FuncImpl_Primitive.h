@@ -1,35 +1,36 @@
-#ifndef FUNCIMPL_BDD_H
-#define FUNCIMPL_BDD_H
+#ifndef FUNCIMPL_PRIMITIVE_H
+#define FUNCIMPL_PRIMITIVE_H
 
-/// @file FuncImpl_Bdd.h
-/// @brief FuncImpl_Bdd のヘッダファイル
+/// @file FuncImpl_Primitive.h
+/// @brief FuncImpl_Primitive のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "FuncImpl.h"
-#include "ym/Bdd.h"
+#include "ym/logic.h"
 
 
 BEGIN_NAMESPACE_YM_BN
 
 //////////////////////////////////////////////////////////////////////
-/// @class FuncImpl_Bdd FuncImpl_Bdd.h "FuncImpl_Bdd.h"
-/// @brief BDD型の関数情報を表すクラス
+/// @class FuncImpl_Primitive FuncImpl_Primitive.h "FuncImpl_Primitive.h"
+/// @brief プリミティブ型の関数情報を表すクラス
 //////////////////////////////////////////////////////////////////////
-class FuncImpl_Bdd :
+class FuncImpl_Primitive :
   public FuncImpl
 {
 public:
 
   /// @brief コンストラクタ
-  FuncImpl_Bdd(
-    Bdd bdd ///< [in] BDD
+  FuncImpl_Primitive(
+    Sizetype input_num,     ///< [in] 入力数
+    PrimType primitive_type ///< [in] プリミティブの種類
   );
 
   /// @brief デストラクタ
-  ~FuncImpl_Bdd() = default;
+  ~FuncImpl_Primitive() = default;
 
 
 public:
@@ -44,23 +45,20 @@ public:
   ) const override;
 
   /// @brief 関数の種類を返す．
-  BnFuncType
+  BnFunc::Type
   type() const override;
 
-  /// @brief BDD型の時 true を返す．
+  /// @brief プリミティブ型の時 true を返す．
   bool
-  is_bdd() const override;
+  is_primitive() const override;
 
   /// @brief 入力数を返す．
   SizeType
   input_num() const override;
 
-  /// @brief BDDを返す．
-  ///
-  /// - is_bdd() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
-  Bdd
-  bdd() const override;
+  /// @brief プリミティブの種類を返す．
+  PrimType
+  primitive_type() const override;
 
   /// @brief 内容を出力する．
   void
@@ -74,11 +72,14 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // BDD
-  Bdd mBdd;
+  // 入力数
+  SizeType mInputNum;
+
+  // プリミティブの型
+  PrimType mPrimType;
 
 };
 
 END_NAMESPACE_YM_BN
 
-#endif // FUNCIMPL_BDD_H
+#endif // FUNCIMPL_PRIMITIVE_H

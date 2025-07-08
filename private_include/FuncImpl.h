@@ -40,6 +40,14 @@ public:
   // 生成用のクラスメソッド
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief プリミティブ型のインスタンスを作る．
+  static
+  FuncImpl*
+  new_primitive(
+    SizeType input_num,     ///< [in] 入力数
+    PrimType primitive_type ///< [in] プリミティブの種類
+  );
+
   /// @brief カバー型のインスタンスを作る．
   static
   FuncImpl*
@@ -91,28 +99,45 @@ public:
 
   /// @brief 関数の種類を返す．
   virtual
-  BnFuncType
+  BnFunc::Type
   type() const = 0;
 
-  /// @brief カバー型の論理ノードの時 true を返す．
+  /// @brief プリミティブ型の時 true を返す．
+  virtual
+  bool
+  is_primitive() const;
+
+  /// @brief カバー型の時 true を返す．
   virtual
   bool
   is_cover() const;
 
-  /// @brief 論理式型の論理ノードの時 true を返す．
+  /// @brief 論理式型の時 true を返す．
   virtual
   bool
   is_expr() const;
 
-  /// @brief 真理値表型の論理ノードの時 true を返す．
+  /// @brief 真理値表型の時 true を返す．
   virtual
   bool
   is_tvfunc() const;
 
-  /// @brief BDD型の論理ノードの時 true を返す．
+  /// @brief BDD型の時 true を返す．
   virtual
   bool
   is_bdd() const;
+
+  /// @brief 入力数を返す．
+  virtual
+  SizeType
+  input_num() const = 0;
+
+  /// @brief 内容を出力する．
+  virtual
+  void
+  print(
+    ostream& s ///< [in] 出力先のストリーム
+  ) const = 0;
 
 
 public:
@@ -121,21 +146,13 @@ public:
   // この関数は場合によっては std::invalid_argument 例外を送出する．
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力数を返す．
-  virtual
-  SizeType
-  input_num() const = 0;
-
   /// @brief プリミティブ型を返す．
   ///
-  /// - プリミティブ型でない場合は PrimType::None を返す．
+  /// - is_primitive() が true の時のみ意味を持つ．
+  /// - それ以外の時は std::invalid_argument 例外を送出する．
   virtual
   PrimType
   primitive_type() const;
-
-  /// @brief カバー情報を持っている時 true を返す．
-  bool
-  has_cover() const;
 
   /// @brief 入力カバーを返す．
   ///
@@ -176,13 +193,6 @@ public:
   virtual
   Bdd
   bdd() const;
-
-  /// @brief 内容を出力する．
-  virtual
-  void
-  print(
-    ostream& s ///< [in] 出力先のストリーム
-  ) const = 0;
 
 };
 

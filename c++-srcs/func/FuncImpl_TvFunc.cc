@@ -47,13 +47,13 @@ FuncImpl_TvFunc::copy(
 }
 
 // @brief 関数の種類を返す．
-BnFuncType
+BnFunc::Type
 FuncImpl_TvFunc::type() const
 {
-  return BnFuncType::TVFUNC;
+  return BnFunc::TvFunc;
 }
 
-// @brief 真理値表型の論理ノードの時 true を返す．
+// @brief 真理値表型の時 true を返す．
 bool
 FuncImpl_TvFunc::is_tvfunc() const
 {

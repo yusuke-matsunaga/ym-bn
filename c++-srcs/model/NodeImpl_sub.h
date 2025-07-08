@@ -34,12 +34,23 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief ノードの種類を返す．
+  BnNode::Type
+  type() const override;
+
   /// @brief 入力ノードの時 true を返す．
   ///
   /// 外部入力ノードとDFFの出力ノードのどちらかの時 true となる．
-  virtual
   bool
-  is_input() const;
+  is_input() const override;
+
+  /// @brief 外部入力ノードの時 true を返す．
+  bool
+  is_primary_input() const override;
+
+  /// @brief DFFの出力の時 true を返す．
+  bool
+  is_dff_output() const override;
 
 };
 
@@ -67,10 +78,6 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief ノードの種類を返す．
-  BnNodeType
-  type() const override;
-
   /// @brief 外部入力ノードの時 true を返す．
   bool
   is_primary_input() const override;
@@ -80,7 +87,7 @@ public:
   input_id() const override;
 
   /// @brief 複製を作る．
-  unique_ptr<NodeImpl>
+  std::unique_ptr<NodeImpl>
   copy() const override;
 
 
@@ -119,10 +126,6 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief ノードの種類を返す．
-  BnNodeType
-  type() const override;
-
   /// @brief DFFの出力の時 true を返す．
   bool
   is_dff_output() const override;
@@ -136,7 +139,7 @@ public:
   dff_src() const override;
 
   /// @brief 複製を作る．
-  unique_ptr<NodeImpl>
+  std::unique_ptr<NodeImpl>
   copy() const override;
 
 
@@ -156,7 +159,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeImpl_Logic NodeImpl_Logic.h "NodeImpl_Logic.h"
-/// @brief 論理ノード用の NodeImpl の基底クラス
+/// @brief 論理ノード用の NodeImpl
 //////////////////////////////////////////////////////////////////////
 class NodeImpl_Logic :
   public NodeImpl
@@ -165,6 +168,7 @@ public:
 
   /// @brief コンストラクタ
   NodeImpl_Logic(
+    SizeType func_id,                  ///< [in] 関数番号
     const vector<SizeType>& fanin_list ///< [in] ファンインのリスト
   );
 
@@ -177,9 +181,17 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief ノードの種類を返す．
+  BnNode::Type
+  type() const override;
+
   /// @brief 論理ノードの時 true を返す．
   bool
   is_logic() const override;
+
+  /// @brief 関数番号を返す．
+  SizeType
+  func_id() const override;
 
   /// @brief ファンイン数を返す．
   SizeType
@@ -195,104 +207,8 @@ public:
   const vector<SizeType>&
   fanin_list() const override;
 
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // ファンインのリスト
-  vector<SizeType> mFaninList;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class NodeImpl_Primitive NodeImpl_Primitive.h "NodeImpl_Primitive.h"
-/// @brief Primitive 用の NodeImpl
-//////////////////////////////////////////////////////////////////////
-class NodeImpl_Primitive :
-  public NodeImpl_Logic
-{
-public:
-
-  /// @brief コンストラクタ
-  NodeImpl_Primitive(
-    PrimType prim_type,                ///< [in] プリミティブタイプ
-    const vector<SizeType>& fanin_list ///< [in] ファンインのリスト
-  );
-
-  /// @brief デストラクタ
-  ~NodeImpl_Primitive();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノードの種類を返す．
-  BnNodeType
-  type() const override;
-
-  /// @brief プリミティブタイプを得る．
-  PrimType
-  primitive_type() const override;
-
   /// @brief 複製を作る．
-  unique_ptr<NodeImpl>
-  copy() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // プリミティブタイプ
-  PrimType mPrimType;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class NodeImpl_Func NodeImpl_Func.h "NodeImpl_Func.h"
-/// @brief Func 用の NodeImpl
-//////////////////////////////////////////////////////////////////////
-class NodeImpl_Func :
-  public NodeImpl_Logic
-{
-public:
-
-  /// @brief コンストラクタ
-  NodeImpl_Func(
-    SizeType func_id,                  ///< [in] 関数番号
-    const vector<SizeType>& fanin_list ///< [in] ファンインのリスト
-  );
-
-  /// @brief デストラクタ
-  ~NodeImpl_Func();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノードの種類を返す．
-  BnNodeType
-  type() const override;
-
-  /// @brief 関数型の論理ノードの時 true を返す．
-  bool
-  is_func() const override;
-
-  /// @brief 関数番号を返す．
-  SizeType
-  local_func_id() const override;
-
-  /// @brief 複製を作る．
-  unique_ptr<NodeImpl>
+  std::unique_ptr<NodeImpl>
   copy() const override;
 
 
@@ -303,6 +219,9 @@ private:
 
   // 関数番号
   SizeType mFuncId;
+
+  // ファンインのリスト
+  std::vector<SizeType> mFaninList;
 
 };
 

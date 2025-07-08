@@ -22,22 +22,17 @@ ModelImpl::ModelImpl()
 // @brief コピーコンストラクタ
 ModelImpl::ModelImpl(
   const ModelImpl& src
-) : mLibrary{src.mLibrary},
-    mName{src.mName},
+) : mName{src.mName},
     mComment{src.mComment},
     mSymbolDict{src.mSymbolDict},
     mInputList{src.mInputList},
     mOutputList{src.mOutputList},
     mLogicList{src.mLogicList},
     mNodeArray(src.mNodeArray.size()),
-    mSeqArray(src.mSeqArray.size()),
     mFuncArray(src.mFuncArray.size())
 {
   for ( SizeType i = 0; i < src.mNodeArray.size(); ++ i ) {
     mNodeArray[i] = src.mNodeArray[i]->copy();
-  }
-  for ( SizeType i = 0; i < src.mSeqArray.size(); ++ i ) {
-    mSeqArray[i] = src.mSeqArray[i]->copy();
   }
   for ( SizeType i = 0; i < src.mFuncArray.size(); ++ i ) {
     mFuncArray[i] = src.mFuncArray[i]->copy(mBddMgr);
@@ -53,15 +48,15 @@ ModelImpl::~ModelImpl()
 JsonValue
 ModelImpl::option() const
 {
-  unordered_map<string, JsonValue> src_dict;
-  if ( name() != string{} ) {
+  std::unordered_map<std::string, JsonValue> src_dict;
+  if ( name() != std::string{} ) {
     src_dict.emplace("name", JsonValue{name()});
   }
-  if ( comment() != string{} ) {
+  if ( comment() != std::string{} ) {
     src_dict.emplace("comment", JsonValue{comment()});
   }
   if ( !mSymbolDict.empty() ) {
-    unordered_map<string, JsonValue> symbol_dict;
+    std::unordered_map<std::string, JsonValue> symbol_dict;
     for ( auto& p: mSymbolDict ) {
       auto key = p.first;
       auto value = p.second;
@@ -76,26 +71,15 @@ ModelImpl::option() const
 void
 ModelImpl::clear()
 {
-  mLibrary = ClibCellLibrary{};
-  mName = string{};
-  mComment = string{};
+  mName = std::string{};
+  mComment = std::string{};
   mSymbolDict.clear();
   mInputList.clear();
   mOutputList.clear();
   mLogicList.clear();
   mNodeArray.clear();
-  mSeqArray.clear();
   mFuncArray.clear();
   // BddMgr に関しては完全な初期化は行えない．
-}
-
-// @brief セルライブラリを設定する．
-void
-ModelImpl::set_library(
-  ClibCellLibrary library
-)
-{
-  mLibrary = library;
 }
 
 // @brief オプション情報をセットする．
@@ -125,129 +109,51 @@ ModelImpl::set_input(
   SizeType id
 )
 {
-  ASSERT_COND( mNodeArray[id].get() == nullptr );
+  if ( mNodeArray[id].get() != nullptr ) {
+    trhow std::invalid_argument{"id has already been used"};
+  }
   auto iid = mInputList.size();
-  auto node = new NodeImpl_Input{iid};
-  mNodeArray[id] = unique_ptr<NodeImpl>{node};
+  auto node = new NodeImpl_Input(iid);
+  mNodeArray[id] = std::unique_ptr<NodeImpl>{node};
   mInputList.push_back(id);
 }
 
 // @brief 対応するID番号にDFFの出力用の印を付ける．
 void
-ModelImpl::set_seq_output(
-  SizeType id,            ///< [in] ID番号
-  SizeType seq_id         ///< [in] DFF/Latch番号
+ModelImpl::set_dff_output(
+  SizeType id
 )
 {
-  ASSERT_COND( mNodeArray[id].get() == nullptr );
-  auto node = new NodeImpl_SeqOutput{seq_id};
-  mNodeArray[id] = unique_ptr<NodeImpl>{node};
+  if ( mNodeArray[id].get() != nullptr ) {
+    trhow std::invalid_argument{"id has already been used"};
+  }
+  auto dff_id = mDffList.size();
+  auto node = new NodeImpl_DffOutput(dff_id);
+  mNodeArray[id] = std::unique_ptr<NodeImpl>{node};
+  mDffList.push_back(id);
 }
 
-// @brief プリミティブ型のノードの情報をセットする．
+// @brief 論理ノードの情報をセットする．
 void
-ModelImpl::set_primitive(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  PrimType type
-)
-{
-  ASSERT_COND( mNodeArray[id].get() == nullptr );
-  auto node = new NodeImpl_Primitive{type, input_list};
-  mNodeArray[id] = unique_ptr<NodeImpl>{node};
-}
-
-// @brief AIG型のノードの情報をセットする．
-void
-ModelImpl::set_aig(
-  SizeType id,
-  SizeType src0,
-  SizeType src1,
-  bool inv0,
-  bool inv1
-)
-{
-  ASSERT_COND( mNodeArray[id].get() == nullptr );
-  auto node = new NodeImpl_Aig{src0, inv0, src1, inv1};
-  mNodeArray[id] = unique_ptr<NodeImpl>{node};
-}
-
-// @brief 関数型のノードの情報をセットする．
-void
-ModelImpl::set_func(
+ModelImpl::set_logic(
   SizeType id,
   const vector<SizeType>& input_list,
   SizeType func_id
 )
 {
-  ASSERT_COND( mNodeArray[id].get() == nullptr );
-  auto node = new NodeImpl_Func{func_id, input_list};
-  mNodeArray[id] = unique_ptr<NodeImpl>{node};
-}
-
-// @brief セル型のノードの情報をセットする．
-void
-ModelImpl::set_cell(
-  SizeType id,
-  const vector<SizeType>& input_list,
-  ClibCell cell
-)
-{
-  ASSERT_COND( mNodeArray[id].get() == nullptr );
-  auto node = new NodeImpl_Cell{cell, input_list};
-  mNodeArray[id] = unique_ptr<NodeImpl>{node};
-}
-
-// @brief 新しい出力ノードを作る．
-SizeType
-ModelImpl::new_output(
-  SizeType src_id
-)
-{
-  auto oid = mOutputList.size();
-  mOutputList.push_back(src_id);
-  return oid;
-}
-
-// @brief DFFを作る．
-SizeType
-ModelImpl::new_dff(
-  char rs_val,
-  const string& name
-)
-{
-  auto seq = new SeqImpl_DFF{rs_val};
-  return _reg_seq(seq, name);
-}
-
-// @brief ラッチを作る．
-SizeType
-ModelImpl::new_latch(
-  char rs_val,
-  const string& name
-)
-{
-  auto seq = new SeqImpl_Latch{rs_val};
-  return _reg_seq(seq, name);
-}
-
-// @brief cell タイプの DFF を作る．
-SizeType
-ModelImpl::new_seq_cell(
-  ClibCell cell,
-  const string& name
-)
-{
-  set_library(cell.library());
-  auto seq = new SeqImpl_Cell(cell);
-  return _reg_seq(seq, name);
+  if ( mNodeArray[id].get() != nullptr ) {
+    trhow std::invalid_argument{"id has already been used"};
+  }
+  auto node = new NodeImpl_Logic(func_id, fanin_list);
+  mNodeArray[id] = std::unique_ptr<NodeImpl>{node};
+  // mLogicList には追加しない．
 }
 
 // @brief 論理ノードのリストを作る．
 void
 ModelImpl::make_logic_list()
 {
-  unordered_set<SizeType> mark;
+  std::unordered_set<SizeType> mark;
 
   // 入力ノードに印をつける．
   for ( auto id: mInputList ) {
@@ -255,8 +161,7 @@ ModelImpl::make_logic_list()
   }
 
   // DFFの出力に印を作る．
-  for ( auto& seq: mSeqArray ) {
-    auto id = seq->data_output();
+  for ( auto id: mDffList ) {
     mark.emplace(id);
   }
 
@@ -269,8 +174,10 @@ ModelImpl::make_logic_list()
   }
 
   // DFFのファンインに番号をつける．
-  for ( auto& seq: mSeqArray ) {
-    order_node(seq->data_src(), mark);
+  for ( auto id: mDffList ) {
+    auto node = mNodeArray[id].get();
+    auto src_id = node->dff_src();
+    order_node(src_id, mark);
   }
 }
 
@@ -285,12 +192,23 @@ ModelImpl::order_node(
     return;
   }
   auto node = mNodeArray[id].get();
-  ASSERT_COND( node->is_logic() );
+  if ( !node->is_logic() ) {
+    throw std::logic_error{"node->is_logic() == false"};
+  }
   for ( auto iid: node->fanin_list() ) {
     order_node(iid, mark);
   }
   mLogicList.push_back(id);
   mark.emplace(id);
+}
+
+// @brief プリミティブを登録する．
+SizeType
+ModelImpl::reg_primitive(
+  SizeType input_num,
+  PrimType primitive_type
+)
+{
 }
 
 // @brief カバーを登録する．

@@ -55,13 +55,13 @@ FuncImpl_Cover::copy(
 }
 
 // @brief 関数の種類を返す．
-BnFuncType
+BnFunc::Type
 FuncImpl_Cover::type() const
 {
-  return BnFuncType::COVER;
+  return BnFunc::Cover;
 }
 
-// @brief カバー型の論理ノードの時 true を返す．
+// @brief カバー型の時 true を返す．
 bool
 FuncImpl_Cover::is_cover() const
 {
@@ -87,17 +87,6 @@ bool
 FuncImpl::output_inv() const
 {
   return mOutputInv;
-}
-
-// @brief 論理式を返す．
-Expr
-FuncImpl_Cover::expr() const
-{
-  auto expr = mInputCover.expr();
-  if ( output_inv() ) {
-    expr = ~expr;
-  }
-  return expr;
 }
 
 // @brief 内容を出力する．

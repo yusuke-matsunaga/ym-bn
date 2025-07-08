@@ -16,20 +16,11 @@ BEGIN_NAMESPACE_YM_BN
 // クラス NodeImpl
 //////////////////////////////////////////////////////////////////////
 
-// @brief 入力番号を返す．
-SizeType
-NodeImpl::input_id() const
+// @brief 入力ノードの時 true を返す．
+bool
+NodeImpl::is_input() const
 {
-  throw std::invalid_argument{"not an input."};
-  return BAD_ID;
-}
-
-// @brief SEQ 番号を返す．
-SizeType
-NodeImpl::seq_id() const
-{
-  throw std::invalid_argument{"not a SEQ output."};
-  return BAD_ID;
+  return false;
 }
 
 // @brief 論理ノードの時 true を返す．
@@ -37,6 +28,48 @@ bool
 NodeImpl::is_logic() const
 {
   return false;
+}
+
+// @brief 外部入力ノードの時 true を返す．
+bool
+NodeImpl::is_primary_input() const
+{
+  throw std::invalid_argument{"not an input."};
+}
+
+// @brief DFFの出力の時 true を返す．
+bool
+NodeImpl::is_dff_output() const
+{
+  throw std::invalid_argument{"not an input."};
+}
+
+// @brief 入力番号を返す．
+SizeType
+NodeImpl::input_id() const
+{
+  throw std::invalid_argument{"not an input."};
+}
+
+// @brief DFF番号を返す．
+SizeType
+NodeImpl::dff_id() const
+{
+  throw std::invalid_argument{"not a DFF output."};
+}
+
+// @brief DFFの入力ノードの番号を返す．
+SizeType
+NodeImpl::dff_src() const
+{
+  throw std::invalid_argument{"not a DFF output."};
+}
+
+// @brief 関数番号を返す．
+SizeType
+NodeImpl::func_id() const
+{
+  throw std::invalid_argument{"not a logic node."};
 }
 
 // @brief ファンイン数を返す．
@@ -64,40 +97,6 @@ NodeImpl::fanin_list() const
   return dummy;
 }
 
-// @brief プリミティブタイプを得る．
-PrimType
-NodeImpl::primitive_type() const
-{
-  throw std::invalid_argument{"not a primitve-type node."};
-  return PrimType::None;
-}
-
-// @brief ファンインの反転属性を返す．
-bool
-NodeImpl::fanin_inv(
-  SizeType pos
-) const
-{
-  throw std::invalid_argument{"not an AIG node."};
-  return false;
-}
-
-// @brief 関数番号を返す．
-SizeType
-NodeImpl::local_func_id() const
-{
-  throw std::invalid_argument{"not a func-type node."};
-  return BAD_ID;
-}
-
-// @brief セルを得る．
-ClibCell
-NodeImpl::cell() const
-{
-  throw std::invalid_argument{"not a cell-type node."};
-  return {};
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // クラス NodeImpl_Input
@@ -116,10 +115,55 @@ NodeImpl_Input::~NodeImpl_Input()
 }
 
 // @brief ノードの種類を返す．
-BnNodeType
+BnNode::Type
 NodeImpl_Input::type() const
 {
-  return BnNodeType::INPUT;
+  return BnNode::Input;
+}
+
+// @brief 入力ノードの時 true を返す．
+bool
+NodeImpl::is_input() const
+{
+  return true;
+}
+
+// @brief 外部入力ノードの時 true を返す．
+bool
+NodeImpl::is_primary_input() const
+{
+  return false;
+}
+
+// @brief DFFの出力の時 true を返す．
+bool
+NodeImpl::is_dff_output() const
+{
+  return false;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス NodeImpl_PrimaryInput
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+NodeImpl_PrimaryInput::NodeImpl_PrimaryInput(
+  SizeType iid
+) : mInputId{iid}
+{
+}
+
+// @brief デストラクタ
+NodeImpl_PrimaryInput::~NodeImpl_PrimaryInput()
+{
+}
+
+// @brief 外部入力ノードの時 true を返す．
+bool
+NodeImpl_PrimaryInput::is_primary_input() const
+{
+  return true;
 }
 
 // @brief 入力番号を返す．
@@ -130,48 +174,57 @@ NodeImpl_Input::input_id() const
 }
 
 // @brief 複製を作る．
-unique_ptr<NodeImpl>
+std::unique_ptr<NodeImpl>
 NodeImpl_Input::copy() const
 {
-  return unique_ptr<NodeImpl>{new NodeImpl_Input{mInputId}};
+  return std::unique_ptr<NodeImpl>{new NodeImpl_Input{mInputId}};
 }
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス NodeImpl_SeqOutput
+// クラス NodeImpl_DffOutput
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-NodeImpl_SeqOutput::NodeImpl_SeqOutput(
-  SizeType seq_id
-) : mSeqId{seq_id}
+NodeImpl_DffOutput::NodeImpl_DffOutput(
+  SizeType dff_id,
+  SizeType src_id
+) : mDffId{dff_id},
+    mSrcId{src_id}
 {
 }
 
 // @brief デストラクタ
-NodeImpl_SeqOutput::~NodeImpl_SeqOutput()
+NodeImpl_DffOutput::~NodeImpl_DffOutput()
 {
 }
 
-// @brief ノードの種類を返す．
-BnNodeType
-NodeImpl_SeqOutput::type() const
+// @brief DFFの出力の時 true を返す．
+bool
+NodeImpl_DffOutput::is_dff_output() const
 {
-  return BnNodeType::SEQ_OUTPUT;
+  return true;
 }
 
-// @brief SEQ 番号を返す．
+// @brief DFF番号を返す．
 SizeType
-NodeImpl_SeqOutput::seq_id() const
+NodeImpl_DffOutput::dff_id() const
 {
-  return mSeqId;
+  return mDffId;
+}
+
+// @brief DFFの入力ノードの番号を返す．
+SizeType
+NodeImpl_DffOutput::dff_src() const
+{
+  return mSrcId;
 }
 
 // @brief 複製を作る．
-unique_ptr<NodeImpl>
-NodeImpl_SeqOutput::copy() const
+std::unique_ptr<NodeImpl>
+NodeImpl_DffOutput::copy() const
 {
-  return unique_ptr<NodeImpl>{new NodeImpl_SeqOutput{mSeqId}};
+  return std::unique_ptr<NodeImpl>{new NodeImpl_DffOutput{*this}};
 }
 
 
@@ -181,8 +234,10 @@ NodeImpl_SeqOutput::copy() const
 
 // @brief コンストラクタ
 NodeImpl_Logic::NodeImpl_Logic(
+  SizeType func_id,
   const vector<SizeType>& fanin_list
-) : mFaninList{fanin_list}
+) : mFuncId{func_id},
+    mFaninList{fanin_list}
 {
 }
 
@@ -191,11 +246,25 @@ NodeImpl_Logic::~NodeImpl_Logic()
 {
 }
 
+// @brief ノードの種類を返す．
+BnNode::Type
+NodeImpl_Logic::type() const
+{
+  return BnNode::Logic;
+}
+
 // @brief 論理ノードの時 true を返す．
 bool
 NodeImpl_Logic::is_logic() const
 {
   return true;
+}
+
+// @brief 関数番号を返す．
+SizeType
+NodeImpl::func_id() const
+{
+  return mFuncId;
 }
 
 // @brief ファンイン数を返す．
@@ -211,8 +280,8 @@ NodeImpl_Logic::fanin(
   SizeType pos
 ) const
 {
-  if ( pos < 0 || fanin_num() <= pos ) {
-    throw std::out_of_range{"index out of range"};
+  if ( pos < 0 || pos >= fanin_num() ) {
+    throw std::out_of_range{"pos is out of range"};
   }
   return mFaninList[pos];
 }
@@ -224,169 +293,11 @@ NodeImpl_Logic::fanin_list() const
   return mFaninList;
 }
 
-
-//////////////////////////////////////////////////////////////////////
-// クラス NodeImpl_Primitive
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-NodeImpl_Primitive::NodeImpl_Primitive(
-  PrimType prim_type,
-  const vector<SizeType>& fanin_list
-) : NodeImpl_Logic{fanin_list},
-    mPrimType{prim_type}
-{
-}
-
-// @brief デストラクタ
-NodeImpl_Primitive::~NodeImpl_Primitive()
-{
-}
-
-// @brief ノードの種類を返す．
-BnNodeType
-NodeImpl_Primitive::type() const
-{
-  return BnNodeType::PRIMITIVE;
-}
-
-// @brief プリミティブタイプを得る．
-PrimType
-NodeImpl_Primitive::primitive_type() const
-{
-  return mPrimType;
-}
-
 // @brief 複製を作る．
-unique_ptr<NodeImpl>
-NodeImpl_Primitive::copy() const
+std::unique_ptr<NodeImpl>
+NodeImpl_Logic::copy() const
 {
-  return unique_ptr<NodeImpl>{new NodeImpl_Primitive{mPrimType, fanin_list()}};
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス NodeImpl_Aig
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-NodeImpl_Aig::NodeImpl_Aig(
-  SizeType fanin0,
-  bool inv0,
-  SizeType fanin1,
-  bool inv1
-) : NodeImpl_Logic{{fanin0, fanin1}},
-    mInvFlags{static_cast<SizeType>(inv0 | inv1 << 1)}
-{
-}
-
-// @brief デストラクタ
-NodeImpl_Aig::~NodeImpl_Aig()
-{
-}
-
-// @brief ノードの種類を返す．
-BnNodeType
-NodeImpl_Aig::type() const
-{
-  return BnNodeType::AIG;
-}
-
-// @brief ファンインの反転属性を返す．
-bool
-NodeImpl_Aig::fanin_inv(
-  SizeType pos
-) const
-{
-  return mInvFlags[pos % 2];
-}
-
-// @brief 複製を作る．
-unique_ptr<NodeImpl>
-NodeImpl_Aig::copy() const
-{
-  return unique_ptr<NodeImpl>{new NodeImpl_Aig{fanin(0), fanin_inv(0),
-					       fanin(1), fanin_inv(1)}};
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス NodeImpl_Func
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-NodeImpl_Func::NodeImpl_Func(
-  SizeType func_id,
-  const vector<SizeType>& fanin_list
-) : NodeImpl_Logic{fanin_list},
-    mFuncId{func_id}
-{
-}
-
-// @brief デストラクタ
-NodeImpl_Func::~NodeImpl_Func()
-{
-}
-
-// @brief ノードの種類を返す．
-BnNodeType
-NodeImpl_Func::type() const
-{
-  return BnNodeType::FUNC;
-}
-
-// @brief 関数番号を返す．
-SizeType
-NodeImpl_Func::local_func_id() const
-{
-  return mFuncId;
-}
-
-// @brief 複製を作る．
-unique_ptr<NodeImpl>
-NodeImpl_Func::copy() const
-{
-  return unique_ptr<NodeImpl>{new NodeImpl_Func{mFuncId, fanin_list()}};
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// NodeImpl_Cell
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-NodeImpl_Cell::NodeImpl_Cell(
-  ClibCell cell,
-  const vector<SizeType>& fanin_list
-) : NodeImpl_Logic{fanin_list},
-    mCell{cell}
-{
-}
-
-// @brief デストラクタ
-NodeImpl_Cell::~NodeImpl_Cell()
-{
-}
-
-// @brief ノードの種類を返す．
-BnNodeType
-NodeImpl_Cell::type() const
-{
-  return BnNodeType::CELL;
-}
-
-// @brief セルを得る．
-ClibCell
-NodeImpl_Cell::cell() const
-{
-  return mCell;
-}
-
-// @brief 複製を作る．
-unique_ptr<NodeImpl>
-NodeImpl_Cell::copy() const
-{
-  return unique_ptr<NodeImpl>{new NodeImpl_Cell{mCell, fanin_list()}};
+  return std::unique_ptr<NodeImpl>{new NodeImpl_Logic{*this}};
 }
 
 END_NAMESPACE_YM_BN

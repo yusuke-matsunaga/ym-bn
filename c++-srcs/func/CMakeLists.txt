@@ -49,6 +49,7 @@ set ( func_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_Bdd.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_Cover.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_Expr.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_Primitive.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/FuncImpl_TvFunc.cc
   PARENT_SCOPE
   )

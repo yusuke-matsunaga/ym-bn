@@ -15,32 +15,46 @@ BEGIN_NAMESPACE_YM_BN
 // クラス FuncImpl
 //////////////////////////////////////////////////////////////////////
 
-// @brief カバー型の論理ノードの時 true を返す．
+// @brief プリミティブ型の時 true を返す．
+bool
+FuncImpl::is_primitive() const
+{
+  return false;
+}
+
+// @brief カバー型の時 true を返す．
 bool
 FuncImpl::is_cover() const
 {
   return false;
 }
 
-// @brief 論理式型の論理ノードの時 true を返す．
+// @brief 論理式型の時 true を返す．
 bool
 FuncImpl::is_expr() const
 {
   return false;
 }
 
-// @brief 真理値表型の論理ノードの時 true を返す．
+// @brief 真理値表型の時 true を返す．
 bool
 FuncImpl::is_tvfunc() const
 {
   return false;
 }
 
-// @brief BDD型の論理ノードの時 true を返す．
+// @brief BDD型の時 true を返す．
 bool
 FuncImpl::is_bdd() const
 {
   return false;
+}
+
+// @brief プリミティブ型を返す．
+PrimType
+FuncImpl::primitive_type() const
+{
+  throw std::invalid_argument{"not a Primitive type."};
 }
 
 // @brief 入力カバーを返す．

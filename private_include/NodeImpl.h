@@ -34,7 +34,7 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 情報を取得する関数
+  // 共通のインターフェイス
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノードの種類を返す．
@@ -49,6 +49,22 @@ public:
   bool
   is_input() const;
 
+  /// @brief 論理ノードの時 true を返す．
+  virtual
+  bool
+  is_logic() const;
+
+  /// @brief 複製を作る．
+  virtual
+  unique_ptr<NodeImpl>
+  copy() const = 0;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 入力ノードのインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
   /// @brief 外部入力ノードの時 true を返す．
   virtual
   bool
@@ -58,11 +74,6 @@ public:
   virtual
   bool
   is_dff_output() const;
-
-  /// @brief 論理ノードの時 true を返す．
-  virtual
-  bool
-  is_logic() const;
 
   /// @brief 入力番号を返す．
   virtual
@@ -79,53 +90,16 @@ public:
   SizeType
   dff_src() const;
 
-  /// @brief プリミティブタイプを得る．
-  virtual
-  PrimType
-  primitive_type() const;
 
-  /// @brief カバー情報を持っている時 true を返す．
-  virtual
-  bool
-  has_cover() const;
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 論理ノードのインターフェイス
+  //////////////////////////////////////////////////////////////////////
 
-  /// @brief カバーを返す．
-  ///
-  /// has_cover() == false の時は std::invalid_argument 例外を送出する．
+  /// @brief 関数番号を返す．
   virtual
-  const SopCover&
-  cover() const;
-
-  /// @brief 論理式情報を持っている時 true を返す．
-  virtual
-  bool
-  has_expr() const;
-
-  /// @brief 論理式を返す．
-  /// has_expr() == false の時は std::invalid_argument 例外を送出する．
-  virtual
-  Expr
-  expr() const;
-
-  /// @brief 倫理値表を持っている時 true を返す．
-  virtual
-  bool
-  has_tvfunc() const;
-
-  /// @brief 真理値表を返す．
-  virtual
-  const TvFunc&
-  tvfunc() const;
-
-  /// @brief BDDを持っている時 true を返す．
-  virtual
-  bool
-  has_bdd() const;
-
-  /// @brief BDDを返す．
-  virtual
-  Bdd
-  bdd() const;
+  SizeType
+  func_id() const;
 
   /// @brief ファンイン数を返す．
   virtual
@@ -143,11 +117,6 @@ public:
   virtual
   const vector<SizeType>&
   fanin_list() const;
-
-  /// @brief 複製を作る．
-  virtual
-  unique_ptr<NodeImpl>
-  copy() const = 0;
 
 };
 

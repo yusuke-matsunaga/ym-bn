@@ -38,7 +38,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コピーを作る．
-  unique_ptr<FuncImpl>
+  std::unique_ptr<FuncImpl>
   copy(
     BddMgr& bdd_mgr ///< [in] BddMgr
   ) const override;
@@ -47,7 +47,7 @@ public:
   BnFuncType
   type() const override;
 
-  /// @brief 真理値表型の論理ノードの時 true を返す．
+  /// @brief 真理値表型の時 true を返す．
   bool
   is_tvfunc() const override;
 

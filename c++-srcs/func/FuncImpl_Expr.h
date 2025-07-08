@@ -38,16 +38,16 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コピーを作る．
-  unique_ptr<FuncImpl>
+  std::unique_ptr<FuncImpl>
   copy(
     BddMgr& bdd_mgr ///< [in] BddMgr
   ) const override;
 
   /// @brief 関数の種類を返す．
-  BnFuncType
+  BnFunc::Type
   type() const override;
 
-  /// @brief 論理式型の論理ノードの時 true を返す．
+  /// @brief 論理式型の時 true を返す．
   bool
   is_expr() const override;
 

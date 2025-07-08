@@ -49,13 +49,13 @@ FuncImpl_Bdd::copy(
 }
 
 // @brief 関数の種類を返す．
-BnFuncType
+BnFunc::Type
 FuncImpl_Bdd::type() const
 {
-  return BnFuncType::BDD;
+  return BnFunc::Bdd;
 }
 
-// @brief BDD型の論理ノードの時 true を返す．
+// @brief BDD型の時 true を返す．
 bool
 FuncImpl_Bdd::is_bdd() const
 {

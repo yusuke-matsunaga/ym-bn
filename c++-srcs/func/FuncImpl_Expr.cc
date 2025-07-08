@@ -47,13 +47,13 @@ FuncImpl_Expr::copy(
 }
 
 // @brief 関数の種類を返す．
-BnFuncType
+BnFunc::Type
 FuncImpl_Expr::type() const
 {
-  return BnFuncType::EXPR;
+  return BnFunc::Expr;
 }
 
-// @brief 論理式型の論理ノードの時 true を返す．
+// @brief 論理式型の時 true を返す．
 bool
 FuncImpl_Expr::is_expr() const
 {
