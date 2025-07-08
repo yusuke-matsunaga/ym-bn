@@ -37,12 +37,6 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief コピーを作る．
-  std::unique_ptr<FuncImpl>
-  copy(
-    BddMgr& bdd_mgr ///< [in] BddMgr
-  ) const override;
-
   /// @brief 関数の種類を返す．
   BnFunc::Type
   type() const override;
@@ -61,6 +55,16 @@ public:
   /// - それ以外の時は std::invalid_argument 例外を送出する．
   Expr
   expr() const override;
+
+  /// @brief コピーを作る．
+  std::unique_ptr<FuncImpl>
+  copy(
+    BddMgr& bdd_mgr ///< [in] BddMgr
+  ) const override;
+
+  /// @brief ハッシュ用のユニークな文字列を返す．
+  std::string
+  signature() const override;
 
   /// @brief 内容を出力する．
   void

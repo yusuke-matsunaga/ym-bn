@@ -15,7 +15,7 @@
 #include "ym/BddMgr.h"
 #include "ym/JsonValue.h"
 #include "NodeImpl.h"
-#include "FuncImpl.h"
+#include "FuncMgr.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -595,8 +595,8 @@ private:
   // NodeImplの配列
   std::vector<std::unique_ptr<NodeImpl>> mNodeArray;
 
-  // FuncImplの配列
-  std::vector<std::unique_ptr<FuncImpl>> mFuncArray;
+  // 関数情報のマネージャ
+  FuncMgr mFuncMgr;
 
 };
 

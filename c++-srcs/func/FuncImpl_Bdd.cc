@@ -38,16 +38,6 @@ FuncImpl_Bdd::FuncImpl_Bdd(
 {
 }
 
-// @brief コピーを作る．
-std::unique_ptr<FuncImpl>
-FuncImpl_Bdd::copy(
-  BddMgr& bdd_mgr
-) const
-{
-  auto my_bdd = bdd_mgr.copy(mBdd);
-  return std::unique_ptr<FuncImpl>{new FuncImpl_Bdd{my_bdd}};
-}
-
 // @brief 関数の種類を返す．
 BnFunc::Type
 FuncImpl_Bdd::type() const
@@ -77,6 +67,29 @@ Bdd
 FuncImpl_Bdd::bdd() const
 {
   return mBdd;
+}
+
+// @brief コピーを作る．
+std::unique_ptr<FuncImpl>
+FuncImpl_Bdd::copy(
+  BddMgr& bdd_mgr
+) const
+{
+  auto my_bdd = bdd_mgr.copy(mBdd);
+  return std::unique_ptr<FuncImpl>{new FuncImpl_Bdd{my_bdd}};
+}
+
+// @brief ハッシュ用のユニークな文字列を返す．
+std::string
+FuncImpl_Bdd::signature() const
+{
+  auto data_list = mBdd.rep_data();
+  std::ostringstream buf;
+  buf << "b";
+  for ( auto data: data_list ) {
+    buf << ":" << data;
+  }
+  return buf.str();
 }
 
 // @brief 内容を出力する．

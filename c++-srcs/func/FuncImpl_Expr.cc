@@ -37,15 +37,6 @@ FuncImpl_Expr::FuncImpl_Expr(
 {
 }
 
-// @brief コピーを作る．
-std::unique_ptr<FuncImpl>
-FuncImpl_Expr::copy(
-  BddMgr& bdd_mgr
-) const
-{
-  return std::unique_ptr<FuncImpl>{new FuncImpl_Expr{*this}};
-}
-
 // @brief 関数の種類を返す．
 BnFunc::Type
 FuncImpl_Expr::type() const
@@ -72,6 +63,24 @@ Expr
 FuncImpl_Expr::expr() const
 {
   return mExpr;
+}
+
+// @brief コピーを作る．
+std::unique_ptr<FuncImpl>
+FuncImpl_Expr::copy(
+  BddMgr& bdd_mgr
+) const
+{
+  return std::unique_ptr<FuncImpl>{new FuncImpl_Expr{*this}};
+}
+
+// @brief ハッシュ用のユニークな文字列を返す．
+std::string
+FuncImpl_Expr::signature() const
+{
+  std::ostringstream buf;
+  buf << "e" << mExpr.rep_string();
+  return buf.str();
 }
 
 // @brief 内容を出力する．

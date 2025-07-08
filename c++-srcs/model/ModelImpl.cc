@@ -29,13 +29,10 @@ ModelImpl::ModelImpl(
     mOutputList{src.mOutputList},
     mLogicList{src.mLogicList},
     mNodeArray(src.mNodeArray.size()),
-    mFuncArray(src.mFuncArray.size())
+    mFuncMap(src.mFuncMap, mBddMgr)
 {
   for ( SizeType i = 0; i < src.mNodeArray.size(); ++ i ) {
-    mNodeArray[i] = src.mNodeArray[i]->copy();
-  }
-  for ( SizeType i = 0; i < src.mFuncArray.size(); ++ i ) {
-    mFuncArray[i] = src.mFuncArray[i]->copy(mBddMgr);
+    mNodeArray[i] = src.mNodeArray[i]->copy(mBddMgr);
   }
 }
 

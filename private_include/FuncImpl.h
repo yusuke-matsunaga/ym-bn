@@ -80,19 +80,6 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 複製用の仮想関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief コピーを作る．
-  virtual
-  std::unique_ptr<FuncImpl>
-  copy(
-    BddMgr& bdd_mgr ///< [in] BddMgr 親のBDDマネージャ
-  ) const = 0;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
   // 種類を取り出す関数
   // この関数は例外を創出しない．
   //////////////////////////////////////////////////////////////////////
@@ -131,13 +118,6 @@ public:
   virtual
   SizeType
   input_num() const = 0;
-
-  /// @brief 内容を出力する．
-  virtual
-  void
-  print(
-    ostream& s ///< [in] 出力先のストリーム
-  ) const = 0;
 
 
 public:
@@ -194,6 +174,56 @@ public:
   Bdd
   bdd() const;
 
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 管理用の関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief コピーを作る．
+  virtual
+  std::unique_ptr<FuncImpl>
+  copy(
+    BddMgr& bdd_mgr ///< [in] BddMgr 親のBDDマネージャ
+  ) const = 0;
+
+  /// @brief ハッシュ用のユニークな文字列を返す．
+  virtual
+  std::string
+  signature() const = 0;
+
+  /// @brief 内容を出力する．
+  virtual
+  void
+  print(
+    ostream& s ///< [in] 出力先のストリーム
+  ) const = 0;
+
+};
+
+/// @brief FuncImpl* 用のハッシュ関数
+struct FuncHash {
+  SizeType
+  operator()(
+    const FuncImpl* func
+  ) const
+  {
+    auto sig = func->signature();
+    std::hash<std::string> str_hash;
+    return str_hash(sig);
+  }
+};
+
+/// @brief FuncImpl* 用の等価比較関数
+struct FuncEq {
+  bool
+  operator()(
+    const FuncImpl* left,
+    const FuncImpl* right
+  ) const
+  {
+    return left->signature() == right->signature();
+  }
 };
 
 END_NAMESPACE_YM_BN

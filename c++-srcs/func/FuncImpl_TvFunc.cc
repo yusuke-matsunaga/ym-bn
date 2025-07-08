@@ -37,15 +37,6 @@ FuncImpl_TvFunc::FuncImpl_TvFunc(
 {
 }
 
-// @brief コピーを作る．
-std::unique_ptr<FuncImpl>
-FuncImpl_TvFunc::copy(
-  BddMgr& bdd_mgr
-) const
-{
-  return std::unique_ptr<FuncImpl>{new FuncImpl_TvFunc{*this}};
-}
-
 // @brief 関数の種類を返す．
 BnFunc::Type
 FuncImpl_TvFunc::type() const
@@ -72,6 +63,24 @@ const TvFunc&
 FuncImpl_TvFunc::tvfunc() const
 {
   return mTvFunc;
+}
+
+// @brief コピーを作る．
+std::unique_ptr<FuncImpl>
+FuncImpl_TvFunc::copy(
+  BddMgr& bdd_mgr
+) const
+{
+  return std::unique_ptr<FuncImpl>{new FuncImpl_TvFunc{*this}};
+}
+
+// @brief ハッシュ用のユニークな文字列を返す．
+std::string
+FuncImpl_TvFunc::signature() const
+{
+  std::ostringstream buf;
+  buf << "t" << mTvFunc.str(16);
+  return buf.str();
 }
 
 // @brief 内容を出力する．

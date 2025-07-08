@@ -40,15 +40,6 @@ FuncImpl_Primitive::FuncImpl_Primitive(
 {
 }
 
-// @brief コピーを作る．
-std::unique_ptr<FuncImpl>
-FuncImpl_Primitive::copy(
-  BddMgr& bdd_mgr
-) const
-{
-  return std::unique_ptr<FuncImpl>{new FuncImpl_Primitive{*this}};
-}
-
 // @brief 関数の種類を返す．
 BnFunc::Type
 FuncImpl_Primitive::type() const
@@ -75,6 +66,24 @@ PrimType
 FuncImpl_Primitive::primitive_type() const
 {
   return mPrimType;
+}
+
+// @brief コピーを作る．
+std::unique_ptr<FuncImpl>
+FuncImpl_Primitive::copy(
+  BddMgr& bdd_mgr
+) const
+{
+  return std::unique_ptr<FuncImpl>{new FuncImpl_Primitive{*this}};
+}
+
+// @brief ハッシュ用のユニークな文字列を返す．
+std::string
+FuncImpl_Primitive::signature() const
+{
+  std::ostringstream buf;
+  buf << "p" << mPrimType << "[" << mInputNum << "]";
+  return buf.str();
 }
 
 // @brief 内容を出力する．

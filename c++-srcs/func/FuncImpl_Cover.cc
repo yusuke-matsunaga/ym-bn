@@ -45,15 +45,6 @@ FuncImpl_Cover::~FuncImpl_Cover()
 {
 }
 
-// @brief コピーを作る．
-std::unique_ptr<FuncImpl>
-FuncImpl_Cover::copy(
-  BddMgr& bdd_mgr
-) const
-{
-  return std::unique_ptr<FuncImpl>{new FuncImpl_Cover{*this}};
-}
-
 // @brief 関数の種類を返す．
 BnFunc::Type
 FuncImpl_Cover::type() const
@@ -87,6 +78,32 @@ bool
 FuncImpl::output_inv() const
 {
   return mOutputInv;
+}
+
+// @brief コピーを作る．
+std::unique_ptr<FuncImpl>
+FuncImpl_Cover::copy(
+  BddMgr& bdd_mgr
+) const
+{
+  return std::unique_ptr<FuncImpl>{new FuncImpl_Cover{*this}};
+}
+
+// @brief ハッシュ用のユニークな文字列を返す．
+std::string
+FuncImpl_Cover::signature() const
+{
+  std::ostringstream buf;
+  buf << "c" << mInputCover.variable_num() << ":";
+  auto nc = mInputCover.cube_num();
+  auto ni = mInputCover.variable_num();
+  for ( SizeType c = 0; c < nc; ++ c ) {
+    for ( SizeType i = 0; i < ni; ++ i ) {
+      buf << mInputCover.get_pat(c, i);
+    }
+  }
+  buf << ":" << mOutputInv;
+  return buf.str();
 }
 
 // @brief 内容を出力する．
