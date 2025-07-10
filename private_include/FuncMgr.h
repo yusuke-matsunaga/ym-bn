@@ -10,6 +10,7 @@
 
 #include "ym/bn.h"
 #include "ym/logic.h"
+#include "ym/BddMgr.h"
 #include "FuncImpl.h"
 
 
@@ -32,8 +33,7 @@ public:
 
   /// @brief コピーコンストラクタもどき
   FuncMgr(
-    const FuncMgr& src, ///< [in] コピー元のオブジェクト
-    BddMgr& bdd_mgr     ///< [in] BDDマネージャ
+    const FuncMgr& src ///< [in] コピー元のオブジェクト
   );
 
   /// @brief デストラクタ
@@ -44,6 +44,10 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief クリアする．
+  void
+  clear();
 
   /// @brief プリミティブ型を登録する．
   /// @return 関数番号を返す．
@@ -98,7 +102,7 @@ public:
     if ( func_id >= func_num() ) {
       throw std::out_of_range{"func_id is out of range"};
     }
-    return *mFuncArray[func_id]
+    return *mFuncArray[func_id];
   }
 
 
@@ -111,7 +115,7 @@ private:
   /// @return 関数番号を返す．
   SizeType
   reg_func(
-    std::unique_ptr<FuncImpl>&& func
+    FuncImpl* func
   );
 
 
@@ -119,6 +123,9 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  // BDDマネージャ
+  BddMgr mBddMgr;
 
   // FuncImpl の配列
   std::vector<std::unique_ptr<FuncImpl>> mFuncArray;

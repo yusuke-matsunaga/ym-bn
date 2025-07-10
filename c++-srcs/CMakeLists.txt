@@ -37,11 +37,12 @@
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( aig )
+#add_subdirectory ( aig )
 add_subdirectory ( blif )
 add_subdirectory ( func )
 add_subdirectory ( iscas89 )
 add_subdirectory ( model )
+add_subdirectory ( node )
 add_subdirectory ( truth )
 
 
@@ -60,5 +61,6 @@ ym_add_object_library ( ym_bn
   ${func_SOURCES}
   ${iscas89_SOURCES}
   ${model_SOURCES}
+  ${node_SOURCES}
   ${truth_SOURCES}
   )

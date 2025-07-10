@@ -5,7 +5,7 @@
 /// @brief TruthReader のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bn.h"
@@ -38,8 +38,8 @@ public:
   /// @brief 真理値表形式のファイルを読み込む．
   void
   read(
-    istream& s,      ///< [in] 入力ストリーム
-    ModelImpl* model ///< [in] 結果を格納するオブジェクト
+    std::istream& s, ///< [in] 入力ストリーム
+    ModelImpl& model ///< [in] 結果を格納するオブジェクト
   );
 
 };

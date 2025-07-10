@@ -7,6 +7,8 @@
 /// All rights reserved.
 
 #include "FuncImpl.h"
+#include "ym/Expr.h"
+#include "ym/Bdd.h"
 
 
 BEGIN_NAMESPACE_YM_BN

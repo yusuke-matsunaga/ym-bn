@@ -10,6 +10,7 @@
 
 #include "ym/bn.h"
 #include "ym/logic.h"
+#include "ym/BnFunc.h"
 
 
 BEGIN_NAMESPACE_YM_BN

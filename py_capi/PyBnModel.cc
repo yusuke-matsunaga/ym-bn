@@ -8,11 +8,7 @@
 
 #include "pym/PyBnModel.h"
 #include "pym/PyBnNode.h"
-#include "pym/PyBnNodeList.h"
-#include "pym/PyBnSeq.h"
 #include "pym/PyBnFunc.h"
-#include "pym/PyClibCellLibrary.h"
-#include "pym/PyClibCell.h"
 #include "pym/PyExpr.h"
 #include "pym/PyTvFunc.h"
 #include "pym/PyBdd.h"

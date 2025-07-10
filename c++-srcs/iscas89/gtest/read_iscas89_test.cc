@@ -14,8 +14,8 @@ BEGIN_NAMESPACE_YM
 
 TEST( BnModelTest, read_iscas1 )
 {
-  string filename = "b10.bench";
-  string path = DATAPATH + filename;
+  auto filename = std::string{"b10.bench"};
+  auto path = DATAPATH + filename;
   auto model = BnModel::read_iscas89(path);
   int ni = 12;
   int no = 6;
@@ -23,18 +23,18 @@ TEST( BnModelTest, read_iscas1 )
   int ng = 172;
   EXPECT_EQ( ni, model.input_num() );
   EXPECT_EQ( no, model.output_num() );
+  EXPECT_EQ( nd, model.dff_num() );
   EXPECT_EQ( ng, model.logic_num() );
-  EXPECT_EQ( nd, model.seq_num() );
 
   // 出力結果の回帰テスト
-  ostringstream s1;
+  std::ostringstream s1;
   model.print(s1);
 
-  string ref_path = DATAPATH + string{"b10.bn"};
-  ifstream s2{ref_path};
+  auto ref_path = DATAPATH + std::string{"b10.bn"};
+  std::ifstream s2{ref_path};
   ASSERT_TRUE( s2 );
-  string ref_contents;
-  string buff;
+  std::string ref_contents;
+  std::string buff;
   while ( getline(s2, buff) ) {
     ref_contents += buff + '\n';
   }

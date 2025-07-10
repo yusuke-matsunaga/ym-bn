@@ -10,6 +10,7 @@
 
 #include "ym/bn.h"
 #include "ym/logic.h"
+#include "ym/BnBase.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -27,21 +28,22 @@ class FuncImpl;
 ///
 /// 以下のタイプがある．
 ///
-/// - プリミティブ型
+/// - プリミティブ型(PRIMITIVE)
 ///   PrimType を持つ．
 ///   同じ型でも入力数が異なれば別の関数と考える．
-/// - カバー型
+/// - カバー型(COVER)
 ///   SopCover と出力の反転属性を持つ．
-/// - 論理式型
+/// - 論理式型(EXPR)
 ///   Expr を持つ．
-/// - 真理値表型
+/// - 真理値表型(TVFUNC)
 ///   TvFunc を持つ．
-/// - BDD型
+/// - BDD型(BDD)
 ///   Bdd を持つ．
 //////////////////////////////////////////////////////////////////////
-class BnFunc
+class BnFunc :
+  public BnBase
 {
-  friend class ModelImpl;
+  friend class BnBase;
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -50,13 +52,13 @@ public:
 
   /// @brief 種類を表す列挙型
   enum Type {
-    None,      ///< [in] 不正値
-    Primitive, ///< [in] プリミティブ型
-    Cover,     ///< [in] カバー型
-    Expr,      ///< [in] 論理式型
-    TvFunc,    ///< [in] 真理値表型
-    Bdd        ///< [in] BDD型
-    );
+    NONE,      ///< [in] 不正値
+    PRIMITIVE, ///< [in] プリミティブ型
+    COVER,     ///< [in] カバー型
+    EXPR,      ///< [in] 論理式型
+    TVFUNC,    ///< [in] 真理値表型
+    BDD        ///< [in] BDD型
+  };
 
 
 public:
@@ -75,13 +77,6 @@ public:
   // 共通なインターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 適切な値を持っている時 true を返す．
-  bool
-  is_valid() const
-  {
-    return mModel != nullptr;
-  }
-
   /// @brief 関数番号を返す．
   SizeType
   id() const
@@ -98,6 +93,7 @@ public:
   type() const;
 
   /// @brief プリミティブ型の時 true を返す．
+  bool
   is_primitive() const;
 
   /// @brief カバー型の時 true を返す．
@@ -190,7 +186,7 @@ public:
     const BnFunc& right ///< [in] 比較対象のオブジェクト
   ) const
   {
-    return mModel == right.mModel && mId == right.mId;
+    return BnBase::operator==(right) && mId == right.mId;
   }
 
   /// @brief 非等価比較演算子
@@ -210,24 +206,21 @@ private:
 
   /// @brief 内容を指定したコンストラクタ
   ///
-  /// この関数は ModelImpl のみが使用する．
+  /// この関数は BnBase のみが使用する．
   BnFunc(
-    const std::shared_ptr<const ModelImpl>& model, ///< [in] 親のモデル
-    SizeType id                                    ///< [in] 関数番号
+    const std::shared_ptr<ModelImpl>& model, ///< [in] 親のモデル
+    SizeType id                              ///< [in] 関数番号
   );
 
   /// @brief 実装を取り出す．
   const FuncImpl&
-  _impl() const;
+  _func_impl() const;
 
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // モデルの実装本体
-  std::shared_ptr<const ModelImpl> mModel{nullptr};
 
   // 関数番号
   SizeType mId{BAD_ID};

@@ -24,7 +24,7 @@ TEST(FuncImpl_test, primitive_C0)
   auto prim_type = PrimType::C0;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -45,7 +45,7 @@ TEST(FuncImpl_test, primitive_C1)
   auto prim_type = PrimType::C1;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -66,7 +66,7 @@ TEST(FuncImpl_test, primitive_Buff)
   auto prim_type = PrimType::Buff;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -87,7 +87,7 @@ TEST(FuncImpl_test, primitive_Not)
   auto prim_type = PrimType::Not;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -108,7 +108,7 @@ TEST(FuncImpl_test, primitive_And)
   auto prim_type = PrimType::And;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -129,7 +129,7 @@ TEST(FuncImpl_test, primitive_Nand)
   auto prim_type = PrimType::Nand;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -150,7 +150,7 @@ TEST(FuncImpl_test, primitive_Or)
   auto prim_type = PrimType::Or;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -171,7 +171,7 @@ TEST(FuncImpl_test, primitive_Nor)
   auto prim_type = PrimType::Nor;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -192,7 +192,7 @@ TEST(FuncImpl_test, primitive_Xor)
   auto prim_type = PrimType::Xor;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -213,7 +213,7 @@ TEST(FuncImpl_test, primitive_Xnor)
   auto prim_type = PrimType::Xnor;
   auto func = FuncImpl::new_primitive(input_num, prim_type);
 
-  EXPECT_EQ( BnFunc::Primitive, func->type() );
+  EXPECT_EQ( BnFunc::PRIMITIVE, func->type() );
   EXPECT_TRUE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -233,7 +233,7 @@ TEST(FuncImpl_test, null_cover)
   auto cover = SopCover{};
   auto func = FuncImpl::new_cover(cover, false);
 
-  EXPECT_EQ( BnFunc::Cover, func->type() );
+  EXPECT_EQ( BnFunc::COVER, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_TRUE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -249,10 +249,10 @@ TEST(FuncImpl_test, null_cover)
 
 TEST(FuncImpl_test, null_cube_test)
 {
-  auto cover = SopCover(0, {{}});
+  auto cover = SopCover(0);
   auto func = FuncImpl::new_cover(cover, false);
 
-  EXPECT_EQ( BnFunc::Cover, func->type() );
+  EXPECT_EQ( BnFunc::COVER, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_TRUE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -275,7 +275,7 @@ TEST(FuncImpl_test, cover1)
   auto inv = true;
   auto func = FuncImpl::new_cover(cover, inv);
 
-  EXPECT_EQ( BnFunc::Cover, func->type() );
+  EXPECT_EQ( BnFunc::COVER, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_TRUE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -298,7 +298,7 @@ TEST(FuncImpl_test, cover2)
   auto inv = true;
   auto func = FuncImpl::new_cover(cover, inv);
 
-  EXPECT_EQ( BnFunc::Cover, func->type() );
+  EXPECT_EQ( BnFunc::COVER, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_TRUE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -318,7 +318,7 @@ TEST(FuncImpl_test, expr_zero)
   auto expr = Expr::zero();
   auto func = FuncImpl::new_expr(expr);
 
-  EXPECT_EQ( BnFunc::Expr, func->type() );
+  EXPECT_EQ( BnFunc::EXPR, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_TRUE( func->is_expr() );
@@ -338,7 +338,7 @@ TEST(FuncImpl_test, expr_one)
   auto expr = Expr::one();
   auto func = FuncImpl::new_expr(expr);
 
-  EXPECT_EQ( BnFunc::Expr, func->type() );
+  EXPECT_EQ( BnFunc::EXPR, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_TRUE( func->is_expr() );
@@ -360,7 +360,7 @@ TEST(FuncImpl_test, expr1)
   auto expr = v0 | ~v1;
   auto func = FuncImpl::new_expr(expr);
 
-  EXPECT_EQ( BnFunc::Expr, func->type() );
+  EXPECT_EQ( BnFunc::EXPR, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_TRUE( func->is_expr() );
@@ -382,7 +382,7 @@ TEST(FuncImpl_test, expr2)
   auto expr = v1;
   auto func = FuncImpl::new_expr(expr);
 
-  EXPECT_EQ( BnFunc::Expr, func->type() );
+  EXPECT_EQ( BnFunc::EXPR, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_TRUE( func->is_expr() );
@@ -390,7 +390,7 @@ TEST(FuncImpl_test, expr2)
   EXPECT_FALSE( func->is_bdd() );
   EXPECT_EQ( input_num, func->input_num() );
   EXPECT_THROW( func->input_cover(), std::invalid_argument );
-  EXPECT_THROW( func->output_pat(), std::invalid_argument );
+  EXPECT_THROW( func->output_inv(), std::invalid_argument );
   EXPECT_EQ( "P1", func->expr().rep_string() );
   EXPECT_THROW( func->tvfunc(), std::invalid_argument );
   EXPECT_THROW( func->bdd(), std::invalid_argument );
@@ -402,7 +402,7 @@ TEST(FuncImpl_test, tvfunc_zero)
   auto tvfunc = TvFunc::zero(input_num);
   auto func = FuncImpl::new_tvfunc(tvfunc);
 
-  EXPECT_EQ( BnFunc::TvFunc, func->type() );
+  EXPECT_EQ( BnFunc::TVFUNC, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -410,7 +410,7 @@ TEST(FuncImpl_test, tvfunc_zero)
   EXPECT_FALSE( func->is_bdd() );
   EXPECT_EQ( input_num, func->input_num() );
   EXPECT_THROW( func->input_cover(), std::invalid_argument );
-  EXPECT_THROW( func->output_pat(), std::invalid_argument );
+  EXPECT_THROW( func->output_inv(), std::invalid_argument );
   EXPECT_THROW( func->expr(), std::invalid_argument );
   EXPECT_EQ( "0000000000000000", func->tvfunc().str() );
   EXPECT_THROW( func->bdd(), std::invalid_argument );
@@ -422,7 +422,7 @@ TEST(FuncImpl_test, tvfunc_one)
   auto tvfunc = TvFunc::one(input_num);
   auto func = FuncImpl::new_tvfunc(tvfunc);
 
-  EXPECT_EQ( BnFunc::TvFunc, func->type() );
+  EXPECT_EQ( BnFunc::TVFUNC, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -430,7 +430,7 @@ TEST(FuncImpl_test, tvfunc_one)
   EXPECT_FALSE( func->is_bdd() );
   EXPECT_EQ( input_num, func->input_num() );
   EXPECT_THROW( func->input_cover(), std::invalid_argument );
-  EXPECT_THROW( func->output_pat(), std::invalid_argument );
+  EXPECT_THROW( func->output_inv(), std::invalid_argument );
   EXPECT_THROW( func->expr(), std::invalid_argument );
   EXPECT_EQ( "1111111111111111", func->tvfunc().str() );
   EXPECT_THROW( func->bdd(), std::invalid_argument );
@@ -445,7 +445,7 @@ TEST(FuncImpl_test, tvfunc1)
   auto tvfunc = v0 | v1 | v2;
   auto func = FuncImpl::new_tvfunc(tvfunc);
 
-  EXPECT_EQ( BnFunc::TvFunc, func->type() );
+  EXPECT_EQ( BnFunc::TVFUNC, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -453,7 +453,7 @@ TEST(FuncImpl_test, tvfunc1)
   EXPECT_FALSE( func->is_bdd() );
   EXPECT_EQ( input_num, func->input_num() );
   EXPECT_THROW( func->input_cover(), std::invalid_argument );
-  EXPECT_THROW( func->output_pat(), std::invalid_argument );
+  EXPECT_THROW( func->output_inv(), std::invalid_argument );
   EXPECT_THROW( func->expr(), std::invalid_argument );
   EXPECT_EQ( "11111110", func->tvfunc().str() );
   EXPECT_THROW( func->bdd(), std::invalid_argument );
@@ -465,7 +465,7 @@ TEST(FuncImpl_test, bdd_zero)
   auto bdd = mgr.zero();
   auto func = FuncImpl::new_bdd(bdd);
 
-  EXPECT_EQ( BnFunc::Bdd, func->type() );
+  EXPECT_EQ( BnFunc::BDD, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -473,7 +473,7 @@ TEST(FuncImpl_test, bdd_zero)
   EXPECT_TRUE( func->is_bdd() );
   EXPECT_EQ( 0, func->input_num() );
   EXPECT_THROW( func->input_cover(), std::invalid_argument );
-  EXPECT_THROW( func->output_pat(), std::invalid_argument );
+  EXPECT_THROW( func->output_inv(), std::invalid_argument );
   EXPECT_THROW( func->expr(), std::invalid_argument );
   EXPECT_THROW( func->tvfunc(), std::invalid_argument );
   EXPECT_EQ( bdd, func->bdd() );
@@ -485,7 +485,7 @@ TEST(FuncImpl_test, bdd_one)
   auto bdd = mgr.one();
   auto func = FuncImpl::new_bdd(bdd);
 
-  EXPECT_EQ( BnFunc::Bdd, func->type() );
+  EXPECT_EQ( BnFunc::BDD, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -493,7 +493,7 @@ TEST(FuncImpl_test, bdd_one)
   EXPECT_TRUE( func->is_bdd() );
   EXPECT_EQ( 0, func->input_num() );
   EXPECT_THROW( func->input_cover(), std::invalid_argument );
-  EXPECT_THROW( func->output_pat(), std::invalid_argument );
+  EXPECT_THROW( func->output_inv(), std::invalid_argument );
   EXPECT_THROW( func->expr(), std::invalid_argument );
   EXPECT_THROW( func->tvfunc(), std::invalid_argument );
   EXPECT_EQ( bdd, func->bdd() );
@@ -508,7 +508,7 @@ TEST(FuncImpl_test, bdd1)
   auto bdd = var0 & ~var1;
   auto func = FuncImpl::new_bdd(bdd);
 
-  EXPECT_EQ( BnFunc::Bdd, func->type() );
+  EXPECT_EQ( BnFunc::BDD, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -516,7 +516,7 @@ TEST(FuncImpl_test, bdd1)
   EXPECT_TRUE( func->is_bdd() );
   EXPECT_EQ( input_num, func->input_num() );
   EXPECT_THROW( func->input_cover(), std::invalid_argument );
-  EXPECT_THROW( func->output_pat(), std::invalid_argument );
+  EXPECT_THROW( func->output_inv(), std::invalid_argument );
   EXPECT_THROW( func->expr(), std::invalid_argument );
   EXPECT_THROW( func->tvfunc(), std::invalid_argument );
   EXPECT_EQ( bdd, func->bdd() );
@@ -530,7 +530,7 @@ TEST(FuncImpl_test, bdd2)
   auto bdd = ~var0;
   auto func = FuncImpl::new_bdd(bdd);
 
-  EXPECT_EQ( BnFunc::Bdd, func->type() );
+  EXPECT_EQ( BnFunc::BDD, func->type() );
   EXPECT_FALSE( func->is_primitive() );
   EXPECT_FALSE( func->is_cover() );
   EXPECT_FALSE( func->is_expr() );
@@ -538,7 +538,7 @@ TEST(FuncImpl_test, bdd2)
   EXPECT_TRUE( func->is_bdd() );
   EXPECT_EQ( input_num, func->input_num() );
   EXPECT_THROW( func->input_cover(), std::invalid_argument );
-  EXPECT_THROW( func->output_pat(), std::invalid_argument );
+  EXPECT_THROW( func->output_inv(), std::invalid_argument );
   EXPECT_THROW( func->expr(), std::invalid_argument );
   EXPECT_THROW( func->tvfunc(), std::invalid_argument );
   EXPECT_EQ( bdd, func->bdd() );

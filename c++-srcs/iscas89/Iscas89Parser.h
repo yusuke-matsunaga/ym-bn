@@ -28,7 +28,11 @@ class Iscas89Parser
 public:
 
   /// @brief コンストラクタ
-  Iscas89Parser() = default;
+  Iscas89Parser(
+    ModelImpl& model
+  ) : mModel{model}
+  {
+  }
 
   /// @brief デストラクタ
   ~Iscas89Parser();
@@ -44,9 +48,7 @@ public:
   /// @retval false 読み込みが失敗した．
   bool
   read(
-    const string& filename,   ///< [in] ファイル名
-    const string& clock_name, ///< [in] クロック入力名
-    ModelImpl* model          ///< [in] パーズ結果を格納するオブジェクト
+    const std::string& filename  ///< [in] ファイル名
   );
 
   /// @brief 拡張ハンドラを登録する．
@@ -96,7 +98,9 @@ public:
   )
   {
     set_defined(id, loc);
-    mModel->set_primitive(id, fanin_list, gate_type);
+    auto input_num = fanin_list.size();
+    auto func_id = mModel.reg_primitive(input_num, gate_type);
+    mModel.set_logic(id, func_id, fanin_list);
   }
 
   /// @brief 複合ゲートの設定を行う．
@@ -109,8 +113,8 @@ public:
   )
   {
     set_defined(id, loc);
-    auto expr_id = reg_expr(expr);
-    mModel->set_func(id, fanin_list, expr_id);
+    auto func_id = mModel.reg_expr(expr);
+    mModel.set_logic(id, func_id, fanin_list);
   }
 
   /// @brief '(' ')' で囲まれた名前を読み込む．
@@ -191,13 +195,6 @@ private:
     SizeType iname_id      ///< [in] 入力名のID番号
   );
 
-  /// @brief 論理式を登録する．
-  /// @return 論理式番号を返す．
-  SizeType
-  reg_expr(
-    const Expr& expr ///< [in] 論理式
-  );
-
   /// @brief 次のトークンが期待されている型か調べる．
   /// @return ok/ng, 識別子番号, ファイル位置のタプルを返す．
   ///
@@ -223,7 +220,7 @@ private:
     const FileRegion& loc ///< [in] ファイル上の位置
   )
   {
-    auto id = mModel->alloc_node();
+    auto id = mModel.alloc_node();
     mRefLocDict.emplace(id, loc);
     return id;
   }
@@ -299,36 +296,25 @@ private:
   vector<Iscas89Handler*> mHandlerList;
 
   // 拡張ハンドラ番号の辞書
-  unordered_map<string, SizeType> mHandlerDict;
+  std::unordered_map<std::string, SizeType> mHandlerDict;
 
   // 結果を格納するオブジェクト
-  ModelImpl* mModel;
-
-  // クロック入力の名前
-  string mClockName;
-
-  // クロック入力のノード番号
-  SizeType mClockId;
+  ModelImpl& mModel;
 
   // 名前をキーにした識別子の辞書
-  unordered_map<string, SizeType> mIdDict;
+  std::unordered_map<std::string, SizeType> mIdDict;
 
   // ID をキーにして名前を格納する辞書
-  unordered_map<SizeType, string> mNameDict;
+  std::unordered_map<SizeType, std::string> mNameDict;
 
   // 参照された位置を記録する配列
-  unordered_map<SizeType, FileRegion> mRefLocDict;
+  std::unordered_map<SizeType, FileRegion> mRefLocDict;
 
   // 定義された位置を記録する辞書
-  unordered_map<SizeType, FileRegion> mDefLocDict;
+  std::unordered_map<SizeType, FileRegion> mDefLocDict;
 
   // 処理済みの印
-  unordered_set<SizeType> mMark;
-
-  // 論理式の辞書
-  // キーは Expr::rep_string()
-  // 値は論理式番号
-  unordered_map<string, SizeType> mExprDict;
+  std::unordered_set<SizeType> mMark;
 
 };
 

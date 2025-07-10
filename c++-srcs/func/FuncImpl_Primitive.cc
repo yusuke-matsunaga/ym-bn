@@ -44,7 +44,7 @@ FuncImpl_Primitive::FuncImpl_Primitive(
 BnFunc::Type
 FuncImpl_Primitive::type() const
 {
-  return BnFunc::Primitive;
+  return BnFunc::PRIMITIVE;
 }
 
 // @brief プリミティブ型の時 true を返す．
@@ -58,7 +58,7 @@ FuncImpl_Primitive::is_primitive() const
 SizeType
 FuncImpl_Primitive::input_num() const
 {
-  return mInput_num;
+  return mInputNum;
 }
 
 // @brief プリミティブの種類を返す．
@@ -92,7 +92,7 @@ FuncImpl_Primitive::print(
   ostream& s
 ) const
 {
-  s << "Primitive: " mPrimType
+  s << "Primitive: " << mPrimType
     << "(" << mInputNum << ")" << endl;
 }
 

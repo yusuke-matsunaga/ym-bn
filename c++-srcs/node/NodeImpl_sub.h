@@ -44,14 +44,6 @@ public:
   bool
   is_input() const override;
 
-  /// @brief 外部入力ノードの時 true を返す．
-  bool
-  is_primary_input() const override;
-
-  /// @brief DFFの出力の時 true を返す．
-  bool
-  is_dff_output() const override;
-
 };
 
 
@@ -136,7 +128,13 @@ public:
 
   /// @brief DFFの入力ノードの番号を返す．
   SizeType
-  dff_src() const override;
+  dff_src_id() const override;
+
+  /// @brief DFFの入力ノード番号を設定する．
+  void
+  set_dff_src(
+    SizeType id ///< [in] 設定するノード番号
+  ) override;
 
   /// @brief 複製を作る．
   std::unique_ptr<NodeImpl>
@@ -199,13 +197,13 @@ public:
 
   /// @brief ファンインのノード番号を返す．
   SizeType
-  fanin(
+  fanin_id(
     SizeType pos ///< [in] 位置 ( 0 <= pos < fanin_num() )
   ) const override;
 
   /// @brief ファンイン番号のリストを返す．
   const vector<SizeType>&
-  fanin_list() const override;
+  fanin_id_list() const override;
 
   /// @brief 複製を作る．
   std::unique_ptr<NodeImpl>

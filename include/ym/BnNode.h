@@ -10,6 +10,7 @@
 
 #include "ym/bn.h"
 #include "ym/logic.h"
+#include "ym/BnBase.h"
 
 
 BEGIN_NAMESPACE_YM_BN
@@ -50,19 +51,10 @@ class NodeImpl;
 ///
 /// 通常は BnModel のみが生成/設定を行う．
 //////////////////////////////////////////////////////////////////////
-class BnNode
+class BnNode :
+  public BnBase
 {
-  friend class ModelImpl;
-
-private:
-
-  /// @brief 内容を指定したコンストラクタ
-  ///
-  /// これは ModelImpl のみが使用する．
-  BnNode(
-    const shared_ptr<const ModelImpl>& model, ///< [in] 親のモデル．
-    SizeType id                               ///< [in] ノード番号
-  );
+  friend class BnBase;
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -71,9 +63,9 @@ public:
 
   /// @brief ノードの種類を表す列挙型
   enum Type {
-    None,  ///< 不正値
-    Input, ///< 入力ノード
-    Logic  ///< 論理ノード
+    NONE,  ///< 不正値
+    INPUT, ///< 入力ノード
+    LOGIC  ///< 論理ノード
   };
 
 
@@ -92,13 +84,6 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 共通なインターフェイス
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief 適切な値を持っている時 true を返す．
-  bool
-  is_valid() const
-  {
-    return mModel.get() != nullptr;
-  }
 
   /// @brief ノード番号を返す．
   SizeType
@@ -164,47 +149,9 @@ public:
   // 論理ノードに対してのみ有効なインターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief プリミティブ型を返す．
-  ///
-  /// - プリミティブ型でない場合は PrimType::None を返す．
-  /// - 論理ノードでない場合には std::invalid_argument 例外を送出する．
-  PrimType
-  primitive_type() const;
-
-  /// @brief カバー情報を持っている時 true を返す．
-  bool
-  has_cover() const;
-
-  /// @brief カバーを返す．
-  ///
-  /// has_cover() == false の時は std::invalid_argument 例外を送出する．
-  const SopCover&
-  cover() const;
-
-  /// @brief 論理式情報を持っている時 true を返す．
-  bool
-  has_expr() const;
-
-  /// @brief 論理式を返す．
-  /// has_expr() == false の時は std::invalid_argument 例外を送出する．
-  Expr
-  expr() const;
-
-  /// @brief 倫理値表を持っている時 true を返す．
-  bool
-  has_tvfunc() const;
-
-  /// @brief 真理値表を返す．
-  const TvFunc&
-  tvfunc() const;
-
-  /// @brief BDDを持っている時 true を返す．
-  bool
-  has_bdd() const;
-
-  /// @brief BDDを返す．
-  Bdd
-  bdd() const;
+  /// @brief 関数情報を返す．
+  BnFunc
+  func() const;
 
   /// @brief ファンイン数を返す．
   ///
@@ -242,7 +189,7 @@ public:
     const BnNode& right ///< [in] 比較対象のオブジェクト
   ) const
   {
-    return mModel == right.mModel && mId == right.mId;
+    return BnBase::operator==(right) && mId == right.mId;
   }
 
   /// @brief 非等価比較演算子
@@ -260,18 +207,23 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 内容を指定したコンストラクタ
+  ///
+  /// これは BnBase のみが使用する．
+  BnNode(
+    const shared_ptr<ModelImpl>& model, ///< [in] 親のモデル．
+    SizeType id                         ///< [in] ノード番号
+  );
+
   /// @brief ノードの実体を返す．
-  const NodeImpl*
-  _impl() const;
+  const NodeImpl&
+  _node_impl() const;
 
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // モデルの実装本体
-  std::shared_ptr<const ModelImpl> mModel{nullptr};
 
   // ノード番号
   SizeType mId{BAD_ID};

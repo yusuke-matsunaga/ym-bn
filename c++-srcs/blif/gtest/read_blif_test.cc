@@ -7,18 +7,18 @@
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include "ym/BlifModel.h"
+#include "ym/BnModel.h"
 
 
 BEGIN_NAMESPACE_YM
 
-TEST( BlibModelTest, read_blif1)
+TEST( BnModelTest, read_blif1)
 {
   // 普通のファイルの読み込みテスト
-  string filename{"s5378.blif"};
-  string path{DATAPATH + filename};
+  auto filename = std::string{"s5378.blif"};
+  auto path = std::string{DATAPATH + filename};
 
-  auto model = BlifModel::read_blif(path);
+  auto model = BnModel::read_blif(path);
 
   const SizeType ni = 36;
   const SizeType no = 49;
@@ -30,17 +30,17 @@ TEST( BlibModelTest, read_blif1)
   EXPECT_EQ( nd, model.dff_num() );
   EXPECT_EQ( ng, model.logic_num() );
 
-  ostringstream s;
-  model.write(s);
+  std::ostringstream s;
+  model.print(s);
 
-  string exp_filename{"s5378.bn"};
-  string exp_path{DATAPATH + exp_filename};
-  ifstream is1{exp_path};
+  std::string exp_filename{"s5378.bn"};
+  std::string exp_path{DATAPATH + exp_filename};
+  std::ifstream is1{exp_path};
   ASSERT_TRUE( is1 );
 
-  istringstream is2{s.str()};
-  string buff1;
-  string buff2;
+  std::istringstream is2{s.str()};
+  std::string buff1;
+  std::string buff2;
   while ( getline(is1, buff1) ) {
     getline(is2, buff2);
     EXPECT_TRUE( is2 );
@@ -50,19 +50,19 @@ TEST( BlibModelTest, read_blif1)
   EXPECT_FALSE( is2 );
 }
 
-TEST( BlibModelTest, read_blif_file_not_found)
+TEST( BnModelTest, read_blif_file_not_found)
 {
   // 存在しないファイルの場合の例外送出テスト
   EXPECT_THROW( {
-      auto _ = BlibModel::read_blif("not_exist_file");
+      auto _ = BnModel::read_blif("not_exist_file");
     }, std::invalid_argument );
 }
 
-TEST( BlifModelTest, read_blif_wrong_data)
+TEST( BnModelTest, read_blif_wrong_data)
 {
   // 誤った内容のファイルの場合の例外送出テスト
-  string filename{"broken.blif"};
-  string path{DATAPATH + filename};
+  std::string filename{"broken.blif"};
+  std::string path{DATAPATH + filename};
   EXPECT_THROW( {
       auto _ = BnModel::read_blif(path);
     }, std::invalid_argument );

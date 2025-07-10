@@ -9,14 +9,11 @@
 /// All rights reserved.
 
 #include "ym/bn.h"
-#include "ym/ClibCellLibrary.h"
 #include "BlifScanner.h"
-#include "CoverMgr.h"
+#include "ModelImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BN
-
-class ModelImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifParser BlifParser.h "ym/BlifParser.h"
@@ -28,7 +25,7 @@ public:
 
   /// @brief コンストラクタ
   BlifParser(
-    ModelImpl* model ///< [in] 結果を格納するオブジェクト
+    ModelImpl& model ///< [in] 結果を格納するオブジェクト
   );
 
   /// @brief デストラクタ
@@ -45,10 +42,7 @@ public:
   /// @retval false 読み込みが失敗した．
   bool
   read(
-    const string& filename,              ///< [in] ファイル名
-    const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
-    const string& clock_name,            ///< [in] クロック信号の名前
-    const string& reset_name             ///< [in] リセット信号の名前
+    const string& filename ///< [in] ファイル名
   );
 
 
@@ -71,7 +65,7 @@ private:
       return mIdDict.at(name);
     }
     mRefLocArray.push_back(loc);
-    auto id = mModel->alloc_node();
+    auto id = mModel.alloc_node();
     mIdDict.emplace(name, id);
     mNameDict.emplace(id, name);
     return id;
@@ -197,44 +191,18 @@ private:
   FileRegion
   cur_loc() const;
 
-  /// @brief クロック入力の識別子を返す．
-  SizeType
-  get_clock_id();
-
-  /// @brief リセット入力の識別子を返す．
-  SizeType
-  get_reset_id();
-
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // セルライブラリ
-  ClibCellLibrary mCellLibrary;
-
   // 字句解析器
   // この変数は read() 内でのみ有効
   BlifScanner* mScanner;
 
-  // BlifCover を管理するオブジェクト
-  CoverMgr mCoverMgr;
-
   // 結果を格納するオブジェクト
-  ModelImpl* mModel;
-
-  // クロック入力の名前
-  string mClockName;
-
-  // クロック入力のノード番号
-  SizeType mClockId;
-
-  // リセット入力の名前
-  string mResetName;
-
-  // リセット入力のノード番号
-  SizeType mResetId;
+  ModelImpl& mModel;
 
   // 現在のトークン
   BlifToken mCurToken;
@@ -243,19 +211,19 @@ private:
   FileRegion mCurLoc;
 
   // モデル名
-  string mModelName;
+  std::string mModelName;
 
   // 名前をキーにしたノード番号の辞書
-  unordered_map<string, SizeType> mIdDict;
+  std::unordered_map<std::string, SizeType> mIdDict;
 
   // ID番号をキーにした名前の辞書
-  unordered_map<SizeType, string> mNameDict;
+  std::unordered_map<SizeType, std::string> mNameDict;
 
   // ノードを参照している箇所の配列
-  vector<FileRegion> mRefLocArray;
+  std::vector<FileRegion> mRefLocArray;
 
   // ノードを定義している箇所の辞書
-  unordered_map<SizeType, FileRegion> mDefLocDict;
+  std::unordered_map<SizeType, FileRegion> mDefLocDict;
 
 };
 

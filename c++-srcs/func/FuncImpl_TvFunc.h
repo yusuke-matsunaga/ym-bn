@@ -38,7 +38,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 関数の種類を返す．
-  BnFuncType
+  BnFunc::Type
   type() const override;
 
   /// @brief 真理値表型の時 true を返す．

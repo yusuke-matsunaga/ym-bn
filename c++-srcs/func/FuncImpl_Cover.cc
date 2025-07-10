@@ -23,7 +23,7 @@ FuncImpl::new_cover(
   bool output_inv
 )
 {
-  return new FuncImpl_Cover(inputcover, output_inv);
+  return new FuncImpl_Cover(input_cover, output_inv);
 }
 
 
@@ -49,7 +49,7 @@ FuncImpl_Cover::~FuncImpl_Cover()
 BnFunc::Type
 FuncImpl_Cover::type() const
 {
-  return BnFunc::Cover;
+  return BnFunc::COVER;
 }
 
 // @brief カバー型の時 true を返す．
@@ -75,7 +75,7 @@ FuncImpl_Cover::input_cover() const
 
 // @brief 出力の反転属性を返す．
 bool
-FuncImpl::output_inv() const
+FuncImpl_Cover::output_inv() const
 {
   return mOutputInv;
 }

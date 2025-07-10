@@ -23,19 +23,19 @@ BEGIN_NAMESPACE_YM_BN
 // @return ネットワークを返す．
 BnModel
 BnModel::read_truth(
-  const string& filename ///< [in] ファイル名
+  const std::string& filename ///< [in] ファイル名
 )
 {
-  ifstream s{filename};
+  std::ifstream s{filename};
   if ( !s ) {
-    ostringstream buf;
+    std::ostringstream buf;
     buf << filename << ": No such file";
     throw std::invalid_argument{buf.str()};
   }
 
   BnModel model;
   TruthReader reader;
-  reader.read(s, model.mImpl.get());
+  reader.read(s, model._model_impl());
   return model;
 }
 
@@ -47,25 +47,25 @@ BnModel::read_truth(
 // @brief 真理値表形式のファイルを読み込む．
 void
 TruthReader::read(
-  istream& s,
-  ModelImpl* model
+  std::istream& s,
+  ModelImpl& model
 )
 {
-  vector<TvFunc> func_vect;
+  std::vector<TvFunc> func_vect;
   {
-    string line;
+    std::string line;
     while ( getline(s, line) ) {
       func_vect.push_back(TvFunc{line});
     }
   }
 
-  SizeType no = func_vect.size();
+  auto no = func_vect.size();
   if ( no == 0 ) {
     return;
   }
 
   // 入力数が全て等しいかチェック
-  SizeType ni = func_vect[0].input_num();
+  auto ni = func_vect[0].input_num();
   for ( SizeType i = 1; i < no; ++ i ) {
     auto& func = func_vect[i];
     if ( func.input_num() != ni ) {
@@ -77,22 +77,22 @@ TruthReader::read(
 
   // 入力の生成
   for ( SizeType i = 0; i < ni; ++ i ) {
-    model->new_input();
+    model.new_input();
   }
 
   // 論理ノードの生成
   // 注意が必要なのは .truth フォーマットでは最上位の変数が
   // 最後の変数だということ．
-  vector<SizeType> fanin_list(ni);
+  std::vector<SizeType> fanin_list(ni);
   for ( SizeType i = 0; i < ni; ++ i ) {
     fanin_list[i] = ni - i - 1;
   }
   for ( auto& tvfunc: func_vect ) {
-    auto func = model->reg_tvfunc(tvfunc);
-    auto id = model->new_func(fanin_list, func);
-    model->new_output(id);
+    auto func_id = model.reg_tvfunc(tvfunc);
+    auto id = model.new_logic(func_id, fanin_list);
+    model.new_output(id);
   }
-  model->make_logic_list();
+  model.make_logic_list();
 }
 
 END_NAMESPACE_YM_BN

@@ -25,7 +25,7 @@ public:
 
   /// @brief コンストラクタ
   FuncImpl_Primitive(
-    Sizetype input_num,     ///< [in] 入力数
+    SizeType input_num,     ///< [in] 入力数
     PrimType primitive_type ///< [in] プリミティブの種類
   );
 

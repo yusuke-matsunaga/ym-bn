@@ -19,13 +19,13 @@ BEGIN_NAMESPACE_YM_BN
 
 // @brief 内容を指定したコンストラクタ
 BnFunc::BnFunc(
-  const shared_ptr<const ModelImpl>& model,
+  const shared_ptr<ModelImpl>& model,
   SizeType id
-) : mModel{model},
+) : BnBase(model),
     mId{id}
 {
-  if ( mId == BAD_ID ) {
-    mModel = nullptr;
+  if ( is_invalid() ) {
+    mId = BAD_ID;
   }
 }
 
@@ -35,80 +35,94 @@ BnFunc::~BnFunc()
 }
 
 // @brief 種類を返す．
-BnFuncType
+BnFunc::Type
 BnFunc::type() const
 {
-  return _impl().type();
+  return _func_impl().type();
+}
+
+// @brief プリミティブ型の時 true を返す．
+bool
+BnFunc::is_primitive() const
+{
+  return _func_impl().is_primitive();
 }
 
 // @brief カバー型の時 true を返す．
 bool
 BnFunc::is_cover() const
 {
-  return _impl().is_cover();
+  return _func_impl().is_cover();
 }
 
 // @brief 論理式型の時 true を返す．
 bool
 BnFunc::is_expr() const
 {
-  return _impl().is_expr();
+  return _func_impl().is_expr();
 }
 
 // @brief 真理値表型の時 true を返す．
 bool
 BnFunc::is_tvfunc() const
 {
-  return _impl().is_tvfunc();
+  return _func_impl().is_tvfunc();
 }
 
 // @brief BDD型の時 true を返す．
 bool
 BnFunc::is_bdd() const
 {
-  return _impl().is_bdd();
+  return _func_impl().is_bdd();
 }
 
 // @brief 入力数を返す．
 SizeType
 BnFunc::input_num() const
 {
-  return _impl().input_num();
+  return _func_impl().input_num();
+}
+
+// @brief プリミティブ型を返す．
+PrimType
+BnFunc::primitive_type() const
+{
+  return _func_impl().primitive_type();
 }
 
 // @brief 入力カバーを返す．
 const SopCover&
 BnFunc::input_cover() const
 {
-  return _impl().input_cover();
+  return _func_impl().input_cover();
 }
 
-// @brief 出力パタンを返す．
-char
-BnFunc::output_pat() const
+// @brief 出力の反転属性を返す．
+bool
+BnFunc::output_inv() const
 {
-  return _impl().output_pat();
+  return _func_impl().output_inv();
 }
 
 // @brief 論理式を返す．
 Expr
 BnFunc::expr() const
 {
-  return _impl().expr();
+  return _func_impl().expr();
 }
 
 // @brief 真理値表を返す．
 const TvFunc&
 BnFunc::tvfunc() const
 {
-  return _impl().tvfunc();
+  return _func_impl().tvfunc();
 }
 
 // @brief BDDを返す．
 Bdd
 BnFunc::bdd() const
 {
-  return _impl().bdd();
+  return _func_impl().bdd();
 }
 
 // @brief 内容を出力する．
@@ -117,17 +131,17 @@ BnFunc::print(
   ostream& s
 ) const
 {
-  _impl().print(s);
+  _func_impl().print(s);
 }
 
 // @brief 実装を取り出す．
 const FuncImpl&
-BnFunc::_impl() const
+BnFunc::_func_impl() const
 {
   if ( !is_valid() ) {
     throw std::invalid_argument{"BnFunc: invalid data"};
   }
-  return mModel->func_impl(mId);
+  return _model_impl().func_impl(mId);
 }
 
 END_NAMESPACE_YM_BN

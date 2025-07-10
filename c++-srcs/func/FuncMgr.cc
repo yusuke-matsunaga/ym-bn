@@ -13,16 +13,23 @@ BEGIN_NAMESPACE_YM_BN
 
 // @brief コピーコンストラクタもどき
 FuncMgr::FuncMgr(
-  const FuncMgr& src,
-  BddMgr& bdd_mgr
+  const FuncMgr& src
 )
 {
   for ( auto& src_func: src.mFuncArray ) {
     SizeType id = mFuncArray.size();
-    mFuncArray.push_back(src_func->copy(bdd_mgr));
+    mFuncArray.push_back(src_func->copy(mBddMgr));
     auto func = mFuncArray.back().get();
     mFuncMap.emplace(func, id);
   }
+}
+
+// @brief クリアする．
+void
+FuncMgr::clear()
+{
+  mFuncArray.clear();
+  mFuncMap.clear();
 }
 
 // @brief プリミティブ型を登録する．
@@ -73,26 +80,26 @@ FuncMgr::reg_bdd(
   const Bdd& bdd
 )
 {
-  auto func = FuncImpl::new_bdd(bdd);
+  auto func = FuncImpl::new_bdd(mBddMgr.copy(bdd));
   return reg_func(func);
 }
 
 // @brief 関数情報を登録する．
 SizeType
 FuncMgr::reg_func(
-  std::unique_ptr<FuncImpl>&& func
+  FuncImpl* func
 )
 {
-  auto p = mFuncMap.find(func.get());
+  auto p = mFuncMap.find(func);
   if ( p != mFuncMap.end() ) {
     // 既に同じ関数が登録されていた．
-    return p.second;
+    delete func;
+    return p->second;
   }
   // 新規に登録する．
   auto id = mFuncArray.size();
-  mFuncArray.push_back(std::move(func));
-  auto key = mFuncArray.back().get();
-  mFuncMap.emplace(key, id);
+  mFuncArray.push_back(std::unique_ptr<FuncImpl>{func});
+  mFuncMap.emplace(func, id);
   return id;
 }
 

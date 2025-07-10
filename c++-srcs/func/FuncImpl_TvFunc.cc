@@ -41,7 +41,7 @@ FuncImpl_TvFunc::FuncImpl_TvFunc(
 BnFunc::Type
 FuncImpl_TvFunc::type() const
 {
-  return BnFunc::TvFunc;
+  return BnFunc::TVFUNC;
 }
 
 // @brief 真理値表型の時 true を返す．

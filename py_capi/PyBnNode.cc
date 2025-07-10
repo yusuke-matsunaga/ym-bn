@@ -7,15 +7,11 @@
 /// All rights reserved.
 
 #include "pym/PyBnNode.h"
-#include "pym/PyBnNodeList.h"
 #include "pym/PyBnModel.h"
-#include "pym/PyBnSeq.h"
 #include "pym/PyBnFunc.h"
 #include "pym/PyPrimType.h"
-#include "pym/PyClibCell.h"
 #include "pym/PyModule.h"
 #include "ym/BnNode.h"
-#include "ym/BnNodeList.h"
 #include "ym/BnFunc.h"
 
 
@@ -81,13 +77,13 @@ BnNode_is_input(
 }
 
 PyObject*
-BnNode_is_seq_output(
+BnNode_is_dff_output(
   PyObject* self,
   PyObject* Py_UNUSED(args)
 )
 {
   auto& node = PyBnNode::_get_ref(self);
-  auto r = node.is_seq_output();
+  auto r = node.is_dff_output();
   return PyBool_FromLong(r);
 }
 

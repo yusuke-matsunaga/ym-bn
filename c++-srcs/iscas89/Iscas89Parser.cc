@@ -23,15 +23,14 @@ BEGIN_NAMESPACE_YM_BN
 // @brief iscas89(.bench) ファイルの読み込みを行う．
 BnModel
 BnModel::read_iscas89(
-  const string& filename,
-  const string& clock_name
+  const string& filename
 )
 {
   BnModel model;
 
-  Iscas89Parser parser;
-  if ( !parser.read(filename, clock_name, model.mImpl.get()) ) {
-    ostringstream buf;
+  Iscas89Parser parser(model._model_impl());
+  if ( !parser.read(filename) ) {
+    std::ostringstream buf;
     buf << "BnModel::read_iscas89(\"" << filename << "\") failed.";
     throw std::invalid_argument{buf.str()};
   }
@@ -77,27 +76,22 @@ Iscas89Parser::~Iscas89Parser()
 //
 bool
 Iscas89Parser::read(
-  const string& filename,
-  const string& clock_name,
-  ModelImpl* model
+  const std::string& filename
 )
 {
   // ファイルをオープンする．
-  ifstream fin{filename};
+  std::ifstream fin{filename};
   if ( !fin ) {
     // エラー
-    ostringstream buf;
+    std::ostringstream buf;
     buf << filename << " : No such file.";
     MsgMgr::put_msg(__FILE__, __LINE__, FileRegion(),
 		    MsgType::Failure, "ISCAS89_PARSER", buf.str());
     return false;
   }
 
-  Iscas89Scanner scanner{fin, {filename}, mHandlerDict};
+  Iscas89Scanner scanner(fin, {filename});
   mScanner = &scanner;
-  mModel = model;
-  mClockName = clock_name;
-  mClockId = BAD_ID;
 
   // パーサー本体
   bool go_on = true;
@@ -150,7 +144,7 @@ Iscas89Parser::read(
     for ( auto& p: mRefLocDict ) {
       auto id = p.first;
       if ( !is_defined(id) ) {
-	ostringstream buf;
+	std::ostringstream buf;
 	buf << id2str(id) << ": Undefined.";
 	MsgMgr::put_msg(__FILE__, __LINE__, ref_loc(id),
 			MsgType::Error,
@@ -160,7 +154,7 @@ Iscas89Parser::read(
     }
   }
 
-  mModel->make_logic_list();
+  mModel.make_logic_list();
 
   return !has_error;
 }
@@ -192,9 +186,9 @@ Iscas89Parser::read_input(
   }
 
   set_defined(name_id, loc);
-  auto iid = mModel->input_num();
-  mModel->set_input(name_id);
-  mModel->set_input_name(iid, name);
+  auto iid = mModel.input_num();
+  mModel.set_input(name_id);
+  mModel.set_input_name(iid, name);
 
   return true;
 }
@@ -211,10 +205,10 @@ Iscas89Parser::read_output(
     return false;
   }
   FileRegion loc{first_loc, last_loc};
-  auto oid = mModel->output_num();
-  mModel->new_output(name_id);
+  auto oid = mModel.output_num();
+  mModel.new_output(name_id);
   auto name = id2str(name_id);
-  mModel->set_output_name(oid, name);
+  mModel.set_output_name(oid, name);
 
   return true;
 }
@@ -265,19 +259,10 @@ Iscas89Parser::read_gate(
     }
     FileRegion loc{first_loc, last_loc};
     set_defined(name_id, loc);
-    if ( mClockId == BAD_ID ) {
-      mClockId = new_node({});
-      set_defined(mClockId, {});
-      auto iid = mModel->input_num();
-      mModel->set_input(mClockId);
-      mModel->set_input_name(iid, mClockName);
-    }
     auto oname = id2str(name_id);
-    auto dff_id = mModel->new_dff(' ', oname);
-    mModel->set_data_output(dff_id, name_id);
-    mModel->set_seq_output(name_id, dff_id);
-    mModel->set_clock(dff_id, mClockId);
-    mModel->set_data_src(dff_id, iname_id);
+    mModel.set_dff_output(name_id, iname_id);
+    auto dff_id = mModel.dff_num();
+    mModel.set_dff_name(dff_id, oname);
     return true;
   }
 #if 0
@@ -288,23 +273,6 @@ Iscas89Parser::read_gate(
   }
 #endif
   return false;
-}
-
-// @brief 論理式を登録する．
-SizeType
-Iscas89Parser::reg_expr(
-  const Expr& expr ///< [in] 論理式
-)
-{
-  auto key = expr.rep_string();
-  if ( mExprDict.count(key) > 0 ) {
-    // 登録済み
-    return mExprDict.at(key);
-  }
-  // 新規に登録する．
-  SizeType id = mModel->reg_expr(expr);
-  mExprDict.emplace(key, id);
-  return id;
 }
 
 // @brief '(' ')' で囲まれた名前を読み込む．

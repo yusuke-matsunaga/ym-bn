@@ -19,8 +19,21 @@
 #  テスト用のターゲットの設定
 # ===================================================================
 
-ym_add_gtest( bn_read_iscas89_test
-  read_iscas89_test.cc
+ym_add_gtest( bn_NodeImpl_test
+  NodeImpl_test.cc
+  $<TARGET_OBJECTS:ym_bn_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  DEFINITIONS
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
+  )
+
+target_include_directories( bn_NodeImpl_test
+  PRIVATE ../
+  )
+
+ym_add_gtest( bn_BnNode_test
+  BnNode_test.cc
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>

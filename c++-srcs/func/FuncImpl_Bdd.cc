@@ -42,7 +42,7 @@ FuncImpl_Bdd::FuncImpl_Bdd(
 BnFunc::Type
 FuncImpl_Bdd::type() const
 {
-  return BnFunc::Bdd;
+  return BnFunc::BDD;
 }
 
 // @brief BDD型の時 true を返す．

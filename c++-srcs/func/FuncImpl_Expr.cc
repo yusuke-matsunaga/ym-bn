@@ -41,7 +41,7 @@ FuncImpl_Expr::FuncImpl_Expr(
 BnFunc::Type
 FuncImpl_Expr::type() const
 {
-  return BnFunc::Expr;
+  return BnFunc::EXPR;
 }
 
 // @brief 論理式型の時 true を返す．

@@ -23,6 +23,8 @@ BEGIN_NAMESPACE_YM_BN
 //////////////////////////////////////////////////////////////////////
 /// @class ModelImpl ModelImpl.h "ModelImpl.h"
 /// @brief BnModel の内部情報を表すクラス
+///
+/// 関連する全てのオブジェクトの所有権を持つ．
 //////////////////////////////////////////////////////////////////////
 class ModelImpl
 {
@@ -57,21 +59,21 @@ public:
   option() const;
 
   /// @brief 名前を返す．
-  string
+  std::string
   name() const
   {
     return mName;
   }
 
   /// @brief コメントを返す．
-  string
-  comment() const
+  const std::vector<std::string>&
+  comment_list() const
   {
-    return mComment;
+    return mCommentList;
   }
 
   /// @brief 入力名を返す．
-  string
+  std::string
   input_name(
     SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
   ) const
@@ -80,11 +82,11 @@ public:
     if ( mSymbolDict.count(key) > 0 ) {
       return mSymbolDict.at(key);
     }
-    return string{};
+    return std::string{};
   }
 
   /// @brief 出力名を返す．
-  string
+  std::string
   output_name(
     SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
   ) const
@@ -93,20 +95,20 @@ public:
     if ( mSymbolDict.count(key) > 0 ) {
       return mSymbolDict.at(key);
     }
-    return string{};
+    return std::string{};
   }
 
   /// @brief ラッチ名を返す．
-  string
-  seq_name(
-    SizeType seq_id ///< [in] ラッチ番号 ( 0 <= seq_id < seq_num() )
+  std::string
+  dff_name(
+    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
   ) const
   {
-    auto key = _seq_key(seq_id);
+    auto key = _dff_key(dff_id);
     if ( mSymbolDict.count(key) > 0 ) {
       return mSymbolDict.at(key);
     }
-    return string{};
+    return std::string{};
   }
 
   /// @brief ノード数を返す．
@@ -114,6 +116,18 @@ public:
   node_num() const
   {
     return mNodeArray.size();
+  }
+
+  /// @brief ノードを取り出す．
+  const NodeImpl&
+  node_impl(
+    SizeType id ///< [in] ID番号
+  ) const
+  {
+    if ( id >= node_num() ) {
+      throw std::out_of_range{"id is out of range"};
+    }
+    return *mNodeArray[id];
   }
 
   /// @brief 入力数を返す．
@@ -126,15 +140,18 @@ public:
   /// @brief 入力のノード番号を返す．
   SizeType
   input_id(
-    SizeType pos
+    SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
   ) const
   {
-    return mInputList[pos];
+    if ( input_id >= input_num() ) {
+      throw std::out_of_range{"input_id is out of range"};
+    }
+    return mInputList[input_id];
   }
 
   /// @brief 入力のノード番号のリストを返す．
   const vector<SizeType>&
-  input_list() const
+  input_id_list() const
   {
     return mInputList;
   }
@@ -149,17 +166,39 @@ public:
   /// @brief 出力のノード番号を返す．
   SizeType
   output_id(
-    SizeType pos
+    SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
   ) const
   {
-    return mOutputList[pos];
+    if ( output_id >= output_num() ) {
+      throw std::out_of_range{"output_id is out of range"};
+    }
+    return mOutputList[output_id];
   }
 
   /// @brief 出力のノード番号のリストを返す．
   const vector<SizeType>&
-  output_list() const
+  output_id_list() const
   {
     return mOutputList;
+  }
+
+  /// @brief DFF数を返す．
+  SizeType
+  dff_num() const
+  {
+    return mDffList.size();
+  }
+
+  /// @brief DFF出力のノード番号を返す．
+  SizeType
+  dff_output_id(
+    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
+  ) const
+  {
+    if ( dff_id >= dff_num() ) {
+      throw std::out_of_range{"dff_id is out of range"};
+    }
+    return mDffList[dff_id];
   }
 
   /// @brief 論理ノード数を返す．
@@ -172,49 +211,27 @@ public:
   /// @brief 論理ノードのノード番号を返す．
   SizeType
   logic_id(
-    SizeType pos ///< [in] 位置
+    SizeType pos ///< [in] 位置 ( 0 <= pos < logic_num() )
   ) const
   {
+    if ( pos >= logic_num() ) {
+      throw std::out_of_range{"pos is out of range"};
+    }
     return mLogicList[pos];
   }
 
   /// @brief 論理ノード番号のリストを返す．
   const vector<SizeType>&
-  logic_list() const
+  logic_id_list() const
   {
     return mLogicList;
-  }
-
-  /// @brief ノードを取り出す．
-  const NodeImpl*
-  node_impl(
-    SizeType id ///< [in] ID番号
-  ) const
-  {
-    return mNodeArray[id].get();
-  }
-
-  /// @brief DFF数を返す．
-  SizeType
-  dff_num() const
-  {
-    return mDffArray.size();
-  }
-
-  /// @brief SEQノードを取り出す．
-  const SeqImpl&
-  seq_impl(
-    SizeType id ///< [in] ID番号
-  ) const
-  {
-    return *mSeqArray[id];
   }
 
   /// @brief 関数の数を返す．
   SizeType
   func_num() const
   {
-    return mFuncArray.size();
+    return mFuncMgr.func_num();
   }
 
   /// @brief 関数情報を返す．
@@ -223,53 +240,7 @@ public:
     SizeType func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
   ) const
   {
-    return *mFuncArray[func_id];
-  }
-
-  /// @brief BnNode が自分のものか調べる．
-  bool
-  check(
-    BnNode node
-  ) const
-  {
-    return node.mModel.get() == this;
-  }
-
-  /// @brief BnFunc が自分のものか調べる．
-  bool
-  check(
-    BnFunc func
-  ) const
-  {
-    return func.mModel.get() == this;
-  }
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // プロキシオブジェクトの生成
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノードを生成する．
-  static
-  BnNode
-  new_node(
-    const shared_ptr<const ModelImpl>& model,
-    SizeType id
-  )
-  {
-    return BnNode(model, id);
-  }
-
-  /// @brief 論理関数を生成する．
-  static
-  BnFunc
-  new_func(
-    const shared_ptr<const ModelImpl>& model,
-    SizeType id
-  )
-  {
-    return BnFunc(model, id);
+    return mFuncMgr.func(func_id);
   }
 
 
@@ -291,26 +262,26 @@ public:
   /// @brief 名前を設定する．
   void
   set_name(
-    const string& name ///< [in] 名前
+    const std::string& name ///< [in] 名前
   )
   {
     mName = name;
   }
 
-  /// @brief コメントを設定する．
+  /// @brief コメントを追加する．
   void
-  set_comment(
-    const string& comment ///< [in] コメント
+  add_comment(
+    const std::string& comment ///< [in] コメント
   )
   {
-    mComment = comment;
+    mCommentList.push_back(comment);
   }
 
   /// @brief 入力名をセットする．
   void
   set_input_name(
-    SizeType input_id, ///< [in] 入力番号 ( 0 <= input_id < input_num() )
-    const string& name ///< [in] 名前
+    SizeType input_id,      ///< [in] 入力番号 ( 0 <= input_id < input_num() )
+    const std::string& name ///< [in] 名前
   )
   {
     auto key = _input_key(input_id);
@@ -320,8 +291,8 @@ public:
   /// @brief 出力名をセットする．
   void
   set_output_name(
-    SizeType output_id, ///< [in] 出力番号 ( 0 <= output_id < output_num() )
-    const string& name  ///< [in] 名前
+    SizeType output_id,      ///< [in] 出力番号 ( 0 <= output_id < output_num() )
+    const std::string& name  ///< [in] 名前
   )
   {
     auto key = _output_key(output_id);
@@ -331,8 +302,8 @@ public:
   /// @brief DFF名をセットする．
   void
   set_dff_name(
-    SizeType dff_id,   ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
-    const string& name ///< [in] 名前
+    SizeType dff_id,        ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
+    const std::string& name ///< [in] 名前
   )
   {
     auto key = _dff_key(dff_id);
@@ -359,18 +330,9 @@ public:
   /// @brief 対応するID番号にDFFの出力用の印を付ける．
   void
   set_dff_output(
-    SizeType id            ///< [in] ID番号
+    SizeType id,    ///< [in] DFFの出力のノード番号
+    SizeType src_id ///< [in] DFFの入力のノード番号
   );
-
-  /// @brief 出力ノードをセットする．
-  void
-  set_output(
-    SizeType output_id, ///< [in] 出力番号 ( 0 <= output_id < output_num() )
-    SizeType src_id     ///< [in] ソースのID番号
-  )
-  {
-    mOutputList[output_id] = src_id;
-  }
 
   /// @brief 論理ノードの情報をセットする．
   void
@@ -398,7 +360,7 @@ public:
   new_dff_output()
   {
     auto id = alloc_node();
-    set_dff_output(id);
+    set_dff_output(id, BAD_ID);
     return id;
   }
 
@@ -450,36 +412,51 @@ public:
   reg_primitive(
     SizeType input_num,     ///< [in] 入力数
     PrimType primitive_type ///< [in] プリミティブの種類
-  );
+  )
+  {
+    return mFuncMgr.reg_primitive(input_num, primitive_type);
+  }
 
   /// @brief カバーを登録する．
   /// @return 関数番号を返す．
   SizeType
   reg_cover(
-    const SopCover& input_cover ///< [in] 入力カバー
-    bool output_inv             ///< [in] 出力の反転属性
-  );
+    const SopCover& input_cover, ///< [in] 入力カバー
+    bool output_inv              ///< [in] 出力の反転属性
+  )
+  {
+    return mFuncMgr.reg_cover(input_cover, output_inv);
+  }
 
   /// @brief 論理式を登録する．
   /// @return 関数番号を返す．
   SizeType
   reg_expr(
     const Expr& expr ///< [in] 論理式
-  );
+  )
+  {
+    return mFuncMgr.reg_expr(expr);
+  }
 
   /// @brief 真理値表を登録する．
   /// @return 関数番号を返す．
   SizeType
   reg_tvfunc(
     const TvFunc& func ///< [in] 真理値表型の関数
-  );
+  )
+  {
+    return mFuncMgr.reg_tvfunc(func);
+  }
 
   /// @brief BDDを登録する．
   /// @return 関数番号を返す．
   SizeType
   reg_bdd(
     const Bdd& bdd ///< [in] BDD
-  );
+  )
+  {
+    return mFuncMgr.reg_bdd(bdd);
+  }
 
 
 private:
@@ -493,41 +470,6 @@ private:
     SizeType id,                  ///< [in] ID番号
     unordered_set<SizeType>& mark ///< [in] マーク
   );
-
-  /// @brief SeqImpl を登録する．
-  SizeType
-  _reg_seq(
-    SeqImpl* seq,
-    const string& name
-  )
-  {
-    auto id = mSeqArray.size();
-    mSeqArray.push_back(unique_ptr<SeqImpl>{seq});
-    if ( name != string{} ) {
-      set_seq_name(id, name);
-    }
-    return id;
-  }
-
-  /// @brief SeqImpl を取り出す．
-  SeqImpl&
-  _seq(
-    SizeType id,              ///< [in] ID番号
-    const string& func_name,  ///< [in] 関数名
-    const string& index_name  ///< [in] ID番号の変数名
-  )
-  {
-    return *mSeqArray[id];
-  }
-
-  /// @brief FuncImpl を取り出す．
-  FuncImpl&
-  _func(
-    SizeType id
-  )
-  {
-    return *mFuncArray[id];
-  }
 
   /// @brief SymbolDict の入力用のキーを作る．
   string
@@ -558,7 +500,7 @@ private:
   ) const
   {
     ostringstream buf;
-    buf << "Q" << seq_id;
+    buf << "Q" << dff_id;
     return buf.str();
   }
 
@@ -568,17 +510,18 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // BDDマネージャ
-  BddMgr mBddMgr;
-
   // 名前
   std::string mName;
 
-  // コメント
-  std::string mComment;
+  // コメントのりスト
+  std::vector<std::string> mCommentList;
 
   // シンボルの辞書
   std::unordered_map<std::string, std::string> mSymbolDict;
+
+  // NodeImplの配列
+  // NodeImpl の所有権を持つ．
+  std::vector<std::unique_ptr<NodeImpl>> mNodeArray;
 
   // 入力のノード番号のリスト
   std::vector<SizeType> mInputList;
@@ -591,9 +534,6 @@ private:
 
   // 論理ノード番号のリスト
   std::vector<SizeType> mLogicList;
-
-  // NodeImplの配列
-  std::vector<std::unique_ptr<NodeImpl>> mNodeArray;
 
   // 関数情報のマネージャ
   FuncMgr mFuncMgr;

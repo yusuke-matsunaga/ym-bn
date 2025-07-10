@@ -29,19 +29,15 @@ ym_add_object_library ( py_ymbn
   ymbn_module.cc
   PyBnModel.cc
   PyBnNode.cc
-  PyBnNodeList.cc
-  PyBnSeq.cc
   PyBnFunc.cc
   )
 
 add_library ( py_ymbnlib
   SHARED
   $<TARGET_OBJECTS:py_ymbn_obj>
-  $<TARGET_OBJECTS:py_ymcell_obj>
   $<TARGET_OBJECTS:py_ymlogic_obj>
   $<TARGET_OBJECTS:py_ymbase_obj>
   $<TARGET_OBJECTS:ym_bn_obj>
-  $<TARGET_OBJECTS:ym_cell_obj>
   $<TARGET_OBJECTS:ym_logic_obj>
   $<TARGET_OBJECTS:ym_base_obj>
   )

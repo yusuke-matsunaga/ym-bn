@@ -16,6 +16,35 @@ BEGIN_NAMESPACE_YM_BN
 // クラス NodeImpl
 //////////////////////////////////////////////////////////////////////
 
+// @brief 外部入力ノードを作る．
+NodeImpl*
+NodeImpl::new_primary_input(
+  SizeType input_id
+)
+{
+  return new NodeImpl_PrimaryInput(input_id);
+}
+
+// @brief DFF出力ノードを作る．
+NodeImpl*
+NodeImpl::new_dff_output(
+  SizeType dff_id,
+  SizeType src_id
+)
+{
+  return new NodeImpl_DffOutput(dff_id, src_id);
+}
+
+// @brief 論理ノードを作る．
+NodeImpl*
+NodeImpl::new_logic(
+  SizeType func_id,
+  const std::vector<SizeType>& fanin_list
+)
+{
+  return new NodeImpl_Logic(func_id, fanin_list);
+}
+
 // @brief 入力ノードの時 true を返す．
 bool
 NodeImpl::is_input() const
@@ -34,14 +63,14 @@ NodeImpl::is_logic() const
 bool
 NodeImpl::is_primary_input() const
 {
-  throw std::invalid_argument{"not an input."};
+  return false;
 }
 
 // @brief DFFの出力の時 true を返す．
 bool
 NodeImpl::is_dff_output() const
 {
-  throw std::invalid_argument{"not an input."};
+  return false;
 }
 
 // @brief 入力番号を返す．
@@ -60,7 +89,16 @@ NodeImpl::dff_id() const
 
 // @brief DFFの入力ノードの番号を返す．
 SizeType
-NodeImpl::dff_src() const
+NodeImpl::dff_src_id() const
+{
+  throw std::invalid_argument{"not a DFF output."};
+}
+
+// @brief DFFの入力ノード番号を設定する．
+void
+NodeImpl::set_dff_src(
+  SizeType id
+)
 {
   throw std::invalid_argument{"not a DFF output."};
 }
@@ -81,20 +119,20 @@ NodeImpl::fanin_num() const
 
 // @brief ファンインのノード番号を返す．
 SizeType
-NodeImpl::fanin(
+NodeImpl::fanin_id(
   SizeType pos
 ) const
 {
   throw std::out_of_range{"index out of range"};
-  return BAD_ID;
 }
 
 // @brief ファンイン番号のリストを返す．
-const vector<SizeType>&
-NodeImpl::fanin_list() const
+const std::vector<SizeType>&
+NodeImpl::fanin_id_list() const
 {
-  static vector<SizeType> dummy;
-  return dummy;
+  // 空のダミー
+  static std::vector<SizeType> _;
+  return _;
 }
 
 
@@ -103,9 +141,7 @@ NodeImpl::fanin_list() const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-NodeImpl_Input::NodeImpl_Input(
-  SizeType iid
-) : mInputId{iid}
+NodeImpl_Input::NodeImpl_Input()
 {
 }
 
@@ -118,28 +154,14 @@ NodeImpl_Input::~NodeImpl_Input()
 BnNode::Type
 NodeImpl_Input::type() const
 {
-  return BnNode::Input;
+  return BnNode::INPUT;
 }
 
 // @brief 入力ノードの時 true を返す．
 bool
-NodeImpl::is_input() const
+NodeImpl_Input::is_input() const
 {
   return true;
-}
-
-// @brief 外部入力ノードの時 true を返す．
-bool
-NodeImpl::is_primary_input() const
-{
-  return false;
-}
-
-// @brief DFFの出力の時 true を返す．
-bool
-NodeImpl::is_dff_output() const
-{
-  return false;
 }
 
 
@@ -168,16 +190,16 @@ NodeImpl_PrimaryInput::is_primary_input() const
 
 // @brief 入力番号を返す．
 SizeType
-NodeImpl_Input::input_id() const
+NodeImpl_PrimaryInput::input_id() const
 {
   return mInputId;
 }
 
 // @brief 複製を作る．
 std::unique_ptr<NodeImpl>
-NodeImpl_Input::copy() const
+NodeImpl_PrimaryInput::copy() const
 {
-  return std::unique_ptr<NodeImpl>{new NodeImpl_Input{mInputId}};
+  return std::unique_ptr<NodeImpl>{new NodeImpl_PrimaryInput{mInputId}};
 }
 
 
@@ -215,9 +237,18 @@ NodeImpl_DffOutput::dff_id() const
 
 // @brief DFFの入力ノードの番号を返す．
 SizeType
-NodeImpl_DffOutput::dff_src() const
+NodeImpl_DffOutput::dff_src_id() const
 {
   return mSrcId;
+}
+
+// @brief DFFの入力ノード番号を設定する．
+void
+NodeImpl_DffOutput::set_dff_src(
+  SizeType id
+)
+{
+  mSrcId = id;
 }
 
 // @brief 複製を作る．
@@ -250,7 +281,7 @@ NodeImpl_Logic::~NodeImpl_Logic()
 BnNode::Type
 NodeImpl_Logic::type() const
 {
-  return BnNode::Logic;
+  return BnNode::LOGIC;
 }
 
 // @brief 論理ノードの時 true を返す．
@@ -262,7 +293,7 @@ NodeImpl_Logic::is_logic() const
 
 // @brief 関数番号を返す．
 SizeType
-NodeImpl::func_id() const
+NodeImpl_Logic::func_id() const
 {
   return mFuncId;
 }
@@ -276,7 +307,7 @@ NodeImpl_Logic::fanin_num() const
 
 // @brief ファンインのノード番号を返す．
 SizeType
-NodeImpl_Logic::fanin(
+NodeImpl_Logic::fanin_id(
   SizeType pos
 ) const
 {
@@ -288,7 +319,7 @@ NodeImpl_Logic::fanin(
 
 // @brief ファンイン番号のリストを返す．
 const vector<SizeType>&
-NodeImpl_Logic::fanin_list() const
+NodeImpl_Logic::fanin_id_list() const
 {
   return mFaninList;
 }

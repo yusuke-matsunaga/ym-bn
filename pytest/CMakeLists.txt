@@ -33,11 +33,9 @@ set ( py_ymbn_SOURCES
 add_executable( py_ymbn
   ${py_ymbn_SOURCES}
   $<TARGET_OBJECTS:py_ymbn_obj>
-  $<TARGET_OBJECTS:py_ymcell_obj>
   $<TARGET_OBJECTS:py_ymlogic_obj>
   $<TARGET_OBJECTS:py_ymbase_obj>
   $<TARGET_OBJECTS:ym_bn_obj>
-  $<TARGET_OBJECTS:ym_cell_obj>
   $<TARGET_OBJECTS:ym_logic_obj>
   $<TARGET_OBJECTS:ym_base_obj>
   )
@@ -58,11 +56,9 @@ target_link_libraries ( py_ymbn
 add_executable( py_ymbn_d
   ${py_ymbn_SOURCES}
   $<TARGET_OBJECTS:py_ymbn_obj_d>
-  $<TARGET_OBJECTS:py_ymcell_obj_d>
   $<TARGET_OBJECTS:py_ymlogic_obj_d>
   $<TARGET_OBJECTS:py_ymbase_obj_d>
   $<TARGET_OBJECTS:ym_bn_obj_d>
-  $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )

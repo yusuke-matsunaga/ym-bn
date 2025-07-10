@@ -24,7 +24,6 @@ ym_add_gtest( bn_read_truth_test
   $<TARGET_OBJECTS:ym_bn_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
-  $<TARGET_OBJECTS:ym_cell_obj_d>
   DEFINITIONS
   "-DDATAPATH=\"${TESTDATA_DIR}\""
   )

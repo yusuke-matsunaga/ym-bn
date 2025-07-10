@@ -7,7 +7,6 @@
 /// All rights reserved.
 
 #include "ym/BnModel.h"
-#include "ym/ClibCellLibrary.h"
 #include "ym/MsgMgr.h"
 #include "ym/StreamMsgHandler.h"
 
@@ -38,7 +37,7 @@ main(
     return 2;
   }
 
-  string filename = argv[base];
+  std::string filename = argv[base];
 
   StreamMsgHandler msg_handler(cerr);
   MsgMgr::attach_handler(&msg_handler);

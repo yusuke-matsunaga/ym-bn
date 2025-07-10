@@ -11,11 +11,8 @@
 
 #include "pym/PyBnModel.h"
 #include "pym/PyBnNode.h"
-#include "pym/PyBnNodeList.h"
-#include "pym/PyBnSeq.h"
 #include "pym/PyBnFunc.h"
 #include "pym/PyModule.h"
-#include "pym/ymcell.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -55,14 +52,6 @@ PyInit_ymbn()
   }
 
   if ( !PyBnNode::init(m) ) {
-    goto error;
-  }
-
-  if ( !PyBnNodeList::init(m) ) {
-    goto error;
-  }
-
-  if ( !PyBnSeq::init(m) ) {
     goto error;
   }
 

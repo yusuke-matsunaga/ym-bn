@@ -17,35 +17,17 @@ BEGIN_NAMESPACE_YM_BN
 // クラス BnModel
 //////////////////////////////////////////////////////////////////////
 
-// @brief コピーコンストラクタ
-BnModel::BnModel(
-  const BnModel& src
-) : mImpl{src.mImpl}
-{
-}
-
-// @brief ムーブコンストラクタ
-BnModel::BnModel(
-  BnModel&& src
-) : mImpl{std::move(src.mImpl)}
-{
-  src.mImpl = nullptr;
-}
-
 // @brief コンストラクタ
 BnModel::BnModel(
-) : mImpl{new ModelImpl}
+) : BnModel(new ModelImpl)
 {
 }
 
-// @brief 代入演算子
-BnModel&
-BnModel::operator=(
-  const BnModel& src
-)
+// @brief 内容を指定したコンストラクタ
+BnModel::BnModel(
+  ModelImpl* impl
+) : BnBase(std::shared_ptr<ModelImpl>{impl})
 {
-  mImpl = src.mImpl;
-  return *this;
 }
 
 // @brief デストラクタ
@@ -57,23 +39,22 @@ BnModel::~BnModel()
 BnModel
 BnModel::copy() const
 {
-  BnModel model;
-  model.mImpl = std::shared_ptr<ModelImpl>{mImpl->copy()};
-  return model;
+  auto impl = _model_impl().copy();
+  return BnModel(impl);
 }
 
 // @brief ノード数を返す．
 SizeType
 BnModel::node_num() const
 {
-  return mImpl->node_num();
+  return _model_impl().node_num();
 }
 
 // @brief 入力数を返す．
 SizeType
 BnModel::input_num() const
 {
-  return mImpl->input_num();
+  return _model_impl().input_num();
 }
 
 // @brief 入力のノードを返す．
@@ -83,22 +64,22 @@ BnModel::input(
 ) const
 {
   _check_input_id(input_id);
-  auto id = mImpl->input(input_id);
-  return BnNode(mImpl, id);
+  auto id = _model_impl().input_id(input_id);
+  return _id2node(id);
 }
 
 // @brief 入力のノードのリストを返す．
 std::vector<BnNode>
 BnModel::input_list() const
 {
-  return _make_node_list(mImpl->input_list());
+  return _id2node_list(_model_impl().input_id_list());
 }
 
 // @brief 出力数を返す．
 SizeType
 BnModel::output_num() const
 {
-  return mImpl->output_num();
+  return _model_impl().output_num();
 }
 
 // @brief 入力のノードを返す．
@@ -107,23 +88,23 @@ BnModel::output(
   SizeType output_id
 ) const
 {
-  _check_output_id(pos);
-  auto id = mImpl->output(pos);
-  return BnNode(mImpl, id);
+  _check_output_id(output_id);
+  auto id = _model_impl().output_id(output_id);
+  return _id2node(id);
 }
 
 // @brief 出力のノードのリストを返す．
 std::vector<BnNode>
 BnModel::output_list() const
 {
-  return _make_node_list(mImpl->output_list());
+  return _id2node_list(_model_impl().output_id_list());
 }
 
 // @brief 論理ノード数を返す．
 SizeType
 BnModel::logic_num() const
 {
-  return mImpl->logic_num();
+  return _model_impl().logic_num();
 }
 
 // @brief 論理ノードを返す．
@@ -133,22 +114,22 @@ BnModel::logic(
 ) const
 {
   _check_logic_id(pos);
-  auto id = mImpl->logic(pos);
-  return BnNode(mImpl, id);
+  auto id = _model_impl().logic_id(pos);
+  return _id2node(id);
 }
 
 // @brief 論理ノードのリストを返す．
 std::vector<BnNode>
 BnModel::logic_list() const
 {
-  return _make_node_list(mImpl->logic_list());
+  return _id2node_list(_model_impl().logic_id_list());
 }
 
 // @brief DFF数を返す．
 SizeType
 BnModel::dff_num() const
 {
-  return mImpl->dff_num();
+  return _model_impl().dff_num();
 }
 
 // @brief DFFの出力ノードを返す．
@@ -157,9 +138,9 @@ BnModel::dff_output(
   SizeType dff_id
 ) const
 {
-  check_dff_id(dff_id);
-  auto id = mImpl->dff_output(dff_id);
-  return BnNode(mImmpl, id);
+  _check_dff_id(dff_id);
+  auto id = _model_impl().dff_output_id(dff_id);
+  return _id2node(id);
 }
 
 // @brief DFFの入力ノードを返す．
@@ -168,16 +149,18 @@ BnModel::dff_src(
   SizeType dff_id
 ) const
 {
-  check_dff_id(dff_id);
-  auto id = mImpl->dff_src(dff_id);
-  return BnNode(mImmpl, id);
+  _check_dff_id(dff_id);
+  auto dff_output_id = _model_impl().dff_output_id(dff_id);
+  auto& dff_output = _model_impl().node_impl(dff_output_id);
+  auto id = dff_output.dff_src_id();
+  return _id2node(id);
 }
 
 // @brief 関数情報の数を返す．
 SizeType
 BnModel::func_num() const
 {
-  return mImpl->func_num();
+  return _model_impl().func_num();
 }
 
 // @brief 関数情報を取り出す．
@@ -191,28 +174,28 @@ BnModel::func(
     buf << "'func_id'(" << func_id << ") is out of range";
     throw std::out_of_range{buf.str()};
   }
-  return BnFunc(mImpl, func_id);
+  return _id2func(func_id);
 }
 
 // @brief オプション情報を表す JSON オブジェクトを返す．
 JsonValue
 BnModel::option() const
 {
-  return mImpl->option();
+  return _model_impl().option();
 }
 
 // @brief 名前を返す．
-string
+std::string
 BnModel::name() const
 {
-  return mImpl->name();
+  return _model_impl().name();
 }
 
 // @brief コメントを返す．
-string
-BnModel::comment() const
+const std::vector<std::string>&
+BnModel::comment_list() const
 {
-  return mImpl->comment();
+  return _model_impl().comment_list();
 }
 
 // @brief 入力名を返す．
@@ -222,7 +205,7 @@ BnModel::input_name(
 ) const
 {
   _check_input_id(input_id);
-  return mImpl->input_name(input_id);
+  return _model_impl().input_name(input_id);
 }
 
 // @brief 出力名を返す．
@@ -232,7 +215,7 @@ BnModel::output_name(
 ) const
 {
   _check_output_id(output_id);
-  return mImpl->output_name(output_id);
+  return _model_impl().output_name(output_id);
 }
 
 // @brief DFF名を返す．
@@ -242,7 +225,7 @@ BnModel::dff_name(
 ) const
 {
   _check_dff_id(dff_id);
-  return mImpl->dff_name(dff_id);
+  return _model_impl().dff_name(dff_id);
 }
 
 BEGIN_NONAMESPACE
@@ -269,8 +252,8 @@ BnModel::print(
   if ( name() != string{} ) {
     s << "Name: " << name() << endl;
   }
-  if ( comment() != string{} ) {
-    s << "Comment: " << comment() << endl;
+  for ( auto& comment: comment_list() ) {
+    s << "Comment: " << comment << endl;
   }
   for ( SizeType i = 0;i < input_num(); ++ i ) {
     auto node = input(i);
@@ -281,43 +264,18 @@ BnModel::print(
     s << "OUTPUT#" << i << "[" << output_name(i) << "]"
       << " = " << node_name(output(i)) << endl;
   }
-  for ( SizeType i = 0; i < seq_num(); ++ i ) {
-    auto seq = this->seq(i);
-    s << "SEQ#" << i << "[" << seq_name(i) << "]:"
-      << " type = " << seq.type()
-      << " output = " << node_name(seq.data_output())
-      << " src = " << node_name(seq.data_src())
-      << " clock = " << node_name(seq.clock());
-    if ( seq.clear().is_valid() ) {
-      s << " clear = " << node_name(seq.clear());
-    }
-    if ( seq.preset().is_valid() ) {
-      s << " preset = " << node_name(seq.preset());
-    }
-    if ( seq.rsval() != ' ' ) {
-      s << ", rsval = " << seq.rsval();
-    }
-    s << endl;
+  for ( SizeType i = 0; i < dff_num(); ++ i ) {
+    auto node = dff_output(i);
+    s << "DFF#" << i << "[" << dff_name(i) << "]:"
+      << " output = " << node_name(node)
+      << " src = " << node_name(node.dff_src())
+      << endl;
   }
   for ( auto node: logic_list() ) {
     s << node_name(node)
-      << " = ";
-    if ( node.is_primitive() ) {
-      s << node.primitive_type();
-    }
-    else if ( node.is_aig() ) {
-      s << "AIG[" << node.fanin_inv(0) << node.fanin_inv(1) << "]";
-    }
-    else if ( node.is_func() ) {
-      s << "Func#" << node.local_func().id();
-    }
-    else if ( node.is_cell() ) {
-      s << "Cell: " << node.cell().name();
-    }
-    else {
-      ASSERT_NOT_REACHED;
-    }
-    s << " (";
+      << " = "
+      << "Func#" << node.func().id()
+      << " (";
     for ( auto inode: node.fanin_list() ) {
       s << " " << node_name(inode);
     }
@@ -328,6 +286,7 @@ BnModel::print(
     for ( SizeType id = 0; id < func_num(); ++ id ) {
       s << "Func#" << id << ":" << endl;
       func(id).print(s);
+      s << endl;
     }
   }
 }
