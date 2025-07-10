@@ -294,41 +294,41 @@ ModelImpl::print(
   }
   for ( SizeType i = 0;i < input_num(); ++ i ) {
     auto id = input_id(i);
-    s << "INPUT#" << i << "[" << input_name(i) << "]"
-      << " = " << node_name(id) << endl;
+    s << "I#" << i << "[" << input_name(i) << "]: "
+      << node_name(id) << endl;
   }
   for ( SizeType i = 0; i < output_num(); ++ i ) {
     auto id = output_id(i);
-    s << "OUTPUT#" << i << "[" << output_name(i) << "]"
-      << " = " << node_name(id) << endl;
+    s << "O#" << i << "[" << output_name(i) << "]: "
+      << node_name(id) << endl;
   }
   for ( SizeType i = 0; i < dff_num(); ++ i ) {
     auto& dff = dff_impl(i);
     auto id = dff.id;
     auto src_id = dff.src_id;
-    s << "DFF#" << i << "[" << dff.name << "]:"
+    s << "Q#" << i << "[" << dff.name << "]:"
       << " output = " << node_name(id)
-      << " src = " << node_name(src_id)
+      << ", src = " << node_name(src_id)
       << endl;
   }
   for ( auto id: logic_id_list() ) {
     auto& node = node_impl(id);
     s << node_name(id)
       << " = "
-      << "Func#" << node.func_id()
-      << " (";
+      << "F#" << node.func_id()
+      << "(";
+    const char* comma = "";
     for ( auto iid: node.fanin_id_list() ) {
-      s << " " << node_name(iid);
+      s << comma << node_name(iid);
+      comma = ", ";
     }
     s << ")" << endl;
   }
   if ( func_num() > 0 ) {
-    s << endl;
     for ( SizeType id = 0; id < func_num(); ++ id ) {
-      s << "Func#" << id << ":" << endl;
+      s << "F#" << id << ": ";
       auto& func = func_impl(id);
       func.print(s);
-      s << endl;
     }
   }
 }
@@ -340,7 +340,7 @@ ModelImpl::node_name(
 ) const
 {
   std::ostringstream buf;
-  buf << "Node#" << id;
+  buf << "N#" << id;
   if ( mNameDict.count(id) > 0 ) {
     buf << "[" << mNameDict.at(id) << "]";
   }
