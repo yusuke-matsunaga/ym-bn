@@ -12,6 +12,7 @@
 #include "ym/logic.h"
 #include "ym/json.h"
 #include "ym/BnBase.h"
+#include "ym/BnDff.h"
 #include "ym/BnNode.h"
 #include "ym/BnFunc.h"
 
@@ -119,9 +120,25 @@ public:
   BnModel
   copy() const;
 
+  /// @brief DFF数を返す．
+  SizeType
+  dff_num() const;
+
+  /// @brief DFFを返す．
+  BnDff
+  dff(
+    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
+  ) const;
+
   /// @brief ノード数を返す．
   SizeType
   node_num() const;
+
+  /// @brief ノードを返す．
+  BnNode
+  node(
+    SizeType id ///< [in] ノード番号 ( 0 <= id < node_num() )
+  ) const;
 
   /// @brief 入力数を返す．
   SizeType
@@ -172,26 +189,6 @@ public:
   /// 入力からのトポロジカル順になっている．
   std::vector<BnNode>
   logic_list() const;
-
-  /// @brief DFF数を返す．
-  SizeType
-  dff_num() const;
-
-  /// @brief DFFの出力ノードを返す．
-  ///
-  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
-  BnNode
-  dff_output(
-    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
-  ) const;
-
-  /// @brief DFFの入力ノードを返す．
-  ///
-  /// - 範囲外のアクセスは std::out_of_range 例外を送出する．
-  BnNode
-  dff_src(
-    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
-  ) const;
 
   /// @brief 関数情報の数を返す．
   SizeType
@@ -287,29 +284,30 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  /// @name ノードの生成
+  /// @name DFF/ノードの生成
   /// @{
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief DFFを作る．
+  /// @return 生成したDFFを返す．
+  BnDff
+  new_dff(
+    const std::string& name = {}, ///< [in] 名前
+    char reset_val = 'X'          ///< [in] リセット値
+  );
+
+  /// @brief DFFの入力ノードを設定する．
+  void
+  set_dff_src(
+    const BnDff& dff, ///< [in] DFF
+    BnNode src        ///< [in] 入力に設定するノード
+  );
 
   /// @brief 入力ノードを作る．
   /// @return 生成したノードを返す．
   BnNode
   new_input(
     const std::string& name = {} ///< [in] 名前
-  );
-
-  /// @brief DFF出力ノードを作る．
-  /// @return 生成したノードを返す．
-  BnNode
-  new_dff_output(
-    const std::string& name = {} ///< [in] 名前
-  );
-
-  /// @brief DFFの入力ノードを設定する．
-  void
-  set_dff_src(
-    SizeType dff_id, ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
-    BnNode src       ///< [in] 入力に設定するノード
   );
 
   /// @brief 出力ノードを作る．

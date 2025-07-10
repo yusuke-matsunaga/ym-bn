@@ -97,6 +97,12 @@ protected:
     ModelImpl* impl ///< [in] 設定するオブジェクト
   );
 
+  /// @brief DFF番号を BnDff に変換する．
+  BnDff
+  _id2dff(
+    SizeType id ///< [in] ノード番号
+  ) const;
+
   /// @brief ノード番号を BnNode に変換する．
   BnNode
   _id2node(
@@ -135,6 +141,14 @@ protected:
   bool
   _check_impl(
     const BnBase& base
+  ) const;
+
+  /// @brief BnDff のチェックを行う．
+  ///
+  /// 同じ Model に属していないとエラーとなる．
+  void
+  _check_dff(
+    const BnDff& dff
   ) const;
 
   /// @brief BnNode のチェックを行う．

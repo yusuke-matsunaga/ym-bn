@@ -636,6 +636,8 @@ BlifParser::read_names()
 
   set_defined(oid, names_loc);
   mModel.set_logic(oid, func_id, names_id_list);
+  auto oname = id2str(oid);
+  mModel.set_node_name(oid, oname);
 
   return true;
 }
@@ -843,8 +845,9 @@ BlifParser::read_latch()
     next_token();
     tk = cur_token();
     auto loc3 = cur_loc();
+    char rval = 'X';
     if ( tk == BlifToken::STRING ) {
-      auto rval = cur_string()[0];
+      rval = cur_string()[0];
       if ( rval != '0' &&
 	   rval != '1' ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc3,
@@ -856,7 +859,6 @@ BlifParser::read_latch()
       next_token();
       tk = cur_token();
       loc3 = cur_loc();
-      // 今は rval を捨てている．
     }
     if ( tk != BlifToken::NL ) {
       error_loc = loc3;
@@ -864,7 +866,9 @@ BlifParser::read_latch()
     }
 
     set_defined(id2, name2_loc);
-    mModel.set_dff_output(id2, id1);
+    auto dff_id = mModel.new_dff(name2, rval);
+    mModel.set_dff_output(id2, dff_id);
+    mModel.set_dff_src(dff_id, id1);
 
     return true;
   }

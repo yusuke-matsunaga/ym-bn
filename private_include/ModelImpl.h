@@ -10,15 +10,25 @@
 
 #include "ym/bn.h"
 #include "ym/logic.h"
-#include "ym/BnNode.h"
-#include "ym/BnFunc.h"
-#include "ym/BddMgr.h"
 #include "ym/JsonValue.h"
 #include "NodeImpl.h"
 #include "FuncMgr.h"
 
 
 BEGIN_NAMESPACE_YM_BN
+
+//////////////////////////////////////////////////////////////////////
+/// @class DffImpl ModelImpl.h "ModelImpl.h"
+/// @brief DFFの情報を表す構造体
+//////////////////////////////////////////////////////////////////////
+struct DffImpl
+{
+  std::string name; ///< [in] 名前
+  SizeType id;      ///< [in] 出力のノード番号
+  SizeType src_id;  ///< [in] 入力のノード番号
+  char reset_val;   ///< [in] リセット値 ('X', '0', '1')
+};
+
 
 //////////////////////////////////////////////////////////////////////
 /// @class ModelImpl ModelImpl.h "ModelImpl.h"
@@ -55,6 +65,13 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief オプション情報を返す．
+  ///
+  /// 以下の情報を持つ JSON の辞書オブジェクトが返される．
+  /// - 名前: 'name'
+  /// - 入力名:
+  /// - 出力名:
+  /// - DFF名:
+  /// 該当する情報を持たない場合にはその項目は含まれない．
   JsonValue
   option() const;
 
@@ -72,43 +89,31 @@ public:
     return mCommentList;
   }
 
-  /// @brief 入力名を返す．
-  std::string
-  input_name(
-    SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
-  ) const
+  /// @brief DFF数を返す．
+  SizeType
+  dff_num() const
   {
-    auto key = _input_key(input_id);
-    if ( mSymbolDict.count(key) > 0 ) {
-      return mSymbolDict.at(key);
-    }
-    return std::string{};
+    return mDffList.size();
   }
 
-  /// @brief 出力名を返す．
-  std::string
-  output_name(
-    SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
+  /// @brief DFFを取り出す．
+  const DffImpl&
+  dff_impl(
+    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
   ) const
   {
-    auto key = _output_key(output_id);
-    if ( mSymbolDict.count(key) > 0 ) {
-      return mSymbolDict.at(key);
-    }
-    return std::string{};
+    _check_dff_id(dff_id, "dff_impl");
+    return mDffList[dff_id];
   }
 
-  /// @brief ラッチ名を返す．
+  /// @brief DFF名を返す．
   std::string
   dff_name(
     SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
   ) const
   {
-    auto key = _dff_key(dff_id);
-    if ( mSymbolDict.count(key) > 0 ) {
-      return mSymbolDict.at(key);
-    }
-    return std::string{};
+    _check_dff_id(dff_id, "dff_name");
+    return mDffList[dff_id].name;
   }
 
   /// @brief ノード数を返す．
@@ -124,9 +129,7 @@ public:
     SizeType id ///< [in] ID番号
   ) const
   {
-    if ( id >= node_num() ) {
-      throw std::out_of_range{"id is out of range"};
-    }
+    _check_node_id(id, "node_impl");
     return *mNodeArray[id];
   }
 
@@ -143,10 +146,22 @@ public:
     SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
   ) const
   {
-    if ( input_id >= input_num() ) {
-      throw std::out_of_range{"input_id is out of range"};
-    }
+    _check_input_id(input_id, "input_id");
     return mInputList[input_id];
+  }
+
+  /// @brief 入力名を返す．
+  std::string
+  input_name(
+    SizeType input_id ///< [in] 入力番号 ( 0 <= input_id < input_num() )
+  ) const
+  {
+    _check_input_id(input_id, "input_name");
+    auto id = mInputList[input_id];
+    if ( mNameDict.count(id) > 0 ) {
+      return mNameDict.at(id);
+    }
+    return {};
   }
 
   /// @brief 入力のノード番号のリストを返す．
@@ -169,10 +184,18 @@ public:
     SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
   ) const
   {
-    if ( output_id >= output_num() ) {
-      throw std::out_of_range{"output_id is out of range"};
-    }
+    _check_output_id(output_id, "output_id");
     return mOutputList[output_id];
+  }
+
+  /// @brief 出力名を返す．
+  std::string
+  output_name(
+    SizeType output_id ///< [in] 出力番号 ( 0 <= output_id < output_num() )
+  ) const
+  {
+    _check_output_id(output_id, "output_name");
+    return mOutputNameList[output_id];
   }
 
   /// @brief 出力のノード番号のリストを返す．
@@ -180,25 +203,6 @@ public:
   output_id_list() const
   {
     return mOutputList;
-  }
-
-  /// @brief DFF数を返す．
-  SizeType
-  dff_num() const
-  {
-    return mDffList.size();
-  }
-
-  /// @brief DFF出力のノード番号を返す．
-  SizeType
-  dff_output_id(
-    SizeType dff_id ///< [in] DFF番号 ( 0 <= dff_id < dff_num() )
-  ) const
-  {
-    if ( dff_id >= dff_num() ) {
-      throw std::out_of_range{"dff_id is out of range"};
-    }
-    return mDffList[dff_id];
   }
 
   /// @brief 論理ノード数を返す．
@@ -214,9 +218,7 @@ public:
     SizeType pos ///< [in] 位置 ( 0 <= pos < logic_num() )
   ) const
   {
-    if ( pos >= logic_num() ) {
-      throw std::out_of_range{"pos is out of range"};
-    }
+    _check_logic_id(pos, "logic_id");
     return mLogicList[pos];
   }
 
@@ -242,6 +244,12 @@ public:
   {
     return mFuncMgr.func(func_id);
   }
+
+  /// @brief 内容を出力する．
+  void
+  print(
+    std::ostream& s ///< [in] 出力ストリーム
+  ) const;
 
 
 public:
@@ -284,8 +292,9 @@ public:
     const std::string& name ///< [in] 名前
   )
   {
-    auto key = _input_key(input_id);
-    mSymbolDict.emplace(key, name);
+    _check_input_id(input_id, "set_input_name");
+    auto id = mInputList[input_id];
+    mNameDict.emplace(id, name);
   }
 
   /// @brief 出力名をセットする．
@@ -295,8 +304,8 @@ public:
     const std::string& name  ///< [in] 名前
   )
   {
-    auto key = _output_key(output_id);
-    mSymbolDict.emplace(key, name);
+    _check_output_id(output_id, "set_output_id");
+    mOutputNameList[output_id] = name;
   }
 
   /// @brief DFF名をセットする．
@@ -306,8 +315,19 @@ public:
     const std::string& name ///< [in] 名前
   )
   {
-    auto key = _dff_key(dff_id);
-    mSymbolDict.emplace(key, name);
+    _check_dff_id(dff_id, "set_dff_name");
+    mDffList[dff_id].name = name;
+  }
+
+  /// @brief DFFの入力のノード番号をセットする．
+  void
+  set_dff_src(
+    SizeType dff_id, ///< [in] DFF番号
+    SizeType src_id  ///< [in] DFFの入力のノード番号
+  )
+  {
+    _check_dff_id(dff_id, "set_dff_src");
+    mDffList[dff_id].src_id = src_id;
   }
 
   /// @brief 新しいノード用の番号を確保する．
@@ -321,17 +341,18 @@ public:
     return id;
   }
 
-  /// @brief 対応するID番号に入力用の印を付ける．
+  /// @brief 対応するID番号のノードを入力に設定する．
   void
   set_input(
-    SizeType id            ///< [in] ID番号
+    SizeType id,                 ///< [in] ID番号
+    const std::string& name = {} ///< [in] 名前
   );
 
-  /// @brief 対応するID番号にDFFの出力用の印を付ける．
+  /// @brief 対応するID番号のノードをDFFの出力に設定する．
   void
   set_dff_output(
-    SizeType id,    ///< [in] DFFの出力のノード番号
-    SizeType src_id ///< [in] DFFの入力のノード番号
+    SizeType id,    ///< [in] ID番号
+    SizeType dff_id ///< [in] DFF番号
   );
 
   /// @brief 論理ノードの情報をセットする．
@@ -342,25 +363,50 @@ public:
     const vector<SizeType>& fanin_list ///< [in] 入力の識別子番号のリスト
   );
 
+  /// @brief ノード名をセットする．
+  void
+  set_node_name(
+    SizeType id,            ///< [in] ノードID
+    const std::string& name ///< [in] 名前
+  );
+
+  /// @brief 新しい DFFを作る．
+  ///
+  /// @return DFF番号を返す．
+  SizeType
+  new_dff(
+    const std::string& name = {}, ///< [in] 名前
+    char reset_val = 'X'          ///< [in] リセット値
+  )
+  {
+    auto dff_id = mDffList.size();
+    mDffList.push_back({name, BAD_ID, BAD_ID, reset_val});
+    return dff_id;
+  }
+
   /// @brief 新しい入力ノードを作る．
   ///
   /// @return ID番号を返す．
   SizeType
-  new_input()
+  new_input(
+    const std::string& name = {} ///< [in] 名前
+  )
   {
     auto id = alloc_node();
     set_input(id);
     return id;
   }
 
-  /// @brief 新しい DFFの出力ノードを作る．
+  /// @brief 新しいDFF出力ノードを作る．
   ///
-  /// @return ID番号を返す．
+  /// ID番号を返す．
   SizeType
-  new_dff_output()
+  new_dff_output(
+    SizeType dff_id ///< [in] DFF番号
+  )
   {
     auto id = alloc_node();
-    set_dff_output(id, BAD_ID);
+    set_dff_output(id, dff_id);
     return id;
   }
 
@@ -369,11 +415,13 @@ public:
   /// @return 出力番号を返す．
   SizeType
   new_output(
-    SizeType src_id ///< [in] ソースのID番号
+    SizeType src_id,             ///< [in] ソースのID番号
+    const std::string& name = {} ///< [in] 名前
   )
   {
     auto oid = mOutputList.size();
     mOutputList.push_back(src_id);
+    mOutputNameList.push_back(name);
     return oid;
   }
 
@@ -389,17 +437,6 @@ public:
     auto id = alloc_node();
     set_logic(id, func_id, fanin_list);
     return id;
-  }
-
-  /// @brief DFFのソースをセットする．
-  void
-  set_dff_src(
-    SizeType id,         ///< [in] ID番号
-    SizeType src_id      ///< [in] ソースのID番号
-  )
-  {
-    auto node = mNodeArray[id].get();
-    node->set_dff_src(src_id);
   }
 
   /// @brief 論理ノードのリストを作る．
@@ -471,37 +508,85 @@ private:
     unordered_set<SizeType>& mark ///< [in] マーク
   );
 
-  /// @brief SymbolDict の入力用のキーを作る．
-  string
-  _input_key(
-    SizeType input_id
+  /// @brief print() 中でノード名を出力する関数
+  std::string
+  node_name(
+    SizeType id ///< [in] ID番号
+  ) const;
+
+  /// @brief 入力番号をチェックする．
+  void
+  _check_input_id(
+    SizeType input_id,
+    const char* func_name
   ) const
   {
-    ostringstream buf;
-    buf << "I" << input_id;
-    return buf.str();
+    if ( input_id >= input_num() ) {
+      std::ostringstream buf;
+      buf << "Error in "
+	  << func_name << ": input_id is out of range";
+      throw std::out_of_range{buf.str()};
+    }
   }
 
-  /// @brief SymbolDict の出力用のキーを作る．
-  string
-  _output_key(
-    SizeType output_id
+  /// @brief 出力番号をチェックする．
+  void
+  _check_output_id(
+    SizeType output_id,
+    const char* func_name
   ) const
   {
-    ostringstream buf;
-    buf << "O" << output_id;
-    return buf.str();
+    if ( output_id >= output_num() ) {
+      std::ostringstream buf;
+      buf << "Error in "
+	  << func_name << ": output_id is out of range";
+      throw std::out_of_range{buf.str()};
+    }
   }
 
-  /// @brief SymbolDict のDFF用のキーを作る．
-  string
-  _dff_key(
-    SizeType dff_id
+  /// @brief DFF番号をチェックする．
+  void
+  _check_dff_id(
+    SizeType dff_id,
+    const char* func_name
   ) const
   {
-    ostringstream buf;
-    buf << "Q" << dff_id;
-    return buf.str();
+    if ( dff_id >= dff_num() ) {
+      std::ostringstream buf;
+      buf << "Error in "
+	  << func_name << ": dff_id is out of range";
+      throw std::out_of_range{buf.str()};
+    }
+  }
+
+  /// @brief ノード番号をチェックする．
+  void
+  _check_node_id(
+    SizeType node_id,
+    const char* func_name
+  ) const
+  {
+    if ( node_id >= node_num() ) {
+      std::ostringstream buf;
+      buf << "Error in "
+	  << func_name << ": node_id is out of range";
+      throw std::out_of_range{buf.str()};
+    }
+  }
+
+  /// @brief 論理ノード番号をチェックする．
+  void
+  _check_logic_id(
+    SizeType pos,
+    const char* func_name
+  ) const
+  {
+    if ( pos >= logic_num() ) {
+      std::ostringstream buf;
+      buf << "Error in "
+	  << func_name << ": pos is out of range";
+      throw std::out_of_range{buf.str()};
+    }
   }
 
 
@@ -510,14 +595,17 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // ノード番号と名前を表す構造体
+  struct NodeInfo {
+    std::string name; ///< 名前
+    SizeType id;      ///< ノード番号
+  };
+
   // 名前
   std::string mName;
 
   // コメントのりスト
   std::vector<std::string> mCommentList;
-
-  // シンボルの辞書
-  std::unordered_map<std::string, std::string> mSymbolDict;
 
   // NodeImplの配列
   // NodeImpl の所有権を持つ．
@@ -526,14 +614,20 @@ private:
   // 入力のノード番号のリスト
   std::vector<SizeType> mInputList;
 
-  // DFF出力のノード番号のリスト
-  std::vector<SizeType> mDffList;
-
   // 出力のノード番号のリスト
   std::vector<SizeType> mOutputList;
 
+  // 出力名のりスト
+  std::vector<std::string> mOutputNameList;
+
+  // DFF情報のリスト
+  std::vector<DffImpl> mDffList;
+
   // 論理ノード番号のリスト
   std::vector<SizeType> mLogicList;
+
+  // ノード番号をキーにしてノード名を記録する辞書
+  std::unordered_map<SizeType, std::string> mNameDict;
 
   // 関数情報のマネージャ
   FuncMgr mFuncMgr;

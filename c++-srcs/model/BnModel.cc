@@ -43,11 +43,36 @@ BnModel::copy() const
   return BnModel(impl);
 }
 
+// @brief DFF数を返す．
+SizeType
+BnModel::dff_num() const
+{
+  return _model_impl().dff_num();
+}
+
+// @brief DFFを返す．
+BnDff
+BnModel::dff(
+  SizeType dff_id
+) const
+{
+  return _id2dff(dff_id);
+}
+
 // @brief ノード数を返す．
 SizeType
 BnModel::node_num() const
 {
   return _model_impl().node_num();
+}
+
+// @brief ノードを返す．
+BnNode
+BnModel::node(
+  SizeType id
+) const
+{
+  return _id2node(id);
 }
 
 // @brief 入力数を返す．
@@ -125,37 +150,6 @@ BnModel::logic_list() const
   return _id2node_list(_model_impl().logic_id_list());
 }
 
-// @brief DFF数を返す．
-SizeType
-BnModel::dff_num() const
-{
-  return _model_impl().dff_num();
-}
-
-// @brief DFFの出力ノードを返す．
-BnNode
-BnModel::dff_output(
-  SizeType dff_id
-) const
-{
-  _check_dff_id(dff_id);
-  auto id = _model_impl().dff_output_id(dff_id);
-  return _id2node(id);
-}
-
-// @brief DFFの入力ノードを返す．
-BnNode
-BnModel::dff_src(
-  SizeType dff_id
-) const
-{
-  _check_dff_id(dff_id);
-  auto dff_output_id = _model_impl().dff_output_id(dff_id);
-  auto& dff_output = _model_impl().node_impl(dff_output_id);
-  auto id = dff_output.dff_src_id();
-  return _id2node(id);
-}
-
 // @brief 関数情報の数を返す．
 SizeType
 BnModel::func_num() const
@@ -228,67 +222,77 @@ BnModel::dff_name(
   return _model_impl().dff_name(dff_id);
 }
 
-BEGIN_NONAMESPACE
-
-inline
-string
-node_name(
-  const BnNode& node
-)
-{
-  ostringstream buf;
-  buf << "Node#" << node.id();
-  return buf.str();
-}
-
-END_NONAMESPACE
-
 // @brief 内容を出力する．
 void
 BnModel::print(
   ostream& s
 ) const
 {
-  if ( name() != string{} ) {
-    s << "Name: " << name() << endl;
+  _model_impl().print(s);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnDff
+//////////////////////////////////////////////////////////////////////
+
+// @brief 内容を指定したコンストラクタ
+BnDff::BnDff(
+  const shared_ptr<ModelImpl>& model,
+  SizeType id
+) : BnBase(model),
+    mId{id}
+{
+  if ( is_invalid() ) {
+    mId = BAD_ID;
   }
-  for ( auto& comment: comment_list() ) {
-    s << "Comment: " << comment << endl;
+}
+
+// @brief デストラクタ
+BnDff::~BnDff()
+{
+}
+
+// @brief 名前を返す．
+const std::string&
+BnDff::name() const
+{
+  auto& dff = _dff_impl();
+  return dff.name;
+}
+
+// @brief 出力ノードを返す．
+BnNode
+BnDff::output() const
+{
+  auto& dff = _dff_impl();
+  return _id2node(dff.id);
+}
+
+// @brief 入力ノードを返す．
+BnNode
+BnDff::input() const
+{
+  auto& dff = _dff_impl();
+  return _id2node(dff.src_id);
+}
+
+// @brief リセット値
+char
+BnDff::reset_val() const
+{
+  auto& dff = _dff_impl();
+  return dff.reset_val;
+}
+
+// @brief DFFの実体を返す．
+const DffImpl&
+BnDff::_dff_impl() const
+{
+  if ( !is_valid() ) {
+    throw std::logic_error{"BnDff: invalid data"};
   }
-  for ( SizeType i = 0;i < input_num(); ++ i ) {
-    auto node = input(i);
-    s << "INPUT#" << i << "[" << input_name(i) << "]"
-      << " = " << node_name(node) << endl;
-  }
-  for ( SizeType i = 0; i < output_num(); ++ i ) {
-    s << "OUTPUT#" << i << "[" << output_name(i) << "]"
-      << " = " << node_name(output(i)) << endl;
-  }
-  for ( SizeType i = 0; i < dff_num(); ++ i ) {
-    auto node = dff_output(i);
-    s << "DFF#" << i << "[" << dff_name(i) << "]:"
-      << " output = " << node_name(node)
-      << " src = " << node_name(node.dff_src())
-      << endl;
-  }
-  for ( auto node: logic_list() ) {
-    s << node_name(node)
-      << " = "
-      << "Func#" << node.func().id()
-      << " (";
-    for ( auto inode: node.fanin_list() ) {
-      s << " " << node_name(inode);
-    }
-    s << ")" << endl;
-  }
-  if ( func_num() > 0 ) {
-    s << endl;
-    for ( SizeType id = 0; id < func_num(); ++ id ) {
-      s << "Func#" << id << ":" << endl;
-      func(id).print(s);
-      s << endl;
-    }
-  }
+  return _model_impl().dff_impl(mId);
 }
 
 END_NAMESPACE_YM_BN

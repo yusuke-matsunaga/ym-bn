@@ -71,11 +71,11 @@ TEST( BnModelTest, logic_bad )
   EXPECT_THROW( {model.logic(0);}, std::out_of_range );
 }
 
-TEST( BnModelTest, dff_output_bad )
+TEST( BnModelTest, dff_bad )
 {
   BnModel model;
 
-  EXPECT_THROW( {model.dff_output(0);}, std::out_of_range );
+  EXPECT_THROW( {model.dff(0);}, std::out_of_range );
 }
 
 TEST( BnModelTest, func_bad )
@@ -255,7 +255,8 @@ TEST( BnModelTest, new_dff_output)
 {
   BnModel model;
 
-  auto node = model.new_dff_output();
+  auto dff = model.new_dff();
+  auto node = dff.output();
 
   EXPECT_TRUE( node.is_valid() );
   EXPECT_EQ( BnNode::INPUT, node.type() );

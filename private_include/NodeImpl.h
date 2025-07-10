@@ -47,8 +47,7 @@ public:
   static
   NodeImpl*
   new_dff_output(
-    SizeType dff_id, ///< [in] DFF番号
-    SizeType src_id  ///< [in] 入力のノード番号
+    SizeType dff_id ///< [in] DFF番号
   );
 
   /// @brief 論理ノードを作る．
@@ -112,18 +111,6 @@ public:
   virtual
   SizeType
   dff_id() const;
-
-  /// @brief DFFの入力ノードの番号を返す．
-  virtual
-  SizeType
-  dff_src_id() const;
-
-  /// @brief DFFの入力ノード番号を設定する．
-  virtual
-  void
-  set_dff_src(
-    SizeType id ///< [in] 設定するノード番号
-  );
 
 
 public:

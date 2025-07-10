@@ -37,8 +37,7 @@ TEST( NodeImplTest, primary_input )
 TEST( NodeImplTest, dff_output )
 {
   SizeType dff_id = 10;
-  SizeType dff_src = 2;
-  NodeImpl_DffOutput dff_output(dff_id, dff_src);
+  NodeImpl_DffOutput dff_output(dff_id);
   NodeImpl* node = &dff_output;
 
   EXPECT_EQ( BnNode::INPUT, node->type() );

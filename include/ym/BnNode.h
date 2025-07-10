@@ -15,7 +15,6 @@
 
 BEGIN_NAMESPACE_YM_BN
 
-class ModelImpl;
 class NodeImpl;
 
 //////////////////////////////////////////////////////////////////////
@@ -135,13 +134,6 @@ public:
   /// - それ以外の時は std::invalid_argument 例外を送出する．
   SizeType
   dff_id() const;
-
-  /// @brief DFFの入力ノードを返す．
-  ///
-  /// - is_dff_output() が true の時のみ意味を持つ．
-  /// - それ以外の時は std::invalid_argument 例外を送出する．
-  BnNode
-  dff_src() const;
 
 
 public:

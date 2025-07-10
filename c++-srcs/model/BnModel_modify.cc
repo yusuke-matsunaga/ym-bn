@@ -41,45 +41,39 @@ BnModel::set_option(
   _model_impl().set_option(option);
 }
 
+// @brief DFFを作る．
+BnDff
+BnModel::new_dff(
+  const std::string& name,
+  char reset_val
+)
+{
+  auto dff_id = _model_impl().new_dff(name, reset_val);
+  _model_impl().new_dff_output(dff_id);
+  return _id2dff(dff_id);
+}
+
+// @brief DFFの入力ノードを設定する．
+void
+BnModel::set_dff_src(
+  const BnDff& dff,
+  BnNode src
+)
+{
+  _check_dff(dff);
+  _check_node(src);
+  _model_impl().set_dff_src(dff.id(), src.id());
+}
+
 // @brief 入力ノードを作る．
 BnNode
 BnModel::new_input(
   const std::string& name
 )
 {
-  auto id = _model_impl().new_input();
+  auto id = _model_impl().new_input(name);
   auto node = _id2node(id);
-  if ( name != string{} ) {
-    auto iid = node.input_id();
-    _model_impl().set_input_name(iid, name);
-  }
   return node;
-}
-
-// @brief DFF出力ノードを作る．
-BnNode
-BnModel::new_dff_output(
-  const std::string& name
-)
-{
-  auto id = _model_impl().new_dff_output();
-  auto node = _id2node(id);
-  if ( name != std::string{} ) {
-    auto dff_id = node.dff_id();
-    _model_impl().set_dff_name(dff_id, name);
-  }
-  return node;
-}
-
-// @brief DFFのソースノードをセットする．
-void
-BnModel::set_dff_src(
-  SizeType dff_id,
-  BnNode src
-)
-{
-  auto id = _model_impl().dff_output_id(dff_id);
-  _model_impl().set_dff_src(id, src.id());
 }
 
 // @brief 出力ノードを作る．
@@ -90,10 +84,7 @@ BnModel::new_output(
 )
 {
   _check_node(src);
-  auto oid = _model_impl().new_output(src.id());
-  if ( name != string{} ) {
-    _model_impl().set_output_name(oid, name);
-  }
+  auto oid = _model_impl().new_output(src.id(), name);
   return oid;
 }
 

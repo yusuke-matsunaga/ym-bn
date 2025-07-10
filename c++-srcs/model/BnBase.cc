@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ym/BnBase.h"
+#include "ym/BnDff.h"
 #include "ym/BnNode.h"
 #include "ym/BnFunc.h"
 #include "ModelImpl.h"
@@ -47,12 +48,27 @@ BnBase::_set_impl(
   mImpl = std::shared_ptr<ModelImpl>{impl};
 }
 
+// @brief DFF番号を BnDff に変換する．
+BnDff
+BnBase::_id2dff(
+  SizeType id
+) const
+{
+  if ( id >= mImpl->dff_num() ) {
+    throw std::out_of_range{"id is out of range"};
+  }
+  return BnDff(mImpl, id);
+}
+
 // @brief ノード番号を BnNode に変換する．
 BnNode
 BnBase::_id2node(
   SizeType id
 ) const
 {
+  if ( id >= mImpl->node_num() ) {
+    throw std::out_of_range{"id is out of range"};
+  }
   return BnNode(mImpl, id);
 }
 
@@ -103,6 +119,9 @@ BnBase::_id2func(
   SizeType id
 ) const
 {
+  if ( id >= mImpl->func_num() ) {
+    throw std::out_of_range{"id is out of range"};
+  }
   return BnFunc(mImpl, id);
 }
 
@@ -113,6 +132,20 @@ BnBase::_check_impl(
 ) const
 {
   return mImpl == base.mImpl;
+}
+
+// @brief BnDff のチェックを行う．
+void
+BnBase::_check_dff(
+  const BnDff& dff
+) const
+{
+  if ( !dff.is_valid() ) {
+    throw std::invalid_argument{"'dff' is invalid."};
+  }
+  if ( !_check_impl(dff) ) {
+    throw std::invalid_argument{"'dff' does not belong to this model."};
+  }
 }
 
 // @brief BnNode のチェックを行う．

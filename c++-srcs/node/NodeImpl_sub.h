@@ -105,8 +105,7 @@ public:
 
   /// @brief コンストラクタ
   NodeImpl_DffOutput(
-    SizeType dff_id, ///< [in] DFF番号
-    SizeType src_id  ///< [in] 入力のノード番号
+    SizeType dff_id ///< [in] DFF番号
   );
 
   /// @brief デストラクタ
@@ -126,16 +125,6 @@ public:
   SizeType
   dff_id() const override;
 
-  /// @brief DFFの入力ノードの番号を返す．
-  SizeType
-  dff_src_id() const override;
-
-  /// @brief DFFの入力ノード番号を設定する．
-  void
-  set_dff_src(
-    SizeType id ///< [in] 設定するノード番号
-  ) override;
-
   /// @brief 複製を作る．
   std::unique_ptr<NodeImpl>
   copy() const override;
@@ -148,9 +137,6 @@ private:
 
   // DFF番号
   SizeType mDffId;
-
-  // 入力のノード番号
-  SizeType mSrcId;
 
 };
 

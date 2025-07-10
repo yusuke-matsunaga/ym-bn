@@ -80,15 +80,22 @@ TEST( ModelImplTest, new_input )
   auto id = model.new_input();
   auto& node = model.node_impl(id);
   EXPECT_EQ( BnNode::INPUT, node.type() );
+  EXPECT_TRUE( node.is_input() );
+  EXPECT_TRUE( node.is_primary_input() );
+  EXPECT_FALSE( node.is_dff_output() );
 }
 
 TEST( ModelImplTest, new_dff_output )
 {
   ModelImpl model;
 
-  auto id = model.new_dff_output();
+  auto dff_id = model.new_dff();
+  auto id = model.new_dff_output(dff_id);
   auto& node = model.node_impl(id);
   EXPECT_EQ( BnNode::INPUT, node.type() );
+  EXPECT_TRUE( node.is_input() );
+  EXPECT_FALSE( node.is_primary_input() );
+  EXPECT_TRUE( node.is_dff_output() );
 }
 
 TEST( ModelImplTest, new_output )
@@ -163,9 +170,7 @@ TEST( ModelImplTest, set_dff_name )
 {
   ModelImpl model;
 
-  auto id = model.new_dff_output();
-  auto& node = model.node_impl(id);
-  auto dff_id = node.dff_id();
+  auto dff_id = model.new_dff();
   auto name = std::string{"abcd"};
 
   model.set_dff_name(dff_id, name);
@@ -177,11 +182,11 @@ TEST( ModelImplTest, set_dff_src )
 {
   ModelImpl model;
 
-  auto id = model.new_dff_output();
-  auto src_id = model.new_input();
-  model.set_dff_src(id, src_id);
-  auto& node = model.node_impl(id);
-  EXPECT_EQ( src_id, node.dff_src_id() );
+  SizeType src_id = 10;
+  auto dff_id = model.new_dff();
+  model.set_dff_src(dff_id, src_id);
+  auto& dff = model.dff_impl(dff_id);
+  EXPECT_EQ( src_id, dff.src_id );
 }
 
 END_NAMESPACE_YM_BN

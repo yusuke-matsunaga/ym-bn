@@ -228,10 +228,10 @@ Iscas89Parser::read_gate(
 
   // 二重定義のチェック
   if ( is_defined(name_id) ) {
-    auto oname = id2str(name_id);
+    auto name = id2str(name_id);
     auto loc2 = def_loc(name_id);
     ostringstream buf;
-    buf << oname << ": Defined more than once. "
+    buf << name << ": Defined more than once. "
 	<< "Previsous Definition is at " << loc2;
     MsgMgr::put_msg(__FILE__, __LINE__, first_loc,
 		    MsgType::Error,
@@ -249,6 +249,8 @@ Iscas89Parser::read_gate(
     }
     FileRegion loc{first_loc, last_loc};
     set_gate(name_id, loc, gate_token.gate_type(), iname_id_list);
+    auto name = id2str(name_id);
+    mModel.set_node_name(name_id, name);
     return true;
   }
   if ( gate_token.type() == Iscas89Token::DFF ) {
@@ -259,10 +261,11 @@ Iscas89Parser::read_gate(
     }
     FileRegion loc{first_loc, last_loc};
     set_defined(name_id, loc);
-    auto oname = id2str(name_id);
-    mModel.set_dff_output(name_id, iname_id);
-    auto dff_id = mModel.dff_num();
-    mModel.set_dff_name(dff_id, oname);
+    auto name = id2str(name_id);
+    auto dff_id = mModel.new_dff(name);
+    mModel.set_dff_output(name_id, dff_id);
+    mModel.set_dff_src(dff_id, iname_id);
+    mModel.set_node_name(name_id, name);
     return true;
   }
 #if 0

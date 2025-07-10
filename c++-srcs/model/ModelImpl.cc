@@ -3,7 +3,7 @@
 /// @brief ModelImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ModelImpl.h"
@@ -22,11 +22,12 @@ ModelImpl::ModelImpl(
   const ModelImpl& src
 ) : mName{src.mName},
     mCommentList{src.mCommentList},
-    mSymbolDict{src.mSymbolDict},
+    mNodeArray(src.mNodeArray.size()),
     mInputList{src.mInputList},
     mOutputList{src.mOutputList},
+    mDffList{src.mDffList},
     mLogicList{src.mLogicList},
-    mNodeArray(src.mNodeArray.size()),
+    mNameDict{src.mNameDict},
     mFuncMgr{src.mFuncMgr}
 {
   for ( SizeType i = 0; i < src.mNodeArray.size(); ++ i ) {
@@ -55,16 +56,41 @@ ModelImpl::option() const
     }
     src_dict.emplace("comment", JsonValue{json_list});
   }
-  if ( !mSymbolDict.empty() ) {
+  {
     std::unordered_map<std::string, JsonValue> symbol_dict;
-    for ( auto& p: mSymbolDict ) {
-      auto key = p.first;
-      auto value = p.second;
-      symbol_dict.emplace(key, JsonValue{value});
+    for ( SizeType i = 0; i < input_num(); ++ i ) {
+      auto name = input_name(i);
+      if ( name != "" ) {
+	std::ostringstream buf;
+	buf << "i" << i;
+	auto key = buf.str();
+	symbol_dict.emplace(key, JsonValue(name));
+      }
     }
-    src_dict.emplace("symbol_dict", JsonValue{symbol_dict});
+    for ( SizeType i = 0; i < output_num(); ++ i ) {
+      auto name = output_name(i);
+      if ( name != "" ) {
+	std::ostringstream buf;
+	buf << "o" << i;
+	auto key = buf.str();
+	symbol_dict.emplace(key, JsonValue(name));
+      }
+    }
+    for ( SizeType i = 0; i < dff_num(); ++ i ) {
+      auto name = mDffList[i].name;
+      if ( name != "" ) {
+	std::ostringstream buf;
+	buf << "q" << i;
+	auto key = buf.str();
+	symbol_dict.emplace(key, JsonValue(name));
+      }
+    }
+    if ( !symbol_dict.empty() ) {
+      src_dict.emplace("symbol_dict",
+		       JsonValue(symbol_dict));
+    }
   }
-  return JsonValue{src_dict};
+  return JsonValue(src_dict);
 }
 
 // @brief 内容をクリアする．
@@ -73,13 +99,31 @@ ModelImpl::clear()
 {
   mName = std::string{};
   mCommentList.clear();
-  mSymbolDict.clear();
+  mNodeArray.clear();
   mInputList.clear();
   mOutputList.clear();
+  mOutputNameList.clear();
   mLogicList.clear();
-  mNodeArray.clear();
+  mNameDict.clear();
   mFuncMgr.clear();
 }
+
+BEGIN_NONAMESPACE
+
+// symbol_dict のキーをデコードする．
+inline
+SizeType
+decode(
+  const std::string& key
+)
+{
+  auto num_str = key.substr(1);
+  SizeType num;
+  std::stoi(num_str, &num);
+  return num;
+}
+
+END_NONAMESPACE
 
 // @brief オプション情報をセットする．
 void
@@ -105,7 +149,19 @@ ModelImpl::set_option(
     for ( auto& p: option.item_list() ) {
       auto key = p.first;
       auto value = p.second.get_string();
-      mSymbolDict.emplace(key, value);
+      auto num = decode(key);
+      if ( key[0] == 'i' ) {
+	set_input_name(num, value);
+      }
+      else if ( key[0] == 'o' ) {
+	set_output_name(num, value);
+      }
+      else if ( key[0] == 'q' ) {
+	set_dff_name(num, value);
+      }
+      else {
+	throw std::invalid_argument{"symbol_dict is broken"};
+      }
     }
   }
 }
@@ -113,7 +169,8 @@ ModelImpl::set_option(
 // @brief 対応するID番号に入力用の印を付ける．
 void
 ModelImpl::set_input(
-  SizeType id
+  SizeType id,
+  const std::string& name
 )
 {
   if ( mNodeArray[id].get() != nullptr ) {
@@ -123,22 +180,26 @@ ModelImpl::set_input(
   auto node = NodeImpl::new_primary_input(iid);
   mNodeArray[id] = std::unique_ptr<NodeImpl>{node};
   mInputList.push_back(id);
+  if ( name != "" ) {
+    mNameDict.emplace(id, name);
+  }
 }
 
-// @brief 対応するID番号にDFFの出力用の印を付ける．
+
+// @brief DFFの情報をセットする．
 void
 ModelImpl::set_dff_output(
   SizeType id,
-  SizeType src_id
+  SizeType dff_id
 )
 {
   if ( mNodeArray[id].get() != nullptr ) {
     throw std::invalid_argument{"id has already been used"};
   }
-  auto dff_id = mDffList.size();
-  auto node = NodeImpl::new_dff_output(dff_id, src_id);
+  _check_dff_id(dff_id, "set_dff_output");
+  auto node = NodeImpl::new_dff_output(dff_id);
   mNodeArray[id] = std::unique_ptr<NodeImpl>{node};
-  mDffList.push_back(id);
+  mDffList[dff_id].id = id;
 }
 
 // @brief 論理ノードの情報をセットする．
@@ -157,6 +218,16 @@ ModelImpl::set_logic(
   // mLogicList には追加しない．
 }
 
+// @brief ノード名をセットする．
+void
+ModelImpl::set_node_name(
+  SizeType id,
+  const std::string& name
+)
+{
+  mNameDict.emplace(id, name);
+}
+
 // @brief 論理ノードのリストを作る．
 void
 ModelImpl::make_logic_list()
@@ -169,8 +240,8 @@ ModelImpl::make_logic_list()
   }
 
   // DFFの出力に印を作る．
-  for ( auto id: mDffList ) {
-    mark.emplace(id);
+  for ( auto& dff: mDffList ) {
+    mark.emplace(dff.id);
   }
 
   // 出力ノードからファンインをたどり
@@ -182,9 +253,8 @@ ModelImpl::make_logic_list()
   }
 
   // DFFのファンインに番号をつける．
-  for ( auto id: mDffList ) {
-    auto node = mNodeArray[id].get();
-    auto src_id = node->dff_src_id();
+  for ( auto& dff: mDffList ) {
+    auto src_id = dff.src_id;
     order_node(src_id, mark);
   }
 }
@@ -208,6 +278,73 @@ ModelImpl::order_node(
   }
   mLogicList.push_back(id);
   mark.emplace(id);
+}
+
+// @brief 内容を出力する．
+void
+ModelImpl::print(
+  std::ostream& s
+) const
+{
+  if ( name() != std::string{} ) {
+    s << "Name: " << name() << endl;
+  }
+  for ( auto& comment: comment_list() ) {
+    s << "Comment: " << comment << endl;
+  }
+  for ( SizeType i = 0;i < input_num(); ++ i ) {
+    auto id = input_id(i);
+    s << "INPUT#" << i << "[" << input_name(i) << "]"
+      << " = " << node_name(id) << endl;
+  }
+  for ( SizeType i = 0; i < output_num(); ++ i ) {
+    auto id = output_id(i);
+    s << "OUTPUT#" << i << "[" << output_name(i) << "]"
+      << " = " << node_name(id) << endl;
+  }
+  for ( SizeType i = 0; i < dff_num(); ++ i ) {
+    auto& dff = dff_impl(i);
+    auto id = dff.id;
+    auto src_id = dff.src_id;
+    s << "DFF#" << i << "[" << dff.name << "]:"
+      << " output = " << node_name(id)
+      << " src = " << node_name(src_id)
+      << endl;
+  }
+  for ( auto id: logic_id_list() ) {
+    auto& node = node_impl(id);
+    s << node_name(id)
+      << " = "
+      << "Func#" << node.func_id()
+      << " (";
+    for ( auto iid: node.fanin_id_list() ) {
+      s << " " << node_name(iid);
+    }
+    s << ")" << endl;
+  }
+  if ( func_num() > 0 ) {
+    s << endl;
+    for ( SizeType id = 0; id < func_num(); ++ id ) {
+      s << "Func#" << id << ":" << endl;
+      auto& func = func_impl(id);
+      func.print(s);
+      s << endl;
+    }
+  }
+}
+
+// @brief print() 中でノード名を出力する関数
+std::string
+ModelImpl::node_name(
+  SizeType id
+) const
+{
+  std::ostringstream buf;
+  buf << "Node#" << id;
+  if ( mNameDict.count(id) > 0 ) {
+    buf << "[" << mNameDict.at(id) << "]";
+  }
+  return buf.str();
 }
 
 END_NAMESPACE_YM_BN

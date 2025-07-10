@@ -28,11 +28,10 @@ NodeImpl::new_primary_input(
 // @brief DFF出力ノードを作る．
 NodeImpl*
 NodeImpl::new_dff_output(
-  SizeType dff_id,
-  SizeType src_id
+  SizeType dff_id
 )
 {
-  return new NodeImpl_DffOutput(dff_id, src_id);
+  return new NodeImpl_DffOutput(dff_id);
 }
 
 // @brief 論理ノードを作る．
@@ -83,22 +82,6 @@ NodeImpl::input_id() const
 // @brief DFF番号を返す．
 SizeType
 NodeImpl::dff_id() const
-{
-  throw std::invalid_argument{"not a DFF output."};
-}
-
-// @brief DFFの入力ノードの番号を返す．
-SizeType
-NodeImpl::dff_src_id() const
-{
-  throw std::invalid_argument{"not a DFF output."};
-}
-
-// @brief DFFの入力ノード番号を設定する．
-void
-NodeImpl::set_dff_src(
-  SizeType id
-)
 {
   throw std::invalid_argument{"not a DFF output."};
 }
@@ -209,10 +192,8 @@ NodeImpl_PrimaryInput::copy() const
 
 // @brief コンストラクタ
 NodeImpl_DffOutput::NodeImpl_DffOutput(
-  SizeType dff_id,
-  SizeType src_id
-) : mDffId{dff_id},
-    mSrcId{src_id}
+  SizeType dff_id
+) : mDffId{dff_id}
 {
 }
 
@@ -233,22 +214,6 @@ SizeType
 NodeImpl_DffOutput::dff_id() const
 {
   return mDffId;
-}
-
-// @brief DFFの入力ノードの番号を返す．
-SizeType
-NodeImpl_DffOutput::dff_src_id() const
-{
-  return mSrcId;
-}
-
-// @brief DFFの入力ノード番号を設定する．
-void
-NodeImpl_DffOutput::set_dff_src(
-  SizeType id
-)
-{
-  mSrcId = id;
 }
 
 // @brief 複製を作る．

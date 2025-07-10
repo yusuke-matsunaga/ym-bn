@@ -83,14 +83,6 @@ BnNode::dff_id() const
   return _node_impl().dff_id();
 }
 
-// @brief DFFの入力ノードを返す．
-BnNode
-BnNode::dff_src() const
-{
-  auto id = _node_impl().dff_src_id();
-  return _id2node(id);
-}
-
 // @brief 関数情報を返す．
 BnFunc
 BnNode::func() const

@@ -38,6 +38,7 @@ const SizeType BAD_ID = -1;
 //////////////////////////////////////////////////////////////////////
 
 class BnModel;
+class BnDff;
 class BnNode;
 class BnFunc;
 
@@ -46,6 +47,7 @@ END_NAMESPACE_YM_BN
 BEGIN_NAMESPACE_YM
 
 using BN_NAMESPACE::BnModel;
+using BN_NAMESPACE::BnDff;
 using BN_NAMESPACE::BnNode;
 using BN_NAMESPACE::BnFunc;
 
