@@ -46,7 +46,7 @@ public:
   );
 
   /// @brief 最後の get_token() で読み出した字句の文字列を返す．
-  string
+  std::string
   cur_string() { return mCurString; }
 
 
