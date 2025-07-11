@@ -13,13 +13,17 @@
 
 BEGIN_NAMESPACE_YM_BN
 
-class BnNode;
-class BnFunc;
 class ModelImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnBase BnBase.h "BnBase.h"
 /// @brief ModelImpl の共有ポインタを持つ基底クラス
+///
+/// 意味的には BnModel のみが ModelImpl を所有しているが，BnNode や BnFunc
+/// の情報を ModelImpl が保持しているので BnNode や BnFunc も ModelImpl
+/// への参照を持つ．そのため，複数のインスタンスが ModelImpl への参照を持つ
+/// ことになるので共有ポインタを用いて管理するようにしている．
+/// このクラスはその共有ポインタを持つクラスの基底クラスとなっている．
 //////////////////////////////////////////////////////////////////////
 class BnBase
 {
