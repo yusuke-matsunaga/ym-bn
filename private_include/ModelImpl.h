@@ -165,7 +165,7 @@ public:
   }
 
   /// @brief 入力のノード番号のリストを返す．
-  const vector<SizeType>&
+  const std::vector<SizeType>&
   input_id_list() const
   {
     return mInputList;
@@ -199,7 +199,7 @@ public:
   }
 
   /// @brief 出力のノード番号のリストを返す．
-  const vector<SizeType>&
+  const std::vector<SizeType>&
   output_id_list() const
   {
     return mOutputList;
@@ -223,7 +223,7 @@ public:
   }
 
   /// @brief 論理ノード番号のリストを返す．
-  const vector<SizeType>&
+  const std::vector<SizeType>&
   logic_id_list() const
   {
     return mLogicList;
@@ -337,7 +337,7 @@ public:
   alloc_node()
   {
     auto id = mNodeArray.size();
-    mNodeArray.push_back(unique_ptr<NodeImpl>{nullptr});
+    mNodeArray.push_back(std::unique_ptr<NodeImpl>{nullptr});
     return id;
   }
 
@@ -358,9 +358,9 @@ public:
   /// @brief 論理ノードの情報をセットする．
   void
   set_logic(
-    SizeType id,                       ///< [in] ID番号
-    SizeType func_id,                  ///< [in] 関数番号
-    const vector<SizeType>& fanin_list ///< [in] 入力の識別子番号のリスト
+    SizeType id,                            ///< [in] ID番号
+    SizeType func_id,                       ///< [in] 関数番号
+    const std::vector<SizeType>& fanin_list ///< [in] 入力の識別子番号のリスト
   );
 
   /// @brief ノード名をセットする．
@@ -430,8 +430,8 @@ public:
   /// @return ID番号を返す．
   SizeType
   new_logic(
-    SizeType func_id,                  ///< [in] 関数番号
-    const vector<SizeType>& fanin_list ///< [in] 入力の識別子番号のリスト
+    SizeType func_id,                       ///< [in] 関数番号
+    const std::vector<SizeType>& fanin_list ///< [in] 入力の識別子番号のリスト
   )
   {
     auto id = alloc_node();
@@ -504,8 +504,8 @@ private:
   /// @brief トポロジカルソートを行い mLogicList にセットする．
   void
   order_node(
-    SizeType id,                  ///< [in] ID番号
-    unordered_set<SizeType>& mark ///< [in] マーク
+    SizeType id,                       ///< [in] ID番号
+    std::unordered_set<SizeType>& mark ///< [in] マーク
   );
 
   /// @brief print() 中でノード名を出力する関数

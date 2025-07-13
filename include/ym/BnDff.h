@@ -114,8 +114,8 @@ private:
   ///
   /// これは BnBase のみが使用する．
   BnDff(
-    const shared_ptr<ModelImpl>& model, ///< [in] 親のモデル．
-    SizeType id                         ///< [in] ノード番号
+    const std::shared_ptr<ModelImpl>& model, ///< [in] 親のモデル．
+    SizeType id                              ///< [in] ノード番号
   );
 
   /// @brief DFFの実体を返す．

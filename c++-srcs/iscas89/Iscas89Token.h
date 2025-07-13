@@ -50,7 +50,7 @@ public:
     Type type,
     const FileRegion& loc,
     PrimType gate_type = PrimType::None,
-    const string& name = {},
+    const std::string& name = {},
     SizeType ex_id = 0
   ) : mType{type},
       mLoc{loc},
@@ -86,7 +86,7 @@ public:
   /// @brief 識別子を返す．
   ///
   /// type() == NAME の時のみ意味を持つ．
-  const string&
+  const std::string&
   name() const { return mName; }
 
   /// @brief 拡張IDを返す．
@@ -109,7 +109,7 @@ private:
   PrimType mGateType{PrimType::None};
 
   // NAME 型の場合の識別子
-  string mName;
+  std::string mName;
 
   // 拡張ID
   SizeType mExId;

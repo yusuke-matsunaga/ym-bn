@@ -42,7 +42,7 @@ public:
   /// @retval false 読み込みが失敗した．
   bool
   read(
-    const string& filename ///< [in] ファイル名
+    const std::string& filename ///< [in] ファイル名
   );
 
 
@@ -57,8 +57,8 @@ private:
   /// 未登録の場合には新たに作る．
   SizeType
   find_id(
-    const string& name,   ///< [in] 名前
-    const FileRegion& loc ///< [in] name の位置
+    const std::string& name, ///< [in] 名前
+    const FileRegion& loc    ///< [in] name の位置
   )
   {
     if ( mIdDict.count(name) > 0 ) {
@@ -72,7 +72,7 @@ private:
   }
 
   /// @brief ID番号から文字列を得る．
-  const string&
+  const std::string&
   id2str(
     SizeType id ///< [in] ID番号
   )
@@ -184,7 +184,7 @@ private:
   cur_token() const;
 
   /// @brief 直前に読み出したトークンが文字列の場合にその文字列を返す．
-  string
+  std::string
   cur_string() const;
 
   /// @brief 直前に読み出したトークンの位置を返す．

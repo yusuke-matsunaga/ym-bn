@@ -75,8 +75,8 @@ public:
   /// @brief ハンドラとキーワードを結びつける．
   void
   bind_handler(
-    const string& keyword, ///< [in] キーワード
-    SizeType id            ///< [in] ハンドラ番号
+    const std::string& keyword, ///< [in] キーワード
+    SizeType id                 ///< [in] ハンドラ番号
   )
   {
     mHandlerDict.emplace(keyword, id);
@@ -91,10 +91,10 @@ public:
   /// @brief ゲートの設定を行う．
   void
   set_gate(
-    SizeType id,                       ///< [in] ID番号
-    const FileRegion& loc,             ///< [in] ファイル上の位置
-    PrimType gate_type,                ///< [in] ゲートの種類
-    const vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
+    SizeType id,                            ///< [in] ID番号
+    const FileRegion& loc,                  ///< [in] ファイル上の位置
+    PrimType gate_type,                     ///< [in] ゲートの種類
+    const std::vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
   )
   {
     set_defined(id, loc);
@@ -106,10 +106,10 @@ public:
   /// @brief 複合ゲートの設定を行う．
   void
   set_complex(
-    SizeType id,                       ///< [in] ID番号
-    const FileRegion& loc,             ///< [in] ファイル上の位置
-    const Expr& expr,                  ///< [in] 論理式
-    const vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
+    SizeType id,                            ///< [in] ID番号
+    const FileRegion& loc,                  ///< [in] ファイル上の位置
+    const Expr& expr,                       ///< [in] 論理式
+    const std::vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
   )
   {
     set_defined(id, loc);
@@ -135,12 +135,12 @@ public:
   /// エラーが起きたらエラーメッセージをセットする．
   bool
   parse_name_list(
-    vector<SizeType>& name_id_list, ///< [out] 名前の識別子番号を格納するリスト．
-    FileRegion& last_loc            ///< [in] 末尾のファイル位置
+    std::vector<SizeType>& name_id_list, ///< [out] 名前の識別子番号を格納するリスト．
+    FileRegion& last_loc                 ///< [in] 末尾のファイル位置
   );
 
   /// @brief ID 番号から文字列を得る．
-  const string&
+  const std::string&
   id2str(
     SizeType id ///< [in] ID番号
   ) const
@@ -180,10 +180,10 @@ private:
   /// @return エラーが起きたら false を返す．
   bool
   read_gate(
-    const FileRegion& loc,             ///< [in] ファイル位置
-    SizeType oname_id,                 ///< [in] 出力名の ID 番号
-    PrimType type,                     ///< [in] ゲートタイプ
-    const vector<SizeType>& iname_list ///< [in] 入力名のID番号のリスト
+    const FileRegion& loc,                  ///< [in] ファイル位置
+    SizeType oname_id,                      ///< [in] 出力名の ID 番号
+    PrimType type,                          ///< [in] ゲートタイプ
+    const std::vector<SizeType>& iname_list ///< [in] 入力名のID番号のリスト
   );
 
   /// @brief D-FF用のゲート文を読み込む．
@@ -199,7 +199,7 @@ private:
   /// @return ok/ng, 識別子番号, ファイル位置のタプルを返す．
   ///
   /// トークンが exp_token と同じなら ok/ng は true となる．
-  tuple<bool, SizeType, FileRegion>
+  std::tuple<bool, SizeType, FileRegion>
   expect(
     Iscas89Token::Type exp_type ///< [in] トークンの期待値
   );
@@ -230,14 +230,14 @@ private:
   /// 登録されていなければ新しく作る．
   SizeType
   find_id(
-    const string& name,
+    const std::string& name,
     const FileRegion& loc
   )
   {
     if ( mIdDict.count(name) > 0 ) {
       return mIdDict.at(name);
     }
-    SizeType id = new_node(loc);
+    auto id = new_node(loc);
     mIdDict.emplace(name, id);
     mNameDict.emplace(id, name);
     return id;
@@ -293,7 +293,7 @@ private:
   Iscas89Scanner* mScanner;
 
   // 拡張ハンドラのリスト
-  vector<Iscas89Handler*> mHandlerList;
+  std::vector<Iscas89Handler*> mHandlerList;
 
   // 拡張ハンドラ番号の辞書
   std::unordered_map<std::string, SizeType> mHandlerDict;

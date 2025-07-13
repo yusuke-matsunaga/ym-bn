@@ -152,8 +152,8 @@ public:
 
   /// @brief コンストラクタ
   NodeImpl_Logic(
-    SizeType func_id,                  ///< [in] 関数番号
-    const vector<SizeType>& fanin_list ///< [in] ファンインのリスト
+    SizeType func_id,                       ///< [in] 関数番号
+    const std::vector<SizeType>& fanin_list ///< [in] ファンインのリスト
   );
 
   /// @brief デストラクタ
@@ -188,7 +188,7 @@ public:
   ) const override;
 
   /// @brief ファンイン番号のリストを返す．
-  const vector<SizeType>&
+  const std::vector<SizeType>&
   fanin_id_list() const override;
 
   /// @brief 複製を作る．

@@ -197,7 +197,7 @@ public:
   virtual
   void
   print(
-    ostream& s ///< [in] 出力先のストリーム
+    std::ostream& s ///< [in] 出力先のストリーム
   ) const = 0;
 
 };

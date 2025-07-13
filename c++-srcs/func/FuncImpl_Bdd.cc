@@ -95,10 +95,10 @@ FuncImpl_Bdd::signature() const
 // @brief 内容を出力する．
 void
 FuncImpl_Bdd::print(
-  ostream& s
+  std::ostream& s
 ) const
 {
-  s << "BDD" << endl;
+  s << "BDD" << std::endl;
   bdd().display(s);
 }
 

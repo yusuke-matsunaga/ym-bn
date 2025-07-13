@@ -164,7 +164,7 @@ BnModel::func(
 ) const
 {
   if ( func_id < 0 || func_num() <= func_id ) {
-    ostringstream buf;
+    std::ostringstream buf;
     buf << "'func_id'(" << func_id << ") is out of range";
     throw std::out_of_range{buf.str()};
   }
@@ -193,7 +193,7 @@ BnModel::comment_list() const
 }
 
 // @brief 入力名を返す．
-string
+std::string
 BnModel::input_name(
   SizeType input_id
 ) const
@@ -203,7 +203,7 @@ BnModel::input_name(
 }
 
 // @brief 出力名を返す．
-string
+std::string
 BnModel::output_name(
   SizeType output_id
 ) const
@@ -213,7 +213,7 @@ BnModel::output_name(
 }
 
 // @brief DFF名を返す．
-string
+std::string
 BnModel::dff_name(
   SizeType dff_id
 ) const
@@ -225,7 +225,7 @@ BnModel::dff_name(
 // @brief 内容を出力する．
 void
 BnModel::print(
-  ostream& s
+  std::ostream& s
 ) const
 {
   _model_impl().print(s);
@@ -238,7 +238,7 @@ BnModel::print(
 
 // @brief 内容を指定したコンストラクタ
 BnDff::BnDff(
-  const shared_ptr<ModelImpl>& model,
+  const std::shared_ptr<ModelImpl>& model,
   SizeType id
 ) : BnBase(model),
     mId{id}

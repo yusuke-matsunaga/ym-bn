@@ -231,7 +231,7 @@ NodeImpl_DffOutput::copy() const
 // @brief コンストラクタ
 NodeImpl_Logic::NodeImpl_Logic(
   SizeType func_id,
-  const vector<SizeType>& fanin_list
+  const std::vector<SizeType>& fanin_list
 ) : mFuncId{func_id},
     mFaninList{fanin_list}
 {
@@ -283,7 +283,7 @@ NodeImpl_Logic::fanin_id(
 }
 
 // @brief ファンイン番号のリストを返す．
-const vector<SizeType>&
+const std::vector<SizeType>&
 NodeImpl_Logic::fanin_id_list() const
 {
   return mFaninList;

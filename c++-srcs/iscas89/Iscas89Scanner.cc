@@ -91,35 +91,35 @@ Iscas89Scanner::read_token()
   }
 
   if ( debug_read_token ) {
-    cerr << "read_token()" << " --> "
-	 << token.loc() << ": ";
+    std::cerr << "read_token()" << " --> "
+	      << token.loc() << ": ";
     switch ( token.type() ) {
-    case Iscas89Token::LPAR:   cerr << "("; break;
-    case Iscas89Token::RPAR:   cerr << ")"; break;
-    case Iscas89Token::EQ:     cerr << "="; break;
-    case Iscas89Token::COMMA:  cerr << ","; break;
-    case Iscas89Token::INPUT:  cerr << "INPUT"; break;
-    case Iscas89Token::OUTPUT: cerr << "OUTPUT"; break;
+    case Iscas89Token::LPAR:   std::cerr << "("; break;
+    case Iscas89Token::RPAR:   std::cerr << ")"; break;
+    case Iscas89Token::EQ:     std::cerr << "="; break;
+    case Iscas89Token::COMMA:  std::cerr << ","; break;
+    case Iscas89Token::INPUT:  std::cerr << "INPUT"; break;
+    case Iscas89Token::OUTPUT: std::cerr << "OUTPUT"; break;
     case Iscas89Token::GATE:
       switch ( token.gate_type() ) {
-      case PrimType::Buff:   cerr << "BUFF"; break;
-      case PrimType::Not:    cerr << "NOT"; break;
-      case PrimType::And:    cerr << "AND"; break;
-      case PrimType::Nand:   cerr << "NAND"; break;
-      case PrimType::Or:     cerr << "OR"; break;
-      case PrimType::Nor:    cerr << "NOR"; break;
-      case PrimType::Xor:    cerr << "XOR"; break;
-      case PrimType::Xnor:   cerr << "XNOR"; break;
+      case PrimType::Buff:   std::cerr << "BUFF"; break;
+      case PrimType::Not:    std::cerr << "NOT"; break;
+      case PrimType::And:    std::cerr << "AND"; break;
+      case PrimType::Nand:   std::cerr << "NAND"; break;
+      case PrimType::Or:     std::cerr << "OR"; break;
+      case PrimType::Nor:    std::cerr << "NOR"; break;
+      case PrimType::Xor:    std::cerr << "XOR"; break;
+      case PrimType::Xnor:   std::cerr << "XNOR"; break;
       default: ASSERT_NOT_REACHED; break;
       }
       break;
-    case Iscas89Token::EXGATE: cerr << "EXGATE(" << token.ex_id() << ")"; break;
-    case Iscas89Token::DFF:    cerr << "DFF"; break;
-    case Iscas89Token::NAME:   cerr << "NAME(" << token.name() << ")"; break;
-    case Iscas89Token::_EOF:   cerr << "EOF"; break;
-    default:                   cerr << static_cast<char>(token.type()); break;
+    case Iscas89Token::EXGATE: std::cerr << "EXGATE(" << token.ex_id() << ")"; break;
+    case Iscas89Token::DFF:    std::cerr << "DFF"; break;
+    case Iscas89Token::NAME:   std::cerr << "NAME(" << token.name() << ")"; break;
+    case Iscas89Token::_EOF:   std::cerr << "EOF"; break;
+    default:                   std::cerr << static_cast<char>(token.type()); break;
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
 
   return token;

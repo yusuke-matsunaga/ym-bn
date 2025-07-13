@@ -23,7 +23,7 @@ BEGIN_NAMESPACE_YM_BN
 // @brief iscas89(.bench) ファイルの読み込みを行う．
 BnModel
 BnModel::read_iscas89(
-  const string& filename
+  const std::string& filename
 )
 {
   BnModel model;
@@ -175,7 +175,7 @@ Iscas89Parser::read_input(
   // 二重定義のチェック
   if ( is_defined(name_id) ) {
     auto loc2 = def_loc(name_id);
-    ostringstream buf;
+    std::ostringstream buf;
     buf << name << ": Defined more than once. Previous definition is at "
 	<< loc2;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
@@ -221,7 +221,7 @@ Iscas89Parser::read_gate(
 )
 {
   bool ok;
-  tie(ok, ignore, ignore) = expect(Iscas89Token::EQ);
+  std::tie(ok, std::ignore, std::ignore) = expect(Iscas89Token::EQ);
   if ( !ok ) {
     return false;
   }
@@ -230,7 +230,7 @@ Iscas89Parser::read_gate(
   if ( is_defined(name_id) ) {
     auto name = id2str(name_id);
     auto loc2 = def_loc(name_id);
-    ostringstream buf;
+    std::ostringstream buf;
     buf << name << ": Defined more than once. "
 	<< "Previsous Definition is at " << loc2;
     MsgMgr::put_msg(__FILE__, __LINE__, first_loc,
@@ -242,7 +242,7 @@ Iscas89Parser::read_gate(
 
   auto gate_token = mScanner->read_token();
   if ( gate_token.type() == Iscas89Token::GATE ) {
-    vector<SizeType> iname_id_list;
+    std::vector<SizeType> iname_id_list;
     FileRegion last_loc;
     if ( !parse_name_list(iname_id_list, last_loc) ) {
       return false;
@@ -286,17 +286,17 @@ Iscas89Parser::parse_name(
 )
 {
   bool ok;
-  tie(ok, ignore, ignore) = expect(Iscas89Token::LPAR);
+  std::tie(ok, std::ignore, std::ignore) = expect(Iscas89Token::LPAR);
   if ( !ok ) {
     return false;
   }
 
-  tie(ok, name_id, ignore) = expect(Iscas89Token::NAME);
+  tie(ok, name_id, std::ignore) = expect(Iscas89Token::NAME);
   if ( !ok ) {
     return false;
   }
 
-  tie(ok, ignore, last_loc) = expect(Iscas89Token::RPAR);
+  tie(ok, std::ignore, last_loc) = expect(Iscas89Token::RPAR);
   if ( !ok ) {
     return false;
   }
@@ -307,14 +307,14 @@ Iscas89Parser::parse_name(
 // @brief '(' ')' で囲まれた名前のリストを読み込む．
 bool
 Iscas89Parser::parse_name_list(
-  vector<SizeType>& name_id_list,
+  std::vector<SizeType>& name_id_list,
   FileRegion& last_loc
 )
 {
   name_id_list.clear();
 
   bool ok;
-  tie(ok, ignore, ignore) = expect(Iscas89Token::LPAR);
+  tie(ok, std::ignore, std::ignore) = expect(Iscas89Token::LPAR);
   if ( !ok ) {
     // '(' を期待していたシンタックスエラー
     return false;
@@ -322,7 +322,7 @@ Iscas89Parser::parse_name_list(
 
   for ( ; ; ) {
     SizeType name_id;
-    tie(ok, name_id, ignore) = expect(Iscas89Token::NAME);
+    tie(ok, name_id, std::ignore) = expect(Iscas89Token::NAME);
     if ( !ok ) {
       // NAME を期待したシンタックスエラー
       return false;
@@ -336,7 +336,7 @@ Iscas89Parser::parse_name_list(
     }
     if ( token.type() != Iscas89Token::COMMA ) {
       // ')' か ',' を期待していたシンタックスエラー
-      ostringstream buf;
+      std::ostringstream buf;
       buf << "Syntax error: ')' or ',' are expected.";
       MsgMgr::put_msg(__FILE__, __LINE__, token.loc(),
 		      MsgType::Error,
@@ -376,7 +376,7 @@ token_str(
 END_NONAMESPACE
 
 // @brief 次のトークンが期待されている型か調べる．
-tuple<bool, SizeType, FileRegion>
+std::tuple<bool, SizeType, FileRegion>
 Iscas89Parser::expect(
   Iscas89Token::Type exp_type
 )
@@ -385,16 +385,16 @@ Iscas89Parser::expect(
   auto token = read_token(name_id);
   if ( token.type() != exp_type ) {
     // トークンが期待値と異なっていた
-    ostringstream buf;
+    std::ostringstream buf;
     buf << "Syntax error: '" << token_str(exp_type) << "' is expected.";
     MsgMgr::put_msg(__FILE__, __LINE__, token.loc(),
 		    MsgType::Error,
 		    "ER_SYNTAX01",
 		    buf.str());
-    return make_tuple(false, 0, token.loc());
+    return std::make_tuple(false, 0, token.loc());
   }
 
-  return make_tuple(true, name_id, token.loc());
+  return std::make_tuple(true, name_id, token.loc());
 }
 
 // @brief yylex() 用の処理を行う．

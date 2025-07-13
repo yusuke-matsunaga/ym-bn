@@ -26,7 +26,7 @@ public:
 
   /// @brief コンストラクタ
   BlifScanner(
-    istream& s,               ///< [in] 入力ストリーム
+    std::istream& s,          ///< [in] 入力ストリーム
     const FileInfo& file_info ///< [in] ファイル情報
   );
 

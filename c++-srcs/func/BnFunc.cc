@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_BN
 
 // @brief 内容を指定したコンストラクタ
 BnFunc::BnFunc(
-  const shared_ptr<ModelImpl>& model,
+  const std::shared_ptr<ModelImpl>& model,
   SizeType id
 ) : BnBase(model),
     mId{id}
@@ -128,7 +128,7 @@ BnFunc::bdd() const
 // @brief 内容を出力する．
 void
 BnFunc::print(
-  ostream& s
+  std::ostream& s
 ) const
 {
   _func_impl().print(s);

@@ -80,7 +80,7 @@ BnModel::new_input(
 SizeType
 BnModel::new_output(
   BnNode src,
-  const string& name
+  const std::string& name
 )
 {
   _check_node(src);

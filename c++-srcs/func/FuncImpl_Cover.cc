@@ -109,12 +109,12 @@ FuncImpl_Cover::signature() const
 // @brief 内容を出力する．
 void
 FuncImpl_Cover::print(
-  ostream& s
+  std::ostream& s
 ) const
 {
   auto nc = mInputCover.cube_num();
   auto ni = mInputCover.variable_num();
-  s << "Cover" << endl;
+  s << "Cover" << std::endl;
   for ( SizeType c = 0; c < nc; ++ c ) {
     for ( SizeType i = 0; i < ni; ++ i ) {
       s << mInputCover.get_pat(c, i);
@@ -128,7 +128,7 @@ FuncImpl_Cover::print(
     else {
       s << '1';
     }
-    s << endl;
+    s << std::endl;
   }
 }
 

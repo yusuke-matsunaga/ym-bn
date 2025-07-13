@@ -18,7 +18,7 @@ TEST( ModelImplTest, constructor1 )
 {
   ModelImpl model;
 
-  EXPECT_EQ( string{}, model.name() );
+  EXPECT_EQ( std::string{}, model.name() );
   EXPECT_EQ( std::vector<std::string>{}, model.comment_list() );
   EXPECT_EQ( 0, model.node_num() );
   EXPECT_EQ( 0, model.input_num() );
@@ -58,7 +58,7 @@ TEST( ModelImplTest, set_output_name )
 
   auto id1 = model.new_input();
   auto oid = model.new_output(id1);
-  string name{"abc"};
+  std::string name{"abc"};
 
   model.set_output_name(oid, name);
 
@@ -116,7 +116,7 @@ TEST( ModelImplTest, new_logic )
 
   auto id1 = model.new_input();
   auto id2 = model.new_input();
-  vector<SizeType> fanin_list{id1, id2};
+  std::vector<SizeType> fanin_list{id1, id2};
   auto input_num = fanin_list.size();
   auto type = PrimType::Xor;
   auto func_id = model.reg_primitive(input_num, type);

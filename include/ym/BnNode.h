@@ -203,8 +203,8 @@ private:
   ///
   /// これは BnBase のみが使用する．
   BnNode(
-    const shared_ptr<ModelImpl>& model, ///< [in] 親のモデル．
-    SizeType id                         ///< [in] ノード番号
+    const std::shared_ptr<ModelImpl>& model, ///< [in] 親のモデル．
+    SizeType id                              ///< [in] ノード番号
   );
 
   /// @brief ノードの実体を返す．

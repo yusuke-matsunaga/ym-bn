@@ -26,7 +26,7 @@ _check_range(
 )
 {
   if ( index < 0 || range <= index ) {
-    ostringstream buf;
+    std::ostringstream buf;
     buf << "'" << index_name << "'(" << index << ") is out-of-range";
     throw std::out_of_range{buf.str()};
   }

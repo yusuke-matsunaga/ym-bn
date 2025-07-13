@@ -75,13 +75,13 @@ BlifScanner::read_token(
   loc = cur_region();
 
   if ( debug_read_token ) {
-    cerr << "read_token()" << " --> "
-	 << loc << ": "
-	 << token;
+    std::cerr << "read_token()" << " --> "
+	      << loc << ": "
+	      << token;
     if ( token == BlifToken::STRING ) {
-      cerr << "(\'" << cur_string() << "\')";
+      std::cerr << "(\'" << cur_string() << "\')";
     }
-    cerr<< endl;
+    std::cerr << std::endl;
   }
 
   return token;

@@ -207,7 +207,7 @@ void
 ModelImpl::set_logic(
   SizeType id,
   SizeType func_id,
-  const vector<SizeType>& fanin_list
+  const std::vector<SizeType>& fanin_list
 )
 {
   if ( mNodeArray[id].get() != nullptr ) {
@@ -263,7 +263,7 @@ ModelImpl::make_logic_list()
 void
 ModelImpl::order_node(
   SizeType id,
-  unordered_set<SizeType>& mark
+  std::unordered_set<SizeType>& mark
 )
 {
   if ( mark.count(id) > 0 ) {
@@ -287,20 +287,20 @@ ModelImpl::print(
 ) const
 {
   if ( name() != std::string{} ) {
-    s << "Name: " << name() << endl;
+    s << "Name: " << name() << std::endl;
   }
   for ( auto& comment: comment_list() ) {
-    s << "Comment: " << comment << endl;
+    s << "Comment: " << comment << std::endl;
   }
   for ( SizeType i = 0;i < input_num(); ++ i ) {
     auto id = input_id(i);
     s << "I#" << i << "[" << input_name(i) << "]: "
-      << node_name(id) << endl;
+      << node_name(id) << std::endl;
   }
   for ( SizeType i = 0; i < output_num(); ++ i ) {
     auto id = output_id(i);
     s << "O#" << i << "[" << output_name(i) << "]: "
-      << node_name(id) << endl;
+      << node_name(id) << std::endl;
   }
   for ( SizeType i = 0; i < dff_num(); ++ i ) {
     auto& dff = dff_impl(i);
@@ -309,7 +309,7 @@ ModelImpl::print(
     s << "Q#" << i << "[" << dff.name << "]:"
       << " output = " << node_name(id)
       << ", src = " << node_name(src_id)
-      << endl;
+      << std::endl;
   }
   for ( auto id: logic_id_list() ) {
     auto& node = node_impl(id);
@@ -322,7 +322,7 @@ ModelImpl::print(
       s << comma << node_name(iid);
       comma = ", ";
     }
-    s << ")" << endl;
+    s << ")" << std::endl;
   }
   if ( func_num() > 0 ) {
     for ( SizeType id = 0; id < func_num(); ++ id ) {

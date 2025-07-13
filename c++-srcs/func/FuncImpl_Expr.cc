@@ -86,11 +86,11 @@ FuncImpl_Expr::signature() const
 // @brief 内容を出力する．
 void
 FuncImpl_Expr::print(
-  ostream& s
+  std::ostream& s
 ) const
 {
-  s << "Expr" << endl
-    << mExpr.rep_string() << endl;
+  s << "Expr" << std::endl
+    << mExpr.rep_string() << std::endl;
 }
 
 END_NAMESPACE_YM_BN

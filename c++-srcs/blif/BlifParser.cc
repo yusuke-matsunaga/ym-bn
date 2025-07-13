@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_YM_BN
 // @brief blif ファイルの読み込みを行う(セルライブラリ付き)．
 BnModel
 BnModel::read_blif(
-  const string& filename
+  const std::string& filename
 )
 {
   BnModel model;
@@ -255,7 +255,7 @@ BlifParser::read(
     SizeType n = mRefLocArray.size();
     for ( auto id = 0; id < n; ++ id ) {
       if ( !is_defined(id) ) {
-	ostringstream buf;
+	std::ostringstream buf;
 	buf << id2str(id) << ": Undefined.";
 	MsgMgr::put_msg(__FILE__, __LINE__, ref_loc(id),
 			MsgType::Error,
@@ -361,7 +361,7 @@ BlifParser::read_inputs()
       auto id = find_id(name, name_loc);
       if ( is_defined(id) ) {
 	auto loc = def_loc(id);
-	ostringstream buf;
+	std::ostringstream buf;
 	buf << name << ": Defined more than once. Previous definition is at "
 	    << loc << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
@@ -620,7 +620,7 @@ BlifParser::read_names()
   if ( is_defined(oid) ) {
     // 二重定義
     FileRegion loc = def_loc(oid);
-    ostringstream buf;
+    std::ostringstream buf;
     buf << id2str(oid) << ": Defined more than once. "
 	<< "Previsous Definition is at " << loc << ".";
     MsgMgr::put_msg(__FILE__, __LINE__, names_loc,
@@ -662,7 +662,7 @@ BlifParser::read_gate()
   auto name_loc = cur_loc();
   auto cell = mCellLibrary.cell(name);
   if ( cell.is_invalid() ) {
-    ostringstream buf;
+    std::ostringstream buf;
     buf << name << ": No such cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
 		    MsgType::Error,
@@ -671,7 +671,7 @@ BlifParser::read_gate()
   }
 
   if ( !cell.is_logic() ) {
-    ostringstream buf;
+    std::ostringstream buf;
     buf << name << " : Not a logic cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
 		    MsgType::Error,
@@ -680,7 +680,7 @@ BlifParser::read_gate()
     return false;
   }
   if ( cell.output_num() != 1 ) {
-    ostringstream buf;
+    std::ostringstream buf;
     buf << name << " : Not a single output cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
 		    MsgType::Error,
@@ -689,7 +689,7 @@ BlifParser::read_gate()
     return false;
   }
   if ( cell.has_tristate(0) ) {
-    ostringstream buf;
+    std::ostringstream buf;
     buf << name << " : Is a tri-state cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
 		    MsgType::Error,
@@ -698,7 +698,7 @@ BlifParser::read_gate()
     return false;
   }
   if ( cell.inout_num() > 0 ) {
-    ostringstream buf;
+    std::ostringstream buf;
     buf << name << " : Has inout pins.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
 		    MsgType::Error,
@@ -725,7 +725,7 @@ BlifParser::read_gate()
       auto pin_name = cur_string();
       auto pin = cell.pin(pin_name);
       if ( pin.is_invalid() ) {
-	ostringstream buf;
+	std::ostringstream buf;
 	buf << pin_name << ": No such pin.";
 	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
 			MsgType::Error,
@@ -762,7 +762,7 @@ BlifParser::read_gate()
 	if ( is_defined(id2) ) {
 	  // 二重定義
 	  auto loc = def_loc(id2);
-	  ostringstream buf;
+	  std::ostringstream buf;
 	  buf << name2 << ": Defined more than once. "
 	      << "Previous definition is at " << loc << ".";
 	  MsgMgr::put_msg(__FILE__, __LINE__, name2_loc,
@@ -773,7 +773,7 @@ BlifParser::read_gate()
       }
       else {
 	if ( id_array[pin.input_id()] != -1 ) {
-	  ostringstream buf;
+	  std::ostringstream buf;
 	  buf << name2 << ": Appears more than once.";
 	  MsgMgr::put_msg(__FILE__, __LINE__, name2_loc,
 			  MsgType::Error,
@@ -833,7 +833,7 @@ BlifParser::read_latch()
     if ( is_defined(id2) ) {
       // 二重定義
       FileRegion loc = def_loc(id2);
-      ostringstream buf;
+      std::ostringstream buf;
       buf << name2 << ": Defined more than once. "
 	  << "Previsous Definition is at " << loc << ".";
       MsgMgr::put_msg(__FILE__, __LINE__, name2_loc,
@@ -932,7 +932,7 @@ BlifParser::cur_token() const
 }
 
 // @brief 直前に読み出したトークンが文字列の場合にその文字列を返す．
-string
+std::string
 BlifParser::cur_string() const
 {
   return mScanner->cur_string();

@@ -69,8 +69,10 @@ TruthReader::read(
   for ( SizeType i = 1; i < no; ++ i ) {
     auto& func = func_vect[i];
     if ( func.input_num() != ni ) {
-      cout << "ni = " << ni << ", func_vect[" << i << "].input_num() = "
-	   << func.input_num() << endl;
+      std::cout << "ni = " << ni << ", func_vect["
+		<< i << "].input_num() = "
+		<< func.input_num()
+		<< std::endl;
       throw std::invalid_argument{"the number of inputs should be the same for all outputs"};
     }
   }

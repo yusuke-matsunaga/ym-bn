@@ -86,11 +86,11 @@ FuncImpl_TvFunc::signature() const
 // @brief 内容を出力する．
 void
 FuncImpl_TvFunc::print(
-  ostream& s
+  std::ostream& s
 ) const
 {
-  s << "TvFunc" << endl
-    << mTvFunc << endl;
+  s << "TvFunc" << std::endl
+    << mTvFunc << std::endl;
 }
 
 END_NAMESPACE_YM_BN

@@ -83,7 +83,7 @@ public:
 
   /// @brief 複製を作る．
   virtual
-  unique_ptr<NodeImpl>
+  std::unique_ptr<NodeImpl>
   copy() const = 0;
 
 
@@ -137,7 +137,7 @@ public:
 
   /// @brief ファンイン番号のリストを返す．
   virtual
-  const vector<SizeType>&
+  const std::vector<SizeType>&
   fanin_id_list() const;
 
 };

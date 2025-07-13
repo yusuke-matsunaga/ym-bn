@@ -89,11 +89,11 @@ FuncImpl_Primitive::signature() const
 // @brief 内容を出力する．
 void
 FuncImpl_Primitive::print(
-  ostream& s
+  std::ostream& s
 ) const
 {
   s << "Primitive: " << mPrimType
-    << "(" << mInputNum << ")" << endl;
+    << "(" << mInputNum << ")" << std::endl;
 }
 
 END_NAMESPACE_YM_BN
